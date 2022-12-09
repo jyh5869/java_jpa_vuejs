@@ -88,23 +88,24 @@ export default {
   name: 'HelloWorld',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      msg: 'Welcome to Your Vue.js App!!!!!!!!!!!1'
     }
   }
 }
 import axios from 'axios';
 let response = axios({
-            method  : 'get',
-            url     : '/api/hello',
-            params  : {
-            },
-            headers : {
-                'Content-Type' : 'multipart/form-data'
-            },
-        })
+    method  : 'get',
+    url     : '/api/hello',
+    params  : {
+    },
+    headers : {
+        'Content-Type' : 'multipart/form-data'
+    },
+})
 
-        var datas =  response
-        console.log(response);
+var datas =  response
+console.log("★★★★★★★");
+console.log(datas);
 
 
 

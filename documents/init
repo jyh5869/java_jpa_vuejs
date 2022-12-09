@@ -3,3 +3,6 @@
 1. 스프링부트 프로젝트 생성 및 세팅
 2. vueJS 세팅 : npm install -g @vue/cli
 3. 프로젝트 하위에 vue 폴더 생성후 해당 폴더에 vueJS 초기세팅하기 : npm i -g @vue/cli-init
+
+
+npm install @vue/cli-service
