@@ -1,0 +1,25 @@
+  <!-- 
+  [index.html 설명]
+  1. index.html 파일은 브라우저에 표시되는 메인 html 파일입니다
+  2. index.html 파일은 개별 생성된 components 파일을 표시해줍니다
+  3. body 내에 생성한 <div id="app"></div> 부분은 main.js 에서 지정한 컴포넌트들이 마운팅 된다
+   -->
+
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+    <title><%= htmlWebpackPlugin.options.title %></title>
+  </head>
+  <body>
+    <noscript>
+      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
+    <div id="main"></div>
+     <!-- [main 아이디 지정 실시 : main.js 렌더링 시작점] -->
+     <!-- <div id="app"></div> -->
+  </body>
+</html>

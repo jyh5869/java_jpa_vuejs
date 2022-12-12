@@ -9,6 +9,7 @@ public class HelloController {
     //https://jee-goo.tistory.com/entry/SpringBoot-%EA%B0%9C%EB%B0%9C-%ED%99%98%EA%B2%BD-%EA%B5%AC%EC%84%B1-BackEnd
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String index() {
+        System.out.println("★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★");
         return "Hello, World!";
     }
 
@@ -22,6 +23,7 @@ public class HelloController {
     //https://doozi0316.tistory.com/entry/Vuejs-Spring-Boot-MySQL-MyBatis-%EB%A7%9B%EC%A7%91-%EC%A7%80%EB%8F%84-%EB%A7%8C%EB%93%A4%EA%B8%B01-Spring-Boot-Vuejs-%EC%84%A4%EC%B9%98-%EB%B0%8F-%EC%97%B0%EB%8F%99%ED%95%98%EA%B8%B0
     @RequestMapping(value = "/api/hello", method = RequestMethod.GET)
     public String helloWorld() {
+        System.out.println("★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★");
         return "hello!";
     }
     
