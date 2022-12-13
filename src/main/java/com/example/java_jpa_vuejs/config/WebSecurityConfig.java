@@ -1,3 +1,4 @@
+/*
 package com.example.java_jpa_vuejs.config;
 
 import org.springframework.context.annotation.Bean;
@@ -39,3 +40,4 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
      }
 
 }
+*/
