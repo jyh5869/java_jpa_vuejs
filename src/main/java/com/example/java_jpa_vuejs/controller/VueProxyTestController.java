@@ -8,9 +8,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class VueProxyTestController {
 
-    @GetMapping("/hello1")
+    @GetMapping("/hello22")
     public String helloWorld() {
-        System.out.println("★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★");
         return "hello!";
     }
 }

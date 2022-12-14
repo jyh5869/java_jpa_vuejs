@@ -1,2 +1,8 @@
-npm install vue-router 
-npm install axios
+0. 설치모듈
+- 라우팅을 위한 RIB    : npm install vue-router 
+- 서버 통신을 위한 RIB : npm install axios
+
+
+1. 참조링크
+- prettierrc setting 참조 사이트
+    https://thinkground.studio/visual-studio-code-%EC%9C%A0%EC%9A%A9%ED%95%9C-%EA%B8%B0%EB%8A%A5-prettier/
