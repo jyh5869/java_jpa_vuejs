@@ -1,6 +1,13 @@
 import { createApp } from 'vue'
+//import Vue           from 'vue'
 import App1          from './App.vue'
 import routers       from './routers/index.js'
+
+import axios from 'axios'
+import BootstrapVue3 from 'bootstrap-vue-3'
+
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue-3/dist/bootstrap-vue-3.css'
 
 /*  ※ 기본 세팅
     import App2 from './App copy.vue'
@@ -14,8 +21,14 @@ import routers       from './routers/index.js'
     2. 라우터 사용 설정
     3. main 아이디 : 렌더링 시작점 
 */
+
+
+
+
 const app = createApp(App1);
+app.config.globalProperties.$axios = axios; 
 app.use(routers);
+app.use(BootstrapVue3)
 app.mount('#main');
 
 

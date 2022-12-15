@@ -100,7 +100,7 @@ export default {
             HomeComponent, // [초기 로드 컴포넌트 지정]
         };
     },
-
+    /*
     // [생명 주기 : 라이프 사이클]
     beforeCreate() {
         console.log('');
@@ -150,7 +150,7 @@ export default {
         console.log('설 명 : 인스턴스 마운트 해제 완료');
         console.log('');
     },
-
+    */
     // [메소드 정의 실시]
     methods: {},
 };

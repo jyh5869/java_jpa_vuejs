@@ -13,23 +13,52 @@
 4. style : 
    - 스타일 지정 실시
 -->
-
+<!--
+    ※ 참고자료 : 리스트 파싱 URL - https://onethejay.tistory.com/68
+-->
 <!-- [개별 템플릿 (뷰) 설정 실시] -->
 <template>
-    <hr />
-
+    <br />
     <!-- [data : 데이터 바인딩 지정] -->
-    <div>
-        <h1>{{ data }}</h1>
-    </div>
-
-    <hr />
-
-    <!-- [이미지 설정 실시] -->
-    <div>
-        <img src="../assets/logo.png" />
-    </div>
-
+    <b-row>
+        <b-col md="8" offset-md="2">
+            <div>
+                <h1>{{ data }}</h1>
+            </div>
+            <br />
+            <div>
+                <!-- <b-button variant="danger">Button</b-button> -->
+                <b-table hover :items="dataList"></b-table>
+                <br />
+                <b-table striped hover :items="dataList" :fields="dataFields"></b-table>
+                <!-- <table hover>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>제목</th>
+                            <th>작성자</th>
+                            <th>등록일시</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(row, idx) in dataList" :key="idx">
+                            <td>{{ idx }}</td>
+                            <td>
+                                <a v-on:click="fnView(`${row.idx}`)">{{ row.brdwriter }}</a>
+                            </td>
+                            <td>{{ row.brdwriter }}</td>
+                            <td>{{ row.brdwriter }}</td>
+                        </tr>
+                    </tbody>
+                </table> -->
+            </div>
+            <br />
+            <!-- [이미지 설정 실시] -->
+            <div>
+                <img src="../assets/logo.png" />
+            </div>
+        </b-col>
+    </b-row>
     <hr />
 </template>
 
@@ -46,73 +75,56 @@ export default {
 
     // [컴포넌트 생성 시 초기 데이터 설정 (리턴 값 지정)]
     data() {
-        console.log('');
-        console.log('[MainComponent] : [data] : [start]');
-        console.log('설 명 : 데이터 초기화 준비');
-        console.log('');
-
         return {
             data: 'MAIN', // [데이터 정의]
+            dataFields: [
+                {
+                    key: 'Brdno',
+                    sortable: true,
+                },
+                {
+                    key: 'Brdwriter',
+                    sortable: false,
+                },
+                {
+                    key: 'Brddate',
+                    label: 'Person age',
+                    sortable: true,
+                    variant: 'danger',
+                },
+            ],
+            dataList: [],
         };
     },
-
-    // [생명 주기 : 라이프 사이클]
-    beforeCreate() {
-        console.log('');
-        console.log('[MainComponent] : [beforeCreate] : [start]');
-        console.log('설 명 : 인스턴스 초기화 준비');
-        console.log('');
-    },
-    created() {
-        console.log('');
-        console.log('[MainComponent] : [created] : [start]');
-        console.log('설 명 : 인스턴스 생성 완료');
-        console.log('');
-    },
-    beforeMount() {
-        console.log('');
-        console.log('[MainComponent] : [beforeMount] : [start]');
-        console.log('설 명 : DOM 렌더링 준비');
-        console.log('');
-    },
     mounted() {
-        console.log('');
-        console.log('[MainComponent] : [mounted] : [start]');
-        console.log('설 명 : DOM 렌더링 완료');
-        console.log('');
+        this.getList();
     },
-    beforeUpdate() {
-        console.log('');
-        console.log('[MainComponent] : [beforeUpdate] : [start]');
-        console.log('설 명 : DOM 상태 및 데이터 변경 시작');
-        console.log('');
-    },
-    updated() {
-        console.log('');
-        console.log('[MainComponent] : [updated] : [start]');
-        console.log('설 명 : DOM 상태 및 데이터 변경 완료');
-        console.log('');
-    },
-    beforeUnmount() {
-        console.log('');
-        console.log('[MainComponent] : [beforeUnmount] : [start]');
-        console.log('설 명 : 인스턴스 마운트 해제 준비');
-        console.log('');
-    },
-    unmounted() {
-        console.log('');
-        console.log('[MainComponent] : [unmounted] : [start]');
-        console.log('설 명 : 인스턴스 마운트 해제 완료');
-        console.log('');
-    },
-
     // [메소드 정의 실시]
     methods: {
         // [testMain 함수 정의 실시]
         testMain: function () {
-            console.log('');
-            console.log('[MainComponent] : [testMain] : [start]');
-            console.log('');
+            return 'hihihi';
+        },
+        getList: function () {
+            this.$axios({
+                method: 'get',
+                url: '/api/getList',
+                params: {
+                    // callType: useParams.callType,
+                    // targetId: useParams.targetId,
+                },
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            })
+                .then((res) => {
+                    //console.log('응답 데이터 : ' + JSON.stringify(res.data));
+                    this.dataList = res.data;
+                })
+                .catch((error) => {
+                    console.log('에러 데이터 : ' + error.data);
+                })
+                .finally(() => {});
         },
     },
 };

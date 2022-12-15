@@ -2,7 +2,9 @@ package com.example.java_jpa_vuejs.controller;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,7 +24,7 @@ import com.google.firebase.cloud.FirestoreClient;
 public class HelloController {
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public List<QueryDocumentSnapshot> index() throws InterruptedException, ExecutionException, IOException {
+    public List<Map<String, Object>> index() throws InterruptedException, ExecutionException, IOException {
 
         FirebaseApp firebaseApp = null;
         List<FirebaseApp> firebaseApps = FirebaseApp.getApps();
@@ -51,15 +53,20 @@ public class HelloController {
         QuerySnapshot querySnapshot = query.get();
 
         List<QueryDocumentSnapshot> documents = querySnapshot.getDocuments();
+        List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
 
         for (QueryDocumentSnapshot document : documents) {
-
-            System.out.println("User: " + document.getId());
-            System.out.println("brdmemo: " + document.getString("brdmemo"));
-            System.out.println("brdwriter: " + document.getString("brdwriter"));
+            /* 데이터 출력 Example 
+            System.out.println("id        : " + document.getId());
+            System.out.println("brdmemo   : " + document.getString("brdmemo"));
+            System.out.println("brdwriter : " + document.getString("brdwriter"));
+            */
+            Map<String, Object> data = document.getData();
+            
+            result.add(data);
         }
 
-        return documents;
+        return result;
     }
 
     @RequestMapping(value = "/helloworld", method = RequestMethod.GET)
