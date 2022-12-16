@@ -16,6 +16,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
+import com.google.cloud.firestore.Query.Direction;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
@@ -50,7 +51,7 @@ public class VueProxyTestController {
 
         Firestore db = FirestoreClient.getFirestore();
 
-        ApiFuture<QuerySnapshot> query = db.collection("board").limit(5).get();
+        ApiFuture<QuerySnapshot> query = db.collection("board").orderBy("brddate", Direction.DESCENDING).limit(10).get();
         QuerySnapshot querySnapshot = query.get();
 
         List<QueryDocumentSnapshot> documents = querySnapshot.getDocuments();

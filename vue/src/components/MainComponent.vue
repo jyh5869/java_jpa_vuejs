@@ -27,11 +27,21 @@
             </div>
             <br />
             <div>
-                <!-- <b-button variant="danger">Button</b-button> -->
-                <b-table hover :items="dataList"></b-table>
-                <br />
-                <b-table striped hover :items="dataList" :fields="dataFields"></b-table>
-                <!-- <table hover>
+                <b-table :items="dataList" :fields="dataFields" :busy="isBusy" class="mt-3" outlined>
+                    <template #table-busy>
+                        <div class="text-center text-danger my-2 mt-5">
+                            <b-spinner class="align-middle mx-1"></b-spinner>
+                            <strong>Loading...</strong>
+                        </div>
+                    </template>
+                    <template #cell(brdno)="data">
+                        <a :href="`#${data.value.toLowerCase()}`" v-on:click="select('index', $event)">{{ data.value }}</a>
+                    </template>
+                    <template #cell(brdwriter)="data">
+                        <a :href="`#${data.value.toLowerCase()}`" v-on:click="select('index', $event)">{{ data.value }}</a>
+                    </template>
+                </b-table>
+                <table style="display: none">
                     <thead>
                         <tr>
                             <th>No</th>
@@ -50,13 +60,9 @@
                             <td>{{ row.brdwriter }}</td>
                         </tr>
                     </tbody>
-                </table> -->
+                </table>
             </div>
             <br />
-            <!-- [이미지 설정 실시] -->
-            <div>
-                <img src="../assets/logo.png" />
-            </div>
         </b-col>
     </b-row>
     <hr />
@@ -77,18 +83,29 @@ export default {
     data() {
         return {
             data: 'MAIN', // [데이터 정의]
+            isBusy: true,
             dataFields: [
                 {
-                    key: 'Brdno',
+                    key: 'brdno',
                     sortable: true,
+                    label: '글번호',
+                    variant: 'primary',
                 },
                 {
-                    key: 'Brdwriter',
+                    key: 'brdtitle',
+                    label: '제목',
+                    sortable: true,
+                    variant: 'danger',
+                },
+                {
+                    key: 'brdwriter',
+                    label: '작성자',
                     sortable: false,
+                    variant: 'warning',
                 },
                 {
-                    key: 'Brddate',
-                    label: 'Person age',
+                    key: 'brddate',
+                    label: '작성일',
                     sortable: true,
                     variant: 'danger',
                 },
@@ -103,7 +120,16 @@ export default {
     methods: {
         // [testMain 함수 정의 실시]
         testMain: function () {
-            return 'hihihi';
+            return 'testData';
+        },
+        select: function (index, event) {
+            const targetId = event.currentTarget.id;
+            console.log(targetId);
+            console.log(index);
+            console.log(event);
+        },
+        toggleBusy() {
+            this.isBusy = !this.isBusy;
         },
         getList: function () {
             this.$axios({
@@ -118,13 +144,14 @@ export default {
                 },
             })
                 .then((res) => {
-                    //console.log('응답 데이터 : ' + JSON.stringify(res.data));
                     this.dataList = res.data;
                 })
                 .catch((error) => {
-                    console.log('에러 데이터 : ' + error.data);
+                    console.log('Error : ' + error.data);
                 })
-                .finally(() => {});
+                .finally(() => {
+                    this.toggleBusy();
+                });
         },
     },
 };

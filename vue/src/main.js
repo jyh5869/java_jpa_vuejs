@@ -22,9 +22,6 @@ import 'bootstrap-vue-3/dist/bootstrap-vue-3.css'
     3. main 아이디 : 렌더링 시작점 
 */
 
-
-
-
 const app = createApp(App1);
 app.config.globalProperties.$axios = axios; 
 app.use(routers);
