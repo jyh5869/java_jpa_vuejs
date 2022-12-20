@@ -30,16 +30,17 @@
                 <b-table :items="dataList" :fields="dataFields" :busy="isBusy" class="mt-3" outlined>
                     <template #table-busy>
                         <div class="text-center text-danger my-2 mt-5">
-                            <b-spinner class="align-middle mx-1"></b-spinner>
+                            <b-spinner class="align-middle mx-3 mx-1"></b-spinner>
                             <strong>Loading...</strong>
                         </div>
                     </template>
-                    <template #cell(brdno)="data">
-                        <a :href="`#${data.value.toLowerCase()}`" v-on:click="select('index', $event)">{{ data.value }}</a>
+                    <template #cell(brdno)="brdno"> {{ brdno.index + 1 }} </template>
+                    <template #cell(brdtitle)="title">
+                        <a :href="`#`" v-on:click="select(title.index, $event)" class="text-primary text-decoration-none">
+                            {{ title.value == null ? 'No Title' : title.value }}
+                        </a>
                     </template>
-                    <template #cell(brdwriter)="data">
-                        <a :href="`#${data.value.toLowerCase()}`" v-on:click="select('index', $event)">{{ data.value }}</a>
-                    </template>
+                    <template #cell(brddate)="date"> {{ date.value }} </template>
                 </b-table>
                 <table style="display: none">
                     <thead>
@@ -89,25 +90,25 @@ export default {
                     key: 'brdno',
                     sortable: true,
                     label: '글번호',
-                    variant: 'primary',
+                    variant: '',
                 },
                 {
                     key: 'brdtitle',
                     label: '제목',
                     sortable: true,
-                    variant: 'danger',
+                    variant: '',
                 },
                 {
                     key: 'brdwriter',
                     label: '작성자',
                     sortable: false,
-                    variant: 'warning',
+                    variant: '',
                 },
                 {
                     key: 'brddate',
                     label: '작성일',
                     sortable: true,
-                    variant: 'danger',
+                    variant: '',
                 },
             ],
             dataList: [],
@@ -127,6 +128,7 @@ export default {
             console.log(targetId);
             console.log(index);
             console.log(event);
+            console.log(this.dataList[index].brdtitle);
         },
         toggleBusy() {
             this.isBusy = !this.isBusy;
