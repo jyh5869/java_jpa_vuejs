@@ -4,10 +4,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
-import com.google.api.client.util.Value;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
@@ -16,6 +17,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 
 import jakarta.annotation.PostConstruct;
 
+@Component
 @Configuration
 public class FirebaseConfiguration {
 
@@ -30,19 +32,17 @@ public class FirebaseConfiguration {
     @PostConstruct
     public FirebaseApp initializeFCM() throws IOException {
 
-        FirebaseApp firebaseApp = null;
         List<FirebaseApp> firebaseApps = FirebaseApp.getApps();
-
-        if (firebaseApps != null && !firebaseApps.isEmpty()) {
-            System.out.println("★★★★★★★★★");
+        
+    if (firebaseApps != null && !firebaseApps.isEmpty()) {
             for (FirebaseApp app : firebaseApps) {
                 if (app.getName().equals(FirebaseApp.DEFAULT_APP_NAME)) {
                     firebaseApp = app;
                 }
             }
         } 
-        else {System.out.println("☆☆☆☆☆☆☆"+ firebaseSdkPath);
-            FileInputStream refreshToken = new FileInputStream("src/main/resources/FirebaseAdminSDK.json");
+        else {
+            FileInputStream refreshToken = new FileInputStream(firebaseSdkPath);
 
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(refreshToken))
@@ -50,7 +50,7 @@ public class FirebaseConfiguration {
                     .build();
 
             firebaseApp = FirebaseApp.initializeApp(options);
-
+            System.out.println(firebaseApp);
         }
         return firebaseApp;
     }

@@ -24,6 +24,7 @@ import 'bootstrap-vue-3/dist/bootstrap-vue-3.css'
 
 const app = createApp(App1);
 app.config.globalProperties.$axios = axios; 
+
 app.use(routers);
 app.use(BootstrapVue3)
 app.mount('#main');

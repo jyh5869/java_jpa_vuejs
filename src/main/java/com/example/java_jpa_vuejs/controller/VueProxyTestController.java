@@ -16,13 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.java_jpa_vuejs.config.FirebaseConfiguration;
 import com.google.api.core.ApiFuture;
-
+import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.Query.Direction;
 import com.google.firebase.cloud.FirestoreClient;
-
 
 @RestController
 @RequestMapping("/api")
@@ -50,16 +49,18 @@ public class VueProxyTestController {
             System.out.println("id        : " + document.getId());
             System.out.println("brdmemo   : " + document.getString("brdmemo"));
             */
-            /* 
+
             //document.getString("brddate")
-            String qqq = document.getString("brddate");
+            Long qqq = document.getLong("brddate");
+            System.out.println(qqq);
+            System.out.println("★★★★★★★★★★★★★★★★★★★");
             Date today = new Date();
-            Date brdDate = new Date(qqq);
+            Date brdDate = new Date();
             
             SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd");
-            String toDayFormat = SDF.format(today);
+            String toDayFormat = SDF.format(qqq);
             System.out.println(brdDate +  "       ★★★★★★★       "+toDayFormat);
-            */
+
             Map<String, Object> data = document.getData();
             
             result.add(data);

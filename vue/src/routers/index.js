@@ -22,9 +22,10 @@ const routes = [
     component: () => import('@/components/HomeComponent.vue') // [로드 파일]
   },
   {
-    path: "/hello", // [경로]
+    path: "/hello/:document", // [경로]
     name: "hello", // [이름]
-    component: () => import('@/components/HelloComponent.vue') // [로드 파일]
+    component: () => import('@/components/HelloComponent.vue'), // [로드 파일]
+    props: true,
   },
   {
     path: "/main", // [경로]

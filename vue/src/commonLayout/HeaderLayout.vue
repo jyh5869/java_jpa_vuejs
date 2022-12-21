@@ -14,45 +14,32 @@
    - 스타일 지정 실시
 -->
 
-
-
-
-
 <!-- [개별 템플릿 (뷰) 설정 실시] -->
 <template>
     <div id="nav">
-      <router-link class="menu" to="/">Home</router-link>
-      <router-link class="menu" to="/hello">Hello</router-link>
-      <router-link class="menu" to="/main">Main</router-link>
+        <router-link class="menu" to="/">Home</router-link>
+        <router-link class="menu" to="/hello">Hello</router-link>
+        <router-link class="menu" to="/main">Main</router-link>
     </div>
-  </template>
-  
-  
-  
-  
-  
-  <!-- [개별 스크립트 설정 실시] -->
-  <script>
-  export default {
-  }
-  </script>
-  
-  
-  
-  
-  
-  <!-- [개별 스타일 설정 실시] -->
-  <style scoped>
-  #nav {
+</template>
+
+<!-- [개별 스크립트 설정 실시] -->
+<script>
+export default {};
+</script>
+
+<!-- [개별 스타일 설정 실시] -->
+<style scoped>
+#nav {
     background: blue;
     padding: 15px;
     border-radius: 5px;
-  }
-  
-  #nav .menu{
+}
+
+#nav .menu {
     color: white;
     padding: 0px;
     margin: 10px;
     text-decoration: none;
-  }
-  </style>
+}
+</style>

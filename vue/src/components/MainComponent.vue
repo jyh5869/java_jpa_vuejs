@@ -36,9 +36,10 @@
                     </template>
                     <template #cell(brdno)="brdno"> {{ brdno.index + 1 }} </template>
                     <template #cell(brdtitle)="title">
-                        <a :href="`#`" v-on:click="select(title.index, $event)" class="text-primary text-decoration-none">
-                            {{ title.value == null ? 'No Title' : title.value }}
-                        </a>
+                        <a href="#" v-on:click="viewDetail(title.index, $event)" class="text-primary text-decoration-none">{{ title.value == null ? 'No Title' : title.value }}</a>
+                        <!-- 
+                            <router-link :to="{ name: 'hello', params: { title: title, type: title } }">{{ title.value == null ? 'No Title' : title.value }}</router-link> 
+                        -->
                     </template>
                     <template #cell(brddate)="date"> {{ date.value }} </template>
                 </b-table>
@@ -123,12 +124,17 @@ export default {
         testMain: function () {
             return 'testData';
         },
-        select: function (index, event) {
+        viewDetail: function (index, event) {
             const targetId = event.currentTarget.id;
             console.log(targetId);
             console.log(index);
             console.log(event);
             console.log(this.dataList[index].brdtitle);
+
+            this.$router.push({
+                name: 'hello',
+                params: { document: JSON.stringify(this.dataList[index]) },
+            });
         },
         toggleBusy() {
             this.isBusy = !this.isBusy;
