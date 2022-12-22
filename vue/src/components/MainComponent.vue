@@ -74,7 +74,6 @@
 <script>
 export default {
     name: 'MainComponent',
-
     // [부모에서 전달 받은 데이터 : 자식에서 동적 수정 불가능]
     // [형태 : <MainComponent msg="MainComponent"/>]
     props: {
@@ -155,7 +154,7 @@ export default {
                     this.dataList = res.data;
                 })
                 .catch((error) => {
-                    console.log('Error : ' + error.data);
+                    console.log(error);
                 })
                 .finally(() => {
                     this.toggleBusy();

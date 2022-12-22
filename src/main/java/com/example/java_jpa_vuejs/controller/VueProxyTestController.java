@@ -1,22 +1,20 @@
 package com.example.java_jpa_vuejs.controller;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.common.Util;
 import com.example.java_jpa_vuejs.config.FirebaseConfiguration;
 import com.google.api.core.ApiFuture;
-import com.google.cloud.Timestamp;
+
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
@@ -45,24 +43,16 @@ public class VueProxyTestController {
         List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
 
         for (QueryDocumentSnapshot document : documents) {
-            /* 데이터 출력 Example 
+            /* ※ 데이터 출력 Example 
             System.out.println("id        : " + document.getId());
             System.out.println("brdmemo   : " + document.getString("brdmemo"));
             */
 
-            //document.getString("brddate")
-            Long qqq = document.getLong("brddate");
-            System.out.println(qqq);
-            System.out.println("★★★★★★★★★★★★★★★★★★★");
-            Date today = new Date();
-            Date brdDate = new Date();
+            String toDayFormat = Util.remakeDate(document.getLong("brddate"),1);
             
-            SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd");
-            String toDayFormat = SDF.format(qqq);
-            System.out.println(brdDate +  "       ★★★★★★★       "+toDayFormat);
-
             Map<String, Object> data = document.getData();
-            
+            data.put("brddate", toDayFormat);
+
             result.add(data);
         }
         return result;

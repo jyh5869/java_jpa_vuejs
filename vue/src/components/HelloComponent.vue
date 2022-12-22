@@ -87,7 +87,6 @@ export default {
         console.log('');
         console.log('[HelloComponent] : [beforeMount] : [start]');
         console.log('설 명 : DOM 렌더링 준비');
-        console.log(this.$route.params.document);
         console.log('');
     },
     mounted() {
