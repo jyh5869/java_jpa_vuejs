@@ -20,6 +20,7 @@
         <router-link class="menu" to="/">Home</router-link>
         <router-link class="menu" to="/hello">Hello</router-link>
         <router-link class="menu" to="/main">Main</router-link>
+        <router-link class="menu" to="/auth">Auth</router-link>
     </div>
 </template>
 
