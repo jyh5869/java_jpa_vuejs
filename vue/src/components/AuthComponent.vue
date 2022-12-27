@@ -18,80 +18,29 @@
 -->
 <!-- [개별 템플릿 (뷰) 설정 실시] -->
 <template>
-    <br />
-    <template>
-        <div class="vue-tempalte">
+    <br /><br />
+    <div class="wrapper fadeInDown">
+        <div id="formContent">
+            <!-- Tabs Titles -->
+
+            <!-- Icon -->
+            <div class="fadeIn first">
+                <img src="../assets/logo.png" id="icon" alt="User Icon" />
+            </div>
+
+            <!-- Login Form -->
             <form>
-                <h3>Sign Up</h3>
-                <div class="form-group">
-                    <label>Full Name</label>
-                    <input type="text" class="form-control form-control-lg" />
-                </div>
-                <div class="form-group">
-                    <label>Email address</label>
-                    <input type="email" class="form-control form-control-lg" />
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" class="form-control form-control-lg" />
-                </div>
-                <button type="submit" class="btn btn-dark btn-lg btn-block">Sign Up</button>
-                <p class="forgot-password text-right">
-                    Already registered
-                    <router-link :to="{ name: 'main' }">sign in?</router-link>
-                </p>
+                <input type="text" id="login" class="fadeIn second" name="userId" placeholder="User Id" autocomplete="off" />
+                <input type="text" id="password" class="fadeIn third" name="passwrod" placeholder="Password" autocomplete="off" />
+                <input type="submit" class="fadeIn fourth" value="Log In" />
             </form>
+
+            <!-- Remind Passowrd -->
+            <div id="formFooter">
+                <a class="underlineHover" href="#">Forgot Password?</a>
+            </div>
         </div>
-    </template>
-    <!-- [data : 데이터 바인딩 지정] -->
-    <b-row>
-        <b-col md="8" offset-md="2">
-            <div>
-                <h1>{{ data }}</h1>
-            </div>
-            <br />
-            <div>
-                <b-table :items="dataList" :fields="dataFields" :busy="isBusy" class="mt-3" outlined>
-                    <template #table-busy>
-                        <div class="text-center text-danger my-2 mt-5">
-                            <b-spinner class="align-middle mx-3 mx-1"></b-spinner>
-                            <strong>Loading...</strong>
-                        </div>
-                    </template>
-                    <template #cell(brdno)="brdno"> {{ brdno.index + 1 }} </template>
-                    <template #cell(brdtitle)="title">
-                        <a href="#" v-on:click="viewDetail(title.index, $event)" class="text-primary text-decoration-none">{{ title.value == null ? 'No Title' : title.value }}</a>
-                        <!-- 
-                            <router-link :to="{ name: 'hello', params: { title: title, type: title } }">{{ title.value == null ? 'No Title' : title.value }}</router-link> 
-                        -->
-                    </template>
-                    <template #cell(brddate)="date"> {{ date.value }} </template>
-                </b-table>
-                <table style="display: none">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>제목</th>
-                            <th>작성자</th>
-                            <th>등록일시</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(row, idx) in dataList" :key="idx">
-                            <td>{{ idx }}</td>
-                            <td>
-                                <a v-on:click="fnView(`${row.idx}`)">{{ row.brdwriter }}</a>
-                            </td>
-                            <td>{{ row.brdwriter }}</td>
-                            <td>{{ row.brdwriter }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <br />
-        </b-col>
-    </b-row>
-    <hr />
+    </div>
 </template>
 
 <!-- [개별 스크립트 설정 실시] -->
@@ -179,10 +128,280 @@ export default {
 
 <!-- [개별 스타일 설정 실시] -->
 <style scoped>
-.colorRed {
-    color: red;
+html {
+    background-color: #56baed;
 }
-.colorBlue {
-    color: blue;
+
+body {
+    font-family: 'Poppins', sans-serif;
+    height: 100vh;
+}
+
+a {
+    color: #92badd;
+    display: inline-block;
+    text-decoration: none;
+    font-weight: 400;
+}
+
+h2 {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: uppercase;
+    display: inline-block;
+    margin: 40px 8px 10px 8px;
+    color: #cccccc;
+}
+
+/* STRUCTURE */
+
+.wrapper {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    min-height: 100%;
+    padding: 20px;
+}
+
+#formContent {
+    -webkit-border-radius: 10px 10px 10px 10px;
+    border-radius: 10px 10px 10px 10px;
+    background: #fff;
+    padding: 30px;
+    width: 90%;
+    max-width: 450px;
+    position: relative;
+    padding: 0px;
+    -webkit-box-shadow: 0 30px 60px 0 rgba(0, 0, 0, 0.3);
+    box-shadow: 0 30px 60px 0 rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+#formFooter {
+    background-color: #f6f6f6;
+    border-top: 1px solid #dce8f1;
+    padding: 25px;
+    text-align: center;
+    -webkit-border-radius: 0 0 10px 10px;
+    border-radius: 0 0 10px 10px;
+}
+
+/* TABS */
+
+h2.inactive {
+    color: #cccccc;
+}
+
+h2.active {
+    color: #0d0d0d;
+    border-bottom: 2px solid #5fbae9;
+}
+
+/* FORM TYPOGRAPHY*/
+
+input[type='button'],
+input[type='submit'],
+input[type='reset'] {
+    background-color: #56baed;
+    border: none;
+    color: white;
+    padding: 15px 80px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    text-transform: uppercase;
+    font-size: 13px;
+    -webkit-box-shadow: 0 10px 30px 0 rgba(95, 186, 233, 0.4);
+    box-shadow: 0 10px 30px 0 rgba(95, 186, 233, 0.4);
+    -webkit-border-radius: 5px 5px 5px 5px;
+    border-radius: 5px 5px 5px 5px;
+    margin: 5px 20px 40px 20px;
+    -webkit-transition: all 0.3s ease-in-out;
+    -moz-transition: all 0.3s ease-in-out;
+    -ms-transition: all 0.3s ease-in-out;
+    -o-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+
+input[type='button']:hover,
+input[type='submit']:hover,
+input[type='reset']:hover {
+    background-color: #39ace7;
+}
+
+input[type='button']:active,
+input[type='submit']:active,
+input[type='reset']:active {
+    -moz-transform: scale(0.95);
+    -webkit-transform: scale(0.95);
+    -o-transform: scale(0.95);
+    -ms-transform: scale(0.95);
+    transform: scale(0.95);
+}
+
+input[type='text'] {
+    background-color: #f6f6f6;
+    border: none;
+    color: #0d0d0d;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 5px;
+    width: 85%;
+    border: 2px solid #f6f6f6;
+    -webkit-transition: all 0.5s ease-in-out;
+    -moz-transition: all 0.5s ease-in-out;
+    -ms-transition: all 0.5s ease-in-out;
+    -o-transition: all 0.5s ease-in-out;
+    transition: all 0.5s ease-in-out;
+    -webkit-border-radius: 5px 5px 5px 5px;
+    border-radius: 5px 5px 5px 5px;
+}
+
+input[type='text']:focus {
+    background-color: #fff;
+    border-bottom: 2px solid #5fbae9;
+}
+
+input[type='text']:placeholder {
+    color: #cccccc;
+}
+
+/* ANIMATIONS */
+
+/* Simple CSS3 Fade-in-down Animation */
+.fadeInDown {
+    -webkit-animation-name: fadeInDown;
+    animation-name: fadeInDown;
+    -webkit-animation-duration: 1s;
+    animation-duration: 1s;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+}
+
+@-webkit-keyframes fadeInDown {
+    0% {
+        opacity: 0;
+        -webkit-transform: translate3d(0, -100%, 0);
+        transform: translate3d(0, -100%, 0);
+    }
+    100% {
+        opacity: 1;
+        -webkit-transform: none;
+        transform: none;
+    }
+}
+
+@keyframes fadeInDown {
+    0% {
+        opacity: 0;
+        -webkit-transform: translate3d(0, -100%, 0);
+        transform: translate3d(0, -100%, 0);
+    }
+    100% {
+        opacity: 1;
+        -webkit-transform: none;
+        transform: none;
+    }
+}
+
+/* Simple CSS3 Fade-in Animation */
+@-webkit-keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+@-moz-keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.fadeIn {
+    opacity: 0;
+    -webkit-animation: fadeIn ease-in 1;
+    -moz-animation: fadeIn ease-in 1;
+    animation: fadeIn ease-in 1;
+
+    -webkit-animation-fill-mode: forwards;
+    -moz-animation-fill-mode: forwards;
+    animation-fill-mode: forwards;
+
+    -webkit-animation-duration: 1s;
+    -moz-animation-duration: 1s;
+    animation-duration: 1s;
+}
+
+.fadeIn.first {
+    -webkit-animation-delay: 0.4s;
+    -moz-animation-delay: 0.4s;
+    animation-delay: 0.4s;
+}
+
+.fadeIn.second {
+    -webkit-animation-delay: 0.6s;
+    -moz-animation-delay: 0.6s;
+    animation-delay: 0.6s;
+}
+
+.fadeIn.third {
+    -webkit-animation-delay: 0.8s;
+    -moz-animation-delay: 0.8s;
+    animation-delay: 0.8s;
+}
+
+.fadeIn.fourth {
+    -webkit-animation-delay: 1s;
+    -moz-animation-delay: 1s;
+    animation-delay: 1s;
+}
+
+/* Simple CSS3 Fade-in Animation */
+.underlineHover:after {
+    display: block;
+    left: 0;
+    bottom: -10px;
+    width: 0;
+    height: 2px;
+    background-color: #56baed;
+    content: '';
+    transition: width 0.2s;
+}
+
+.underlineHover:hover {
+    color: #0d0d0d;
+}
+
+.underlineHover:hover:after {
+    width: 100%;
+}
+
+/* OTHERS */
+
+*:focus {
+    outline: none;
+}
+
+#icon {
+    width: 30%;
 }
 </style>
