@@ -65,7 +65,7 @@ export default {
     // [메소드 정의 실시]
     methods: {
         getLogin: async function () {
-            let res = await this.$axios({
+            await this.$axios({
                 method: 'get',
                 url: '/api/getList',
                 params: {
