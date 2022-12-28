@@ -57,34 +57,6 @@ export default {
     data() {
         return {
             data: 'MAIN', // [데이터 정의]
-            isBusy: true,
-            dataFields: [
-                {
-                    key: 'brdno',
-                    sortable: true,
-                    label: '글번호',
-                    variant: '',
-                },
-                {
-                    key: 'brdtitle',
-                    label: '제목',
-                    sortable: true,
-                    variant: '',
-                },
-                {
-                    key: 'brdwriter',
-                    label: '작성자',
-                    sortable: false,
-                    variant: '',
-                },
-                {
-                    key: 'brddate',
-                    label: '작성일',
-                    sortable: true,
-                    variant: '',
-                },
-            ],
-            dataList: [],
         };
     },
     mounted() {
@@ -92,22 +64,7 @@ export default {
     },
     // [메소드 정의 실시]
     methods: {
-        // [testMain 함수 정의 실시]
-        testMain: function () {
-            return 'testData';
-        },
-        viewDetail: function (index, event) {
-            const targetId = event.currentTarget.id;
-            console.log(targetId);
-            this.$router.push({
-                name: 'hello',
-                params: { document: JSON.stringify(this.dataList[index]) },
-            });
-        },
-        toggleBusy() {
-            this.isBusy = !this.isBusy;
-        },
-        getList: async function () {
+        getLogin: async function () {
             let res = await this.$axios({
                 method: 'get',
                 url: '/api/getList',
@@ -119,8 +76,6 @@ export default {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            this.dataList = res.data; //데이터 세팅
-            this.toggleBusy(); //로딩 스피너 토글
         },
     },
 };
@@ -205,7 +160,7 @@ h2.active {
 input[type='button'],
 input[type='submit'],
 input[type='reset'] {
-    background-color: #56baed;
+    background-color: #364a5f;
     border: none;
     color: white;
     padding: 15px 80px;
@@ -229,7 +184,7 @@ input[type='reset'] {
 input[type='button']:hover,
 input[type='submit']:hover,
 input[type='reset']:hover {
-    background-color: #39ace7;
+    background-color: #42b883;
 }
 
 input[type='button']:active,
@@ -265,7 +220,7 @@ input[type='text'] {
 
 input[type='text']:focus {
     background-color: #fff;
-    border-bottom: 2px solid #5fbae9;
+    border-bottom: 1px solid #42b883;
 }
 
 input[type='text']:placeholder {

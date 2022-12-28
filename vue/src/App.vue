@@ -61,15 +61,17 @@
 <template>
     <!-- [App.vue 데이터 바인딩 지정] -->
     <div id="dataContainer">
-        <h1>{{ data }}</h1>
+        <h1><img src="./assets/logo.png" id="icon" alt="User Icon" />{{ data }}</h1>
     </div>
 
     <!-- [고정 : 헤더 컴포넌트] -->
     <HeaderLayout />
-
-    <!-- [동적 : 라우터 뷰 컴포넌트] -->
-    <router-view />
-
+    <b-row>
+        <b-col md="8" offset-md="2">
+            <!-- [동적 : 라우터 뷰 컴포넌트] -->
+            <router-view />
+        </b-col>
+    </b-row>
     <!-- [고정 : 푸터 컴포넌트] -->
     <FooterLayout />
 </template>
@@ -159,7 +161,15 @@ export default {
 <!-- [애플리케이션 공통 스타일 지정] -->
 <style>
 #dataContainer {
-    color: blue;
+    color: #42b883;
+}
+
+#dataContainer h1 {
+    display: inline-block;
+}
+
+#dataContainer img {
+    width: 9.5%;
 }
 
 #main {

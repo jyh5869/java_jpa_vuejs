@@ -18,56 +18,34 @@
 -->
 <!-- [개별 템플릿 (뷰) 설정 실시] -->
 <template>
-    <br />
     <!-- [data : 데이터 바인딩 지정] -->
-    <b-row>
-        <b-col md="8" offset-md="2">
-            <div>
-                <h1>{{ data }}</h1>
-            </div>
-            <br />
-            <div>
-                <b-table :items="dataList" :fields="dataFields" :busy="isBusy" class="mt-3" outlined>
-                    <template #table-busy>
-                        <div class="text-center text-danger my-2 mt-5">
-                            <b-spinner class="align-middle mx-3 mx-1"></b-spinner>
-                            <strong>Loading...</strong>
-                        </div>
-                    </template>
-                    <template #cell(brdno)="brdno"> {{ brdno.index + 1 }} </template>
-                    <template #cell(brdtitle)="title">
-                        <a href="#" v-on:click="viewDetail(title.index, $event)" class="text-primary text-decoration-none">{{ title.value == null ? 'No Title' : title.value }}</a>
-                        <!-- 
-                            <router-link :to="{ name: 'hello', params: { title: title, type: title } }">{{ title.value == null ? 'No Title' : title.value }}</router-link> 
-                        -->
-                    </template>
-                    <template #cell(brddate)="date"> {{ date.value }} </template>
-                </b-table>
-                <table style="display: none">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>제목</th>
-                            <th>작성자</th>
-                            <th>등록일시</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(row, idx) in dataList" :key="idx">
-                            <td>{{ idx }}</td>
-                            <td>
-                                <a v-on:click="fnView(`${row.idx}`)">{{ row.brdwriter }}</a>
-                            </td>
-                            <td>{{ row.brdwriter }}</td>
-                            <td>{{ row.brdwriter }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <br />
-        </b-col>
-    </b-row>
-    <hr />
+
+    <div>
+        <b-table :items="dataList" :fields="dataFields" :busy="isBusy" class="mt-3" outlined hover responsive="sm" caption-top>
+            <template #table-busy>
+                <div class="text-center text-danger my-2 mt-5">
+                    <b-spinner class="align-middle mx-3 mx-1"></b-spinner>
+                    <strong>Loading...</strong>
+                </div>
+            </template>
+            <template #cell(brdno)="brdno"> {{ brdno.index + 1 }} </template>
+            <template #cell(brdtitle)="title">
+                <!-- <a href="#" v-on:click="viewDetail(title.index, $event)" class="text-primary text-decoration-none">{{ title.value == null ? 'No Title' : title.value }}</a> -->
+                <router-link
+                    class="text-secondary text-decoration-none"
+                    :to="{
+                        name: 'hello',
+                        params: {
+                            document: JSON.stringify(this.dataList[title.index]),
+                        },
+                    }"
+                    >{{ title.value == null ? 'No Title' : title.value }}</router-link
+                >
+            </template>
+            <template #cell(brddate)="date"> {{ date.value }} </template>
+            <template #table-caption>Data List</template>
+        </b-table>
+    </div>
 </template>
 
 <!-- [개별 스크립트 설정 실시] -->
@@ -126,6 +104,8 @@ export default {
         viewDetail: function (index, event) {
             const targetId = event.currentTarget.id;
             console.log(targetId);
+            event.preventDefault(); //이벤트 전파를 차단하여 컴포넌트 이동에 지장이 없도록 하기 위함.
+
             this.$router.push({
                 name: 'hello',
                 params: { document: JSON.stringify(this.dataList[index]) },
@@ -155,10 +135,8 @@ export default {
 
 <!-- [개별 스타일 설정 실시] -->
 <style scoped>
-.colorRed {
-    color: red;
-}
-.colorBlue {
-    color: blue;
+h1 {
+    color: #364a5f;
+    font-weight: 300;
 }
 </style>

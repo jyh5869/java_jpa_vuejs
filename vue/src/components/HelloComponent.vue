@@ -16,24 +16,39 @@
 
 <!-- [개별 템플릿 (뷰) 설정 실시] -->
 <template>
-    <hr />
-    <!-- [data : 데이터 바인딩 지정] -->
-    <div>
-        <h1>{{ data }}</h1>
-    </div>
-    <hr />
-    <!-- [이미지 설정 실시] -->
-    <div>
-        <img src="../assets/logo.png" />
-    </div>
-    <div>
-        <h2>상세보기</h2>
-        <h2>제목 : {{ document.brdtitle }}</h2>
-        <h2>작성자: {{ document.brdwriter }}</h2>
-        <h2>날짜 : {{ document.brddate }}</h2>
-        <h2>내용 : {{ document.brdmemo }}</h2>
-    </div>
-    <hr />
+    <b-table-simple small caption-top stacked class="mt-3">
+        <caption>
+            Data Detail
+        </caption>
+        <b-thead head-variant="dark">
+            <b-tr>
+                <b-th colspan="2">Region</b-th>
+                <b-th colspan="3">Clothes</b-th>
+                <b-th colspan="2">Accessories</b-th>
+            </b-tr>
+            <b-tr>
+                <b-th>Title</b-th>
+                <b-th>Writer</b-th>
+                <b-th>RegDate</b-th>
+                <b-th>Memo</b-th>
+            </b-tr>
+        </b-thead>
+        <b-tbody>
+            <b-tr>
+                <b-th rowspan="2" class="text-center">상세보기</b-th>
+                <b-td stacked-heading="Title:" variant="default">{{ document.brdtitle }}</b-td>
+                <b-td stacked-heading="Writer:" variant="default">{{ document.brdwriter }}</b-td>
+                <b-td stacked-heading="RegDate:" variant="default">{{ document.brddate }}</b-td>
+                <b-th rowspan="2" class="text-center">Memo</b-th>
+                <b-td rowspan="2" class="text-center border-0">{{ document.brdmemo }}</b-td>
+            </b-tr>
+        </b-tbody>
+        <b-tfoot>
+            <b-tr>
+                <b-td colspan="7" variant="secondary" class="text-right"> Total Rows: <b>5</b> </b-td>
+            </b-tr>
+        </b-tfoot>
+    </b-table-simple>
 </template>
 
 <!-- [개별 스크립트 설정 실시] -->
@@ -57,67 +72,39 @@ export default {
 
     // [컴포넌트 생성 시 초기 데이터 설정 (리턴 값 지정)]
     data() {
-        let document = JSON.parse(this.$route.params.document);
+        console.log('data : 데이터 초기화 준비');
 
-        console.log('');
-        console.log('[HelloComponent] : [data] : [start]');
-        console.log('설 명 : 데이터 초기화 준비');
-        console.log('');
+        let document = JSON.parse(this.$route.params.document);
 
         return {
             data: 'HELLO', // [데이터 정의]
             document: document,
         };
     },
-
     // [생명 주기 : 라이프 사이클]
     beforeCreate() {
-        console.log('');
-        console.log('[HelloComponent] : [beforeCreate] : [start]');
-        console.log('설 명 : 인스턴스 초기화 준비');
-        console.log('');
+        console.log('beforeCreate : 인스턴스 초기화 준비');
     },
     created() {
-        console.log('');
-        console.log('[HelloComponent] : [created] : [start]');
-        console.log('설 명 : 인스턴스 생성 완료');
-        console.log('');
+        console.log('created : 인스턴스 생성 완료');
     },
     beforeMount() {
-        console.log('');
-        console.log('[HelloComponent] : [beforeMount] : [start]');
-        console.log('설 명 : DOM 렌더링 준비');
-        console.log('');
+        console.log('beforeMount : DOM 렌더링 준비');
     },
     mounted() {
-        console.log('');
-        console.log('[HelloComponent] : [mounted] : [start]');
-        console.log('설 명 : DOM 렌더링 완료');
-        console.log('');
+        console.log('mounted : DOM 렌더링 완료');
     },
     beforeUpdate() {
-        console.log('');
-        console.log('[HelloComponent] : [beforeUpdate] : [start]');
-        console.log('설 명 : DOM 상태 및 데이터 변경 시작');
-        console.log('');
+        console.log('beforeUpdate : DOM 상태 및 데이터 변경 시작');
     },
     updated() {
-        console.log('');
-        console.log('[HelloComponent] : [updated] : [start]');
-        console.log('설 명 : DOM 상태 및 데이터 변경 완료');
-        console.log('');
+        console.log('updated : DOM 상태 및 데이터 변경 완료');
     },
     beforeUnmount() {
-        console.log('');
-        console.log('[HelloComponent] : [beforeUnmount] : [start]');
-        console.log('설 명 : 인스턴스 마운트 해제 준비');
-        console.log('');
+        console.log('beforeUnmount : 인스턴스 마운트 해제 준비');
     },
     unmounted() {
-        console.log('');
-        console.log('[HelloComponent] : [unmounted] : [start]');
-        console.log('설 명 : 인스턴스 마운트 해제 완료');
-        console.log('');
+        console.log('unmounted : 인스턴스 마운트 해제 완료');
     },
 
     // [메소드 정의 실시]
@@ -127,11 +114,7 @@ export default {
 
 <!-- [개별 스타일 설정 실시] -->
 <style scoped>
-.colorRed {
-    color: red;
-}
-
-.colorBlue {
-    color: blue;
+.tb.detail {
+    margin-top: 50px;
 }
 </style>

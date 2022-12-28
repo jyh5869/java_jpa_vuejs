@@ -18,15 +18,17 @@
 <template>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">Vue</a>
+            <router-link class="navbar-brand" to="/">VueJS</router-link>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <!-- 
                     <li class="nav-item">
                         <router-link class="nav-link active nav-link" to="/" aria-current="page">Home</router-link>
                     </li>
+                    -->
                     <li class="nav-item">
                         <router-link class="nav-link" to="/main">Main</router-link>
                     </li>
@@ -53,9 +55,9 @@
                     <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
                     <button class="btn btn-outline-success" type="submit">Search</button>
                 </form>
-                <form class="d-flex">
-                    <router-link class="btn btn-outline-primary mx-2" to="/auth">Login</router-link>
-                </form>
+                <div class="btn-wrap navbar-nav mb-2 mb-lg-0">
+                    <router-link class="btn login btn-outline-primary" to="/auth">Login</router-link>
+                </div>
             </div>
         </div>
     </nav>
@@ -67,4 +69,16 @@ export default {};
 </script>
 
 <!-- [개별 스타일 설정 실시] -->
-<style scoped></style>
+<style scoped>
+.navbar-brand {
+    color: #364a5f;
+}
+.btn-wrap .login {
+    margin-left: 5px;
+}
+@media (max-width: 991px) {
+    .btn-wrap .login {
+        margin: 5px 0px;
+    }
+}
+</style>
