@@ -5,6 +5,7 @@
 
 // [라우터 import 수행 실시]
 import { createWebHistory, createRouter } from 'vue-router';
+import store from './/store';
 
 // [라우터 path 접속 경로 설정]
 const routes = [
@@ -23,12 +24,16 @@ const routes = [
         path: '/main', // [경로]
         name: 'main', // [이름]
         component: () => import('@/components/MainComponent.vue'), // [로드 파일]]
+        meta: {
+            requiresAuth: true,
+        },
     },
     {
         path: '/auth', // [경로]
         name: 'auth', // [이름]
         component: () => import('@/components/AuthComponent.vue'), // [로드 파일]]
     },
+    //{ path: '*', redirect: '/' },
 ];
 
 // [라우터 설정 실시]
@@ -37,4 +42,17 @@ const router = createRouter({
     routes,
 });
 
+router.beforeEach((to, from, next) => {
+    if (to.matched.some((record) => record.meta.requiresAuth)) {
+        if (!store.getters.isLoggedIn) {
+            next({
+                name: 'auth',
+            });
+        } else {
+            next();
+        }
+    } else {
+        next();
+    }
+});
 export default router;

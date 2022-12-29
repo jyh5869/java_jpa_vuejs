@@ -8,6 +8,13 @@ import BootstrapVue3 from 'bootstrap-vue-3';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue-3/dist/bootstrap-vue-3.css';
 
+const app = createApp(App);
+app.config.globalProperties.$axios = axios;
+
+app.use(routers);
+app.use(BootstrapVue3);
+app.mount('#main');
+
 //axios instance 생성
 const instance = axios.create({
     baseURL: process.env.VUE_APP_API_URL,
@@ -55,10 +62,3 @@ instance.interceptors.response.use(
         return Promise.reject(error);
     },
 );
-
-const app = createApp(App);
-app.config.globalProperties.$axios = axios;
-
-app.use(routers);
-app.use(BootstrapVue3);
-app.mount('#main');
