@@ -45,10 +45,10 @@ public class VueProxyTestController {
         List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
 
         for (QueryDocumentSnapshot document : documents) {
-            /* ※ 데이터 출력 Example 
+            /* ※ 데이터 출력 Example */
             System.out.println("id        : " + document.getId());
-            System.out.println("brdmemo   : " + document.getString("brdmemo"));
-            */
+            //System.out.println("brdmemo   : " + document.getString("brdmemo"));
+            
 
             String toDayFormat = Util.remakeDate(document.getLong("brddate"),1);
             

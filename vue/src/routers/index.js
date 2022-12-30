@@ -24,9 +24,9 @@ const routes = [
         path: '/main', // [경로]
         name: 'main', // [이름]
         component: () => import('@/components/MainComponent.vue'), // [로드 파일]]
-        meta: {
-            requiresAuth: true,
-        },
+        // meta: {
+        //     requiresAuth: true,
+        // },
     },
     {
         path: '/auth', // [경로]
@@ -43,7 +43,10 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
+    console.log(to.matched);
+    console.log(store.getters);
     if (to.matched.some((record) => record.meta.requiresAuth)) {
+        console.log('store');
         if (!store.getters.isLoggedIn) {
             next({
                 name: 'auth',

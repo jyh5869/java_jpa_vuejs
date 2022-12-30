@@ -1,16 +1,36 @@
 import axios from 'axios';
 //import Vue from 'vue';
-import Vuex from 'vuex';
-
+//import Vuex from 'vuex';
+import { createStore } from 'vuex';
 //Vue.use(Vuex);
-
-export default new Vuex.Store({
+/* 
+export default createStore({
     state: {
+        counter: 10,
+    },
+    getters: {
+        time2(state) {
+            return state.counter * 2;
+        },
+    },
+    mutations: {
+        setCounter(state, value) {
+            state.counter = value;
+        },
+    },
+});
+*/
+
+//export default new Vuex.Store({
+export default createStore({
+    state: {
+        //전역적으로 사용할 변수명 세팅
         loginSuccess: false,
         loginError: false,
         userName: null,
     },
     mutations: {
+        //state의 변수를 변경
         loginSuccess(state, { user, password }) {
             state.loginSuccess = true;
             state.userName = user;
@@ -23,6 +43,7 @@ export default new Vuex.Store({
         },
     },
     actions: {
+        //실행하여 mutation을 실행 참조링크 : https://ux.stories.pe.kr/149
         async login({ commit }, { user, password }) {
             try {
                 alert('하위하위하위하위');

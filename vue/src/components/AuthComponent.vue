@@ -30,8 +30,8 @@
 
             <!-- Login Form -->
             <form>
-                <input type="text" id="login" class="fadeIn second" name="userId" placeholder="User Id" autocomplete="off" />
-                <input type="text" id="password" class="fadeIn third" name="passwrod" placeholder="Password" autocomplete="off" />
+                <input type="text" id="login" class="fadeIn second" name="userId" v-model="user" placeholder="User Id" autocomplete="off" />
+                <input type="text" id="password" class="fadeIn third" name="passwrod" v-model="password" placeholder="Password" autocomplete="off" />
                 <input type="submit" class="fadeIn fourth" value="Log In" />
             </form>
 
@@ -59,12 +59,12 @@
         </h1>
         <h5>로그인 하지 않았습니다. 로그인을 해주세요</h5>
 
-        <label>
-            <input type="text" placeholder="username" v-model="user" autocomplete="off" />
+        <!-- <label>
+            <input type="text" placeholder="username"  v-model="user" autocomplete="off" />
         </label>
         <label>
             <input type="password" placeholder="password" v-model="password" autocomplete="off" />
-        </label>
+        </label> -->
         <b-btn variant="success" v-on-click="login2()">Login</b-btn>
         <p v-if="error" class="error">Bad login information</p>
     </div>
@@ -85,8 +85,8 @@ export default {
         return {
             loginSuccess: false,
             loginError: false,
-            user: '',
-            password: '',
+            user: 'user',
+            password: '1234',
             error: false,
         };
     },

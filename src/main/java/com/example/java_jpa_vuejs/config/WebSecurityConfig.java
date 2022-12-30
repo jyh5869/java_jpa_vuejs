@@ -24,7 +24,7 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         //http.authorizeHttpRequests().requestMatchers("/**").hasRole("USER").and().formLogin();
-        
+         
          
         http
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) 
@@ -33,7 +33,7 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
             .and()
             .authorizeRequests()
             .requestMatchers("/api/hello").permitAll()
-            .requestMatchers("/api/login").authenticated()
+            .requestMatchers("/**").authenticated()
             .anyRequest().authenticated() 
             .and()
             .csrf().disable();
@@ -43,14 +43,15 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
 
     @Bean
     public UserDetailsService userDetailsService() throws Exception {
-       PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+        System.out.println("하위하위하위하위");
+        PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
         
         UserDetails user = User
             .withUsername("user")
             .password(encoder.encode("1234"))
             .roles("USER")
             .build();
-            System.out.println(user.getPassword());
+        System.out.println(user.getPassword());
             
             //auth.inMemoryAuthentication().withUser("user").password("1234").roles("USER");
             
