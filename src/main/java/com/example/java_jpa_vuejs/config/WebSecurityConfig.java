@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.authentication.configurers
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,9 +24,8 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
     
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        //http.authorizeHttpRequests().requestMatchers("/**").hasRole("USER").and().formLogin();
-         
-         
+        //http.authorizeHttpRequests().requestMatchers("/**").hasRole("USER");//.and().formLogin();
+        
         http
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) 
             .and()
@@ -37,13 +37,12 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
             .anyRequest().authenticated() 
             .and()
             .csrf().disable();
-        
         return http.build();
     }
 
     @Bean
     public UserDetailsService userDetailsService() throws Exception {
-        System.out.println("하위하위하위하위");
+        System.out.println("하위하위하위하위");  
         PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
         
         UserDetails user = User
@@ -53,9 +52,14 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
             .build();
         System.out.println(user.getPassword());
             
-            //auth.inMemoryAuthentication().withUser("user").password("1234").roles("USER");
+        //auth.inMemoryAuthentication().withUser("user").password("1234").roles("USER");
             
         return new InMemoryUserDetailsManager(user);
     } 
 
+    
+        @Bean
+        public WebSecurityCustomizer webSecurityCustomizer() {
+            return (web) -> web.ignoring().requestMatchers("/images/**", "/js/**", "/webjars/**");
+        }
 }

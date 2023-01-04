@@ -33,7 +33,6 @@ const routes = [
         name: 'auth', // [이름]
         component: () => import('@/components/AuthComponent.vue'), // [로드 파일]]
     },
-    //{ path: '*', redirect: '/' },
 ];
 
 // [라우터 설정 실시]
