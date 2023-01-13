@@ -58,6 +58,9 @@
                 <div class="btn-wrap navbar-nav mb-2 mb-lg-0">
                     <router-link class="btn login btn-outline-primary" to="/auth">Login</router-link>
                 </div>
+                <div class="btn-wrap navbar-nav mb-2 mb-lg-0">
+                    <button class="btn login btn-outline-primary" @click="logout()">Logout</button>
+                </div>
             </div>
         </div>
     </nav>
@@ -65,7 +68,26 @@
 
 <!-- [개별 스크립트 설정 실시] -->
 <script>
-export default {};
+export default {
+    methods: {
+        logout: async function () {
+            await this.$axios({
+                method: 'get',
+                url: '/api/logout',
+                params: {
+                    // callType: useParams.callType,
+                    // targetId: useParams.targetId,
+                },
+                withCredentials: true,
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Access-Control-Allow-Origin': 'http://localhost:8000',
+                },
+            });
+            console.log('로그 아웃!!');
+        },
+    },
+};
 </script>
 
 <!-- [개별 스타일 설정 실시] -->

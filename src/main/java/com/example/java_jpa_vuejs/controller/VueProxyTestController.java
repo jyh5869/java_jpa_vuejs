@@ -1,6 +1,7 @@
 package com.example.java_jpa_vuejs.controller;
 
 import java.io.IOException;
+import java.net.http.HttpRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,8 @@ import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.Query.Direction;
 import com.google.firebase.cloud.FirestoreClient;
+
+import jakarta.servlet.http.HttpSession;
 
 import java.util.logging.Logger;
 
@@ -66,6 +69,17 @@ public class VueProxyTestController {
     public void login() {
         LOG.info("GET successfully called on /login resource");
         System.out.println("★★★★★★★★★★★★★★★★★★★★★★★★★★");
+    }
+
+    @GetMapping("/logout")
+    public void logout(HttpSession session) {
+        LOG.info("GET successfully called on /logout resource");
+        Object securityContextObj = session.getAttribute("SPRING_SECURITY_CONTEXT");
+
+        System.out.println(securityContextObj);
+
+
+        System.out.println("☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆");
     }
 
 }
