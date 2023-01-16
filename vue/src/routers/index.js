@@ -24,9 +24,6 @@ const routes = [
         path: '/main', // [경로]
         name: 'main', // [이름]
         component: () => import('@/components/MainComponent.vue'), // [로드 파일]]
-        // meta: {
-        //     requiresAuth: true,
-        // },
     },
     {
         path: '/auth', // [경로]

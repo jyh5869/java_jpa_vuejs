@@ -1,4 +1,4 @@
-
+/*
 package com.example.java_jpa_vuejs.config;
 
 import org.springframework.context.annotation.Bean;
@@ -29,6 +29,53 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class WebSecurityConfig extends WebSecurityConfiguration {
     
     @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        //http.authorizeHttpRequests().requestMatchers("/**").hasRole("USER");//.and().formLogin();
+        //https://developer.okta.com/blog/2022/08/19/build-crud-spring-and-vue
+        
+        http
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) 
+            .and()
+            .httpBasic()
+            .and()
+            .authorizeRequests()
+                //.requestMatchers("/api/hello").permitAll()
+                .requestMatchers("/**").authenticated()
+                .anyRequest().authenticated() 
+            .and()
+            .csrf().disable();
+        
+        http.logout()
+            .logoutUrl("/api/logout") //logout url 설정
+            .logoutSuccessUrl("/api/login"); //logout 시 이동할 url만 설정
+
+        return http.build();
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() throws Exception {
+        System.out.println("하위하위하위하위");  
+        PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+        
+        UserDetails user = User
+            .withUsername("user")
+            .password(encoder.encode("1234"))
+            .roles("USER")
+            .build();
+        System.out.println(user.getPassword());
+            
+        //auth.inMemoryAuthentication().withUser("user").password("1234").roles("USER");
+            
+        return new InMemoryUserDetailsManager(user);
+    } 
+
+    
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().requestMatchers("/images/**", "/js/**", "/webjars/**");
+    }
+    
+    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
             
         CorsConfiguration configuration = new CorsConfiguration();
@@ -46,47 +93,5 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
             
         return source;
     }
-
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        
-        http
-            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) 
-            .and()
-            .httpBasic()
-            .and()
-            .authorizeRequests()
-            //.requestMatchers("/api/hello").permitAll()
-            .requestMatchers("/api/login").authenticated()
-            .anyRequest().authenticated() 
-            .and()
-            .csrf().disable();
-        
-        http.logout()
-            .logoutUrl("/api/logout"); //logout url 설정
-            //.logoutSuccessUrl("/api/login"); //logout 시 이동할 url만 설정
-
-        return http.build();
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService() throws Exception {
-        System.out.println("하위하위하위하위");  
-        PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-        
-        UserDetails user = User
-            .withUsername("user")
-            .password(encoder.encode("1234"))
-            .roles("USER")
-            .build();
-        System.out.println(user.getPassword());
-            
-        return new InMemoryUserDetailsManager(user);
-    } 
-
-    
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers("/images/**", "/js/**", "/webjars/**");
-    }
 }
+*/

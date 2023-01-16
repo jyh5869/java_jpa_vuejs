@@ -29,11 +29,10 @@
             </div>
 
             <!-- Login Form -->
-            <form>
-                <input type="text" id="login" class="fadeIn second" name="userId" v-model="user" placeholder="User Id" autocomplete="off" />
-                <input type="text" id="password" class="fadeIn third" name="passwrod" v-model="password" placeholder="Password" autocomplete="off" />
-                <input type="submit" class="fadeIn fourth" value="Log In" />
-            </form>
+
+            <input type="text" id="login" class="fadeIn second" name="userId" v-model="user" placeholder="User Id" autocomplete="off" />
+            <input type="text" id="password" class="fadeIn third" name="passwrod" v-model="password" placeholder="Password" autocomplete="off" />
+            <input type="button" class="fadeIn fourth" value="Log In" @click="login()" />
 
             <!-- Remind Passowrd -->
             <div id="formFooter">
@@ -65,7 +64,7 @@
         <label>
             <input type="password" placeholder="password" v-model="password" autocomplete="off" />
         </label> -->
-        <b-btn variant="success" v-on-click="login2()">Login</b-btn>
+        <b-btn variant="success" @click="login()">Login</b-btn>
         <p v-if="error" class="error">Bad login information</p>
     </div>
 </template>
@@ -106,7 +105,7 @@ export default {
                 },
             });
         },
-        login2: async function () {
+        login: async function () {
             console.log(this.user);
             console.log(this.password);
             alert('하위하위');
@@ -117,6 +116,7 @@ export default {
                         password: this.password,
                     },
                 });
+                console.log(result);
                 if (result.status === 200) {
                     this.loginSuccess = true;
                 }

@@ -71,7 +71,7 @@
 export default {
     methods: {
         logout: async function () {
-            await this.$axios({
+            var result = await this.$axios({
                 method: 'get',
                 url: '/api/logout',
                 params: {
@@ -85,6 +85,7 @@ export default {
                 },
             });
             console.log('로그 아웃!!');
+            console.log(result);
         },
     },
 };
