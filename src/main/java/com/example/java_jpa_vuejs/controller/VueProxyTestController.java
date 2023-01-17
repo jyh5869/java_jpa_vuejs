@@ -74,9 +74,9 @@ public class VueProxyTestController {
     @GetMapping("/logout")
     public void logout(HttpSession session) {
         LOG.info("GET successfully called on /logout resource");
-        Object securityContextObj = session.getAttribute("SPRING_SECURITY_CONTEXT");
+        //Object securityContextObj = session.getAttribute("SPRING_SECURITY_CONTEXT");
 
-        System.out.println(securityContextObj);
+        //System.out.println(securityContextObj);
 
 
         System.out.println("☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆");

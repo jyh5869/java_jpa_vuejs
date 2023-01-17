@@ -1,4 +1,4 @@
-
+/* 
 package com.example.java_jpa_vuejs.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,6 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
@@ -32,24 +31,16 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import com.example.java_jpa_vuejs.auth.AuthProvider;
-import com.example.java_jpa_vuejs.auth.point.CustomAccessDeniedPoint;
-import com.example.java_jpa_vuejs.auth.point.CustomAuthenticationEntryPoint;
-import com.example.java_jpa_vuejs.auth.point.CustomFilter;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 //https://www.baeldung.com/spring-security-custom-logout-handler
-//https://velog.io/@shinhyocheol/%EB%A1%9C%EA%B7%B8%EC%9D%B8-%EA%B8%B0%EB%8A%A51
-//https://velog.io/@shinhyocheol/%EB%A1%9C%EA%B7%B8%EC%9D%B8-%EA%B8%B0%EB%8A%A52
-//https://github.com/shinhyocheol/board-api-example/blob/master/src/main/java/kr/co/platform/util/auth/point/CustomAuthenticationEntryPoint.java
+
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfiguration {
     
-    private AuthProvider authProvider;
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.httpBasic()
@@ -70,20 +61,14 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
                         })
                     .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
                     .permitAll()
-                .and()
-            .csrf()
-                .disable()
-            .formLogin()
-                .disable()
-            .exceptionHandling().accessDeniedHandler(new CustomAccessDeniedPoint())
-				.and()
-			.exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint())
-				.and()
-			.addFilterBefore(new CustomFilter(authProvider), UsernamePasswordAuthenticationFilter.class);
-        return http.build();
-    }
+            .and()
+                .csrf()
+                    .disable()
+                .formLogin()
+                    .disable();
+	return http.build();
+}
 
-    
     @Bean
     public UserDetailsService userDetailsService() throws Exception {
         System.out.println("하위하위하위하위");  
@@ -98,7 +83,7 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
             
         return new InMemoryUserDetailsManager(user);
     } 
-    
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
             
@@ -130,3 +115,4 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
         return (web) -> web.ignoring().requestMatchers("/images/**", "/js/**", "/webjars/**");
     }
 }
+*/

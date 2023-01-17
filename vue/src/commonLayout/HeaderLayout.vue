@@ -72,20 +72,20 @@ export default {
     methods: {
         logout: async function () {
             var result = await this.$axios({
-                method: 'get',
+                method: 'post',
                 url: '/api/logout',
                 params: {
                     // callType: useParams.callType,
                     // targetId: useParams.targetId,
                 },
-                withCredentials: true,
+                //withCredentials: true,
                 headers: {
                     'Content-Type': 'multipart/form-data',
-                    'Access-Control-Allow-Origin': 'http://localhost:8000',
+                    'Access-Control-Allow-Origin': '*',
                 },
             });
-            console.log('로그 아웃!!');
             console.log(result);
+            console.log('로그아웃 가따옴');
         },
     },
 };

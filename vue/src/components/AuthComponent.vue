@@ -106,8 +106,6 @@ export default {
             });
         },
         login: async function () {
-            console.log(this.user);
-            console.log(this.password);
             alert('하위하위');
             try {
                 const result = await this.$axios.get('/api/login', {
@@ -124,6 +122,12 @@ export default {
                 this.loginError = true;
                 throw new Error(err);
             }
+            console.log('-------------------');
+            console.log(this.user);
+            console.log(this.password);
+            console.log(this.loginError);
+            console.log(this.loginSuccess);
+            console.log('-------------------');
         },
     },
 };
