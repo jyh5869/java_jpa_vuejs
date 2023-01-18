@@ -40,12 +40,17 @@ import com.example.java_jpa_vuejs.auth.point.CustomFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 //https://www.baeldung.com/spring-security-custom-logout-handler
 //https://velog.io/@shinhyocheol/%EB%A1%9C%EA%B7%B8%EC%9D%B8-%EA%B8%B0%EB%8A%A51
 //https://velog.io/@shinhyocheol/%EB%A1%9C%EA%B7%B8%EC%9D%B8-%EA%B8%B0%EB%8A%A52
 //https://github.com/shinhyocheol/board-api-example/blob/master/src/main/java/kr/co/platform/util/auth/point/CustomAuthenticationEntryPoint.java
-@Configuration
+//@Configuration
+//@RequiredArgsConstructor
+
+
 @EnableWebSecurity
+@Configuration
 public class WebSecurityConfig extends WebSecurityConfiguration {
     
     private AuthProvider authProvider;
@@ -83,7 +88,7 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
         return http.build();
     }
 
-    
+    /*
     @Bean
     public UserDetailsService userDetailsService() throws Exception {
         System.out.println("하위하위하위하위");  
@@ -98,7 +103,13 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
             
         return new InMemoryUserDetailsManager(user);
     } 
-    
+    */
+
+    // @Bean
+    // public UserDetailsService userDetailsService() {
+    //     return userDetailsService();
+    // }
+     
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
             
@@ -117,9 +128,19 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
 
         return source;
     }
+    
 
-
-
+    
+    // @Bean
+	// public AuthenticationManager authenticationManager() throws Exception {
+	// 	return authenticationManager();
+	// } 
+        /* 
+    @Bean
+    public AuthenticationManager authenticationManagerBeanManager() throws Exception {
+        return authenticationManagerBeanManager();
+    }
+    */
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder(){
         return new BCryptPasswordEncoder();

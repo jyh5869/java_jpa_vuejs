@@ -8,11 +8,18 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.common.Util;
+import com.example.java_jpa_vuejs.auth.AuthProvider;
+import com.example.java_jpa_vuejs.auth.AuthenticationDto;
+import com.example.java_jpa_vuejs.auth.LoginDto;
+import com.example.java_jpa_vuejs.auth.SignService;
 import com.example.java_jpa_vuejs.config.FirebaseConfiguration;
 import com.google.api.core.ApiFuture;
 
@@ -23,6 +30,7 @@ import com.google.cloud.firestore.Query.Direction;
 import com.google.firebase.cloud.FirestoreClient;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 
 import java.util.logging.Logger;
 
@@ -82,4 +90,25 @@ public class VueProxyTestController {
         System.out.println("☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆");
     }
 
+    private SignService apiSignService;
+	
+	private AuthProvider authProvider;
+    /**
+* @method 설명 : 로그인
+* @param loginDto
+* @throws Exception
+*/
+@PostMapping(value = {"/signin"})
+public ResponseEntity<AuthenticationDto> appLogin(@Valid @RequestBody LoginDto loginDto) throws Exception {
+
+	AuthenticationDto authentication = apiSignService.loginMember(loginDto);
+
+	return ResponseEntity.ok()
+			.header("accesstoken", authProvider
+            .createToken(
+                authentication.getId(),
+                authentication.getEmail(),
+                "USER"))
+			.body(authentication);
+}
 }

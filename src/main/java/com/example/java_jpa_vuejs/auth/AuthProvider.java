@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.Base64;
 import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -20,11 +21,12 @@ import org.springframework.security.core.Authentication;
 
 import lombok.RequiredArgsConstructor;
 
+
 @RequiredArgsConstructor
 @Component
 public class AuthProvider {
 
-    @Value("${spring.jwt.secret.at}")
+    @Value("${spring.jwt.secret.signature}")
     private String atSecretKey;
 
     @PostConstruct
@@ -32,7 +34,8 @@ public class AuthProvider {
         atSecretKey = Base64.getEncoder().encodeToString(atSecretKey.getBytes());
     }
 
-    private final UserDetailsService userDetailsService;
+    // @Autowired
+    // private UserDetailsService userDetailsService;
 
     /**
      * @throws Exception
