@@ -11,20 +11,23 @@ import com.example.java_jpa_vuejs.util.ForbiddenException;
 import com.example.java_jpa_vuejs.util.UserNotFoundException;
 import com.example.java_jpa_vuejs.validation.Empty;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-
+import org.modelmapper.ModelMapper;
 import lombok.RequiredArgsConstructor;
 
-@Service("signService")
-@RequiredArgsConstructor
+
 public class SignService {
 
-	private final MemberRepository memberRepository;
+	MemberRepository memberRepository;
 
-	private final BCryptPasswordEncoder passwordEncoder;
+	BCryptPasswordEncoder passwordEncoder;
 	
-	private final ModelMapper modelMapper;
+	ModelMapper modelMapper;
+
 
 	public Boolean regMember(JoinDto joinDto) {
 
@@ -44,6 +47,7 @@ public class SignService {
 
 		return true;
 	}
+	
 
 	public AuthenticationDto loginMember(LoginDto loginDto) {
 		
