@@ -100,9 +100,10 @@ public class VueProxyTestController {
 */
 @PostMapping(value = {"/signin"})
 public ResponseEntity<AuthenticationDto> appLogin(@Valid @RequestBody LoginDto loginDto) throws Exception {
-
+    System.out.println("★★★★★★★★★★★");
 	AuthenticationDto authentication = apiSignService.loginMember(loginDto);
-
+    System.out.println("★★★★★★★★★★★");
+    System.out.println(authentication);
 	return ResponseEntity.ok()
 			.header("accesstoken", authProvider
             .createToken(

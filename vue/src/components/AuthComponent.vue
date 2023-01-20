@@ -84,8 +84,8 @@ export default {
         return {
             loginSuccess: false,
             loginError: false,
-            user: 'user',
-            password: '1234',
+            user: '',
+            password: '',
             error: false,
         };
     },
@@ -106,6 +106,20 @@ export default {
             });
         },
         login: async function () {
+            // 아이디와 패스워드 입력여부 확인
+            if (this.user && this.password) {
+                var id = this.user; // 아이디
+                var password = this.password; // 비밀번호
+
+                console.log(id);
+                console.log(password);
+                this.$store.dispatch('login', { id, password }); // 로그인
+            } else {
+                alert('아이디 또는 비밀번호가 입력되지 않았습니다.');
+                return false;
+            }
+        },
+        loginBak: async function () {
             alert('하위하위');
             try {
                 const result = await this.$axios.get('/api/login', {
