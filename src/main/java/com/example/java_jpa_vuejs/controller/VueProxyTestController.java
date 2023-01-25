@@ -94,22 +94,22 @@ public class VueProxyTestController {
 	
 	private AuthProvider authProvider;
     /**
-* @method 설명 : 로그인
-* @param loginDto
-* @throws Exception
-*/
-@PostMapping(value = {"/signin"})
-public ResponseEntity<AuthenticationDto> appLogin(@Valid @RequestBody LoginDto loginDto) throws Exception {
-    System.out.println("★★★★★★★★★★★");
-	AuthenticationDto authentication = apiSignService.loginMember(loginDto);
-    System.out.println("★★★★★★★★★★★");
-    System.out.println(authentication);
-	return ResponseEntity.ok()
-			.header("accesstoken", authProvider
-            .createToken(
-                authentication.getId(),
-                authentication.getEmail(),
-                "USER"))
-			.body(authentication);
-}
+    * @method 설명 : 로그인
+    * @param loginDto
+    * @throws Exception
+    */
+    @PostMapping(value = {"/signin"})
+    public ResponseEntity<AuthenticationDto> appLogin(@Valid @RequestBody LoginDto loginDto) throws Exception {
+        System.out.println("★★★★★★★★★★★");
+        AuthenticationDto authentication = apiSignService.loginMember(loginDto);
+        System.out.println("★★★★★★★★★★★");
+        System.out.println(authentication);
+        return ResponseEntity.ok()
+                .header("accesstoken", authProvider
+                .createToken(
+                    authentication.getId(),
+                    authentication.getEmail(),
+                    "USER"))
+                .body(authentication);
+    }
 }

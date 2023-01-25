@@ -5,7 +5,7 @@
 
 // [라우터 import 수행 실시]
 import { createWebHistory, createRouter } from 'vue-router';
-import store from './/store';
+//import store from './/store';
 
 // [라우터 path 접속 경로 설정]
 const routes = [
@@ -37,7 +37,7 @@ const router = createRouter({
     history: createWebHistory(),
     routes,
 });
-
+/*
 router.beforeEach((to, from, next) => {
     console.log(to.matched);
     console.log(store.getters);
@@ -54,4 +54,5 @@ router.beforeEach((to, from, next) => {
         next();
     }
 });
+*/
 export default router;

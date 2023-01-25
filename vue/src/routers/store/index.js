@@ -6,7 +6,7 @@ const persistedState = createPersistedState({
     paths: ['token', 'id', 'name', 'role', 'nickname'],
 });
 
-export const store = createStore({
+export default createStore({
     state: modules.state,
     getters: modules.getters,
     mutations: modules.mutations,

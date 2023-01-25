@@ -113,6 +113,8 @@ export default {
 
                 console.log(id);
                 console.log(password);
+
+                console.log(this.$store);
                 this.$store.dispatch('login', { id, password }); // 로그인
             } else {
                 alert('아이디 또는 비밀번호가 입력되지 않았습니다.');

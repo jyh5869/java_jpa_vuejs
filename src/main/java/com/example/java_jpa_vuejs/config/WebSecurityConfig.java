@@ -60,10 +60,14 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
         http.httpBasic()
             .and()
             .authorizeRequests()
-                    .requestMatchers("/api/signin").permitAll()			// 회원가입
+                    .requestMatchers("/api/signin").permitAll()
+                    .requestMatchers("/**").authenticated()
+                    .anyRequest().authenticated() 
+                    .anyRequest().hasRole("USER")
+                    //.requestMatchers("/api/signin").permitAll()			// 회원가입
 					//.requestMatchers("/api/signin/**").permitAll() 		// 로그인
 					//.requestMatchers("/api/exception/**").permitAll() 	// 예외처리 포인트
-                    .anyRequest().authenticated()
+                    //.anyRequest().authenticated()
                     //.anyRequest().hasRole("USER")
             .and()
                 .logout()

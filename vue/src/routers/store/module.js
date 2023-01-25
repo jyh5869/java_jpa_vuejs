@@ -41,7 +41,7 @@ const actions = {
             password: password,
         };
         axios
-            .post('http://localhost:8000/aoi/signin', JSON.stringify(params), {
+            .post('/api/signin', JSON.stringify(params), {
                 headers: { 'content-type': 'application/json' },
             })
             .then((res) => {
