@@ -2,7 +2,6 @@ package com.example.java_jpa_vuejs.auth;
 
 import lombok.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

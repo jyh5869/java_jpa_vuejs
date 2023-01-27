@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.modelmapper.ModelMapper;
 import lombok.RequiredArgsConstructor;
 
@@ -27,10 +28,11 @@ public class SignService {
 	//@Resource(name="memberRepository")
 	MemberRepository  memberRepository;
 
-	@Autowired
+	@Lazy
+	@Autowired(required=false)
 	BCryptPasswordEncoder  passwordEncoder;
 	
-	@Autowired
+	@Autowired(required=false)
 	ModelMapper modelMapper;
 
 

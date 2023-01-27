@@ -103,7 +103,7 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
         return http.build();
     }
 
-    /*
+    
     @Bean
     public UserDetailsService userDetailsService() throws Exception {
         System.out.println("하위하위하위하위");  
@@ -118,7 +118,7 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
             
         return new InMemoryUserDetailsManager(user);
     } 
-    */
+    
 
     // @Bean
     // public UserDetailsService userDetailsService() {
@@ -156,6 +156,7 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
         return authenticationManagerBeanManager();
     }
     */
+
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder(){
         return new BCryptPasswordEncoder();

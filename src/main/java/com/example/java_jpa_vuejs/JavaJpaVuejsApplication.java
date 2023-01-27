@@ -20,7 +20,7 @@ public class JavaJpaVuejsApplication {
 		SpringApplication.run(JavaJpaVuejsApplication.class, args);
 	}
 	
-    
+
     /* 
 	// Fix the CORS errors
     @Bean
