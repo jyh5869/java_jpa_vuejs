@@ -32,6 +32,9 @@ public class AuthProvider {
     @PostConstruct
     protected void init() {
         atSecretKey = Base64.getEncoder().encodeToString(atSecretKey.getBytes());
+        System.out.println("atSecretKey -- ☆☆☆☆☆☆☆☆☆☆☆☆");
+        System.out.println(atSecretKey);
+
     }
 
     // @Autowired
@@ -45,7 +48,7 @@ public class AuthProvider {
             long userPk,
             String email,
             String nickname) {
-    	
+    	System.out.println("111111111111111111111111111111111111111111111111111111111111");
     	/**
     	 * 토큰발급을 위한 데이터는 UserDetails에서 담당
     	 * 따라서 UserDetails를 세부 구현한 CustomUserDetails로 회원정보 전달
@@ -65,13 +68,15 @@ public class AuthProvider {
                 .claim("email", email)
                 .claim("roles", user.getAuthorities())
                 .signWith(SignatureAlgorithm.HS256, atSecretKey);
-
+                System.out.println("111111111111111111111111111111111111111111111111111111111111");
         return builder.compact();
     }
 
     // 토큰에서 회원 정보 추출
     public String getUserPk(String token) {
+        System.out.println("2222222222222222222222222222222222222222222222222222222222222222222");
         return Jwts.parser().setSigningKey(atSecretKey).parseClaimsJws(token).getBody().getSubject();
+        
     }
 
     /**
@@ -79,7 +84,7 @@ public class AuthProvider {
      */
     @SuppressWarnings("unchecked")
     public Authentication getAuthentication(String token) {
-
+        System.out.println("333333333333333333333333333333333333333333333333333333333333333333333");
         // 토큰 기반으로 유저의 정보 파싱
         Claims claims = Jwts.parser().setSigningKey(atSecretKey).parseClaimsJws(token).getBody();
 
@@ -87,6 +92,7 @@ public class AuthProvider {
         String email = claims.get("email", String.class);
 
         CustomUserDetails userDetails = new CustomUserDetails(userPk, email, email);
+        System.out.println("333333333333333333333333333333333333333333333333333333333333333333333");
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
@@ -94,6 +100,7 @@ public class AuthProvider {
      * @method 설명 : request객체 헤더에 담겨 있는 토큰 가져오기
      */
     public String resolveToken(HttpServletRequest request) {
+        System.out.println("4444444444444444444444444444444444444444444444444444444444444444444444444");
         return request.getHeader("accesstoken");
     }
 
@@ -101,8 +108,9 @@ public class AuthProvider {
      * @method 설명 : 토큰 유효시간 만료여부 검사 실행
      */
     public boolean validateToken(String token) {
-        try {
+        try {System.out.println("5555555555555555555555555555555555555555555555555555555555555555555");
             Jws<Claims> claims = Jwts.parser().setSigningKey(atSecretKey).parseClaimsJws(token);
+            System.out.println("5555555555555555555555555555555555555555555555555555555555555555555");
             return !claims.getBody().getExpiration().before(new Date());
         } catch (Exception e) {
             return false;

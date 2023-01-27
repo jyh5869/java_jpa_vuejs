@@ -1,7 +1,5 @@
 package com.example.java_jpa_vuejs.auth;
 
-import com.example.java_jpa_vuejs.validation.Members;
-
 import com.example.java_jpa_vuejs.auth.MemberRepository;
 import com.example.java_jpa_vuejs.auth.AuthenticationDto;
 import com.example.java_jpa_vuejs.auth.JoinDto;
@@ -11,6 +9,8 @@ import com.example.java_jpa_vuejs.util.ForbiddenException;
 import com.example.java_jpa_vuejs.util.UserNotFoundException;
 import com.example.java_jpa_vuejs.validation.Empty;
 
+import jakarta.annotation.Resource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,13 +19,18 @@ import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
 import lombok.RequiredArgsConstructor;
 
-
+@Service("signService")
+@RequiredArgsConstructor
 public class SignService {
 
-	MemberRepository memberRepository;
+	@Autowired(required=false)
+	//@Resource(name="memberRepository")
+	MemberRepository  memberRepository;
 
-	BCryptPasswordEncoder passwordEncoder;
+	@Autowired
+	BCryptPasswordEncoder  passwordEncoder;
 	
+	@Autowired
 	ModelMapper modelMapper;
 
 
@@ -50,7 +55,7 @@ public class SignService {
 	
 
 	public AuthenticationDto loginMember(LoginDto loginDto) {
-		
+		System.out.println("아예 부르지를 못하나?");
 		// dto -> entity
 		Members loginEntity = loginDto.toEntity();
 

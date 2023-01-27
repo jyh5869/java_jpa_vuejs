@@ -1,6 +1,5 @@
 package com.example.java_jpa_vuejs.auth;
 
-import com.example.java_jpa_vuejs.validation.Members;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

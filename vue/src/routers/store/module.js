@@ -46,7 +46,7 @@ const actions = {
             })
             .then((res) => {
                 commit('login', res);
-                router.push('/posts');
+                router.push('/main');
             })
             .catch((e) => {
                 console.log(e);

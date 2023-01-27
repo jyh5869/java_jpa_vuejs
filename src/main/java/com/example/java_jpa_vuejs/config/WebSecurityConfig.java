@@ -30,6 +30,7 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.example.java_jpa_vuejs.auth.AuthProvider;
@@ -57,20 +58,28 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        System.out.println("http 객체 생성-------------------------------s");
         http.httpBasic()
-            .and()
+                    .disable()
+                .csrf()
+                    .disable()
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
             .authorizeRequests()
+                    .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                     .requestMatchers("/api/signin").permitAll()
+                    //.requestMatchers("/api/getList").authenticated()
                     .requestMatchers("/**").authenticated()
-                    .anyRequest().authenticated() 
+                    //.anyRequest().authenticated() 
                     .anyRequest().hasRole("USER")
+                    
                     //.requestMatchers("/api/signin").permitAll()			// 회원가입
 					//.requestMatchers("/api/signin/**").permitAll() 		// 로그인
 					//.requestMatchers("/api/exception/**").permitAll() 	// 예외처리 포인트
                     //.anyRequest().authenticated()
                     //.anyRequest().hasRole("USER")
             .and()
-                .logout()
+            .logout()
                     .logoutUrl("/api/logout")
                     .addLogoutHandler(new LogoutHandler() {
                             @Override
@@ -83,8 +92,6 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
                     .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
                     .permitAll()
                 .and()
-            .csrf()
-                .disable()
             .formLogin()
                 .disable()
             .exceptionHandling().accessDeniedHandler(new CustomAccessDeniedPoint())
@@ -92,6 +99,7 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
 			.exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint())
 				.and()
 			.addFilterBefore(new CustomFilter(authProvider), UsernamePasswordAuthenticationFilter.class);
+            System.out.println("http 객체 생성-------------------------------e");
         return http.build();
     }
 

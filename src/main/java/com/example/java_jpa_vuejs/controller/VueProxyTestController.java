@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import org.hibernate.annotations.Comment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,10 +33,12 @@ import com.google.firebase.cloud.FirestoreClient;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 import java.util.logging.Logger;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api")
 public class VueProxyTestController {
     
@@ -89,10 +93,10 @@ public class VueProxyTestController {
 
         System.out.println("☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆");
     }
-
-    private SignService apiSignService;
+    
+    private final SignService  apiSignService;
 	
-	private AuthProvider authProvider;
+	private final AuthProvider authProvider;
     /**
     * @method 설명 : 로그인
     * @param loginDto

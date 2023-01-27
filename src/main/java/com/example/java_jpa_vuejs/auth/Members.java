@@ -1,4 +1,4 @@
-package com.example.java_jpa_vuejs.validation;
+package com.example.java_jpa_vuejs.auth;
 
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;

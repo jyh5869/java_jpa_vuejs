@@ -1,6 +1,7 @@
 package com.example.java_jpa_vuejs.auth;
 
-import com.example.java_jpa_vuejs.validation.Members;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-@Repository
 public interface MemberRepository extends JpaRepository<Members, Long> {
 
     Optional<Members> findByEmail(String email);
