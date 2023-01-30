@@ -20,13 +20,10 @@ import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.modelmapper.ModelMapper;
 import lombok.RequiredArgsConstructor;
 
-@Service("signService")
-@RequiredArgsConstructor
+@Service //("signService")
 public class SignService {
-
-	@Autowired(required=false)
-	//@Resource(name="memberRepository")
-	MemberRepository  memberRepository;
+	
+	MemberRepository memberRepository;
 
 	@Lazy
 	@Autowired(required=false)
@@ -57,10 +54,13 @@ public class SignService {
 	
 
 	public AuthenticationDto loginMember(LoginDto loginDto) {
-		System.out.println("아예 부르지를 못하나?");
+
+		System.out.println("아예 부르지를 못하나?     =     ");
+		memberRepository.countByEmail(loginDto.getEmail());
+		System.out.println("아예 부르지를 못하나?     =     " + memberRepository.countByEmail(loginDto.getEmail()));
 		// dto -> entity
 		Members loginEntity = loginDto.toEntity();
-
+		System.out.println(loginEntity.getEmail());
 		// 회원 엔티티 객체 생성 및 조회시작
 		Members member = memberRepository.findByEmail(loginEntity.getEmail())
 				.orElseThrow(() -> new UserNotFoundException("User Not Found"));

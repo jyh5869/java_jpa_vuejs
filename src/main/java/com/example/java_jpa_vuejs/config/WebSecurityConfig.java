@@ -59,46 +59,25 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         System.out.println("http 객체 생성-------------------------------s");
-        http.httpBasic()
-                    .disable()
-                .csrf()
-                    .disable()
-            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-            .authorizeRequests()
-                    .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-                    .requestMatchers("/api/signin").permitAll()
-                    //.requestMatchers("/api/getList").authenticated()
-                    .requestMatchers("/**").authenticated()
-                    //.anyRequest().authenticated() 
-                    .anyRequest().hasRole("USER")
-                    
-                    //.requestMatchers("/api/signin").permitAll()			// 회원가입
-					//.requestMatchers("/api/signin/**").permitAll() 		// 로그인
-					//.requestMatchers("/api/exception/**").permitAll() 	// 예외처리 포인트
-                    //.anyRequest().authenticated()
-                    //.anyRequest().hasRole("USER")
-            .and()
-            .logout()
-                    .logoutUrl("/api/logout")
-                    .addLogoutHandler(new LogoutHandler() {
-                            @Override
-                            public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-                                System.err.println("나 로그아웃 한다???");
-                                HttpSession session = request.getSession();
-                                session.invalidate();
-                            }           
-                        })
-                    .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
-                    .permitAll()
-                .and()
-            .formLogin()
-                .disable()
-            .exceptionHandling().accessDeniedHandler(new CustomAccessDeniedPoint())
+        http
+			.httpBasic().disable()
+				.csrf().disable()
+			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+				.and()
+			.authorizeRequests()
+				//.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+					.requestMatchers("/signup").permitAll()			// 회원가입
+					.requestMatchers("/api/signin").permitAll() 		// 로그인
+					.requestMatchers("/exception/**").permitAll() 	// 예외처리 포인트
+					//.requestMatchers().hasRole("USER")				// 이외 나머지는 USER 권한필요
+				.and()
+			.cors()
+				.and()
+			.exceptionHandling().accessDeniedHandler(new CustomAccessDeniedPoint())
 				.and()
 			.exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint())
-				.and()
-			.addFilterBefore(new CustomFilter(authProvider), UsernamePasswordAuthenticationFilter.class);
+				.and();
+			//.addFilterBefore(new CustomFilter(authProvider), UsernamePasswordAuthenticationFilter.class);
             System.out.println("http 객체 생성-------------------------------e");
         return http.build();
     }
@@ -157,10 +136,7 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
     }
     */
 
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder(){
-        return new BCryptPasswordEncoder();
-    } 
+    
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {

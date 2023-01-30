@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { router } from '../index.js';
+//import router from '../index.js';
 
 const state = {
     token: null,
@@ -45,11 +45,14 @@ const actions = {
                 headers: { 'content-type': 'application/json' },
             })
             .then((res) => {
+                console.log('then');
+                console.log(res);
                 commit('login', res);
-                router.push('/main');
+                //router.push('/main');
             })
             .catch((e) => {
                 console.log(e);
+                console.log('catch');
                 alert('로그인 요청에 문제가 발생했습니다.');
             });
     },
