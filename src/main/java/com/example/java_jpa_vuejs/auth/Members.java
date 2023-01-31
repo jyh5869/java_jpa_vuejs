@@ -13,6 +13,7 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 /* 
 import kr.co.platform.api.posts.domain.entity.Posts;
@@ -24,11 +25,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@Entity
 @DynamicUpdate
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PUBLIC)
 @EntityListeners(AuditingEntityListener.class)
+@Entity
+@Table(name = "members")
 public class Members{
 
 	@Id

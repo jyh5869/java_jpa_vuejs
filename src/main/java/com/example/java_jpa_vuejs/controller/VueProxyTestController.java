@@ -21,6 +21,7 @@ import com.common.Util;
 import com.example.java_jpa_vuejs.auth.AuthProvider;
 import com.example.java_jpa_vuejs.auth.AuthenticationDto;
 import com.example.java_jpa_vuejs.auth.LoginDto;
+import com.example.java_jpa_vuejs.auth.MemberRepository;
 import com.example.java_jpa_vuejs.auth.SignService;
 import com.example.java_jpa_vuejs.config.FirebaseConfiguration;
 import com.google.api.core.ApiFuture;
@@ -34,16 +35,28 @@ import com.google.firebase.cloud.FirestoreClient;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.logging.Logger;
 
+
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class VueProxyTestController {
-    
+    /*
     @Autowired
     private FirebaseConfiguration firebaseConfiguration;
+    
+    @Autowired
+    SignService apiSignService;
+    
+    @Autowired
+    AuthProvider authProvider;
+    */
+    private final FirebaseConfiguration firebaseConfiguration;
+    private final SignService apiSignService;
+    private final AuthProvider authProvider;
 
     @GetMapping("/getList")
     public List<Map<String, Object>> index() throws InterruptedException, ExecutionException, IOException {
@@ -94,9 +107,7 @@ public class VueProxyTestController {
         System.out.println("☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆");
     }
     
-    private final SignService  apiSignService;
-	
-	private final AuthProvider authProvider;
+    
     /**
     * @method 설명 : 로그인
     * @param loginDto

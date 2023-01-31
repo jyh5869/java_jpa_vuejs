@@ -10,10 +10,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.repository.CrudRepository;
+
 import java.util.Optional;
 
 
-public interface MemberRepository extends JpaRepository<Members, Long> {
+public interface MemberRepository extends CrudRepository<Members, Long> {
 
     Optional<Members> findByEmail(String email);
 

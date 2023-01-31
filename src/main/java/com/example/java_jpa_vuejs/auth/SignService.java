@@ -10,29 +10,59 @@ import com.example.java_jpa_vuejs.util.UserNotFoundException;
 import com.example.java_jpa_vuejs.validation.Empty;
 
 import jakarta.annotation.Resource;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.PersistenceContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.modelmapper.ModelMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-@Service //("signService")
+@Service("signService")
+@RequiredArgsConstructor
 public class SignService {
+
+	private final MemberRepository memberRepository;
+
+	private final BCryptPasswordEncoder passwordEncoder;
 	
-	MemberRepository memberRepository;
+	private final ModelMapper modelMapper;
 
-	@Lazy
-	@Autowired(required=false)
-	BCryptPasswordEncoder  passwordEncoder;
+
+	//@Autowired(required=false)
+	//private final MemberRepository memberRepository;
+
+	//@Autowired(required=false)
+	//private MemberRepository memberRepository;
+
+
+
+	//private final BCryptPasswordEncoder  passwordEncoder;
 	
-	@Autowired(required=false)
-	ModelMapper modelMapper;
+	//@Autowired
+	//ModelMapper modelMapper;
+	 
+	/* 
+		@Bean(name="sessionFactory")
+		public LocalSessionFactoryBean sessionFactory() {
+			LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
 
-
+			return sessionFactory;
+		};
+	*/
+	
+	/* 
+	@Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
+	*/
 	public Boolean regMember(JoinDto joinDto) {
 
 		// 아이디 중복체크
@@ -44,7 +74,7 @@ public class SignService {
 			throw new DuplicatedException("Duplicated Mobile");
 
 		// 비밀번호 암호화처리
-		joinDto.setPassword(passwordEncoder.encode(joinDto.getPassword()));
+		//joinDto.setPassword(passwordEncoder.encode(joinDto.getPassword()));
 
 		// 데이터 등록(저장)
 		memberRepository.save(joinDto.toEntity());
@@ -64,10 +94,10 @@ public class SignService {
 		// 회원 엔티티 객체 생성 및 조회시작
 		Members member = memberRepository.findByEmail(loginEntity.getEmail())
 				.orElseThrow(() -> new UserNotFoundException("User Not Found"));
-
+		/* 
 		if (!passwordEncoder.matches(loginEntity.getPassword(), member.getPassword()))
 			throw new ForbiddenException("Passwords do not match");
-
+		*/
 		// 회원정보를 인증클래스 객체(authentication)로 매핑
 
 		return modelMapper.map(member, AuthenticationDto.class);
