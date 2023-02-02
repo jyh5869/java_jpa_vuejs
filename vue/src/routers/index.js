@@ -5,7 +5,8 @@
 
 // [라우터 import 수행 실시]
 import { createWebHistory, createRouter } from 'vue-router';
-//import store from './/store';
+//import store from './routers/store/index.js';
+import store from '../routers/store/index.js';
 
 // [라우터 path 접속 경로 설정]
 const routes = [
@@ -37,16 +38,23 @@ const router = createRouter({
     history: createWebHistory(),
     routes,
 });
-/*
+
 router.beforeEach((to, from, next) => {
-    console.log(to.matched);
-    console.log(store.getters);
-    if (to.matched.some((record) => record.meta.requiresAuth)) {
-        console.log('store');
-        if (!store.getters.isLoggedIn) {
+    //console.log(to.matched);
+    console.log(store.getters.token);
+    //if (to.matched.some((record) => record.meta.requiresAuth)) {
+    if (!store.getters.token || store.getters.token == null) {
+        console.log(store);
+
+        if (!store.getters.token || store.getters.token == null) {
+            console.log('--------------------------------------------------store----------------------------------------');
+            //router.push('/auth');
+            router.push('/auth');
+            /*
             next({
                 name: 'auth',
             });
+            */
         } else {
             next();
         }
@@ -54,5 +62,5 @@ router.beforeEach((to, from, next) => {
         next();
     }
 });
-*/
+
 export default router;

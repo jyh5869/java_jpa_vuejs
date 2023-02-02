@@ -9,21 +9,15 @@ import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue-3/dist/bootstrap-vue-3.css';
 
 import store from './routers/store/index.js';
-console.log('★★★★★');
-console.log(store);
-console.log('★★★★★');
+// console.log('★★★★★');
+// console.log(store);
+// console.log('★★★★★');
 const app = createApp(App);
-app.config.globalProperties.$axios = axios;
-
-app.config.globalProperties.$store = store;
-
-app.use(routers);
-app.use(BootstrapVue3);
-app.mount('#main');
 
 //axios instance 생성
 const instance = axios.create({
     baseURL: process.env.VUE_APP_API_URL,
+    headers: { accesstoken: store.state.token },
 });
 
 // 요청 인터셉터 추가
@@ -68,3 +62,12 @@ instance.interceptors.response.use(
         return Promise.reject(error);
     },
 );
+
+app.config.globalProperties.$axios = instance;
+
+app.config.globalProperties.$store = store;
+
+app.use(store);
+app.use(routers);
+app.use(BootstrapVue3);
+app.mount('#main');

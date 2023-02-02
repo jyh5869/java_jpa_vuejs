@@ -60,7 +60,7 @@ public class AuthProvider {
     	
     	// 유효기간설정을 위한 Date 객체 선언
     	Date date = new Date();
-        
+        System.out.println("------------------------------------------> ROLL : ? " + user.getAuthorities());
         final JwtBuilder builder = Jwts.builder()
                 .setHeaderParam("typ", "JWT")
                 .setSubject("accesstoken").setExpiration(new Date(date.getTime() + (1000L*60*60*12)))

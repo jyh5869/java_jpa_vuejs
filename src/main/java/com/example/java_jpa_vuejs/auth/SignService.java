@@ -94,12 +94,18 @@ public class SignService {
 		// 회원 엔티티 객체 생성 및 조회시작
 		Members member = memberRepository.findByEmail(loginEntity.getEmail())
 				.orElseThrow(() -> new UserNotFoundException("User Not Found"));
+		
 		/* 
-		if (!passwordEncoder.matches(loginEntity.getPassword(), member.getPassword()))
+		if (!passwordEncoder.matches(loginEntity.getPassword(), member.getPassword())){
 			throw new ForbiddenException("Passwords do not match");
+		}
 		*/
-		// 회원정보를 인증클래스 객체(authentication)로 매핑
-
+		if (!loginEntity.getPassword().equals(member.getPassword())){
+			System.out.println(loginEntity.getPassword() + "            " + member.getPassword());
+			throw new ForbiddenException("Passwords do not match");
+		}
+			
+	// 회원정보를 인증클래스 객체(authentication)로 매핑
 		return modelMapper.map(member, AuthenticationDto.class);
 	}
 

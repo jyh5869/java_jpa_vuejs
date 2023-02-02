@@ -30,8 +30,8 @@
 
             <!-- Login Form -->
 
-            <input type="text" id="login" class="fadeIn second" name="userId" v-model="user" placeholder="User Id" autocomplete="off" />
-            <input type="text" id="password" class="fadeIn third" name="passwrod" v-model="password" placeholder="Password" autocomplete="off" />
+            <input type="text" id="login" class="fadeIn second" name="userId" v-model="user" placeholder="User Id" />
+            <input type="text" id="password" class="fadeIn third" name="passwrod" v-model="password" placeholder="Password" />
             <input type="button" class="fadeIn fourth" value="Log In" @click="login()" />
 
             <!-- Remind Passowrd -->
@@ -113,9 +113,8 @@ export default {
 
                 console.log(id);
                 console.log(password);
-
-                console.log(this.$store);
                 this.$store.dispatch('login', { id, password }); // 로그인
+                //console.log(this.$store);
             } else {
                 alert('아이디 또는 비밀번호가 입력되지 않았습니다.');
                 return false;

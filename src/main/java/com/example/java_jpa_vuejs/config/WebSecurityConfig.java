@@ -51,10 +51,11 @@ import lombok.RequiredArgsConstructor;
 
 
 @EnableWebSecurity
+@RequiredArgsConstructor
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfiguration {
-    
-    private AuthProvider authProvider;
+
+    private final AuthProvider authProvider;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -69,15 +70,16 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
 					.requestMatchers("/signup").permitAll()			// 회원가입
 					.requestMatchers("/api/signin").permitAll() 		// 로그인
 					.requestMatchers("/exception/**").permitAll() 	// 예외처리 포인트
-					//.requestMatchers().hasRole("USER")				// 이외 나머지는 USER 권한필요
+					//.requestMatchers("/**").hasRole("USER")				// 이외 나머지는 USER 권한필요
+                    .anyRequest().authenticated() 
 				.and()
 			.cors()
 				.and()
 			.exceptionHandling().accessDeniedHandler(new CustomAccessDeniedPoint())
 				.and()
 			.exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint())
-				.and();
-			//.addFilterBefore(new CustomFilter(authProvider), UsernamePasswordAuthenticationFilter.class);
+				.and()
+			.addFilterBefore(new CustomFilter(authProvider), UsernamePasswordAuthenticationFilter.class);
             System.out.println("http 객체 생성-------------------------------e");
         return http.build();
     }

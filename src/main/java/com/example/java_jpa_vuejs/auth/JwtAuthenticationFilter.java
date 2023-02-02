@@ -6,6 +6,7 @@ import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 
 import jakarta.servlet.FilterChain;
@@ -17,16 +18,17 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends GenericFilterBean {
 
     private AuthProvider jwtTokenProvider;
 
     public JwtAuthenticationFilter(AuthProvider jwtTokenProvider) {
-        System.out.println("tokken--------------------------------------------------------------");
-        System.out.println(jwtTokenProvider);
+        // System.out.println("tokken--------------------------------------------------------------");
+        // System.out.println(jwtTokenProvider);
         this.jwtTokenProvider = jwtTokenProvider;
     }
+    
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {

@@ -71,6 +71,9 @@
 export default {
     methods: {
         logout: async function () {
+            this.$store.dispatch('logout'); // 로그인
+
+            /*
             var result = await this.$axios({
                 method: 'post',
                 url: '/api/logout',
@@ -86,6 +89,7 @@ export default {
             });
             console.log(result);
             //console.log('로그아웃 가따옴');
+            */
         },
     },
 };

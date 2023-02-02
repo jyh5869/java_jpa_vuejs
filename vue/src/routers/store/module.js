@@ -5,7 +5,7 @@ const state = {
     token: null,
     id: null,
     name: null,
-    role: null,
+    role: 'USER',
     email: null,
     nickname: null,
 };
@@ -21,7 +21,7 @@ const mutations = {
     login(state, item) {
         state.token = item.headers['accesstoken'];
         state.id = item.data['id'];
-        state.role = item.data['role'];
+        //state.role = item.data['role'];
         state.email = item.data['email'];
         state.nickname = item.data['nickname'];
     },
@@ -48,6 +48,7 @@ const actions = {
                 console.log('then');
                 console.log(res);
                 commit('login', res);
+                console.log(this.state);
                 //router.push('/main');
             })
             .catch((e) => {
