@@ -41,26 +41,26 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
     //console.log(to.matched);
-    console.log(store.getters.token);
-    //if (to.matched.some((record) => record.meta.requiresAuth)) {
-    if (!store.getters.token || store.getters.token == null) {
-        console.log(store);
 
-        if (!store.getters.token || store.getters.token == null) {
-            console.log('--------------------------------------------------store----------------------------------------');
-            //router.push('/auth');
-            router.push('/auth');
-            /*
-            next({
-                name: 'auth',
-            });
-            */
-        } else {
-            next();
-        }
+    //if (to.matched.some((record) => record.meta.requiresAuth)) {
+    //if (!store.getters.token || store.getters.token == null) {
+    //console.log(store);
+    console.log(store.getters.token);
+    //console.log(record.meta.requiresAuth);
+    if (store.getters.token == null) {
+        console.log('--------------------------------------------------store----------------------------------------');
+        //router.push('/auth');
+        //router.push('/auth');
+
+        next({
+            name: 'auth',
+        });
     } else {
         next();
     }
+    // } else {
+    //     next();
+    // }
 });
 
 export default router;
