@@ -14,17 +14,20 @@ const routes = [
         path: '/', // [경로]
         name: 'home', // [이름]
         component: () => import('@/components/HomeComponent.vue'), // [로드 파일]
+        meta: { authRequired: true },
     },
     {
         path: '/hello/:document', // [경로]
         name: 'hello', // [이름]
         component: () => import('@/components/HelloComponent.vue'), // [로드 파일]
+        meta: { authRequired: true },
         props: true,
     },
     {
         path: '/main', // [경로]
         name: 'main', // [이름]
         component: () => import('@/components/MainComponent.vue'), // [로드 파일]]
+        meta: { authRequired: true },
     },
     {
         path: '/auth', // [경로]
@@ -40,27 +43,20 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-    //console.log(to.matched);
-
-    //if (to.matched.some((record) => record.meta.requiresAuth)) {
-    //if (!store.getters.token || store.getters.token == null) {
-    //console.log(store);
-    console.log(store.getters.token);
-    //console.log(record.meta.requiresAuth);
-    if (store.getters.token == null) {
-        console.log('--------------------------------------------------store----------------------------------------');
-        //router.push('/auth');
-        //router.push('/auth');
-
-        next({
-            name: 'auth',
-        });
+    if (to.matched.some((record) => record.meta.authRequired)) {
+        console.log(store.getters.token);
+        if (store.getters.token == null) {
+            console.log('토큰 없어');
+            next({
+                path: '/auth',
+            });
+        } else {
+            console.log('토큰 있어');
+            next();
+        }
     } else {
         next();
     }
-    // } else {
-    //     next();
-    // }
 });
 
 export default router;

@@ -1,5 +1,5 @@
 import axios from 'axios';
-//import router from '../index.js';
+import router from '../index.js';
 
 const state = {
     token: null,
@@ -49,7 +49,7 @@ const actions = {
                 console.log(res);
                 commit('login', res);
                 console.log(this.state);
-                //router.push('/main');
+                router.push('/main');
             })
             .catch((e) => {
                 console.log(e);
@@ -58,7 +58,9 @@ const actions = {
             });
     },
     logout({ commit }) {
+        console.log('로그아웃!!');
         commit('logout');
+        router.push('/auth');
     },
 };
 

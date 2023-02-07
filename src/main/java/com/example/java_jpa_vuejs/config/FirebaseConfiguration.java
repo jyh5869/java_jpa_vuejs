@@ -34,7 +34,7 @@ public class FirebaseConfiguration {
 
         List<FirebaseApp> firebaseApps = FirebaseApp.getApps();
         
-    if (firebaseApps != null && !firebaseApps.isEmpty()) {
+        if (firebaseApps != null && !firebaseApps.isEmpty()) {
             for (FirebaseApp app : firebaseApps) {
                 if (app.getName().equals(FirebaseApp.DEFAULT_APP_NAME)) {
                     firebaseApp = app;

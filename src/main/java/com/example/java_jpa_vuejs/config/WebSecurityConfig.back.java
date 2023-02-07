@@ -66,12 +66,12 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
                     .disable()
                 .formLogin()
                     .disable();
-	return http.build();
-}
+	    return http.build();
+    }
 
     @Bean
     public UserDetailsService userDetailsService() throws Exception {
-        System.out.println("하위하위하위하위");  
+
         PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
         
         UserDetails user = User
@@ -102,8 +102,6 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
 
         return source;
     }
-
-
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder(){

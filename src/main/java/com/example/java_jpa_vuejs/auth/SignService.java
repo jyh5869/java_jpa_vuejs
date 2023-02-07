@@ -1,68 +1,25 @@
 package com.example.java_jpa_vuejs.auth;
 
-import com.example.java_jpa_vuejs.auth.MemberRepository;
-import com.example.java_jpa_vuejs.auth.AuthenticationDto;
-import com.example.java_jpa_vuejs.auth.JoinDto;
-import com.example.java_jpa_vuejs.auth.LoginDto;
 import com.example.java_jpa_vuejs.util.DuplicatedException;
 import com.example.java_jpa_vuejs.util.ForbiddenException;
 import com.example.java_jpa_vuejs.util.UserNotFoundException;
 import com.example.java_jpa_vuejs.validation.Empty;
 
-import jakarta.annotation.Resource;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.PersistenceContext;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.modelmapper.ModelMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
 
 @Service("signService")
 @RequiredArgsConstructor
 public class SignService {
 
 	private final MemberRepository memberRepository;
-
-	private final BCryptPasswordEncoder passwordEncoder;
-	
+	//private final BCryptPasswordEncoder passwordEncoder;	
 	private final ModelMapper modelMapper;
-
-
-	//@Autowired(required=false)
-	//private final MemberRepository memberRepository;
-
-	//@Autowired(required=false)
-	//private MemberRepository memberRepository;
-
-
-
-	//private final BCryptPasswordEncoder  passwordEncoder;
 	
-	//@Autowired
-	//ModelMapper modelMapper;
-	 
-	/* 
-		@Bean(name="sessionFactory")
-		public LocalSessionFactoryBean sessionFactory() {
-			LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
 
-			return sessionFactory;
-		};
-	*/
-	
-	/* 
-	@Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
-	*/
 	public Boolean regMember(JoinDto joinDto) {
 
 		// 아이디 중복체크
@@ -85,10 +42,7 @@ public class SignService {
 
 	public AuthenticationDto loginMember(LoginDto loginDto) {
 
-		System.out.println("아예 부르지를 못하나?     =     ");
-		memberRepository.countByEmail(loginDto.getEmail());
-		System.out.println("아예 부르지를 못하나?     =     " + memberRepository.countByEmail(loginDto.getEmail()));
-		// dto -> entity
+		// DTO -> Entity
 		Members loginEntity = loginDto.toEntity();
 		System.out.println(loginEntity.getEmail());
 		// 회원 엔티티 객체 생성 및 조회시작
@@ -101,11 +55,10 @@ public class SignService {
 		}
 		*/
 		if (!loginEntity.getPassword().equals(member.getPassword())){
-			System.out.println(loginEntity.getPassword() + "            " + member.getPassword());
 			throw new ForbiddenException("Passwords do not match");
 		}
 			
-	// 회원정보를 인증클래스 객체(authentication)로 매핑
+		// 회원정보를 인증클래스 객체(authentication)로 매핑
 		return modelMapper.map(member, AuthenticationDto.class);
 	}
 

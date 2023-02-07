@@ -1,76 +1,67 @@
 
 package com.example.java_jpa_vuejs.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.authentication.configurers.provisioning.InMemoryUserDetailsManagerConfigurer;
-import org.springframework.security.config.annotation.authentication.configurers.provisioning.UserDetailsManagerConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import com.example.java_jpa_vuejs.auth.AuthProvider;
 import com.example.java_jpa_vuejs.auth.point.CustomAccessDeniedPoint;
 import com.example.java_jpa_vuejs.auth.point.CustomAuthenticationEntryPoint;
 import com.example.java_jpa_vuejs.auth.point.CustomFilter;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-//https://www.baeldung.com/spring-security-custom-logout-handler
-//https://velog.io/@shinhyocheol/%EB%A1%9C%EA%B7%B8%EC%9D%B8-%EA%B8%B0%EB%8A%A51
-//https://velog.io/@shinhyocheol/%EB%A1%9C%EA%B7%B8%EC%9D%B8-%EA%B8%B0%EB%8A%A52
-//https://github.com/shinhyocheol/board-api-example/blob/master/src/main/java/kr/co/platform/util/auth/point/CustomAuthenticationEntryPoint.java
-//@Configuration
-//@RequiredArgsConstructor
 
 
+/**
+ * 스프링 시큐리티 설정 파일
+ * @see https://velog.io/@shinhyocheol/%EB%A1%9C%EA%B7%B8%EC%9D%B8-%EA%B8%B0%EB%8A%A51
+ * @see https://www.baeldung.com/spring-security-custom-logout-handler
+ */
 @EnableWebSecurity
 @RequiredArgsConstructor
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfiguration {
+    
+    private static final Logger LOG = LoggerFactory.getLogger(WebSecurityConfig.class);
 
     private final AuthProvider authProvider;
+    
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        System.out.println("http 객체 생성-------------------------------s");
+        
+        LOG.info("스프링시큐리티 http 객체 생성 START");
+
         http
 			.httpBasic().disable()
-				.csrf().disable()
+			.csrf().disable()
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				.and()
 			.authorizeRequests()
-				//.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-					.requestMatchers("/signup").permitAll()			// 회원가입
-					.requestMatchers("/api/signin").permitAll() 		// 로그인
-					.requestMatchers("/exception/**").permitAll() 	// 예외처리 포인트
-					//.requestMatchers("/**").hasRole("USER")				// 이외 나머지는 USER 권한필요
+				    .requestMatchers(CorsUtils::isPreFlightRequest).permitAll() // CORS 정보 사전 전달 에대한 접근
+					.requestMatchers("/signup").permitAll()// 회원가입 페이지 접근
+					.requestMatchers("/api/signin").permitAll()// 로그인 페이지 접근
+					.requestMatchers("/exception/**").permitAll() // 예외처리 포인트 접근
+					//.requestMatchers("/**").hasRole("USER")// 상세 권한 설정
                     .anyRequest().authenticated() 
 				.and()
 			.cors()
@@ -80,14 +71,20 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
 			.exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint())
 				.and()
 			.addFilterBefore(new CustomFilter(authProvider), UsernamePasswordAuthenticationFilter.class);
-            System.out.println("http 객체 생성-------------------------------e");
+
+        LOG.info("스프링시큐리티 http 객체 생성 END");
+
         return http.build();
     }
 
-    
+    /**
+     * 스프링시큐리티 테스트 설정 빈
+     * @param null
+     * @return 스프링 시큐리티 테스트 USER 정보
+     */    
     @Bean
     public UserDetailsService userDetailsService() throws Exception {
-        System.out.println("하위하위하위하위");  
+ 
         PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
         
         UserDetails user = User
@@ -95,17 +92,15 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
             .password(encoder.encode("1234"))
             .roles("USER")
             .build();
-        System.out.println(user.getPassword());
             
         return new InMemoryUserDetailsManager(user);
     } 
     
-
-    // @Bean
-    // public UserDetailsService userDetailsService() {
-    //     return userDetailsService();
-    // }
-     
+    /**
+     * 크로스 도메인 설정
+     * @param null
+     * @return 크로스도메인 설정 객체
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
             
@@ -125,23 +120,14 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
         return source;
     }
     
-
-    
-    // @Bean
-	// public AuthenticationManager authenticationManager() throws Exception {
-	// 	return authenticationManager();
-	// } 
-        /* 
-    @Bean
-    public AuthenticationManager authenticationManagerBeanManager() throws Exception {
-        return authenticationManagerBeanManager();
-    }
-    */
-
-    
-
+    /**
+     * 스프링 시큐리티 필터 예외 확장자
+     * @param null
+     * @return 제외할 확장자
+     */
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring().requestMatchers("/images/**", "/js/**", "/webjars/**");
     }
+
 }

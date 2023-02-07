@@ -8,12 +8,6 @@ import com.example.java_jpa_vuejs.auth.MemberRepository;
 
 @Configuration
 public class SpringConfig {
-    /* 
-    @Bean
-    public MemberService memberService() {
-        return new MemberService(memberRepository());
-    }
-    */
     
     @Bean
     public ModelMapper modelMapper(){
