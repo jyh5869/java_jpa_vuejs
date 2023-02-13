@@ -53,6 +53,8 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
         
         LOG.info("스프링시큐리티 http 객체 생성 START");
         
+            CustomFilter customFilter =  new CustomFilter(authProvider);
+
         http
 			.httpBasic().disable()
 			.csrf().disable()
@@ -72,8 +74,8 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
 				.and()
 			.exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint())
 			    .and()
-			.addFilterBefore(new CustomFilter(authProvider), UsernamePasswordAuthenticationFilter.class)
-            //.addFilterBefore(jwtExceptionFilter, new CustomFilter(authProvider));
+			.addFilterBefore(customFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(jwtExceptionFilter, CustomFilter.class);
 
         LOG.info("스프링시큐리티 http 객체 생성 END");
 
