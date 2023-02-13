@@ -35,7 +35,7 @@ public class CustomFilter extends GenericFilterBean {
 
         HttpServletRequest httpReq = (HttpServletRequest)request;
         HttpServletResponse httpRes = (HttpServletResponse) response;
-
+        System.out.println("※※※※※※※※※※※※※※※※※※※※※※※※※※※    필터 2");
         try {
             if("OPTIONS".equalsIgnoreCase(httpReq.getMethod())) {
                 httpRes.setStatus(HttpServletResponse.SC_OK);
@@ -46,11 +46,19 @@ public class CustomFilter extends GenericFilterBean {
                 // 사용자 인증토큰 검사
                 String token = jwtTokenProvider.resolveToken(httpReq);
                 if (token != null) {
-                    LOG.info("Access Token : Exist");
+                    
                     //토큰 유효성 검사
+                    //System.out.println("★★★★★★★★★★★");
+                    //System.out.println(jwtTokenProvider.validateToken(token));
+                    //System.out.println("★★★★★★★★★★★");
+
                     if(jwtTokenProvider.validateToken(token)) {
+                        LOG.info("Access Token : Exist");
                         Authentication auth = jwtTokenProvider.getAuthentication(token);
                         SecurityContextHolder.getContext().setAuthentication(auth);
+                    }
+                    else{
+                        LOG.info("Access Token : Expiration");
                     }
                 }
                 else{

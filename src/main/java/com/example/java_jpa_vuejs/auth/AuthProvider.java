@@ -112,7 +112,6 @@ public class AuthProvider {
         try {
             LOG.info("Start And Check Token Validate - token :" + token);
             Jws<Claims> claims = Jwts.parser().setSigningKey(atSecretKey).parseClaimsJws(token);
-
             return !claims.getBody().getExpiration().before(new Date());
         } 
         catch (Exception e) {

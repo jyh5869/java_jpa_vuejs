@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 import com.example.java_jpa_vuejs.auth.AuthProvider;
+import com.example.java_jpa_vuejs.auth.JwtExceptionFilter;
 import com.example.java_jpa_vuejs.auth.point.CustomAccessDeniedPoint;
 import com.example.java_jpa_vuejs.auth.point.CustomAuthenticationEntryPoint;
 import com.example.java_jpa_vuejs.auth.point.CustomFilter;
@@ -44,6 +45,7 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
     private static final Logger LOG = LoggerFactory.getLogger(WebSecurityConfig.class);
 
     private final AuthProvider authProvider;
+    private final JwtExceptionFilter jwtExceptionFilter;
     
 
     @Bean
@@ -69,8 +71,9 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
 			.exceptionHandling().accessDeniedHandler(new CustomAccessDeniedPoint())
 				.and()
 			.exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint())
-				.and()
-			.addFilterBefore(new CustomFilter(authProvider), UsernamePasswordAuthenticationFilter.class);
+			    .and()
+			.addFilterBefore(new CustomFilter(authProvider), UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(jwtExceptionFilter, UsernamePasswordAuthenticationFilter.class);
 
         LOG.info("스프링시큐리티 http 객체 생성 END");
 
