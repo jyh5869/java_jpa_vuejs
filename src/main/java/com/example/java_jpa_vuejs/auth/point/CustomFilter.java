@@ -59,11 +59,13 @@ public class CustomFilter extends GenericFilterBean {
                     }
                     else{
                         LOG.info("Access Token : Expiration");
+                        httpRes.setStatus(HttpServletResponse.SC_OK);
                     }
                 }
                 else{
                     LOG.info("Access Token : Empty");
                 }
+                System.out.println("▶ ▶▶ ▶▶ ▶▶ ▶▶ ▶▶ ▶▶ ▶▶ ▶▶ ▶▶ ▶▶ ▶▶ ▶▶ ▶▶ ▶");
                 filterChain.doFilter(request, response);
             }
         } 
