@@ -55,10 +55,11 @@
                     <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
                     <button class="btn btn-outline-success" type="submit">Search</button>
                 </form>
-                <div class="btn-wrap navbar-nav mb-2 mb-lg-0">
+
+                <div class="btn-wrap navbar-nav mb-2 mb-lg-0" v-if="authYn == false">
                     <router-link class="btn login btn-outline-primary" to="/auth">Login</router-link>
                 </div>
-                <div class="btn-wrap navbar-nav mb-2 mb-lg-0">
+                <div class="btn-wrap navbar-nav mb-2 mb-lg-0" v-else-if="authYn == true">
                     <button class="btn login btn-outline-primary" @click="logout()">Logout</button>
                 </div>
             </div>
@@ -69,6 +70,12 @@
 <!-- [개별 스크립트 설정 실시] -->
 <script>
 export default {
+    data() {
+        let authYn1 = this.$store.getters.token == null ? false : true;
+        return {
+            authYn: authYn1,
+        };
+    },
     methods: {
         logout: async function () {
             this.$store.dispatch('logout'); // 로그인
@@ -78,17 +85,14 @@ export default {
                 method: 'post',
                 url: '/api/logout',
                 params: {
-                    // callType: useParams.callType,
-                    // targetId: useParams.targetId,
+                    callType: useParams.callType,
                 },
-                //withCredentials: true,
+                withCredentials: true,
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Access-Control-Allow-Origin': '*',
                 },
             });
-            console.log(result);
-            //console.log('로그아웃 가따옴');
             */
         },
     },
@@ -103,6 +107,7 @@ export default {
 .btn-wrap .login {
     margin-left: 5px;
 }
+
 @media (max-width: 991px) {
     .btn-wrap .login {
         margin: 5px 0px;

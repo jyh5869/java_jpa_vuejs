@@ -24,6 +24,7 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
             System.out.println("☆☆☆☆☆☆☆222222222222222222222");
         } 
         catch (JwtException ex) {
+            System.out.println("--------------------------------------->필터 예외 발생");
             setErrorResponse(HttpStatus.SC_UNAUTHORIZED, res, ex);
         }
     }

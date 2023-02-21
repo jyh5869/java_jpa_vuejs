@@ -22,7 +22,7 @@ const instance = axios.create({
 
 // 요청 인터셉터 추가
 // Promise Chaining이란 무었인가????????????????????
-instance.defaults.timeout = 2500;
+instance.defaults.timeout = 5000;
 instance.interceptors.request.use(
     function (config) {
         // 요청이 전달되기 전에 작업
@@ -44,9 +44,12 @@ instance.interceptors.response.use(
             switch (error.response.status) {
                 // status code가 401인 경우 `logout`을 커밋하고 `/login` 페이지로 리다이렉트
                 case 401:
-                    //store.commit('auth/logout');
                     // 이행되지 않는 Promise를 반환하여 Promise Chaining 끊어주기
+                    store.commit('logout');
                     console.log('ERROR - Response 401 오류발생 : ' + error);
+                    return new Promise(() => {});
+                case 403:
+                    console.log('ERROR - Response 403 오류발생 : ' + error);
                     return new Promise(() => {});
                 case 200:
                     console.log('ERROR - Response 200 오류발생 : ' + error);
