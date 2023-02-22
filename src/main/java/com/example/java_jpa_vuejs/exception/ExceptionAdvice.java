@@ -1,5 +1,5 @@
 package com.example.java_jpa_vuejs.exception;
-
+/* */
 import javassist.NotFoundException;
 
 //import kr.co.platform.exception.custom.*;
@@ -23,7 +23,7 @@ import com.example.java_jpa_vuejs.exception.custom.UserNotFoundException;
 
 import org.springframework.security.access.AccessDeniedException;
 
-import javax.persistence.EntityNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,9 +35,9 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<String> defaultException(Exception e) throws Exception {
         e.printStackTrace();
-
+        System.out.println("------------------------------------------------------------------------->defaultException");
         Map<String, Object> resultMap = new HashMap<>();
-        resultMap.put("msg", e.getMessage());
+        resultMap.put("msg-defaultException", e.getMessage());
 
         JSONArray result = JSONArray.fromObject(resultMap);
 
@@ -52,7 +52,7 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> badRequestException(Exception e) throws Exception {
         e.printStackTrace();
-
+        System.out.println("------------------------------------------------------------------------->badRequestException");
         Map<String, Object> resultMap = new HashMap<String, Object>();
         resultMap.put("msg", e.getMessage());
 
@@ -65,7 +65,7 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseEntity<String> accessDeniedException(Exception e) throws Exception {
         e.printStackTrace();
-
+        System.out.println("------------------------------------------------------------------------->accessDeniedException");
         Map<String, Object> resultMap = new HashMap<String, Object>();
         resultMap.put("msg", e.getMessage());
 
@@ -78,7 +78,7 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ResponseEntity<String> forbiddenException(ForbiddenException e) throws Exception {
         e.printStackTrace();
-
+        System.out.println("------------------------------------------------------------------------->forbiddenException");
         Map<String, Object> resultMap = new HashMap<String, Object>();
         resultMap.put("msg", e.getMessage());
 
@@ -94,7 +94,7 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<String> notFoundException(NotFoundException e) throws Exception {
         e.printStackTrace();
-
+        System.out.println("------------------------------------------------------------------------->NotFoundException");
         Map<String, Object> resultMap = new HashMap<String, Object>();
         resultMap.put("msg", e.getMessage());
 
@@ -106,7 +106,7 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.CONFLICT)
     public ResponseEntity<String> DuplicatedException(DuplicatedException e) throws Exception {
         e.printStackTrace();
-
+        System.out.println("------------------------------------------------------------------------->DuplicatedException");
         Map<String, Object> resultMap = new HashMap<String, Object>();
         resultMap.put("msg", e.getMessage());
 
@@ -117,7 +117,7 @@ public class ExceptionAdvice {
     @ExceptionHandler(ApiOtherException.class)
     public ResponseEntity<String> ApiOtherException(ApiOtherException e) throws Exception {
         e.printStackTrace();
-
+        System.out.println("------------------------------------------------------------------------->ApiOtherException");
         Map<String, Object> resultMap = new HashMap<String, Object>();
         resultMap.put("msg", e.getMessage());
 
