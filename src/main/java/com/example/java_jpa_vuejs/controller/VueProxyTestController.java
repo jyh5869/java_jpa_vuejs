@@ -27,7 +27,6 @@ import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.Query.Direction;
 import com.google.firebase.cloud.FirestoreClient;
 
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
@@ -50,46 +49,55 @@ public class VueProxyTestController {
     private final SignService apiSignService;
     private final AuthProvider authProvider;
 
+    /**
+    * @method 클라우드를 통한 리스트 호출
+    * @param 
+    * @throws Exception
+    */
     @GetMapping("/getList")
     public List<Map<String, Object>> index() throws InterruptedException, ExecutionException, IOException {
         
-        //파이어 베이스 초기화
-        firebaseConfiguration.initializeFCM();
-        Firestore db = FirestoreClient.getFirestore();
-
-        //스냅샷 호출 후 리스트 생성(JSON)
-        ApiFuture<QuerySnapshot> query = db.collection("board").orderBy("brddate", Direction.DESCENDING).limit(10).get();
-        QuerySnapshot querySnapshot = query.get();
-
-        List<QueryDocumentSnapshot> documents = querySnapshot.getDocuments();
+        long reqTime = Util.durationTime ("start", "JPA 테스트", 0, "Proceeding" );
         List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
 
-        for (QueryDocumentSnapshot document : documents) {
-            /* ※ 데이터 출력 Example */
-            System.out.println("id        : " + document.getId());
-            
-            String toDayFormat = Util.remakeDate(document.getLong("brddate"),1);
-            
-            Map<String, Object> data = document.getData();
-            data.put("brddate", toDayFormat);
+        try {     
+            //파이어 베이스 초기화
+            firebaseConfiguration.initializeFCM();
+            Firestore db = FirestoreClient.getFirestore();
 
-            result.add(data);
+            //스냅샷 호출 후 리스트 생성(JSON)
+            ApiFuture<QuerySnapshot> query = db.collection("board").orderBy("brddate", Direction.DESCENDING).limit(10).get();
+            QuerySnapshot querySnapshot = query.get();
+
+            List<QueryDocumentSnapshot> documents = querySnapshot.getDocuments();
+            
+
+            for (QueryDocumentSnapshot document : documents) {
+                /* ※ 데이터 출력 Example 
+                System.out.println("id        : " + document.getId());
+                */
+
+                String toDayFormat = Util.remakeDate(document.getLong("brddate"),1);
+                
+                Map<String, Object> data = document.getData();
+                data.put("brddate", toDayFormat);
+
+                result.add(data);
+            }
+            Util.durationTime ("end", "JPA 테스트", reqTime, "Complete" );
         }
+        catch (Exception e) {
+            
+            Util.durationTime ("end", "JPA 테스트", reqTime, "Fail" );
+            e.printStackTrace();
+        }
+
         return result;
     }
 
-    @GetMapping("/login")
-    public void login() {
-        LOG.info("GET successfully called on /login resource");
-    }
-
-    @GetMapping("/logout")
-    public void logout(HttpSession session) {
-        LOG.info("GET successfully called on /logout resource");
-    }
     
     /**
-    * @method 설명 : 로그인
+    * @method 로그인
     * @param loginDto
     * @throws Exception
     */
@@ -98,7 +106,6 @@ public class VueProxyTestController {
 
         AuthenticationDto authentication = apiSignService.loginMember(loginDto);
 
-        System.out.println(authentication);
         return ResponseEntity.ok()
                 .header("accesstoken", authProvider
                 .createToken(

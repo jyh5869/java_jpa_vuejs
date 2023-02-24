@@ -4,14 +4,14 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
+import com.common.Util;
 import com.example.java_jpa_vuejs.auth.MemberRepository;
 
 
-@SpringBootApplication //(exclude = DataSourceAutoConfiguration.class) -> 데이터소스 자동 생성 제외 (Bean생성 안됨)
+@SpringBootApplication // (exclude = DataSourceAutoConfiguration.class) -> 데이터소스 자동 생성 제외 (Bean생성 안됨)
 public class JavaJpaVuejsApplication {
 
 	public static void main(String[] args) {
@@ -20,18 +20,25 @@ public class JavaJpaVuejsApplication {
 	
     private static final Logger LOG = LoggerFactory.getLogger(JavaJpaVuejsApplication.class);
     
+    /**
+     * JPA Test Bean
+     */
     @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public CommandLineRunner demo(MemberRepository repository) {
+    public CommandLineRunner demo(MemberRepository repository) throws InterruptedException {
+    
+        long reqTime = Util.durationTime ("start", "JPA 테스트", 0, "Proceeding" );
         
         return (args) -> {
-            LOG.info("JPA 테스트 시작 - FALG = NONE");
-            repository.findByEmail("5869jyh@hanmail.net");
-            LOG.info("JPA 테스트 종료 - FLAG = SUCCESS");
+            try {             
+
+                repository.findByEmail("5869jyh@hanmail.net");
+                Util.durationTime ("end", "JPA 테스트", reqTime, "Complete" );
+            }
+            catch (Exception e) {
+                
+                Util.durationTime ("end", "JPA 테스트", reqTime, "Fail" );
+                e.printStackTrace();
+            }
         };
     }
 }

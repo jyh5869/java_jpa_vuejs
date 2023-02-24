@@ -9,9 +9,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue-3/dist/bootstrap-vue-3.css';
 
 import store from './routers/store/index.js';
-// console.log('★★★★★');
-// console.log(store);
-// console.log('★★★★★');
+
 const app = createApp(App);
 
 //axios instance 생성
@@ -67,7 +65,6 @@ instance.interceptors.response.use(
 );
 
 app.config.globalProperties.$axios = instance;
-
 app.config.globalProperties.$store = store;
 
 app.use(store);

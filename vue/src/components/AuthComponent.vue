@@ -57,13 +57,6 @@
             <b-badge variant="info">로그인해주세요</b-badge>
         </h1>
         <h5>로그인 하지 않았습니다. 로그인을 해주세요</h5>
-
-        <!-- <label>
-            <input type="text" placeholder="username"  v-model="user" autocomplete="off" />
-        </label>
-        <label>
-            <input type="password" placeholder="password" v-model="password" autocomplete="off" />
-        </label> -->
         <b-btn variant="success" @click="login()">Login</b-btn>
         <p v-if="error" class="error">Bad login information</p>
     </div>
@@ -121,7 +114,6 @@ export default {
             }
         },
         loginBak: async function () {
-            alert('하위하위');
             try {
                 const result = await this.$axios.get('/api/login', {
                     auth: {
@@ -129,7 +121,7 @@ export default {
                         password: this.password,
                     },
                 });
-                console.log(result);
+
                 if (result.status === 200) {
                     this.loginSuccess = true;
                 }
@@ -137,6 +129,7 @@ export default {
                 this.loginError = true;
                 throw new Error(err);
             }
+
             console.log('-------------------');
             console.log(this.user);
             console.log(this.password);

@@ -1,9 +1,11 @@
 package com.example.java_jpa_vuejs.auth;
 
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -18,6 +20,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.Base64;
 import java.util.Date;
+import java.time.Duration;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,16 +33,17 @@ public class AuthProvider {
 
     @Value("${spring.jwt.secret.signature}")
     private String atSecretKey;
-
+    
     @PostConstruct
     protected void init() {
         atSecretKey = Base64.getEncoder().encodeToString(atSecretKey.getBytes());
-
     }
 
-    // @Autowired
-    // private UserDetailsService userDetailsService;
+    private UserDetailsService userDetailsService;
 
+    private long accessTokenValidTime = Duration.ofMinutes(60).toMillis(); // 만료시간 30분인 엑세스 토큰 
+    private long refreshTokenValidTime = Duration.ofDays(14).toMillis(); // 만료시간 2주인 리프레쉬 토큰
+    
     /**
      * @throws Exception
      * @method 설명 : jwt 토큰 발급
@@ -57,11 +61,11 @@ public class AuthProvider {
                 nickname);  // 닉네임
     	
     	// 유효기간설정을 위한 Date 객체 선언
-    	Date date = new Date();
+    	Date now = new Date();
     
         final JwtBuilder builder = Jwts.builder()
                 .setHeaderParam("typ", "JWT")
-                .setSubject("accesstoken").setExpiration(new Date(date.getTime() + (1000L*60*60*12)))
+                .setSubject("accesstoken").setExpiration(new Date(now.getTime() + accessTokenValidTime))
                 .claim("userPk", userPk)
                 .claim("email", email)
                 .claim("roles", user.getAuthorities())
@@ -85,8 +89,8 @@ public class AuthProvider {
      */
     @SuppressWarnings("unchecked")
     public Authentication getAuthentication(String token) {
-            // 토큰 기반으로 유저의 정보 파싱
-    LOG.info("Start And Get Auth Info");
+        // 토큰 기반으로 유저의 정보 파싱
+        LOG.info("Start And Get Auth Info");
         Claims claims = Jwts.parser().setSigningKey(atSecretKey).parseClaimsJws(token).getBody();
 
         long userPk = claims.get("userPk", Integer.class);
@@ -118,5 +122,5 @@ public class AuthProvider {
             LOG.error("Error From Check Token Validate - token :" + token);
             return false;
         }
-}
+    }
 }

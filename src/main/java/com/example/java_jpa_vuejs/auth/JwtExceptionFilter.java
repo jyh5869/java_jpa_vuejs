@@ -5,6 +5,8 @@ import java.io.IOException;
 import org.apache.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -12,28 +14,30 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+
 @Component
 public class JwtExceptionFilter extends OncePerRequestFilter {
 
+    private static final Logger LOG = LoggerFactory.getLogger(JwtExceptionFilter.class);
+
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain) throws ServletException, IOException {
-        System.out.println("※※※※※※※※※※※※※※※※※※※※※※※※※※※    필터 1");
+       
         try {
-            System.out.println("☆☆☆☆☆☆☆111111111111111111111");
-            filterChain.doFilter(req, res); // go to 'JwtAuthenticationFilter'
-            System.out.println("☆☆☆☆☆☆☆222222222222222222222");
+            LOG.info("스프링 시큐리티 Before Filter1 Action!");
+            filterChain.doFilter(req, res); // go to 'AuthProvider'
         } 
         catch (JwtException ex) {
-            System.out.println("--------------------------------------->필터 예외 발생");
+
             setErrorResponse(HttpStatus.SC_UNAUTHORIZED, res, ex);
         }
     }
 
     public void setErrorResponse(int scUnauthorized, HttpServletResponse res, Throwable ex) throws IOException {
-        System.out.println("※※※※※※※※※※※※※※※※※※※※※※※※※※※    필터 1");
+        LOG.info("스프링 시큐리티 Before Filter1 Action! - Exception!");
+        
         /* 
         res.setContentType("application/json; charset=UTF-8");
-
         jwtExceptionResponse jwtExceptionResponse = new JwtException(ex.getMessage(), HttpStatus.SC_UNAUTHORIZED);
         res.getWriter().write(jwtExceptionResponse.convertToJson());
         */

@@ -45,15 +45,15 @@ const actions = {
                 headers: { 'content-type': 'application/json' },
             })
             .then((res) => {
-                console.log('then');
-                console.log(res);
                 commit('login', res);
+
+                console.log(res);
                 console.log(this.state);
+
                 router.push('/main');
             })
-            .catch((e) => {
-                console.log(e);
-                console.log('catch');
+            .catch((error) => {
+                console.log(error);
                 alert('로그인 요청에 문제가 발생했습니다.');
             });
     },

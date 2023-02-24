@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+
 /**
  * JWT TOKEN 인증 필터
  */
@@ -35,7 +36,8 @@ public class CustomFilter extends GenericFilterBean {
 
         HttpServletRequest httpReq = (HttpServletRequest)request;
         HttpServletResponse httpRes = (HttpServletResponse) response;
-        System.out.println("※※※※※※※※※※※※※※※※※※※※※※※※※※※    필터 2");
+        
+        LOG.info("스프링 시큐리티 Before Filter2 Action!");
         try {
             if("OPTIONS".equalsIgnoreCase(httpReq.getMethod())) {
                 httpRes.setStatus(HttpServletResponse.SC_OK);
@@ -46,11 +48,6 @@ public class CustomFilter extends GenericFilterBean {
                 // 사용자 인증토큰 검사
                 String token = jwtTokenProvider.resolveToken(httpReq);
                 if (token != null) {
-                    
-                    //토큰 유효성 검사
-                    //System.out.println("★★★★★★★★★★★");
-                    //System.out.println(jwtTokenProvider.validateToken(token));
-                    //System.out.println("★★★★★★★★★★★");
 
                     if(jwtTokenProvider.validateToken(token)) {
                         LOG.info("Access Token : Exist");
@@ -76,7 +73,6 @@ public class CustomFilter extends GenericFilterBean {
                 else{
                     LOG.info("Access Token : Empty");
                 }
-                System.out.println("▶ ▶▶ ▶▶ ▶▶ ▶▶ ▶▶ ▶▶ ▶▶ ▶▶ ▶▶ ▶▶ ▶▶ ▶▶ ▶▶ ▶");
                 filterChain.doFilter(request, response);
             }
         } 
@@ -84,5 +80,4 @@ public class CustomFilter extends GenericFilterBean {
             e.printStackTrace();
         }
     }
-
 }

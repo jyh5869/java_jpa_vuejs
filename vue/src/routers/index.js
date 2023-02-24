@@ -5,7 +5,7 @@
 
 // [라우터 import 수행 실시]
 import { createWebHistory, createRouter } from 'vue-router';
-//import store from './routers/store/index.js';
+
 import store from '../routers/store/index.js';
 
 // [라우터 path 접속 경로 설정]
@@ -36,15 +36,15 @@ const routes = [
     },
 ];
 
-// [라우터 설정 실시]
+// 라우터 설정 실시
 const router = createRouter({
     history: createWebHistory(),
     routes,
 });
 
+// 라우터 Before Handler
 router.beforeEach((to, from, next) => {
     if (to.matched.some((record) => record.meta.authRequired)) {
-        console.log(store.getters.token);
         if (store.getters.token == null) {
             console.log('토큰 없어');
             next({
