@@ -33,14 +33,11 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
         }
     }
 
-    public void setErrorResponse(int scUnauthorized, HttpServletResponse res, Throwable ex) throws IOException {
+    public void setErrorResponse(int scUnauthorized, HttpServletResponse response, Throwable ex) throws IOException {
         LOG.info("스프링 시큐리티 Before Filter1 Action! - Exception!");
-        
-        /* 
-        res.setContentType("application/json; charset=UTF-8");
-        jwtExceptionResponse jwtExceptionResponse = new JwtException(ex.getMessage(), HttpStatus.SC_UNAUTHORIZED);
-        res.getWriter().write(jwtExceptionResponse.convertToJson());
-        */
-    }
+        HttpServletResponse httpRes = (HttpServletResponse) response;
+        httpRes.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
+        return;
+    }
 }

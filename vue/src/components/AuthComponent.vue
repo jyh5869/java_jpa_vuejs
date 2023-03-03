@@ -21,15 +21,12 @@
     <br /><br />
     <div class="wrapper fadeInDown">
         <div id="formContent">
-            <!-- Tabs Titles -->
-
             <!-- Icon -->
             <div class="fadeIn first">
                 <img src="../assets/logo.png" id="icon" alt="User Icon" />
             </div>
 
             <!-- Login Form -->
-
             <input type="text" id="login" class="fadeIn second" name="userId" v-model="user" placeholder="User Id" />
             <input type="text" id="password" class="fadeIn third" name="passwrod" v-model="password" placeholder="Password" />
             <input type="button" class="fadeIn fourth" value="Log In" @click="login()" />
@@ -39,26 +36,6 @@
                 <a class="underlineHover" href="#">Forgot Password?</a>
             </div>
         </div>
-    </div>
-    <div class="protected" v-if="loginSuccess">
-        <h1>
-            <b-badge variant="success">보안 사이트에 대한 액세스가 허용되었습니다</b-badge>
-        </h1>
-        <h5>로그인 성공!</h5>
-    </div>
-    <div class="unprotected" v-else-if="loginError">
-        <h1>
-            <b-badge variant="danger">이 페이지에 대한 접근 권한이 없습니다.</b-badge>
-        </h1>
-        <h5>로그인 실패!</h5>
-    </div>
-    <div class="unprotected" v-else>
-        <h1>
-            <b-badge variant="info">로그인해주세요</b-badge>
-        </h1>
-        <h5>로그인 하지 않았습니다. 로그인을 해주세요</h5>
-        <b-btn variant="success" @click="login()">Login</b-btn>
-        <p v-if="error" class="error">Bad login information</p>
     </div>
 </template>
 
