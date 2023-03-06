@@ -40,7 +40,7 @@ public class SignService {
 	}
 	
 
-	public AuthenticationDto loginMember(LoginDto loginDto) {
+	public AuthenticationDto loginMemberMysql(LoginDto loginDto) {
 
 		// DTO -> Entity
 		Members loginEntity = loginDto.toEntity();
@@ -59,6 +59,16 @@ public class SignService {
 		}
 			
 		// 회원정보를 인증클래스 객체(authentication)로 매핑
+		return modelMapper.map(member, AuthenticationDto.class);
+	}
+
+	public AuthenticationDto loginMemberFirebase(LoginDto loginDto) {
+		Members loginEntity = loginDto.toEntity();
+		Members member = memberRepository.findByEmail(loginEntity.getEmail())
+			.orElseThrow(() -> new UserNotFoundException("User Not Found"));
+			
+		System.out.println(loginDto);
+
 		return modelMapper.map(member, AuthenticationDto.class);
 	}
 

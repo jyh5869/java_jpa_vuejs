@@ -104,7 +104,15 @@ public class VueProxyTestController {
     @PostMapping(value = {"/signin"})
     public ResponseEntity<AuthenticationDto> appLogin(@Valid @RequestBody LoginDto loginDto) throws Exception {
 
-        AuthenticationDto authentication = apiSignService.loginMember(loginDto);
+        AuthenticationDto authentication = new AuthenticationDto();
+
+        try {
+            authentication = apiSignService.loginMemberMysql(loginDto);
+        } 
+        catch (Exception e) {
+            authentication = apiSignService.loginMemberFirebase(loginDto);
+        }
+        
 
         return ResponseEntity.ok()
                 .header("accesstoken", authProvider

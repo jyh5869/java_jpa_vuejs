@@ -74,8 +74,8 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
 				.and()
 			.exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint())
 			    .and()
-			.addFilterBefore(customFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(jwtExceptionFilter, CustomFilter.class);
+			.addFilterBefore(customFilter, UsernamePasswordAuthenticationFilter.class);
+            //.addFilterBefore(jwtExceptionFilter, CustomFilter.class);
 
         LOG.info("스프링시큐리티 http 객체 생성 END");
 
