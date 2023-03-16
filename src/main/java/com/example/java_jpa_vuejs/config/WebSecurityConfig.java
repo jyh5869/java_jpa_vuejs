@@ -62,7 +62,7 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
 				.and()
 			.authorizeRequests()
 				    .requestMatchers(CorsUtils::isPreFlightRequest).permitAll() // CORS 정보 사전 전달 에대한 접근
-					.requestMatchers("/signup").permitAll()// 회원가입 페이지 접근
+					.requestMatchers("/api/signup").permitAll()// 회원가입 페이지 접근
 					.requestMatchers("/api/signin").permitAll()// 로그인 페이지 접근
 					.requestMatchers("/exception/**").permitAll() // 예외처리 포인트 접근
 					//.requestMatchers("/**").hasRole("USER")// 상세 권한 설정

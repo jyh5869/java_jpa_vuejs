@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.common.Util;
 import com.example.java_jpa_vuejs.auth.AuthProvider;
 import com.example.java_jpa_vuejs.auth.AuthenticationDto;
+import com.example.java_jpa_vuejs.auth.FirebaseAuthSignUtil;
 import com.example.java_jpa_vuejs.auth.LoginDto;
 import com.example.java_jpa_vuejs.auth.SignService;
 import com.example.java_jpa_vuejs.config.FirebaseConfiguration;
@@ -25,6 +27,7 @@ import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.Query.Direction;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.cloud.FirestoreClient;
 
 import jakarta.validation.Valid;
@@ -48,6 +51,7 @@ public class VueProxyTestController {
     private final FirebaseConfiguration firebaseConfiguration;
     private final SignService apiSignService;
     private final AuthProvider authProvider;
+    //private final FirebaseAuthSignUtil firebaseAuthSignUtil;
 
     /**
     * @method 클라우드를 통한 리스트 호출
@@ -121,5 +125,23 @@ public class VueProxyTestController {
                     authentication.getEmail(),
                     "USER"))
                 .body(authentication);
+    }
+
+    /**
+    * @method 권한 추가
+    * @param loginDto
+    * @throws Exception
+    */
+    @PostMapping(value = {"/signup"})
+    public Void appSineUp(LoginDto loginDto) throws Exception {
+        System.out.println("로그인 기능 을 만들거에요.");
+
+        FirebaseAuth firebaseAuth = firebaseConfiguration.initFirebaseAuth();
+        System.out.println(firebaseAuth);
+        FirebaseAuthSignUtil fbas = new FirebaseAuthSignUtil();
+        //fbas.createUser(firebaseAuth);
+        //fbas.getUserById(firebaseAuth, "1GRjJfHbIWVKFT6s3BtMv8c6P6t1");
+
+        return null;
     }
 }

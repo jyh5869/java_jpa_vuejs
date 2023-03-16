@@ -65,6 +65,5 @@ public class FirebaseConfiguration {
     public FirebaseMessaging initFirebaseMessaging() {
         FirebaseMessaging instance = FirebaseMessaging.getInstance(firebaseApp);
         return instance;
-    }
-
+    }  
 }

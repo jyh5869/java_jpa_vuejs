@@ -59,6 +59,9 @@
                 <div class="btn-wrap navbar-nav mb-2 mb-lg-0" v-if="authYn == false">
                     <router-link class="btn login btn-outline-primary" to="/auth">Login</router-link>
                 </div>
+                <div class="btn-wrap navbar-nav mb-2 mb-lg-0" v-if="authYn == false">
+                    <button class="btn login btn-outline-primary" @click="sginup()">Sginup</button>
+                </div>
                 <div class="btn-wrap navbar-nav mb-2 mb-lg-0" v-else-if="authYn == true">
                     <button class="btn login btn-outline-primary" @click="logout()">Logout</button>
                 </div>
@@ -79,21 +82,18 @@ export default {
     methods: {
         logout: async function () {
             this.$store.dispatch('logout'); // 로그인
+        },
+        sginup: async function () {
+            try {
+                const result = await this.$axios.post('/api/signup', {});
 
-            /*
-            var result = await this.$axios({
-                method: 'post',
-                url: '/api/logout',
-                params: {
-                    callType: useParams.callType,
-                },
-                withCredentials: true,
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Access-Control-Allow-Origin': '*',
-                },
-            });
-            */
+                if (result.status === 200) {
+                    //this.loginSuccess = true;
+                }
+            } catch (err) {
+                //this.loginError = true;
+                throw new Error(err);
+            }
         },
     },
 };
