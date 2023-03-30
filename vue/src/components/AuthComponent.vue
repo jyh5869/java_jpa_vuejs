@@ -19,10 +19,11 @@
 <!-- [개별 템플릿 (뷰) 설정 실시] -->
 <template>
     <br /><br />
-    <div class="wrapper fadeInDown">
+    <div class="wrapper fadeInDown" v-show="signIn">
         <div id="formContent">
             <!-- Icon -->
             <div class="fadeIn first">
+                {{ msg }}
                 <img src="../assets/logo.png" id="icon" alt="User Icon" />
             </div>
 
@@ -32,9 +33,29 @@
             <input type="button" class="fadeIn fourth" value="Log In" @click="login()" />
 
             <!-- Remind Passowrd -->
-            <div id="formFooter">
-                <a class="underlineHover" href="#">Forgot Password?</a>
+            <div id="formFooter"><a class="underlineHover" href="#">Forgot Password?</a></div>
+        </div>
+    </div>
+    <div class="wrapper fadeInDown" v-show="signUp">
+        <div id="formContent">
+            <!-- Icon -->
+            <div class="fadeIn first">
+                {{ msg }}
+                <img src="../assets/logo.png" id="icon" alt="User Icon" />
             </div>
+
+            <!-- Login Form -->
+
+            <input type="text" id="userId" class="fadeIn second" name="userId" v-model="user" placeholder="User Id" />
+            <input type="text" id="password1" class="fadeIn third" name="password1" v-model="password" placeholder="Password1" />
+            <input type="text" id="password2" class="fadeIn third" name="password2" v-model="Password2" placeholder="Password2" />
+            <input type="text" id="userNm" class="fadeIn third" name="userNm" v-model="userNm" placeholder="userNm" />
+            <input type="text" id="mobile" class="fadeIn third" name="mobile" v-model="mobile" placeholder="mobile" />
+
+            <input type="button" class="fadeIn fourth" value="Log In" @click="idValidation()" />
+
+            <!-- Remind Passowrd -->
+            <div id="formFooter"><a class="underlineHover" href="#">Forgot Password?</a></div>
         </div>
     </div>
 </template>
@@ -51,12 +72,20 @@ export default {
 
     // [컴포넌트 생성 시 초기 데이터 설정 (리턴 값 지정)]
     data() {
+        let accessType = this.$route.query.accessType == undefined || this.$route.query.accessType == 'SIGNIN' ? 'SIGNIN' : 'SIGNUP';
+        let authYn = this.$store.getters.token == null ? false : true;
+        console.log(accessType);
+        console.log(authYn);
+
         return {
             loginSuccess: false,
             loginError: false,
             user: '',
             password: '',
             error: false,
+            accessType: accessType, //접근 타입 1. SIGNUP 2. SIGNIN
+            signIn: accessType == 'SIGNIN' ? true : false,
+            signUp: accessType == 'SIGNUP' ? true : false,
         };
     },
     mounted() {},
@@ -113,6 +142,19 @@ export default {
             console.log(this.loginError);
             console.log(this.loginSuccess);
             console.log('-------------------');
+        },
+        idValidation: async function () {
+            await this.$axios({
+                method: 'post',
+                url: '/api/idValidation',
+                params: {
+                    // callType: useParams.callType,
+                    // targetId: useParams.targetId,
+                },
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
         },
     },
 };

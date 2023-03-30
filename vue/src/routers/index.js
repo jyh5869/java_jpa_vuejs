@@ -33,6 +33,7 @@ const routes = [
         path: '/auth', // [경로]
         name: 'auth', // [이름]
         component: () => import('@/components/AuthComponent.vue'), // [로드 파일]]
+        props: true, // [파라메터 Y/N]
     },
 ];
 

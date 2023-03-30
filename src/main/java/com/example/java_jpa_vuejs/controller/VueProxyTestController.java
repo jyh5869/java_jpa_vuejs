@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -141,6 +140,21 @@ public class VueProxyTestController {
         FirebaseAuthSignUtil fbas = new FirebaseAuthSignUtil();
         //fbas.createUser(firebaseAuth);
         //fbas.getUserById(firebaseAuth, "1GRjJfHbIWVKFT6s3BtMv8c6P6t1");
+
+        return null;
+    }
+
+    /**
+    * @method ID 유효성 체크 
+    * @param loginDto
+    * @throws Exception
+    */
+    @PostMapping(value = {"/idValidation"})
+    public Void idValidation(LoginDto loginDto) throws Exception {
+        System.out.println("아이디 중복체크 기능을 만들거에요.");
+
+        AuthenticationDto authentication = new AuthenticationDto();
+        authentication = apiSignService.idValidation(loginDto);
 
         return null;
     }

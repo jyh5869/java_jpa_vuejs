@@ -69,7 +69,7 @@
     <b-row>
         <b-col md="8" offset-md="2">
             <!-- [동적 : 라우터 뷰 컴포넌트] -->
-            <router-view />
+            <router-view :key="$route.fullPath" />
         </b-col>
     </b-row>
     <!-- [고정 : 푸터 컴포넌트] -->

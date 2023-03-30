@@ -33,7 +33,7 @@
                         <router-link class="nav-link" to="/main">Main</router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link class="nav-link" to="/auth">Auth</router-link>
+                        <router-link class="nav-link" :to="{ name: 'auth', query: { accessType: 'SIGNIN' } }"> Auth </router-link>
                     </li>
                     <!-- 
                     <li class="nav-item dropdown">
@@ -57,7 +57,7 @@
                 </form>
 
                 <div class="btn-wrap navbar-nav mb-2 mb-lg-0" v-if="authYn == false">
-                    <router-link class="btn login btn-outline-primary" to="/auth">Login</router-link>
+                    <router-link class="btn login btn-outline-primary" :to="{ name: 'auth', query: { accessType: 'SIGNIN' } }">Login</router-link>
                 </div>
                 <div class="btn-wrap navbar-nav mb-2 mb-lg-0" v-if="authYn == false">
                     <button class="btn login btn-outline-primary" @click="sginup()">Sginup</button>
@@ -74,9 +74,9 @@
 <script>
 export default {
     data() {
-        let authYn1 = this.$store.getters.token == null ? false : true;
+        let authYn = this.$store.getters.token == null ? false : true;
         return {
-            authYn: authYn1,
+            authYn: authYn,
         };
     },
     methods: {
@@ -84,16 +84,10 @@ export default {
             this.$store.dispatch('logout'); // 로그인
         },
         sginup: async function () {
-            try {
-                const result = await this.$axios.post('/api/signup', {});
-
-                if (result.status === 200) {
-                    //this.loginSuccess = true;
-                }
-            } catch (err) {
-                //this.loginError = true;
-                throw new Error(err);
-            }
+            this.$router.push({
+                name: 'auth',
+                query: { accessType: 'SIGNUP' },
+            });
         },
     },
 };
