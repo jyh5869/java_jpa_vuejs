@@ -144,17 +144,23 @@ export default {
             console.log('-------------------');
         },
         idValidation: async function () {
-            await this.$axios({
+            var id = this.user; // 아이디
+            var password = this.password; // 비밀번호
+
+            console.log(id);
+            console.log(password);
+
+            let res = await this.$axios({
                 method: 'post',
                 url: '/api/idValidation',
                 params: {
-                    // callType: useParams.callType,
-                    // targetId: useParams.targetId,
+                    email: id,
                 },
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
+            console.log(res);
         },
     },
 };

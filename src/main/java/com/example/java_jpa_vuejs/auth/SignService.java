@@ -70,7 +70,8 @@ public class SignService {
 		// 회원 엔티티 객체 생성 및 조회시작
 		Members member = memberRepository.findByEmail(loginEntity.getEmail())
 				.orElseThrow(() -> new UserNotFoundException("User Not Found"));
-
+		
+			
 		// 회원정보를 인증클래스 객체(authentication)로 매핑
 		return modelMapper.map(member, AuthenticationDto.class);
 	}
@@ -79,8 +80,6 @@ public class SignService {
 		Members loginEntity = loginDto.toEntity();
 		Members member = memberRepository.findByEmail(loginEntity.getEmail())
 			.orElseThrow(() -> new UserNotFoundException("User Not Found"));
-			
-		System.out.println(loginDto);
 
 		return modelMapper.map(member, AuthenticationDto.class);
 	}
