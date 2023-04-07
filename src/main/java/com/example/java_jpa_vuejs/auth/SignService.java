@@ -62,18 +62,17 @@ public class SignService {
 		return modelMapper.map(member, AuthenticationDto.class);
 	}
 
-	public AuthenticationDto idValidation(LoginDto loginDto) {
+	public Integer idValidation(LoginDto loginDto) {
 
 		// DTO -> Entity
 		Members loginEntity = loginDto.toEntity();
 		System.out.println(loginEntity.getEmail());
 		// 회원 엔티티 객체 생성 및 조회시작
-		Members member = memberRepository.findByEmail(loginEntity.getEmail())
-				.orElseThrow(() -> new UserNotFoundException("User Not Found"));
+		Integer emailCnt = memberRepository.countByEmail(loginEntity.getEmail());
 		
 			
 		// 회원정보를 인증클래스 객체(authentication)로 매핑
-		return modelMapper.map(member, AuthenticationDto.class);
+		return emailCnt;
 	}
 
 	public AuthenticationDto loginMemberFirebase(LoginDto loginDto) {

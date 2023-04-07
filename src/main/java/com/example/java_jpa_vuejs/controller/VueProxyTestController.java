@@ -150,13 +150,13 @@ public class VueProxyTestController {
     * @throws Exception
     */
     @PostMapping(value = {"/idValidation"})
-    public AuthenticationDto idValidation(LoginDto loginDto) throws Exception {
+    public Integer idValidation(LoginDto loginDto) throws Exception {
         System.out.println("아이디 중복체크 기능을 만들거에요.");
 
-        AuthenticationDto authentication = new AuthenticationDto();
-        authentication = apiSignService.idValidation(loginDto);
-        System.out.println(authentication);
+        Integer emailCont = apiSignService.idValidation(loginDto);
+        System.out.println("★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★");
+        System.out.println(emailCont);
 
-        return authentication;
+        return emailCont;
     }
 }

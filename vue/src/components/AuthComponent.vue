@@ -46,9 +46,11 @@
 
             <!-- Login Form -->
 
-            <input type="text" id="userId" class="fadeIn second" name="userId" v-model="user" placeholder="User Id" />
+            <input type="text" id="userId" class="fadeIn second" name="userId" v-model="user" placeholder="User Id" @keyup="idValidation()" />
+            <p v-if="idValidationMsg != ''">{{ idValidationMsg }}</p>
             <input type="text" id="password1" class="fadeIn third" name="password1" v-model="password" placeholder="Password1" />
-            <input type="text" id="password2" class="fadeIn third" name="password2" v-model="Password2" placeholder="Password2" />
+            <input type="text" id="password2" class="fadeIn third" name="password2" v-model="Password2" placeholder="Password2" @keyup="pwValidation()" />
+            <p v-if="pwValidationMsg != ''">{{ pwValidationMsg }}</p>
             <input type="text" id="userNm" class="fadeIn third" name="userNm" v-model="userNm" placeholder="userNm" />
             <input type="text" id="mobile" class="fadeIn third" name="mobile" v-model="mobile" placeholder="mobile" />
 
@@ -77,15 +79,21 @@ export default {
         console.log(accessType);
         console.log(authYn);
 
+        let idValidationMsg = '';
+        let pwValidationMsg = '';
+
         return {
             loginSuccess: false,
             loginError: false,
             user: '',
             password: '',
+            password2: '',
             error: false,
             accessType: accessType, //접근 타입 1. SIGNUP 2. SIGNIN
             signIn: accessType == 'SIGNIN' ? true : false,
             signUp: accessType == 'SIGNUP' ? true : false,
+            idValidationMsg: idValidationMsg,
+            pwValidationMsg: pwValidationMsg,
         };
     },
     mounted() {},
@@ -150,6 +158,11 @@ export default {
             console.log(id);
             console.log(password);
 
+            if (id == '') {
+                this.idValidationMsg = '';
+                return false;
+            }
+
             let res = await this.$axios({
                 method: 'post',
                 url: '/api/idValidation',
@@ -160,7 +173,33 @@ export default {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            console.log(res);
+
+            if (res.data == '0') {
+                this.idValidationMsg = '사용하실 수 있는 아이디입니다.';
+            } else {
+                this.idValidationMsg = '이미 가입되어 있는 아이디입니다.';
+            }
+        },
+        pwValidation: async function () {
+            alert('하위');
+            var id = this.user; // 아이디
+            var password = this.password; // 비밀번호
+            var password2 = this.password2; // 비밀번호 화인
+
+            console.log(id);
+            console.log(password);
+            console.log(password2);
+
+            if (password2 == '') {
+                this.pwValidationMsg = '';
+                return false;
+            }
+
+            if (password == password2) {
+                this.pwValidationMsg = '두개의 비밀번호가 일치 합니다.';
+            } else {
+                this.pwValidationMsg = '두개의 비밀번호가 일치하지 않습니다.';
+            }
         },
     },
 };
