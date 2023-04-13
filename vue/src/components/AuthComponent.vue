@@ -52,9 +52,10 @@
             <input type="text" id="password2" class="fadeIn third" name="password2" v-model="Password2" placeholder="Password2" @keyup="pwValidation()" />
             <p v-if="pwValidationMsg != ''">{{ pwValidationMsg }}</p>
             <input type="text" id="userNm" class="fadeIn third" name="userNm" v-model="userNm" placeholder="userNm" />
+            <input type="text" id="nickname" class="fadeIn third" name="nickname" v-model="nickname" placeholder="nickname" />
             <input type="text" id="mobile" class="fadeIn third" name="mobile" v-model="mobile" placeholder="mobile" />
 
-            <input type="button" class="fadeIn fourth" value="Log In" @click="idValidation()" />
+            <input type="button" class="fadeIn fourth" value="Log In" @click="userRegistration()" />
 
             <!-- Remind Passowrd -->
             <div id="formFooter"><a class="underlineHover" href="#">Forgot Password?</a></div>
@@ -201,6 +202,23 @@ export default {
                 this.pwValidationMsg = '두개의 비밀번호가 일치하지 않습니다.';
             }
         },
+        userRegistration: async function () {
+            let res = await this.$axios({
+                method: 'post',
+                url: '/api/userRegistration',
+                params: {
+                    email: this.user,
+                    password: this.password,
+                    name: this.userNm,
+                    nickname: this.nickname,
+                    mobile: this.mobile,
+                },
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            console.log(res);
+        },
     },
 };
 </script>
@@ -251,7 +269,7 @@ h2 {
     background: #fff;
     padding: 30px;
     width: 90%;
-    max-width: 450px;
+    /* max-width: 450px; */
     position: relative;
     padding: 0px;
     -webkit-box-shadow: 0 30px 60px 0 rgba(0, 0, 0, 0.3);
@@ -481,6 +499,6 @@ input[type='text']:placeholder {
 }
 
 #icon {
-    width: 30%;
+    width: 20%;
 }
 </style>

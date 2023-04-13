@@ -18,6 +18,7 @@ import com.common.Util;
 import com.example.java_jpa_vuejs.auth.AuthProvider;
 import com.example.java_jpa_vuejs.auth.AuthenticationDto;
 import com.example.java_jpa_vuejs.auth.FirebaseAuthSignUtil;
+import com.example.java_jpa_vuejs.auth.JoinDto;
 import com.example.java_jpa_vuejs.auth.LoginDto;
 import com.example.java_jpa_vuejs.auth.SignService;
 import com.example.java_jpa_vuejs.config.FirebaseConfiguration;
@@ -158,5 +159,26 @@ public class VueProxyTestController {
         System.out.println(emailCont);
 
         return emailCont;
+    }
+
+    /**
+    * @method ID 유효성 체크 
+    * @param loginDto
+    * @throws Exception
+    */
+    @PostMapping(value = {"/userRegistration"})
+    public Integer userRegistration(JoinDto joinDto) throws Exception {
+        System.out.println("회원가입 기능을 만들거에요.");
+
+        System.out.println("getEmail    = " + joinDto.getEmail());
+        System.out.println("getPassword = " + joinDto.getPassword());
+        System.out.println("getName     = " + joinDto.getName());
+        System.out.println("getMobile   = " + joinDto.getMobile());
+        System.out.println("getNickname = " + joinDto.getNickname());
+
+        //Integer emailCont = apiSignService.idValidation(loginDto);
+ 
+
+        return 1;
     }
 }
