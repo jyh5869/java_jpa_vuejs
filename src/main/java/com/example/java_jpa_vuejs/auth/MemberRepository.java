@@ -3,10 +3,12 @@ package com.example.java_jpa_vuejs.auth;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.query.Param;
 
+import jakarta.transaction.Transactional;
 
 import org.springframework.data.repository.CrudRepository;
 
@@ -28,4 +30,12 @@ public interface MemberRepository extends CrudRepository<Members, Long> {
             "from members " +
             "where mobile = :mobile ", nativeQuery = true)
     Integer countByMobile(@Param("mobile") String mobile);
+
+    @Transactional
+    @Modifying
+    @Query(value =
+            "INSERT INTO MEMBERS " + 
+            "      (id ,email,  password,  name,  mobile,  nickname,  profile, is_deleted) " +
+            "VALUES( (select Max(id) + 1 from MEMBERS A), :#{#regInfo.email}, :#{#regInfo.password}, :#{#regInfo.name}, :#{#regInfo.mobile}, :#{#regInfo.nickname}, :#{#regInfo.profile}, 'N') ", nativeQuery = true)
+    void userRegistration(@Param(value = "regInfo") JoinDto joinDto);
 }

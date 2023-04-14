@@ -75,6 +75,19 @@ public class SignService {
 		return emailCnt;
 	}
 
+	public Integer userRegistration(JoinDto joinDto) {
+
+		// DTO -> Entity
+		Members loginEntity = joinDto.toEntity();
+		System.out.println(loginEntity.getEmail());
+		// 회원 엔티티 객체 생성 및 조회시작
+		memberRepository.userRegistration(joinDto);
+		
+			
+		// 회원정보를 인증클래스 객체(authentication)로 매핑
+		return 1;
+	}
+
 	public AuthenticationDto loginMemberFirebase(LoginDto loginDto) {
 		Members loginEntity = loginDto.toEntity();
 		Members member = memberRepository.findByEmail(loginEntity.getEmail())

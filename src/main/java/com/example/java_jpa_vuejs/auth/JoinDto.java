@@ -27,6 +27,9 @@ public class JoinDto {
     @NotBlank(message = "'mobile' is a required input value")
     private String mobile;
 
+    @NotBlank(message = "'profile' is a required input value")
+    private String profile;
+
     public Members toEntity() {
 
         Members build = Members.builder()
@@ -35,6 +38,7 @@ public class JoinDto {
                 .name(name)
                 .nickname(nickname)
                 .mobile(mobile)
+                .mobile(profile)
                 .build();
 
         return build;

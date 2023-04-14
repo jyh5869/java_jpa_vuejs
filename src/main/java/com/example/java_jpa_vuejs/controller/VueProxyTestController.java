@@ -176,7 +176,7 @@ public class VueProxyTestController {
         System.out.println("getMobile   = " + joinDto.getMobile());
         System.out.println("getNickname = " + joinDto.getNickname());
 
-        //Integer emailCont = apiSignService.idValidation(loginDto);
+        Integer emailCont = apiSignService.userRegistration(joinDto);
  
 
         return 1;
