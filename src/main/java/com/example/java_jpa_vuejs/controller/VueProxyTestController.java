@@ -21,6 +21,7 @@ import com.example.java_jpa_vuejs.auth.FirebaseAuthSignUtil;
 import com.example.java_jpa_vuejs.auth.JoinDto;
 import com.example.java_jpa_vuejs.auth.LoginDto;
 import com.example.java_jpa_vuejs.auth.SignService;
+import com.example.java_jpa_vuejs.auth2.repositoryService.RepositoryService;
 import com.example.java_jpa_vuejs.config.FirebaseConfiguration;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.Firestore;
@@ -47,6 +48,8 @@ public class VueProxyTestController {
     @Autowired
     private FirebaseConfiguration firebaseConfiguration;
     */
+
+    private final RepositoryService rs;
 
     private final FirebaseConfiguration firebaseConfiguration;
     private final SignService apiSignService;
@@ -176,9 +179,14 @@ public class VueProxyTestController {
         System.out.println("getMobile   = " + joinDto.getMobile());
         System.out.println("getNickname = " + joinDto.getNickname());
 
-        Integer emailCont = apiSignService.userRegistration(joinDto);
+        //rs.deletAll();
+        rs.saveMember();
+        rs.print();
+        //rs.lazyPrint();
+        //rs.lazyPrint2();
+            
+        //apiSignService.userRegistration(joinDto);
  
-
         return 1;
     }
 }
