@@ -182,8 +182,8 @@ public class VueProxyTestController {
         //rs.deletAll();
         rs.saveMember();
         rs.print();
-        //rs.lazyPrint();
-        //rs.lazyPrint2();
+        rs.lazyPrint();
+        rs.lazyPrint2();
             
         //apiSignService.userRegistration(joinDto);
  
