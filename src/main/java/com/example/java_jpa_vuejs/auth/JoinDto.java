@@ -38,7 +38,6 @@ public class JoinDto {
                 .name(name)
                 .nickname(nickname)
                 .mobile(mobile)
-                .mobile(profile)
                 .build();
 
         return build;

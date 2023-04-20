@@ -81,7 +81,7 @@ public class SignService {
 		System.out.println(loginEntity.getEmail());
 		// 회원 엔티티 객체 생성 및 조회시작
 		memberRepository.userRegistration(joinDto);
-		
+		//memberRepository.save(null)
 		// 회원정보를 인증클래스 객체(authentication)로 매핑
 	}
 

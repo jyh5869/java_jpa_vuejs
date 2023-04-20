@@ -2,6 +2,8 @@ package com.example.java_jpa_vuejs.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -24,9 +26,11 @@ import com.example.java_jpa_vuejs.auth.SignService;
 import com.example.java_jpa_vuejs.auth2.repositoryService.RepositoryService;
 import com.example.java_jpa_vuejs.config.FirebaseConfiguration;
 import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
+import com.google.cloud.firestore.WriteResult;
 import com.google.cloud.firestore.Query.Direction;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.cloud.FirestoreClient;
@@ -178,15 +182,39 @@ public class VueProxyTestController {
         System.out.println("getName     = " + joinDto.getName());
         System.out.println("getMobile   = " + joinDto.getMobile());
         System.out.println("getNickname = " + joinDto.getNickname());
+        System.out.println("getNickname = " + joinDto.getProfile());
 
-        //rs.deletAll();
+        rs.deletAll();
         rs.saveMember();
         rs.print();
         rs.lazyPrint();
         rs.lazyPrint2();
             
         //apiSignService.userRegistration(joinDto);
- 
+        
+        long reqTime = Util.durationTime ("start", "JPA 테스트", 0, "Proceeding" );
+
+        try {     
+
+            //파이어 베이스 초기화
+            firebaseConfiguration.initializeFCM();
+            Firestore db = FirestoreClient.getFirestore();
+
+            //스냅샷 호출 후 리스트 생성(JSON)
+            ApiFuture<QuerySnapshot> query = db.collection("user").orderBy("brddate", Direction.DESCENDING).limit(10).get();
+            QuerySnapshot querySnapshot = query.get();
+            
+            ApiFuture<WriteResult> future = db.collection("user").document().set(joinDto);
+
+            Util.durationTime ("end", "Update time : ", reqTime, "Complete" );
+        }
+        catch (Exception e) {
+            
+            Util.durationTime ("end", "JPA 테스트", reqTime, "Fail" );
+            e.printStackTrace();
+        }
+
+
         return 1;
     }
 }
