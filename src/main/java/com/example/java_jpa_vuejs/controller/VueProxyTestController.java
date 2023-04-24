@@ -22,7 +22,7 @@ import com.example.java_jpa_vuejs.auth.AuthenticationDto;
 import com.example.java_jpa_vuejs.auth.FirebaseAuthSignUtil;
 import com.example.java_jpa_vuejs.auth.JoinDto;
 import com.example.java_jpa_vuejs.auth.LoginDto;
-import com.example.java_jpa_vuejs.auth.SignService;
+import com.example.java_jpa_vuejs.auth.repositoryService.SignService;
 import com.example.java_jpa_vuejs.auth2.repositoryService.RepositoryService;
 import com.example.java_jpa_vuejs.config.FirebaseConfiguration;
 import com.google.api.core.ApiFuture;
@@ -55,8 +55,10 @@ public class VueProxyTestController {
 
     private final RepositoryService rs;
 
+    private final SignService signService;
+
     private final FirebaseConfiguration firebaseConfiguration;
-    private final SignService apiSignService;
+
     private final AuthProvider authProvider;
     //private final FirebaseAuthSignUtil firebaseAuthSignUtil;
 
@@ -118,10 +120,10 @@ public class VueProxyTestController {
         AuthenticationDto authentication = new AuthenticationDto();
 
         try {
-            authentication = apiSignService.loginMemberMysql(loginDto);
+            authentication = signService.loginMemberMysql(loginDto);
         } 
         catch (Exception e) {
-            authentication = apiSignService.loginMemberFirebase(loginDto);
+            authentication = signService.loginMemberFirebase(loginDto);
         }
         
 
@@ -161,7 +163,7 @@ public class VueProxyTestController {
     public Integer idValidation(LoginDto loginDto) throws Exception {
         System.out.println("아이디 중복체크 기능을 만들거에요.");
 
-        Integer emailCont = apiSignService.idValidation(loginDto);
+        Integer emailCont = signService.idValidation(loginDto);
         System.out.println("★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★");
         System.out.println(emailCont);
 
@@ -184,14 +186,15 @@ public class VueProxyTestController {
         System.out.println("getNickname = " + joinDto.getNickname());
         System.out.println("getNickname = " + joinDto.getProfile());
 
-        rs.deletAll();
-        rs.saveMember();
-        rs.print();
-        rs.lazyPrint();
-        rs.lazyPrint2();
-            
-        //apiSignService.userRegistration(joinDto);
+        //rs.deletAll();
+        //rs.saveMember();
+        //rs.print();
+        //rs.lazyPrint();
+        //rs.lazyPrint2();
         
+        //apiSignService.userRegistration(joinDto);
+        signService.userRegistration(joinDto);
+
         long reqTime = Util.durationTime ("start", "JPA 테스트", 0, "Proceeding" );
 
         try {     

@@ -1,11 +1,18 @@
-package com.example.java_jpa_vuejs.auth;
+package com.example.java_jpa_vuejs.auth.repositoryServiceImpl;
 
+import com.example.java_jpa_vuejs.auth.AuthenticationDto;
+import com.example.java_jpa_vuejs.auth.JoinDto;
+import com.example.java_jpa_vuejs.auth.LoginDto;
+import com.example.java_jpa_vuejs.auth.entity.Members;
+import com.example.java_jpa_vuejs.auth.entity.Phones;
+import com.example.java_jpa_vuejs.auth.repositoryJPA.MemberRepository;
+import com.example.java_jpa_vuejs.auth.repositoryJPA.PhonesRepository;
+import com.example.java_jpa_vuejs.auth.repositoryService.SignService;
 import com.example.java_jpa_vuejs.util.DuplicatedException;
 import com.example.java_jpa_vuejs.util.ForbiddenException;
 import com.example.java_jpa_vuejs.util.UserNotFoundException;
 import com.example.java_jpa_vuejs.validation.Empty;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
 import lombok.RequiredArgsConstructor;
@@ -13,10 +20,11 @@ import lombok.RequiredArgsConstructor;
 
 @Service("signService")
 @RequiredArgsConstructor
-public class SignService {
+public class SignServiceImpl implements SignService {
 
 	private final MemberRepository memberRepository;
-	//private final BCryptPasswordEncoder passwordEncoder;	
+	private final PhonesRepository phonesRepository;
+
 	private final ModelMapper modelMapper;
 	
 
@@ -57,7 +65,7 @@ public class SignService {
 		if (!loginEntity.getPassword().equals(member.getPassword())){
 			throw new ForbiddenException("Passwords do not match");
 		}
-			
+		
 		// 회원정보를 인증클래스 객체(authentication)로 매핑
 		return modelMapper.map(member, AuthenticationDto.class);
 	}
@@ -79,10 +87,14 @@ public class SignService {
 		// DTO -> Entity
 		Members loginEntity = joinDto.toEntity();
 		System.out.println(loginEntity.getEmail());
+
+		Phones p = new Phones(loginEntity, loginEntity.getMobile());
+
 		// 회원 엔티티 객체 생성 및 조회시작
-		memberRepository.userRegistration(joinDto);
-		//memberRepository.save(null)
-		// 회원정보를 인증클래스 객체(authentication)로 매핑
+		//memberRepository.userRegistration(joinDto);
+
+		memberRepository.save(loginEntity);
+		phonesRepository.save(p);
 	}
 
 	public AuthenticationDto loginMemberFirebase(LoginDto loginDto) {

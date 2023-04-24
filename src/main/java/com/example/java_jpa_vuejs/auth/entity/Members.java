@@ -1,4 +1,4 @@
-package com.example.java_jpa_vuejs.auth;
+package com.example.java_jpa_vuejs.auth.entity;
 
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
@@ -7,12 +7,16 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.example.java_jpa_vuejs.auth.entity.Phones;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 /* 
@@ -22,6 +26,7 @@ import javax.persistence.*;
 */
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Getter
@@ -73,6 +78,28 @@ public class Members{
 	@OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<PostsComment> postsComment = new ArrayList<>();
     */
+
+	@OneToMany(cascade=CascadeType.ALL, mappedBy="members")
+	private Collection<Phones> phones;
+	
+	public Collection<Phones> getPhone() {
+		if( phones == null ){
+			phones = new ArrayList<Phones>();
+		}
+		return phones;
+	}
+	
+	public void addPhone(Phones p){
+		Collection<Phones> phones = getPhone();
+		phones.add(p);
+	}
+
+	public void setPhone(Collection<Phones> phones) {
+		this.phones = phones;
+	}
+
+	
+
 	@Builder
 	public Members(Long id, String email, 
 			String password, String name, 
@@ -83,6 +110,9 @@ public class Members{
 		this.name = name;
 		this.mobile = mobile;
 		this.nickname = nickname;
+	}
+
+	public Members(Members loginEntity) {
 	}
 
 

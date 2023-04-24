@@ -8,7 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 import com.common.Util;
-import com.example.java_jpa_vuejs.auth.MemberRepository;
+import com.example.java_jpa_vuejs.auth.repositoryJPA.MemberRepository;
+
 
 
 @SpringBootApplication // (exclude = DataSourceAutoConfiguration.class) -> 데이터소스 자동 생성 제외 (Bean생성 안됨)

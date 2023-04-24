@@ -1,4 +1,4 @@
-package com.example.java_jpa_vuejs.auth;
+package com.example.java_jpa_vuejs.auth.repositoryJPA;
 
 import lombok.RequiredArgsConstructor;
 
@@ -7,6 +7,9 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.query.Param;
+
+import com.example.java_jpa_vuejs.auth.JoinDto;
+import com.example.java_jpa_vuejs.auth.entity.Members;
 
 import jakarta.transaction.Transactional;
 
