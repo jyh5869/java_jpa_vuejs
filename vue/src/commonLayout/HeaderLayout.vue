@@ -64,6 +64,7 @@
                 </div>
                 <div class="btn-wrap navbar-nav mb-2 mb-lg-0" v-else-if="authYn == true">
                     <button class="btn login btn-outline-primary" @click="logout()">Logout</button>
+                    <button class="btn login btn-outline-primary" @click="userInfo()">User Info</button>
                 </div>
             </div>
         </div>
@@ -88,6 +89,27 @@ export default {
                 name: 'auth',
                 query: { accessType: 'SIGNUP' },
             });
+        },
+        userInfo: async function () {
+            console.log('유저 정보');
+            let id = this.$store.getters.id;
+            let email = this.$store.getters.email;
+            console.log(email);
+            const result = await this.$axios({
+                method: 'post',
+                url: '/api/getUserInfo',
+                params: {
+                    id: id,
+                    email: email,
+                },
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (result.status === 200) {
+                this.loginSuccess = true;
+            }
         },
     },
 };

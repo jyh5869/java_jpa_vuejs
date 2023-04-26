@@ -85,16 +85,13 @@ public class SignServiceImpl implements SignService {
 	public void userRegistration(JoinDto joinDto) {
 
 		// DTO -> Entity
-		Members loginEntity = joinDto.toEntity();
-		System.out.println(loginEntity.getEmail());
+		Members joinEntity = joinDto.toEntity();
 
-		Phones p = new Phones(loginEntity, loginEntity.getMobile());
+		Phones phone = new Phones(joinEntity, joinEntity.getMobile());
 
 		// 회원 엔티티 객체 생성 및 조회시작
-		//memberRepository.userRegistration(joinDto);
-
-		memberRepository.save(loginEntity);
-		phonesRepository.save(p);
+		memberRepository.save(joinEntity);
+		phonesRepository.save(phone);
 	}
 
 	public AuthenticationDto loginMemberFirebase(LoginDto loginDto) {
@@ -103,6 +100,16 @@ public class SignServiceImpl implements SignService {
 			.orElseThrow(() -> new UserNotFoundException("User Not Found"));
 
 		return modelMapper.map(member, AuthenticationDto.class);
+	}
+
+
+	@Override
+	public Members getUserInfo(LoginDto loginDto) {
+		Members loginEntity = loginDto.toEntity();
+		Members member = memberRepository.findById(loginEntity.getEmail())
+			.orElseThrow(() -> new UserNotFoundException("User Not Found"));
+
+		return member;
 	}
 
 }

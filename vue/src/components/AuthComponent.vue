@@ -55,7 +55,7 @@
             <input type="text" id="nickname" class="fadeIn third" name="nickname" v-model="nickname" placeholder="nickname" />
             <input type="text" id="mobile" class="fadeIn third" name="mobile" v-model="mobile" placeholder="mobile" />
 
-            <input type="button" class="fadeIn fourth" value="Log In" @click="userRegistration()" />
+            <input type="button" class="fadeIn fourth" value="Sign up" @click="userRegistration()" />
 
             <!-- Remind Passowrd -->
             <div id="formFooter"><a class="underlineHover" href="#">Forgot Password?</a></div>
@@ -100,19 +100,6 @@ export default {
     mounted() {},
     // [메소드 정의 실시]
     methods: {
-        getLogin: async function () {
-            await this.$axios({
-                method: 'get',
-                url: '/api/getList',
-                params: {
-                    // callType: useParams.callType,
-                    // targetId: useParams.targetId,
-                },
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-        },
         login: async function () {
             // 아이디와 패스워드 입력여부 확인
             if (this.user && this.password) {
@@ -127,30 +114,6 @@ export default {
                 alert('아이디 또는 비밀번호가 입력되지 않았습니다.');
                 return false;
             }
-        },
-        loginBak: async function () {
-            try {
-                const result = await this.$axios.get('/api/login', {
-                    auth: {
-                        username: this.user,
-                        password: this.password,
-                    },
-                });
-
-                if (result.status === 200) {
-                    this.loginSuccess = true;
-                }
-            } catch (err) {
-                this.loginError = true;
-                throw new Error(err);
-            }
-
-            console.log('-------------------');
-            console.log(this.user);
-            console.log(this.password);
-            console.log(this.loginError);
-            console.log(this.loginSuccess);
-            console.log('-------------------');
         },
         idValidation: async function () {
             var id = this.user; // 아이디

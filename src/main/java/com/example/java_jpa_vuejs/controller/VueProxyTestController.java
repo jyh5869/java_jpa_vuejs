@@ -22,6 +22,7 @@ import com.example.java_jpa_vuejs.auth.AuthenticationDto;
 import com.example.java_jpa_vuejs.auth.FirebaseAuthSignUtil;
 import com.example.java_jpa_vuejs.auth.JoinDto;
 import com.example.java_jpa_vuejs.auth.LoginDto;
+import com.example.java_jpa_vuejs.auth.entity.Members;
 import com.example.java_jpa_vuejs.auth.repositoryService.SignService;
 import com.example.java_jpa_vuejs.auth2.repositoryService.RepositoryService;
 import com.example.java_jpa_vuejs.config.FirebaseConfiguration;
@@ -116,7 +117,7 @@ public class VueProxyTestController {
     */
     @PostMapping(value = {"/signin"})
     public ResponseEntity<AuthenticationDto> appLogin(@Valid @RequestBody LoginDto loginDto) throws Exception {
-
+        System.out.println("로그인할게용");
         AuthenticationDto authentication = new AuthenticationDto();
 
         try {
@@ -171,7 +172,7 @@ public class VueProxyTestController {
     }
 
     /**
-    * @method ID 유효성 체크 
+    * @method 회원 가입 Insert Action 
     * @param loginDto
     * @throws Exception
     */
@@ -192,7 +193,6 @@ public class VueProxyTestController {
         //rs.lazyPrint();
         //rs.lazyPrint2();
         
-        //apiSignService.userRegistration(joinDto);
         signService.userRegistration(joinDto);
 
         long reqTime = Util.durationTime ("start", "JPA 테스트", 0, "Proceeding" );
@@ -219,5 +219,22 @@ public class VueProxyTestController {
 
 
         return 1;
+    }
+
+    /**
+    * @method 회원 정보 가져오기 
+    * @param loginDto
+    * @throws Exception
+    */
+    @PostMapping(value = {"/getUserInfo"})
+    public Members getUserInfo(LoginDto loginDto) throws Exception {
+        System.out.println("회원 정보를 가져오는 서비스를 만들거에요" + loginDto.getEmail() );
+        System.out.println("회원 정보를 가져오는 서비스를 만들거에요" + loginDto.getId() );
+        System.out.println("★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★");
+
+        Members member = signService.getUserInfo(loginDto);
+        System.out.println(member);
+
+        return member;
     }
 }

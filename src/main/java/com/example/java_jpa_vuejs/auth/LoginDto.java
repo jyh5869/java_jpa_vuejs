@@ -14,6 +14,10 @@ import jakarta.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class LoginDto {
 
+
+	@NotBlank(message = "'id' is a required input value")
+	private String id;
+
 	@NotBlank(message = "'email' is a required input value")
 	@Email(message = "It is not in email format")
 	private String email;
