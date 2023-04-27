@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import com.example.java_jpa_vuejs.auth.entity.Members;
 
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
@@ -14,9 +15,7 @@ import jakarta.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class LoginDto {
 
-
-	@NotBlank(message = "'id' is a required input value")
-	private String id;
+	private long id;
 
 	@NotBlank(message = "'email' is a required input value")
 	@Email(message = "It is not in email format")
@@ -28,6 +27,7 @@ public class LoginDto {
 	
 	public Members toEntity() {
 		Members build = Members.builder()
+				.id(id)
 				.email(email)
 				.password(password)
 				.build();

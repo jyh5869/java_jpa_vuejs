@@ -105,8 +105,10 @@ public class SignServiceImpl implements SignService {
 
 	@Override
 	public Members getUserInfo(LoginDto loginDto) {
+		System.out.println("☆☆☆☆☆☆☆☆☆☆☆☆☆☆" + loginDto.getId());
 		Members loginEntity = loginDto.toEntity();
-		Members member = memberRepository.findById(loginEntity.getEmail())
+		System.out.println("☆☆☆☆☆☆☆☆☆☆☆☆☆☆" + loginEntity.getId());
+		Members member = memberRepository.findById(loginEntity.getId())
 			.orElseThrow(() -> new UserNotFoundException("User Not Found"));
 
 		return member;

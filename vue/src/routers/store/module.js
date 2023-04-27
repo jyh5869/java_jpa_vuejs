@@ -46,9 +46,10 @@ const actions = {
             })
             .then((res) => {
                 commit('login', res);
-
+                console.log('sotre----------------------------------');
                 console.log(res);
                 console.log(this.state);
+                console.log('sotre----------------------------------');
 
                 router.push('/main');
             })

@@ -94,7 +94,12 @@ export default {
             console.log('유저 정보');
             let id = this.$store.getters.id;
             let email = this.$store.getters.email;
-            console.log(email);
+            console.log(this.$store.state);
+            console.log('★★★★★★★★★★★★★★★★');
+            console.log(this.$store.getters.id);
+            console.log(this.$store.getters.email);
+            console.log(this.$store.getters.nickname);
+            console.log(this.$store.getters.token);
             const result = await this.$axios({
                 method: 'post',
                 url: '/api/getUserInfo',
@@ -108,7 +113,7 @@ export default {
             });
 
             if (result.status === 200) {
-                this.loginSuccess = true;
+                console.log(result);
             }
         },
     },
