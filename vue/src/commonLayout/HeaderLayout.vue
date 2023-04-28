@@ -64,7 +64,7 @@
                 </div>
                 <div class="btn-wrap navbar-nav mb-2 mb-lg-0" v-else-if="authYn == true">
                     <button class="btn login btn-outline-primary" @click="logout()">Logout</button>
-                    <button class="btn login btn-outline-primary" @click="userInfo()">User Info</button>
+                    <button class="btn login btn-outline-primary" @click="modifyUser()">User Info</button>
                 </div>
             </div>
         </div>
@@ -90,31 +90,11 @@ export default {
                 query: { accessType: 'SIGNUP' },
             });
         },
-        userInfo: async function () {
-            console.log('유저 정보');
-            let id = this.$store.getters.id;
-            let email = this.$store.getters.email;
-            console.log(this.$store.state);
-            console.log('★★★★★★★★★★★★★★★★');
-            console.log(this.$store.getters.id);
-            console.log(this.$store.getters.email);
-            console.log(this.$store.getters.nickname);
-            console.log(this.$store.getters.token);
-            const result = await this.$axios({
-                method: 'post',
-                url: '/api/getUserInfo',
-                params: {
-                    id: id,
-                    email: email,
-                },
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
+        modifyUser: async function () {
+            this.$router.push({
+                name: 'auth',
+                query: { accessType: 'MODIFY' },
             });
-
-            if (result.status === 200) {
-                console.log(result);
-            }
         },
     },
 };

@@ -80,6 +80,11 @@ export default {
         console.log(accessType);
         console.log(authYn);
 
+        //회원정보 수정일 경우 호출
+        if (accessType == 'MODIFY') {
+            this.getUserInfo();
+        }
+
         let idValidationMsg = '';
         let pwValidationMsg = '';
 
@@ -93,6 +98,7 @@ export default {
             accessType: accessType, //접근 타입 1. SIGNUP 2. SIGNIN
             signIn: accessType == 'SIGNIN' ? true : false,
             signUp: accessType == 'SIGNUP' ? true : false,
+            modify: accessType == 'MODIFY' ? true : false,
             idValidationMsg: idValidationMsg,
             pwValidationMsg: pwValidationMsg,
         };
@@ -181,6 +187,25 @@ export default {
                 },
             });
             console.log(res);
+        },
+        getUserInfo: async function () {
+            console.log('유저 정보');
+            let id = this.$store.getters.id;
+
+            const result = await this.$axios({
+                method: 'post',
+                url: '/api/getUserInfo',
+                params: {
+                    id: id,
+                },
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (result.status === 200) {
+                console.log(result);
+            }
         },
     },
 };

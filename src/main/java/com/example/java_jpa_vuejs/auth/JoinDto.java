@@ -13,6 +13,8 @@ import jakarta.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class JoinDto {
 
+    private long id;
+
     @NotBlank(message = "'email' is a required input value")
     @Email(message = "do not email type")
     private String email;
@@ -35,6 +37,7 @@ public class JoinDto {
     public Members toEntity() {
 
         Members build = Members.builder()
+                .id(id)
                 .email(email)
                 .password(password)
                 .name(name)

@@ -227,15 +227,14 @@ public class VueProxyTestController {
     * @throws Exception
     */
     @PostMapping(value = {"/getUserInfo"})
-    public String getUserInfo(LoginDto loginDto) throws Exception {
-        System.out.println("회원 정보를 가져오는 서비스를 만들거에요" + loginDto.getEmail() );
-        System.out.println("회원 정보를 가져오는 서비스를 만들거에요" + loginDto.getId() );
-        System.out.println("★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★");
+    public JoinDto getUserInfo(LoginDto loginDto) throws Exception {
+        System.out.println("회원 정보를 가져오는 서비스를 만들거에요");
 
         Members member = signService.getUserInfo(loginDto);
         System.out.println(member);
-        LoginDto loginDto = member.m;
+        //LoginDto loginDto = member.;
+        JoinDto joinDto = member.toDto(member);
 
-        return loginDto;
+        return joinDto;
     }
 }

@@ -7,7 +7,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.example.java_jpa_vuejs.auth.entity.Phones;
+import com.example.java_jpa_vuejs.auth.JoinDto;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -27,7 +27,6 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 @Getter
 @DynamicUpdate
@@ -98,7 +97,21 @@ public class Members{
 		this.phones = phones;
 	}
 
-	
+	public JoinDto toDto(Members MemberEntity) {
+
+		JoinDto joinDto = new JoinDto();
+
+		joinDto.setId( MemberEntity.id);
+		joinDto.setEmail(MemberEntity.email);
+		joinDto.setPassword(MemberEntity.password);
+		joinDto.setName(MemberEntity.name);
+		joinDto.setNickname(MemberEntity.nickname);
+		joinDto.setMobile(MemberEntity.mobile);
+		joinDto.setProfile(MemberEntity.profile);
+
+		return joinDto;
+	}
+
 
 	@Builder
 	public Members(Long id, String email, 
