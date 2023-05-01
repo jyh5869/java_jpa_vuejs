@@ -12,4 +12,5 @@ public interface SignService {
 	void userRegistration(JoinDto joinDto);
 	AuthenticationDto loginMemberFirebase(LoginDto loginDto);
 	Members getUserInfo(LoginDto loginDto);
+	Integer userModify(JoinDto joinDto);
 }

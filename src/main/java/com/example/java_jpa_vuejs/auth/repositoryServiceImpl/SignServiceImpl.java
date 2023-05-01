@@ -14,6 +14,9 @@ import com.example.java_jpa_vuejs.util.UserNotFoundException;
 import com.example.java_jpa_vuejs.validation.Empty;
 
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
 import org.modelmapper.ModelMapper;
 import lombok.RequiredArgsConstructor;
 
@@ -76,10 +79,9 @@ public class SignServiceImpl implements SignService {
 		Members loginEntity = loginDto.toEntity();
 		System.out.println(loginEntity.getEmail());
 		// 회원 엔티티 객체 생성 및 조회시작
-		memberRepository.countByEmail(loginEntity.getEmail());
 		
 		// 회원정보를 인증클래스 객체(authentication)로 매핑
-		return 1;
+		return memberRepository.countByEmail(loginEntity.getEmail());
 	}
 
 	public void userRegistration(JoinDto joinDto) {
@@ -112,6 +114,22 @@ public class SignServiceImpl implements SignService {
 			.orElseThrow(() -> new UserNotFoundException("User Not Found"));
 
 		return member;
+	}
+
+
+	@Override
+	public Integer userModify(JoinDto joinDto) {
+		Members memberEntity = joinDto.toEntity();
+
+		Optional<Members> member = memberRepository.findById(memberEntity.getId());
+		
+		if(member.isEmpty()){
+			return 0;
+		}
+		else{
+			memberRepository.save(memberEntity);
+			return 1;
+		}
 	}
 
 }

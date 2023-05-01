@@ -61,7 +61,19 @@ const actions = {
     logout({ commit }) {
         console.log('로그아웃!!');
         commit('logout');
-        router.push('/auth');
+
+        router.push({
+            name: 'auth',
+            query: { accessType: 'SIGNIN' },
+        });
+    },
+    loginPage() {
+        alert('로그인 화면으로 이동한다?');
+        // 로그인 화면으로 이동
+        router.push({
+            name: 'auth',
+            query: { accessType: 'SIGNiN' },
+        });
     },
 };
 

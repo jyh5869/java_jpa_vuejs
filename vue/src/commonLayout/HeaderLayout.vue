@@ -82,7 +82,8 @@ export default {
     },
     methods: {
         logout: async function () {
-            this.$store.dispatch('logout'); // 로그인
+            // 로그아웃 처리
+            this.$store.dispatch('logout');
         },
         sginup: async function () {
             this.$router.push({

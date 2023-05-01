@@ -36,7 +36,7 @@
             <div id="formFooter"><a class="underlineHover" href="#">Forgot Password?</a></div>
         </div>
     </div>
-    <div class="wrapper fadeInDown" v-show="signUp">
+    <div class="wrapper fadeInDown" v-show="signUpAndModify">
         <div id="formContent">
             <!-- Icon -->
             <div class="fadeIn first">
@@ -45,17 +45,16 @@
             </div>
 
             <!-- Login Form -->
-
             <input type="text" id="userId" class="fadeIn second" name="userId" v-model="user" placeholder="User Id" @keyup="idValidation()" />
             <p v-if="idValidationMsg != ''">{{ idValidationMsg }}</p>
             <input type="text" id="password1" class="fadeIn third" name="password1" v-model="password" placeholder="Password1" />
             <input type="text" id="password2" class="fadeIn third" name="password2" v-model="Password2" placeholder="Password2" @keyup="pwValidation()" />
             <p v-if="pwValidationMsg != ''">{{ pwValidationMsg }}</p>
-            <input type="text" id="userNm" class="fadeIn third" name="userNm" v-model="userNm" placeholder="userNm" />
+            <input type="text" id="name" class="fadeIn third" name="name" v-model="name" placeholder="name" />
             <input type="text" id="nickname" class="fadeIn third" name="nickname" v-model="nickname" placeholder="nickname" />
             <input type="text" id="mobile" class="fadeIn third" name="mobile" v-model="mobile" placeholder="mobile" />
 
-            <input type="button" class="fadeIn fourth" value="Sign up" @click="userRegistration()" />
+            <input type="button" class="fadeIn fourth" value="Sign up" @click="userManagement()" />
 
             <!-- Remind Passowrd -->
             <div id="formFooter"><a class="underlineHover" href="#">Forgot Password?</a></div>
@@ -75,7 +74,8 @@ export default {
 
     // [컴포넌트 생성 시 초기 데이터 설정 (리턴 값 지정)]
     data() {
-        let accessType = this.$route.query.accessType == undefined || this.$route.query.accessType == 'SIGNIN' ? 'SIGNIN' : 'SIGNUP';
+        //let accessType = this.$route.query.accessType == undefined || this.$route.query.accessType == 'SIGNIN' ? 'SIGNIN' : 'SIGNUP';
+        let accessType = this.$route.query.accessType == undefined ? 'SIGNIN' : this.$route.query.accessType;
         let authYn = this.$store.getters.token == null ? false : true;
         console.log(accessType);
         console.log(authYn);
@@ -91,14 +91,17 @@ export default {
         return {
             loginSuccess: false,
             loginError: false,
+            id: '',
             user: '',
             password: '',
             password2: '',
+            name: '',
+            nickname: '',
+            mobile: '',
             error: false,
             accessType: accessType, //접근 타입 1. SIGNUP 2. SIGNIN
             signIn: accessType == 'SIGNIN' ? true : false,
-            signUp: accessType == 'SIGNUP' ? true : false,
-            modify: accessType == 'MODIFY' ? true : false,
+            signUpAndModify: accessType == 'SIGNUP' || accessType == 'MODIFY' ? true : false,
             idValidationMsg: idValidationMsg,
             pwValidationMsg: pwValidationMsg,
         };
@@ -115,7 +118,6 @@ export default {
                 console.log(id);
                 console.log(password);
                 this.$store.dispatch('login', { id, password }); // 로그인
-                //console.log(this.$store);
             } else {
                 alert('아이디 또는 비밀번호가 입력되지 않았습니다.');
                 return false;
@@ -143,7 +145,7 @@ export default {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-
+            console.log(res.data);
             if (res.data == '0') {
                 this.idValidationMsg = '사용하실 수 있는 아이디입니다.';
             } else {
@@ -151,7 +153,6 @@ export default {
             }
         },
         pwValidation: async function () {
-            alert('하위');
             var id = this.user; // 아이디
             var password = this.password; // 비밀번호
             var password2 = this.password2; // 비밀번호 화인
@@ -171,27 +172,55 @@ export default {
                 this.pwValidationMsg = '두개의 비밀번호가 일치하지 않습니다.';
             }
         },
-        userRegistration: async function () {
-            let res = await this.$axios({
-                method: 'post',
-                url: '/api/userRegistration',
-                params: {
-                    email: this.user,
-                    password: this.password,
-                    name: this.userNm,
-                    nickname: this.nickname,
-                    mobile: this.mobile,
-                },
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            console.log(res);
+        userManagement: async function () {
+            if (this.accessType == 'SIGNUP') {
+                console.log('회원가입 진행');
+
+                let result = await this.$axios({
+                    method: 'post',
+                    url: '/api/userRegistration',
+                    params: {
+                        email: this.user,
+                        password: this.password,
+                        name: this.name,
+                        nickname: this.nickname,
+                        mobile: this.mobile,
+                    },
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+                if (result.status === 200) {
+                    this.signIn = true;
+                    this.signUpAndModify = false;
+                }
+            } else if (this.accessType == 'MODIFY') {
+                console.log('회원정보 수정');
+                let result = await this.$axios({
+                    method: 'post',
+                    url: '/api/userModify',
+                    params: {
+                        id: this.id,
+                        email: this.user,
+                        password: this.password,
+                        name: this.name,
+                        nickname: this.nickname,
+                        mobile: this.mobile,
+                    },
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+                if (result.status === 200) {
+                    this.$router.push({
+                        name: 'main',
+                    });
+                }
+            }
         },
         getUserInfo: async function () {
-            console.log('유저 정보');
             let id = this.$store.getters.id;
-
+            console.log('유저 정보 : ' + id);
             const result = await this.$axios({
                 method: 'post',
                 url: '/api/getUserInfo',
@@ -205,6 +234,12 @@ export default {
 
             if (result.status === 200) {
                 console.log(result);
+                this.id = result.data.id;
+                this.user = result.data.email;
+                this.password = result.data.password;
+                this.name = result.data.name;
+                this.nickname = result.data.nickname;
+                this.mobile = result.data.mobile;
             }
         },
     },

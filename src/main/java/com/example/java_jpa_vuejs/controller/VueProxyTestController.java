@@ -237,4 +237,27 @@ public class VueProxyTestController {
 
         return joinDto;
     }
+
+    /**
+    * @method 회원 정보 가져오기 
+    * @param loginDto
+    * @throws Exception
+    */
+    @PostMapping(value = {"/userModify"})
+    public Integer userManagement(JoinDto joinDto) throws Exception {
+        System.out.println("회원정보 수정 기능을 만들거에요.");
+
+        System.out.println("getId       = " + joinDto.getId());
+        System.out.println("getEmail    = " + joinDto.getEmail());
+        System.out.println("getPassword = " + joinDto.getPassword());
+        System.out.println("getName     = " + joinDto.getName());
+        System.out.println("getMobile   = " + joinDto.getMobile());
+        System.out.println("getNickname = " + joinDto.getNickname());
+        System.out.println("getNickname = " + joinDto.getProfile());
+
+        Integer updateCnt = signService.userModify(joinDto);
+
+        return updateCnt;
+    }
+
 }
