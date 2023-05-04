@@ -12,12 +12,12 @@ import store from './routers/store/index.js';
 
 const app = createApp(App);
 
+console.log('페이지 로드 시점 토큰 : ' + store.state.token);
 //axios instance 생성
 const instance = axios.create({
     baseURL: process.env.VUE_APP_API_URL,
     headers: { accesstoken: store.state.token },
 });
-
 // 요청 인터셉터 추가
 // Promise Chaining이란 무었인가????????????????????
 instance.defaults.timeout = 10000;

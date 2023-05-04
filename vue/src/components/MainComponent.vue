@@ -124,6 +124,7 @@ export default {
                 },
                 headers: {
                     'Content-Type': 'multipart/form-data',
+                    accesstoken: this.$store.state.token,
                 },
             });
             this.dataList = res.data; //데이터 세팅

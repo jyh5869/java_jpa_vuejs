@@ -30,10 +30,7 @@
                     </li>
                     -->
                     <li class="nav-item">
-                        <router-link class="nav-link" to="/main">Main</router-link>
-                    </li>
-                    <li class="nav-item">
-                        <router-link class="nav-link" :to="{ name: 'auth', query: { accessType: 'SIGNIN' } }"> Auth </router-link>
+                        <router-link class="nav-link" to="/main">List</router-link>
                     </li>
                     <!-- 
                     <li class="nav-item dropdown">
@@ -56,13 +53,13 @@
                     <button class="btn btn-outline-success" type="submit">Search</button>
                 </form>
 
-                <div class="btn-wrap navbar-nav mb-2 mb-lg-0" v-if="authYn == false">
+                <div class="btn-wrap navbar-nav mb-2 mb-lg-0" v-if="this.$store.getters.token == null">
                     <router-link class="btn login btn-outline-primary" :to="{ name: 'auth', query: { accessType: 'SIGNIN' } }">Login</router-link>
                 </div>
-                <div class="btn-wrap navbar-nav mb-2 mb-lg-0" v-if="authYn == false">
+                <div class="btn-wrap navbar-nav mb-2 mb-lg-0" v-if="this.$store.getters.token == null">
                     <button class="btn login btn-outline-primary" @click="sginup()">Sginup</button>
                 </div>
-                <div class="btn-wrap navbar-nav mb-2 mb-lg-0" v-else-if="authYn == true">
+                <div class="btn-wrap navbar-nav mb-2 mb-lg-0" v-else-if="this.$store.getters.token != null">
                     <button class="btn login btn-outline-primary" @click="logout()">Logout</button>
                     <button class="btn login btn-outline-primary" @click="modifyUser()">User Info</button>
                 </div>
@@ -92,10 +89,24 @@ export default {
             });
         },
         modifyUser: async function () {
-            this.$router.push({
-                name: 'auth',
-                query: { accessType: 'MODIFY' },
-            });
+            //인증 정보(토큰)가 존재하지 않을때 로그인 페이지로 이동
+            if (this.checkAuth() == true) {
+                this.$router.push({
+                    name: 'auth',
+                    query: { accessType: 'MODIFY' },
+                });
+            }
+        },
+        checkAuth: function () {
+            //인증 정보(토큰)가 존재하지 않을때 로그인 페이지로 이동하는 함수
+            if (this.$store.getters.token == null) {
+                this.$router.push({
+                    name: 'auth',
+                    query: { accessType: 'SIGNIN' },
+                });
+                return false;
+            }
+            return true;
         },
     },
 };

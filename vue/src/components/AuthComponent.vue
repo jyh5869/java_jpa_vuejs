@@ -74,11 +74,8 @@ export default {
 
     // [컴포넌트 생성 시 초기 데이터 설정 (리턴 값 지정)]
     data() {
-        //let accessType = this.$route.query.accessType == undefined || this.$route.query.accessType == 'SIGNIN' ? 'SIGNIN' : 'SIGNUP';
         let accessType = this.$route.query.accessType == undefined ? 'SIGNIN' : this.$route.query.accessType;
         let authYn = this.$store.getters.token == null ? false : true;
-        console.log(accessType);
-        console.log(authYn);
 
         //회원정보 수정일 경우 호출
         if (accessType == 'MODIFY') {
@@ -91,6 +88,7 @@ export default {
         return {
             loginSuccess: false,
             loginError: false,
+            authYn: authYn,
             id: '',
             user: '',
             password: '',
@@ -115,8 +113,6 @@ export default {
                 var id = this.user; // 아이디
                 var password = this.password; // 비밀번호
 
-                console.log(id);
-                console.log(password);
                 this.$store.dispatch('login', { id, password }); // 로그인
             } else {
                 alert('아이디 또는 비밀번호가 입력되지 않았습니다.');
@@ -125,10 +121,6 @@ export default {
         },
         idValidation: async function () {
             var id = this.user; // 아이디
-            var password = this.password; // 비밀번호
-
-            console.log(id);
-            console.log(password);
 
             if (id == '') {
                 this.idValidationMsg = '';
@@ -153,13 +145,9 @@ export default {
             }
         },
         pwValidation: async function () {
-            var id = this.user; // 아이디
-            var password = this.password; // 비밀번호
-            var password2 = this.password2; // 비밀번호 화인
-
-            console.log(id);
-            console.log(password);
-            console.log(password2);
+            // 비밀번호 일치 검증
+            var password = this.password;
+            var password2 = this.password2;
 
             if (password2 == '') {
                 this.pwValidationMsg = '';
@@ -168,8 +156,10 @@ export default {
 
             if (password == password2) {
                 this.pwValidationMsg = '두개의 비밀번호가 일치 합니다.';
+                return true;
             } else {
                 this.pwValidationMsg = '두개의 비밀번호가 일치하지 않습니다.';
+                return false;
             }
         },
         userManagement: async function () {

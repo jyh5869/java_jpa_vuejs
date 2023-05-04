@@ -40,32 +40,32 @@ const actions = {
             email: id,
             password: password,
         };
-        const promise = axios
+        console.time();
+        //const promise =
+        axios
             .post('/api/signin', JSON.stringify(params), {
                 headers: { 'content-type': 'application/json' },
             })
             .then(async (res) => {
                 commit('login', res);
-                console.log('sotre----------------------------------');
+                console.log('-----------------Login Result-----------------');
                 console.log(res);
-                console.log(this.state.token);
-                console.log('sotre----------------------------------');
+                console.log('sotre------------Login Result-----------------');
 
-                /*
-                    await setTimeout(() => {
-                        router.push('/main');
-                    }, 1000);
-                    */
+                router.push('/main');
             })
             .catch((error) => {
                 console.log(error);
                 alert('로그인 요청에 문제가 발생했습니다.');
             });
-        promise.then(() =>
-            setTimeout(() => {
-                router.push('/main');
-            }, 100),
-        );
+
+        /*
+            promise.then(() =>
+                setTimeout(() => {
+                    router.push('/main');
+                }, 2000),
+            );
+        */
         //promise.then((response) => router.push('/main'));
     },
     logout({ commit }) {

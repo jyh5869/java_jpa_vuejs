@@ -21,7 +21,7 @@ import java.util.Optional;
 public interface MemberRepository extends CrudRepository<Members, Long> {
 
     Optional<Members> findByEmail(String email);
-    Optional<Members> findById(String id);
+    Optional<Members> findById(String id);    
 
     @Query(value =
             "select count(*) " +
