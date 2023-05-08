@@ -16,7 +16,10 @@ console.log('페이지 로드 시점 토큰 : ' + store.state.token);
 //axios instance 생성
 const instance = axios.create({
     baseURL: process.env.VUE_APP_API_URL,
-    headers: { accesstoken: store.state.token },
+    headers: {
+        accesstoken: store.state.token,
+        refreshToken: store.state.refreshToken,
+    },
 });
 // 요청 인터셉터 추가
 // Promise Chaining이란 무었인가????????????????????
@@ -37,14 +40,25 @@ instance.interceptors.response.use(
     function (response) {
         return response;
     },
-    function (error) {
+    async function (error) {
         if (error.response && error.response.status) {
+            const errorAPI = error.response.config;
+            console.log('~~~~~~~~~~~~~axios error~~~~~~~~~~~');
+            console.log(errorAPI);
+            console.log('~~~~~~~~~~~~~axios error~~~~~~~~~~~');
             switch (error.response.status) {
-                // status code가 401인 경우 `logout`을 커밋하고 `/login` 페이지로 리다이렉트
+                //status code가 401인 경우 `logout`을 커밋하고 `/login` 페이지로 리다이렉트
                 case 401:
-                    // 이행되지 않는 Promise를 반환하여 Promise Chaining 끊어주기
-                    store.commit('logout');
+                    //이행되지 않는 Promise를 반환하여 Promise Chaining 끊어주기
+                    //store.commit('logout');
                     console.log('ERROR - Response 401 오류발생 : ' + error);
+
+                    //Axios 재요청 (refresh token이 있을 시)
+                    if (errorAPI.retry == undefined && store.state.refreshToken != null) {
+                        errorAPI.retry = true; //재요청 변수 추가
+                        await store.dispatch('refreshToken'); //로그인 중간 저장소에 있는 토큰 재발급 action을 실행
+                        return await axios(errorAPI); //다시 axios 요청
+                    }
                     return new Promise(() => {});
                 case 403:
                     console.log('ERROR - Response 403 오류발생 : ' + error);

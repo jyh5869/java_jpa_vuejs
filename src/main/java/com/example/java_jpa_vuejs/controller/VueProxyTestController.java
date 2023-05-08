@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +27,7 @@ import com.example.java_jpa_vuejs.auth.entity.Members;
 import com.example.java_jpa_vuejs.auth.repositoryService.SignService;
 import com.example.java_jpa_vuejs.auth2.repositoryService.RepositoryService;
 import com.example.java_jpa_vuejs.config.FirebaseConfiguration;
+
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
@@ -119,22 +121,19 @@ public class VueProxyTestController {
     public ResponseEntity<AuthenticationDto> appLogin(@Valid @RequestBody LoginDto loginDto) throws Exception {
         System.out.println("로그인할게용");
         AuthenticationDto authentication = new AuthenticationDto();
-
+        
         try {
             authentication = signService.loginMemberMysql(loginDto);
         } 
         catch (Exception e) {
             authentication = signService.loginMemberFirebase(loginDto);
         }
-        
 
-        return ResponseEntity.ok()
-                .header("accesstoken", authProvider
-                .createToken(
-                    authentication.getId(),
-                    authentication.getEmail(),
-                    "USER"))
-                .body(authentication);
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set("accesstoken", authProvider.createToken(authentication));
+        responseHeaders.set("refreshtoken", authProvider.createRefreshToken(authentication));
+
+        return ResponseEntity.ok().headers(responseHeaders).body(authentication);
     }
 
     /**

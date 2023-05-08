@@ -41,37 +41,77 @@ public class AuthProvider {
 
     private UserDetailsService userDetailsService;
 
-    private long accessTokenValidTime = Duration.ofMinutes(60).toMillis(); // 만료시간 30분인 엑세스 토큰 
-    private long refreshTokenValidTime = Duration.ofDays(14).toMillis(); // 만료시간 2주인 리프레쉬 토큰
+    private long accessTokenValidTime = Duration.ofSeconds(10).toMillis(); // 만료시간 10분인 엑세스 토큰 
+    //private long accessTokenValidTime = Duration.ofMinutes(10).toMillis(); // 만료시간 10분인 엑세스 토큰 
+    private long refreshTokenValidTime = Duration.ofDays(1).toMillis(); // 만료시간 하루 리프레쉬 토큰
     
     /**
      * @throws Exception
-     * @method 설명 : jwt 토큰 발급
+     * @method 설명 : jwt 토큰 발급()
      */
-    public String createToken(long userPk, String email, String nickname) {
+    public String createToken(AuthenticationDto authentication) {
         
-        LOG.info("Enter Create Token - Email :" + email + ", UserPk : " + userPk);
+        long userPk  = authentication.getId();
+        String userEmail = authentication.getEmail();
+        String userNickname = authentication.getNickname();
+
+        LOG.info("Enter Create Token - Email :" + userEmail + ", UserPk : " + userPk);
+
     	/**
     	 * 토큰발급을 위한 데이터는 UserDetails에서 담당
     	 * 따라서 UserDetails를 세부 구현한 CustomUserDetails로 회원정보 전달
     	 */
     	CustomUserDetails user = new CustomUserDetails(
     			userPk, 	// 번호
-    			email,      // 이메일
-                nickname);  // 닉네임
+    			userEmail,      // 이메일
+                userNickname);  // 닉네임
     	
     	// 유효기간설정을 위한 Date 객체 선언
     	Date now = new Date();
     
         final JwtBuilder builder = Jwts.builder()
                 .setHeaderParam("typ", "JWT")
-                .setSubject("accesstoken").setExpiration(new Date(now.getTime() + accessTokenValidTime))
+                .setSubject("accesstoken")
+                .setExpiration(new Date(now.getTime() + accessTokenValidTime))
                 .claim("userPk", userPk)
-                .claim("email", email)
+                .claim("email", userEmail)
                 .claim("roles", user.getAuthorities())
                 .signWith(SignatureAlgorithm.HS256, atSecretKey);
 
-        LOG.info("End And Success Create Token - Email :" + email + ", UserPk : " + userPk);
+        LOG.info("End And Success Create Token - Email :" + userEmail + ", UserPk : " + userPk);
+
+        return builder.compact();
+    }
+
+    public String createRefreshToken(AuthenticationDto authentication) {
+
+        long userPk  = authentication.getId();
+        String userEmail = authentication.getEmail();
+        String userNickname = authentication.getNickname();
+
+        LOG.info("Enter Create RefreshToken - Email :" + userEmail + ", UserPk : " + userPk);
+    	/**
+    	 * 토큰발급을 위한 데이터는 UserDetails에서 담당
+    	 * 따라서 UserDetails를 세부 구현한 CustomUserDetails로 회원정보 전달
+    	 */
+    	CustomUserDetails user = new CustomUserDetails(
+    			userPk, 	    // 번호
+    			userEmail,      // 이메일
+                userNickname);  // 닉네임
+
+        Date now = new Date();
+
+        final JwtBuilder builder = Jwts.builder()
+                .setIssuedAt(now)
+                .setHeaderParam("typ", "JWT")
+                .setSubject("accesstoken")
+                .setExpiration(new Date(now.getTime() + refreshTokenValidTime))
+                .claim("userPk", userPk)
+                .claim("email", userEmail)
+                .claim("roles", user.getAuthorities())
+                .signWith(SignatureAlgorithm.HS256, atSecretKey);
+        
+        LOG.info("End And Success Create RefreshToken - Email :" + userEmail + ", UserPk : " + userPk);
 
         return builder.compact();
     }

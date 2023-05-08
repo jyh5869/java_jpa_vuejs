@@ -3,6 +3,7 @@ import router from '../index.js';
 
 const state = {
     token: null,
+    refreshToken: null,
     id: null,
     name: null,
     role: 'USER',
@@ -12,6 +13,7 @@ const state = {
 
 const getters = {
     token: (state) => state.token,
+    refreshToken: (state) => state.refreshToken,
     id: (state) => state.id,
     email: (state) => state.email,
     nickname: (state) => state.nickname,
@@ -20,13 +22,19 @@ const getters = {
 const mutations = {
     login(state, item) {
         state.token = item.headers['accesstoken'];
+        state.refreshToken = item.headers['refreshtoken'];
         state.id = item.data['id'];
-        //state.role = item.data['role'];
+        state.role = item.data['role'];
         state.email = item.data['email'];
         state.nickname = item.data['nickname'];
     },
+    refresh(state, item) {
+        state.token = item.headers['accesstoken'];
+        state.refreshToken = item.headers['refreshtoken'];
+    },
     logout(state) {
         state.token = null;
+        state.refreshToken = null;
         state.id = null;
         state.role = null;
         state.email = null;
@@ -40,8 +48,7 @@ const actions = {
             email: id,
             password: password,
         };
-        console.time();
-        //const promise =
+
         axios
             .post('/api/signin', JSON.stringify(params), {
                 headers: { 'content-type': 'application/json' },
@@ -58,15 +65,21 @@ const actions = {
                 console.log(error);
                 alert('로그인 요청에 문제가 발생했습니다.');
             });
-
-        /*
-            promise.then(() =>
-                setTimeout(() => {
-                    router.push('/main');
-                }, 2000),
-            );
-        */
-        //promise.then((response) => router.push('/main'));
+    },
+    refresh({ commit }) {
+        //accessToken 만료로 재발급 후 재요청시 비동기처리로는 제대로 처리가 안되서 promise로 처리함
+        return new Promise((resolve, reject) => {
+            axios
+                .post('/api/certify')
+                .then((res) => {
+                    commit('refresh', res.data.auth_info);
+                    resolve(res.data.auth_info);
+                })
+                .catch((err) => {
+                    console.log('refreshToken error : ', err.config);
+                    reject(err.config.data);
+                });
+        });
     },
     logout({ commit }) {
         console.log('로그아웃!!');
