@@ -63,9 +63,10 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
 			.authorizeRequests()
 				    .requestMatchers(CorsUtils::isPreFlightRequest).permitAll() // CORS 정보 사전 전달 에대한 접근
 					.requestMatchers("/api/signup").permitAll()// 회원가입 페이지 접근
-                    .requestMatchers("/api/signin").permitAll()// 로그인 페이지 접근
+                    .requestMatchers("/api/signin").permitAll()// 로그인 페이지 접근 
                     .requestMatchers("/api/userRegistration").permitAll()// 회원가입 페이지 접근
 					.requestMatchers("/api/idValidation").permitAll()// 로그인 페이지 접근
+                    .requestMatchers("/api/reissuance").permitAll()// 토큰 재발행
 					.requestMatchers("/exception/**").permitAll() // 예외처리 포인트 접근
 					//.requestMatchers("/**").hasRole("USER")// 상세 권한 설정
                     .anyRequest().authenticated() 
@@ -136,5 +137,4 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring().requestMatchers("/images/**", "/js/**", "/webjars/**");
     }
-
 }

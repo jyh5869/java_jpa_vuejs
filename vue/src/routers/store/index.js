@@ -4,7 +4,7 @@ import modules from './module.js';
 
 //해당 값들을 로컬 스토리지에 저장하여 필요시 사용하기 위함
 const persistedState = createPersistedState({
-    paths: ['token', 'id', 'name', 'role', 'nickname'],
+    paths: ['token', 'refreshToken', 'id', 'name', 'role', 'email', 'nickname'],
 });
 
 export default createStore({

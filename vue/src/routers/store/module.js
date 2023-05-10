@@ -69,11 +69,23 @@ const actions = {
     refresh({ commit }) {
         //accessToken 만료로 재발급 후 재요청시 비동기처리로는 제대로 처리가 안되서 promise로 처리함
         return new Promise((resolve, reject) => {
+            const params = {
+                id: this.state.id,
+                email: this.state.email,
+                password: this.state.password,
+                nickname: this.state.nickname,
+            };
             axios
-                .post('/api/certify')
-                .then((res) => {
-                    commit('refresh', res.data.auth_info);
-                    resolve(res.data.auth_info);
+                .post('/api/reissuance', JSON.stringify(params), {
+                    headers: { 'content-type': 'application/json' },
+                })
+                .then(async (res) => {
+                    res.headers['refreshtoken'] = this.state.refreshToken;
+                    console.log('-----------------Token Reissuance Result-----------------');
+                    console.log(res);
+                    await commit('refresh', res);
+                    resolve(res.headers);
+                    console.log('-----------------Token Reissuance Result-----------------');
                 })
                 .catch((err) => {
                     console.log('refreshToken error : ', err.config);

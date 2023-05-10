@@ -55,7 +55,7 @@ public class AuthProvider {
         String userEmail = authentication.getEmail();
         String userNickname = authentication.getNickname();
 
-        LOG.info("Enter Create Token - Email :" + userEmail + ", UserPk : " + userPk);
+        LOG.info("Enter Create Token - Email :" + userEmail + ", UserPk : " + userPk + ", userNickname : " + userNickname);
 
     	/**
     	 * 토큰발급을 위한 데이터는 UserDetails에서 담당
@@ -89,7 +89,7 @@ public class AuthProvider {
         String userEmail = authentication.getEmail();
         String userNickname = authentication.getNickname();
 
-        LOG.info("Enter Create RefreshToken - Email :" + userEmail + ", UserPk : " + userPk);
+        LOG.info("Enter Create Token - Email :" + userEmail + ", UserPk : " + userPk + ", userNickname : " + userNickname);
     	/**
     	 * 토큰발급을 위한 데이터는 UserDetails에서 담당
     	 * 따라서 UserDetails를 세부 구현한 CustomUserDetails로 회원정보 전달

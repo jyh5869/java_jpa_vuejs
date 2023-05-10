@@ -136,6 +136,28 @@ public class VueProxyTestController {
         return ResponseEntity.ok().headers(responseHeaders).body(authentication);
     }
 
+    @PostMapping(value = {"/reissuance"})
+    public  ResponseEntity<AuthenticationDto> reissuance(@Valid @RequestBody AuthenticationDto joinDto) throws Exception {
+        //TokenResponseDto responseDto = signService.reIssue(tokenRequestDto);
+        System.out.println("토큰을 재 발행 할게요!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        AuthenticationDto authentication = new AuthenticationDto();
+        
+        authentication.setId(joinDto.getId());
+        authentication.setEmail(joinDto.getEmail());
+        authentication.setNickname(joinDto.getNickname());
+
+        System.out.println("getId       = " + joinDto.getId());
+        System.out.println("getEmail    = " + joinDto.getEmail());
+        System.out.println("getName     = " + joinDto.getName());
+        System.out.println("getMobile   = " + joinDto.getMobile());
+        System.out.println("getNickname = " + joinDto.getNickname());
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set("accesstoken", authProvider.createToken(authentication));
+
+        return ResponseEntity.ok().headers(responseHeaders).body(authentication);
+    }
+
     /**
     * @method 권한 추가
     * @param loginDto
