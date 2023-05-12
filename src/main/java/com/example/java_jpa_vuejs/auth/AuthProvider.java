@@ -43,7 +43,8 @@ public class AuthProvider {
 
     private long accessTokenValidTime = Duration.ofSeconds(10).toMillis(); // 만료시간 10분인 엑세스 토큰 
     //private long accessTokenValidTime = Duration.ofMinutes(10).toMillis(); // 만료시간 10분인 엑세스 토큰 
-    private long refreshTokenValidTime = Duration.ofDays(1).toMillis(); // 만료시간 하루 리프레쉬 토큰
+    //private long refreshTokenValidTime = Duration.ofDays(1).toMillis(); // 만료시간 하루 리프레쉬 토큰
+    private long refreshTokenValidTime = Duration.ofSeconds(20).toMillis(); // 만료시간 10분인 엑세스 토큰 
     
     /**
      * @throws Exception
@@ -104,7 +105,7 @@ public class AuthProvider {
         final JwtBuilder builder = Jwts.builder()
                 .setIssuedAt(now)
                 .setHeaderParam("typ", "JWT")
-                .setSubject("accesstoken")
+                .setSubject("refreshtoken")
                 .setExpiration(new Date(now.getTime() + refreshTokenValidTime))
                 .claim("userPk", userPk)
                 .claim("email", userEmail)
@@ -144,9 +145,18 @@ public class AuthProvider {
     /**
      * @method 설명 : request객체 헤더에 담겨 있는 토큰 가져오기
      */
-    public String resolveToken(HttpServletRequest request) {
+    public String resolveToken(HttpServletRequest request, String tokenType) {
         LOG.info("Start And Get Token");
-        return request.getHeader("accesstoken");
+
+        if(tokenType.equals("accesstoken")){
+            return request.getHeader("accesstoken");
+        }
+        else if(tokenType.equals("refreshtoken")){
+            return request.getHeader("refreshtoken");
+        }    
+        else{
+            return "Token Empty";
+        }
     }
 
     /**

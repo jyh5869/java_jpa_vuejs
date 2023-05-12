@@ -19,7 +19,7 @@ const instance = axios.create({
     baseURL: process.env.VUE_APP_API_URL,
     headers: {
         accesstoken: store.state.token,
-        refreshToken: store.state.refreshToken,
+        refreshtoken: store.state.refreshToken,
     },
 });
 // 요청 인터셉터 추가
@@ -43,23 +43,24 @@ instance.interceptors.response.use(
     },
     async function (error) {
         if (error.response && error.response.status) {
-            const errorAPI = error.response.config;
+            const errorAPI = error.response;
             switch (error.response.status) {
                 case 401:
                     console.log('ERROR - Response 401 오류발생 : ' + error);
-                    if (errorAPI.retry == undefined && store.state.refreshToken != null) {
+                    console.log('Retry Param: ' + errorAPI.headers.retry);
+                    if (errorAPI.headers.retry == 'true' && store.state.refreshToken != null) {
                         //리프래쉬 토큰이 있을경우 토큰 재발급 후 Axios 재요청
 
                         await store.dispatch('refresh'); //토큰 재발급 Action
 
-                        errorAPI.retry = true; //재요청 변수 추가
-                        errorAPI.headers['accesstoken'] = store.state.token;
-                        errorAPI.headers['refreshtoken'] = store.state.refreshToken;
+                        //errorAPI.headers.retry = true; //재요청 변수 추가
+                        errorAPI.config.headers['accesstoken'] = store.state.token;
+                        errorAPI.config.headers['refreshtoken'] = store.state.refreshToken;
 
-                        return await axios(errorAPI); //다시 axios 요청
+                        return await axios(errorAPI.config); //다시 axios 요청
                     } else {
                         //리프레쉬 토큰 기간마감일 경우 로그아웃 후 로그인 페이지로 이동
-                        store.commit('logout');
+                        store.dispatch('logout');
                     }
                     return new Promise(() => {});
                 case 403:

@@ -119,7 +119,7 @@ public class VueProxyTestController {
     */
     @PostMapping(value = {"/signin"})
     public ResponseEntity<AuthenticationDto> appLogin(@Valid @RequestBody LoginDto loginDto) throws Exception {
-        System.out.println("로그인할게용");
+        System.out.println("로그인할게용 ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★");
         AuthenticationDto authentication = new AuthenticationDto();
         
         try {

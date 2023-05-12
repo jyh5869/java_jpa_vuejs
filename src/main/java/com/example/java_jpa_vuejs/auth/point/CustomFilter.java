@@ -2,6 +2,7 @@ package com.example.java_jpa_vuejs.auth.point;
 
 import com.example.java_jpa_vuejs.auth.AuthProvider;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
@@ -46,7 +47,7 @@ public class CustomFilter extends GenericFilterBean {
                 LOG.info("Access Token : "+httpReq.getHeader("accesstoken"));
             	
                 // 사용자 인증토큰 검사
-                String token = jwtTokenProvider.resolveToken(httpReq);
+                String token = jwtTokenProvider.resolveToken(httpReq, "accesstoken");
                 if (token != null) {
 
                     if(jwtTokenProvider.validateToken(token)) {
@@ -55,7 +56,15 @@ public class CustomFilter extends GenericFilterBean {
                         SecurityContextHolder.getContext().setAuthentication(auth);
                     }
                     else{
+                        String reftreshToken = jwtTokenProvider.resolveToken(httpReq, "refreshtoken");
 
+                        if(jwtTokenProvider.validateToken(reftreshToken)) {
+                            httpRes.setHeader("retry", "true");
+                        }
+                        else{
+                            httpRes.setHeader("retry", "false");
+                        }
+                        
                         LOG.info("Access Token : Expiration");
                         /*
                         401(Unauthorized) - httpRes.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -72,6 +81,10 @@ public class CustomFilter extends GenericFilterBean {
                 }
                 else{
                     LOG.info("Access Token : Empty");
+                    /* 
+                    httpRes.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    return;
+                    */
                 }
                 filterChain.doFilter(request, response);
             }
