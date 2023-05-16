@@ -24,6 +24,7 @@ import com.example.java_jpa_vuejs.auth.FirebaseAuthSignUtil;
 import com.example.java_jpa_vuejs.auth.JoinDto;
 import com.example.java_jpa_vuejs.auth.LoginDto;
 import com.example.java_jpa_vuejs.auth.entity.Members;
+import com.example.java_jpa_vuejs.auth.repositoryService.SignFirebaseService;
 import com.example.java_jpa_vuejs.auth.repositoryService.SignService;
 import com.example.java_jpa_vuejs.auth2.repositoryService.RepositoryService;
 import com.example.java_jpa_vuejs.config.FirebaseConfiguration;
@@ -59,6 +60,7 @@ public class VueProxyTestController {
     private final RepositoryService rs;
 
     private final SignService signService;
+    private final SignFirebaseService signFirebaseService;
 
     private final FirebaseConfiguration firebaseConfiguration;
 
@@ -71,42 +73,9 @@ public class VueProxyTestController {
     * @throws Exception
     */
     @GetMapping("/getList")
-    public List<Map<String, Object>> index() throws InterruptedException, ExecutionException, IOException {
-        
-        long reqTime = Util.durationTime ("start", "JPA 테스트", 0, "Proceeding" );
-        List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
+    public List<Map<String, Object>> index() throws Exception {
 
-        try {     
-            //파이어 베이스 초기화
-            firebaseConfiguration.initializeFCM();
-            Firestore db = FirestoreClient.getFirestore();
-
-            //스냅샷 호출 후 리스트 생성(JSON)
-            ApiFuture<QuerySnapshot> query = db.collection("board").orderBy("brddate", Direction.DESCENDING).limit(10).get();
-            QuerySnapshot querySnapshot = query.get();
-
-            List<QueryDocumentSnapshot> documents = querySnapshot.getDocuments();
-            
-
-            for (QueryDocumentSnapshot document : documents) {
-                /* ※ 데이터 출력 Example 
-                System.out.println("id        : " + document.getId());
-                */
-
-                String toDayFormat = Util.remakeDate(document.getLong("brddate"),1);
-                
-                Map<String, Object> data = document.getData();
-                data.put("brddate", toDayFormat);
-
-                result.add(data);
-            }
-            Util.durationTime ("end", "JPA 테스트", reqTime, "Complete" );
-        }
-        catch (Exception e) {
-            
-            Util.durationTime ("end", "JPA 테스트", reqTime, "Fail" );
-            e.printStackTrace();
-        }
+        List<Map<String, Object>> result = signFirebaseService.getList();
 
         return result;
     }
@@ -138,7 +107,7 @@ public class VueProxyTestController {
 
     @PostMapping(value = {"/reissuance"})
     public  ResponseEntity<AuthenticationDto> reissuance(@Valid @RequestBody AuthenticationDto joinDto) throws Exception {
-        //TokenResponseDto responseDto = signService.reIssue(tokenRequestDto);
+
         System.out.println("토큰을 재 발행 할게요!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         AuthenticationDto authentication = new AuthenticationDto();
         
@@ -198,9 +167,8 @@ public class VueProxyTestController {
     * @throws Exception
     */
     @PostMapping(value = {"/userRegistration"})
-    public Integer userRegistration(JoinDto joinDto) throws Exception {
+    public boolean userRegistration(JoinDto joinDto) throws Exception {
         System.out.println("회원가입 기능을 만들거에요.");
-
         System.out.println("getEmail    = " + joinDto.getEmail());
         System.out.println("getPassword = " + joinDto.getPassword());
         System.out.println("getName     = " + joinDto.getName());
@@ -213,33 +181,21 @@ public class VueProxyTestController {
         //rs.print();
         //rs.lazyPrint();
         //rs.lazyPrint2();
-        
-        signService.userRegistration(joinDto);
 
-        long reqTime = Util.durationTime ("start", "JPA 테스트", 0, "Proceeding" );
+        boolean returnFlag;
+        try {
+            signService.userRegistration(joinDto);
+            signFirebaseService.userRegistration(joinDto);
 
-        try {     
-
-            //파이어 베이스 초기화
-            firebaseConfiguration.initializeFCM();
-            Firestore db = FirestoreClient.getFirestore();
-
-            //스냅샷 호출 후 리스트 생성(JSON)
-            ApiFuture<QuerySnapshot> query = db.collection("user").orderBy("brddate", Direction.DESCENDING).limit(10).get();
-            QuerySnapshot querySnapshot = query.get();
-            
-            ApiFuture<WriteResult> future = db.collection("user").document().set(joinDto);
-
-            Util.durationTime ("end", "Update time : ", reqTime, "Complete" );
-        }
+            returnFlag = true; 
+        } 
         catch (Exception e) {
-            
-            Util.durationTime ("end", "JPA 테스트", reqTime, "Fail" );
             e.printStackTrace();
+            
+            returnFlag = false;
         }
 
-
-        return 1;
+        return returnFlag;
     }
 
     /**
@@ -276,7 +232,20 @@ public class VueProxyTestController {
         System.out.println("getNickname = " + joinDto.getNickname());
         System.out.println("getNickname = " + joinDto.getProfile());
 
-        Integer updateCnt = signService.userModify(joinDto);
+        
+        boolean returnFlag;
+        Integer updateCnt = 0;
+        try {
+            updateCnt = signService.userModify(joinDto);
+            signFirebaseService.userModify(joinDto);
+
+            returnFlag = true; 
+        } 
+        catch (Exception e) {
+            e.printStackTrace();
+            
+            returnFlag = false;
+        }
 
         return updateCnt;
     }
