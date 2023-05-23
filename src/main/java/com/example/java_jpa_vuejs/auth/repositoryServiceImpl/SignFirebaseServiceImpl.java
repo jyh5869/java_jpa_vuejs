@@ -55,8 +55,9 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
             //파이어 베이스 초기화
             firebaseConfiguration.initializeFCM();
             Firestore db = FirestoreClient.getFirestore();
+            String lastIdx = String.valueOf(joinDto.getId());
             
-            ApiFuture<WriteResult> future = db.collection("user").document().set(joinDto);
+            ApiFuture<WriteResult> future = db.collection("user").document(lastIdx).set(joinDto);
 
             Util.durationTime ("end", "Update time : ", reqTime, "Complete" );
         }
@@ -117,8 +118,18 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
             //파이어 베이스 초기화
             firebaseConfiguration.initializeFCM();
             Firestore db = FirestoreClient.getFirestore();
-            
-            //ApiFuture<WriteResult> future = db.collection("user").document().set(joinDto);
+            /* 
+                ※ Doc Update 1
+                ApiFuture<WriteResult> future = db.collection("user").document().set(joinDto);
+
+                ※ Doc Update 2
+			    DocumentReference docRef = db.collection("user").document("DEWLD2Tb5vIvIl4YqtEX");
+			    ApiFuture<WriteResult> future = docRef.update("capital", true);
+
+                ※ Doc Update Result
+                WriteResult result = future.get();
+
+            */
 
             Util.durationTime ("end", "Update time : ", reqTime, "Complete" );
         }

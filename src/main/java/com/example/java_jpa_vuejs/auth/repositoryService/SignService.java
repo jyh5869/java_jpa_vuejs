@@ -6,6 +6,7 @@ import com.example.java_jpa_vuejs.auth.LoginDto;
 import com.example.java_jpa_vuejs.auth.entity.Members;
 
 public interface SignService {
+	
 	Boolean regMember(JoinDto joinDto);
 	AuthenticationDto loginMemberMysql(LoginDto loginDto);
 	Integer idValidation(LoginDto loginDto);
@@ -13,4 +14,5 @@ public interface SignService {
 	AuthenticationDto loginMemberFirebase(LoginDto loginDto);
 	Members getUserInfo(LoginDto loginDto);
 	Integer userModify(JoinDto joinDto);
+	long getLastIdex();
 }

@@ -42,4 +42,7 @@ public interface MemberRepository extends CrudRepository<Members, Long> {
             "      (id ,email,  password,  name,  mobile,  nickname,  profile, is_deleted) " +
             "VALUES( (select Max(id) + 1 from MEMBERS A), :#{#regInfo.email}, :#{#regInfo.password}, :#{#regInfo.name}, :#{#regInfo.mobile}, :#{#regInfo.nickname}, :#{#regInfo.profile}, 'N') ", nativeQuery = true)
     void userRegistration(@Param(value = "regInfo") JoinDto joinDto);
+        
+    @Query(value = "SELECT IFNULL(MAX(ID)+1, 1) FROM MEMBERS", nativeQuery = true)
+    long getLastIdex();
 }

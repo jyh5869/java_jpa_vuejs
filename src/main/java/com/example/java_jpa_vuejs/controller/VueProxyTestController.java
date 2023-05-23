@@ -184,6 +184,8 @@ public class VueProxyTestController {
 
         boolean returnFlag;
         try {
+            long lastIdx = signService.getLastIdex();
+            joinDto.setId(lastIdx);
             signService.userRegistration(joinDto);
             signFirebaseService.userRegistration(joinDto);
 

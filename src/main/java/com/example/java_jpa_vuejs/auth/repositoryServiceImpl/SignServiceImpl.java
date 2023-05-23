@@ -30,7 +30,9 @@ public class SignServiceImpl implements SignService {
 
 	private final ModelMapper modelMapper;
 	
-
+	/*
+	 * 회원 가입
+	 */
 	public Boolean regMember(JoinDto joinDto) {
 
 		// 아이디 중복체크
@@ -51,6 +53,9 @@ public class SignServiceImpl implements SignService {
 	}
 	
 
+	/*
+	 * 로그인 처리
+	 */
 	public AuthenticationDto loginMemberMysql(LoginDto loginDto) {
 
 		// DTO -> Entity
@@ -73,6 +78,9 @@ public class SignServiceImpl implements SignService {
 		return modelMapper.map(member, AuthenticationDto.class);
 	}
 
+	/*
+	 * 아이디 중복 체크
+	 */
 	public Integer idValidation(LoginDto loginDto) {
 
 		// DTO -> Entity
@@ -84,6 +92,9 @@ public class SignServiceImpl implements SignService {
 		return memberRepository.countByEmail(loginEntity.getEmail());
 	}
 
+	/*
+	 * 회원 가입
+	 */
 	public void userRegistration(JoinDto joinDto) {
 
 		// DTO -> Entity
@@ -96,6 +107,9 @@ public class SignServiceImpl implements SignService {
 		phonesRepository.save(phone);
 	}
 
+	/*
+	 * 파이어베이스 클라우드 로그인... 미완성
+	 */
 	public AuthenticationDto loginMemberFirebase(LoginDto loginDto) {
 		Members loginEntity = loginDto.toEntity();
 		Members member = memberRepository.findByEmail(loginEntity.getEmail())
@@ -104,7 +118,9 @@ public class SignServiceImpl implements SignService {
 		return modelMapper.map(member, AuthenticationDto.class);
 	}
 
-
+	/*
+	 * 회원 정보 가져오기
+	 */
 	@Override
 	public Members getUserInfo(LoginDto loginDto) {
 		System.out.println("☆☆☆☆☆☆☆☆☆☆☆☆☆☆" + loginDto.getId());
@@ -116,7 +132,9 @@ public class SignServiceImpl implements SignService {
 		return member;
 	}
 
-
+	/*
+	 * 회원 정보수정
+	 */
 	@Override
 	public Integer userModify(JoinDto joinDto) {
 		Members memberEntity = joinDto.toEntity();
@@ -130,6 +148,17 @@ public class SignServiceImpl implements SignService {
 			memberRepository.save(memberEntity);
 			return 1;
 		}
+	}
+
+
+	/*
+	 * 회원가입 테이블 마지막 인덱스 조회
+	 */
+	@Override
+	public long getLastIdex() {
+		long lastIdx = memberRepository.getLastIdex();
+		
+		return lastIdx; 
 	}
 
 }
