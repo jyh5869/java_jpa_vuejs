@@ -41,10 +41,10 @@ public class AuthProvider {
 
     private UserDetailsService userDetailsService;
 
-    private long accessTokenValidTime = Duration.ofSeconds(10).toMillis(); // 만료시간 10분인 엑세스 토큰 
-    //private long accessTokenValidTime = Duration.ofMinutes(10).toMillis(); // 만료시간 10분인 엑세스 토큰 
-    //private long refreshTokenValidTime = Duration.ofDays(1).toMillis(); // 만료시간 하루 리프레쉬 토큰
-    private long refreshTokenValidTime = Duration.ofSeconds(20).toMillis(); // 만료시간 10분인 엑세스 토큰 
+    //private long accessTokenValidTime = Duration.ofSeconds(10).toMillis(); // 만료시간 10분인 엑세스 토큰 
+    private long accessTokenValidTime = Duration.ofMinutes(60).toMillis(); // 만료시간 10분인 엑세스 토큰 
+    private long refreshTokenValidTime = Duration.ofDays(1).toMillis(); // 만료시간 하루 리프레쉬 토큰
+    //private long refreshTokenValidTime = Duration.ofSeconds(20).toMillis(); // 만료시간 10분인 엑세스 토큰 
     
     /**
      * @throws Exception

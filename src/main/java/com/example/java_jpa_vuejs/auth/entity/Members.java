@@ -38,7 +38,8 @@ import java.util.Collection;
 public class Members{
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(length = 100, nullable = false)
+	//@GeneratedValue(strategy = GenerationType.IDENTITY) // MYSQL 자동증가 시퀀스를 사용할 경우
 	private Long id;
 
 	@Column(length = 100, nullable = false)

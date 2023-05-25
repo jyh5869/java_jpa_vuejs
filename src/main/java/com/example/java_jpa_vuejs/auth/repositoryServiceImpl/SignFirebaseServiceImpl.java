@@ -118,8 +118,16 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
             //파이어 베이스 초기화
             firebaseConfiguration.initializeFCM();
             Firestore db = FirestoreClient.getFirestore();
+
+            String modifyIdx = String.valueOf(joinDto.getId());
+            
+            // DocumentReference docRef = db.collection("user").document(modifyIdx);
+            ApiFuture<WriteResult> future = db.collection("user").document(modifyIdx).set(joinDto);
+            WriteResult result = future.get();
+            System.out.println(result);
+            
             /* 
-                ※ Doc Update 1
+                ※ Doc Update 1``
                 ApiFuture<WriteResult> future = db.collection("user").document().set(joinDto);
 
                 ※ Doc Update 2
