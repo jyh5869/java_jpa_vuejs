@@ -47,14 +47,14 @@
             <!-- Login Form -->
             <input type="text" id="userId" class="fadeIn second" name="userId" v-model="user" placeholder="User Id" @keyup="idValidation()" />
             <p v-if="idValidationMsg != ''">{{ idValidationMsg }}</p>
-            <input type="text" id="password1" class="fadeIn third" name="password1" v-model="password" placeholder="Password1" />
-            <input type="text" id="password2" class="fadeIn third" name="password2" v-model="Password2" placeholder="Password2" @keyup="pwValidation()" />
+            <input type="text" id="password1" class="fadeIn third" name="password1" v-model="password" placeholder="Password1" @keyup="pwValidation()" />
+            <input type="text" id="password2" class="fadeIn third" name="password2" v-model="password2" placeholder="Password2" @keyup="pwValidation()" />
             <p v-if="pwValidationMsg != ''">{{ pwValidationMsg }}</p>
             <input type="text" id="name" class="fadeIn third" name="name" v-model="name" placeholder="name" />
             <input type="text" id="nickname" class="fadeIn third" name="nickname" v-model="nickname" placeholder="nickname" />
             <input type="text" id="mobile" class="fadeIn third" name="mobile" v-model="mobile" placeholder="mobile" />
 
-            <input type="button" class="fadeIn fourth" value="Sign up" @click="userManagement()" />
+            <input type="button" class="fadeIn fourth" value="Information Change" @click="userManagement()" />
 
             <!-- Remind Passowrd -->
             <div id="formFooter"><a class="underlineHover" href="#">Forgot Password?</a></div>
@@ -146,15 +146,15 @@ export default {
         },
         pwValidation: async function () {
             // 비밀번호 일치 검증
-            var password = this.password;
+            var password1 = this.password;
             var password2 = this.password2;
 
-            if (password2 == '') {
+            if (password1 == '' || password2 == '') {
                 this.pwValidationMsg = '';
                 return false;
             }
 
-            if (password == password2) {
+            if (password1 == password2) {
                 this.pwValidationMsg = '두개의 비밀번호가 일치 합니다.';
                 return true;
             } else {
@@ -186,6 +186,13 @@ export default {
                 }
             } else if (this.accessType == 'MODIFY') {
                 console.log('회원정보 수정');
+
+                //패스워드 검증
+                if ((await this.pwValidation()) === false) {
+                    this.pwValidationMsg = '비밀번호화 비밀번호 확인을 입력 해주세요.';
+                    return false;
+                }
+
                 let result = await this.$axios({
                     method: 'post',
                     url: '/api/userModify',
