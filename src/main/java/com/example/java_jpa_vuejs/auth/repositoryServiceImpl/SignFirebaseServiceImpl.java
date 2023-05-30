@@ -125,7 +125,7 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
             ApiFuture<WriteResult> future = db.collection("user").document(modifyIdx).set(joinDto);
             WriteResult result = future.get();
             System.out.println(result);
-            
+
             /* 
                 ※ Doc Update 1``
                 ApiFuture<WriteResult> future = db.collection("user").document().set(joinDto);
@@ -148,6 +148,31 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
         }
 	}
 	
+    @Override
+	public void userDelete(JoinDto joinDto) throws Exception  {
+		long reqTime = Util.durationTime ("start", "JPA 테스트", 0, "Proceeding" );
+
+        try {     
+
+            //파이어 베이스 초기화
+            firebaseConfiguration.initializeFCM();
+            Firestore db = FirestoreClient.getFirestore();
+
+            String modifyIdx = String.valueOf(joinDto.getId());
+            
+            DocumentReference docRef = db.collection("user").document(modifyIdx);
+			ApiFuture<WriteResult> future = docRef.update("delete_yn", "Y");
+            WriteResult result = future.get();
+            System.out.println(result);
+
+            Util.durationTime ("end", "Update time : ", reqTime, "Complete" );
+        }
+        catch (Exception e) {
+            
+            Util.durationTime ("end", "JPA 테스트", reqTime, "Fail" );
+            e.printStackTrace();
+        }
+	}
 
 	
 }

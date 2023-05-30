@@ -150,7 +150,6 @@ public class SignServiceImpl implements SignService {
 		}
 	}
 
-
 	/*
 	 * 회원가입 테이블 마지막 인덱스 조회
 	 */
@@ -159,6 +158,27 @@ public class SignServiceImpl implements SignService {
 		long lastIdx = memberRepository.getLastIdex();
 		
 		return lastIdx; 
+	}
+
+	/*
+	 * 회원 정보삭제
+	 */
+	@Override
+	public Integer userDelete(JoinDto joinDto) {
+		Members memberEntity = joinDto.toEntity();
+
+		String deleteId = String.valueOf(joinDto.getId());
+
+		Integer result = memberRepository.setDeleteUser(deleteId);
+		System.out.println("UPDATE CNT FROM JPA : " + result);
+		Optional<Members> member = memberRepository.findById(deleteId);
+		
+		if(member.isEmpty()){
+			return 1;
+		}
+		else{
+			return 0;
+		}
 	}
 
 }

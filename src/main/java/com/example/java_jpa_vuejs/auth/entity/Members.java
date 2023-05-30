@@ -61,7 +61,7 @@ public class Members{
 	private String profile;
 
 	@Column(length = 1, nullable = false, columnDefinition = "char(1) default 'N'")
-	private String isDeleted;
+	private String deleteYn;
 
 	@CreatedDate
 	@Column(updatable = false)

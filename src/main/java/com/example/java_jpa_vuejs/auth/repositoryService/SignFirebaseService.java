@@ -16,4 +16,6 @@ public interface SignFirebaseService {
 
 	void userModify(JoinDto joinDto) throws Exception;
 
+	void userDelete(JoinDto joinDto) throws Exception;
+
 }

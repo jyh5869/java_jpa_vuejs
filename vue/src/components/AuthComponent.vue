@@ -45,7 +45,7 @@
             </div>
 
             <!-- Login Form -->
-            <input type="text" id="userId" class="fadeIn second" name="userId" v-model="user" placeholder="User Id" @keyup="idValidation()" />
+            <input type="text" id="userId" class="fadeIn second" name="userId" v-model="user" placeholder="User Id" @keyup="idValidation()" :disabled="accessType == 'MODIFY'" />
             <p v-if="idValidationMsg != ''">{{ idValidationMsg }}</p>
             <input type="text" id="password1" class="fadeIn third" name="password1" v-model="password" placeholder="Password1" @keyup="pwValidation()" />
             <input type="text" id="password2" class="fadeIn third" name="password2" v-model="password2" placeholder="Password2" @keyup="pwValidation()" />
@@ -57,7 +57,8 @@
             <input type="button" class="fadeIn fourth" value="Information Change" @click="userManagement()" />
 
             <!-- Remind Passowrd -->
-            <div id="formFooter"><a class="underlineHover" href="#">Forgot Password?</a></div>
+            <div id="formFooter"><a class="underlineHover" href="javascript:void(0);">Forgot Password?</a></div>
+            <div id="formFooter"><a class="underlineHover" href="javascript:void(0);" @click="userManagement('DELETE')">Delete account</a></div>
         </div>
     </div>
 </template>
@@ -100,6 +101,8 @@ export default {
             accessType: accessType, //접근 타입 1. SIGNUP 2. SIGNIN
             signIn: accessType == 'SIGNIN' ? true : false,
             signUpAndModify: accessType == 'SIGNUP' || accessType == 'MODIFY' ? true : false,
+            idValidationFlag: accessType == 'SIGNUP' ? false : true,
+            pwValidationFlag: false,
             idValidationMsg: idValidationMsg,
             pwValidationMsg: pwValidationMsg,
         };
@@ -137,11 +140,13 @@ export default {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            console.log(res.data);
+
             if (res.data == '0') {
                 this.idValidationMsg = '사용하실 수 있는 아이디입니다.';
+                this.idValidationFlag = true;
             } else {
                 this.idValidationMsg = '이미 가입되어 있는 아이디입니다.';
+                this.idValidationFlag = false;
             }
         },
         pwValidation: async function () {
@@ -156,15 +161,47 @@ export default {
 
             if (password1 == password2) {
                 this.pwValidationMsg = '두개의 비밀번호가 일치 합니다.';
+                this.pwValidationFlag = true;
                 return true;
             } else {
                 this.pwValidationMsg = '두개의 비밀번호가 일치하지 않습니다.';
+                this.pwValidationFlag = false;
                 return false;
             }
         },
-        userManagement: async function () {
-            if (this.accessType == 'SIGNUP') {
+        formValidation: async function () {
+            let arrParams = [this.user, this.password, this.password2, this.name, this.nickname, this.mobile];
+            let arrFields = ['아이디', '비밀번호', '비밀번호 확인', '이름', '닉네임', '휴대폰 번호'];
+            let arrValidParams = [this.idValidationFlag, this.pwValidationFlag];
+            let arrValidMsg = ['아이디 중복', '비밀번호 일치 여부'];
+
+            //폼값 체크1
+            for (var i in arrParams) {
+                if (arrParams[i] === '') {
+                    let feildNm = arrFields[i];
+                    alert(feildNm + '을(를) 입력해 주세요.');
+                    return false;
+                }
+            }
+
+            //폼값체크2
+            for (var j in arrValidParams) {
+                if (arrValidParams[j] === false) {
+                    let validNm = arrValidMsg[j];
+                    alert(validNm + '을(를) 체크해 주세요.');
+                    return false;
+                }
+            }
+
+            return true;
+        },
+        userManagement: async function (type) {
+            if (this.accessType == 'SIGNUP' && type != 'DELETE') {
                 console.log('회원가입 진행');
+
+                if ((await this.formValidation()) == false) {
+                    return false;
+                }
 
                 let result = await this.$axios({
                     method: 'post',
@@ -184,8 +221,12 @@ export default {
                     this.signIn = true;
                     this.signUpAndModify = false;
                 }
-            } else if (this.accessType == 'MODIFY') {
+            } else if (this.accessType == 'MODIFY' && type != 'DELETE') {
                 console.log('회원정보 수정');
+
+                if ((await this.formValidation()) == false) {
+                    return false;
+                }
 
                 //패스워드 검증
                 if ((await this.pwValidation()) === false) {
@@ -197,6 +238,7 @@ export default {
                     method: 'post',
                     url: '/api/userModify',
                     params: {
+                        actionType: 'UPDATE',
                         id: this.id,
                         email: this.user,
                         password: this.password,
@@ -213,11 +255,36 @@ export default {
                         name: 'main',
                     });
                 }
+            } else if (type == 'DELETE') {
+                if (confirm('계정을 삭제 하시겠습니까?')) {
+                    let result = await this.$axios({
+                        method: 'post',
+                        url: '/api/userModify',
+                        params: {
+                            actionType: 'DELETE',
+                            id: this.id,
+                            email: this.user,
+                            password: this.password,
+                            name: this.name,
+                            nickname: this.nickname,
+                            mobile: this.mobile,
+                        },
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        },
+                    });
+                    if (result.status === 200) {
+                        this.$router.push({
+                            name: 'main',
+                        });
+                    }
+                }
             }
         },
         getUserInfo: async function () {
             let id = this.$store.getters.id;
             console.log('유저 정보 : ' + id);
+
             const result = await this.$axios({
                 method: 'post',
                 url: '/api/getUserInfo',
@@ -230,7 +297,6 @@ export default {
             });
 
             if (result.status === 200) {
-                console.log(result);
                 this.id = result.data.id;
                 this.user = result.data.email;
                 this.password = result.data.password;

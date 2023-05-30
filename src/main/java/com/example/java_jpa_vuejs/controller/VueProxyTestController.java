@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.common.Util;
@@ -225,7 +226,7 @@ public class VueProxyTestController {
     * @throws Exception
     */
     @PostMapping(value = {"/userModify"})
-    public Integer userManagement(JoinDto joinDto) throws Exception {
+    public Integer userManagement(JoinDto joinDto, @RequestParam(name = "actionType") String actionType) throws Exception {
         System.out.println("회원정보 수정 기능을 만들거에요.");
 
         System.out.println("getId       = " + joinDto.getId());
@@ -236,20 +237,37 @@ public class VueProxyTestController {
         System.out.println("getNickname = " + joinDto.getNickname());
         System.out.println("getNickname = " + joinDto.getProfile());
 
-        
         boolean returnFlag;
         Integer updateCnt = 0;
-        try {
-            updateCnt = signService.userModify(joinDto);
-            signFirebaseService.userModify(joinDto);
 
-            returnFlag = true; 
-        } 
-        catch (Exception e) {
-            e.printStackTrace();
-            
-            returnFlag = false;
+        if(actionType.equals("UPDATE")){
+            try {
+                updateCnt = signService.userModify(joinDto);
+                signFirebaseService.userModify(joinDto);
+    
+                returnFlag = true; 
+            } 
+            catch (Exception e) {
+                e.printStackTrace();
+                
+                returnFlag = false;
+            }
         }
+        else if(actionType.equals("DELETE")){
+            try {
+                updateCnt = signService.userDelete(joinDto);
+                signFirebaseService.userDelete(joinDto);
+    
+                returnFlag = true; 
+            } 
+            catch (Exception e) {
+                e.printStackTrace();
+                
+                returnFlag = false;
+            }
+        }
+        
+        
 
         return updateCnt;
     }
