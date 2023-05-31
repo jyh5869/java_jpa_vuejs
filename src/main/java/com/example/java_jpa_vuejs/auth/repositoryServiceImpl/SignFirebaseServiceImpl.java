@@ -56,7 +56,11 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
             firebaseConfiguration.initializeFCM();
             Firestore db = FirestoreClient.getFirestore();
             String lastIdx = String.valueOf(joinDto.getId());
-            
+            /* 요기서 형식차이로 안들어감 내일 요기 넣자~ 
+             * 오류  
+             * java.lang.reflect.InaccessibleObjectException: Unable to make private java.time.chrono.IsoChronology() accessible: module java.base does not "opens java.time.chrono" to unnamed module @70f4578f
+             * 
+            */
             ApiFuture<WriteResult> future = db.collection("user").document(lastIdx).set(joinDto);
 
             Util.durationTime ("end", "Update time : ", reqTime, "Complete" );

@@ -1,11 +1,7 @@
 package com.example.java_jpa_vuejs.auth.repositoryJPA;
 
-import lombok.RequiredArgsConstructor;
-
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.query.Param;
 
 import com.example.java_jpa_vuejs.auth.JoinDto;
@@ -35,19 +31,37 @@ public interface MemberRepository extends CrudRepository<Members, Long> {
             "where mobile = :mobile ", nativeQuery = true)
     Integer countByMobile(@Param("mobile") String mobile);
 
-    @Transactional
+    
     @Modifying
+    @Transactional
     @Query(value =
             "INSERT INTO MEMBERS " + 
             "      (id ,email,  password,  name,  mobile,  nickname,  profile, delete_yn) " +
             "VALUES( (select Max(id) + 1 from MEMBERS A), :#{#regInfo.email}, :#{#regInfo.password}, :#{#regInfo.name}, :#{#regInfo.mobile}, :#{#regInfo.nickname}, :#{#regInfo.profile}, 'N') ", nativeQuery = true)
     void userRegistration(@Param(value = "regInfo") JoinDto joinDto);
         
-    @Query(value = "SELECT IFNULL(MAX(ID)+1, 1) FROM MEMBERS", nativeQuery = true)
+    @Query(value = "SELECT IFNULL(MAX(ID)+1, 0) FROM MEMBERS", nativeQuery = true)
     long getLastIdex();
 
-    @Transactional
     @Modifying
+    @Transactional
     @Query(value = "UPDATE MEMBERS SET IS_DELETED = 'Y' WHERE ID = :deleteId ", nativeQuery = true)
     Integer setDeleteUser(@Param("deleteId") String deleteId);
 }
+
+
+/* 
+
+1. executeQuery()
+ResultSet 반환
+SELECT 에서 사용 -> @Query
+
+2. executeUpdate()
+해당되는 레코드의 개수를 int 값으로 반환
+CREATE, DROP, ALTER, INSERT, UPDATE, DELETE 에서 사용 -> @Query, @Modifying, @Transactional
+
+3. execute()
+executeQuery, executeUpdate 둘 다 가능
+boolean 값 반환
+
+*/

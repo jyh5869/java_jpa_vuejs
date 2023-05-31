@@ -186,10 +186,20 @@ public class VueProxyTestController {
         boolean returnFlag;
         try {
             long lastIdx = signService.getLastIdex();
-            System.out.println("★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★ " + lastIdx);
-            joinDto.setId(lastIdx);
-            System.out.println("★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★ " + joinDto.getId());
+            
+            LoginDto loginDto = new LoginDto();
+            
+            //데이터 베이스에 회원정보 세팅
             signService.userRegistration(joinDto);
+            
+            loginDto.setId(lastIdx);
+            System.out.println("◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ " + loginDto.getId());
+            Members member = signService.getUserInfo(loginDto);
+            //JoinDto joinDtoCloud = member.toDto(member);
+            
+            joinDto.setCreatedDate(member.getCreatedDate());
+            joinDto.setModifiedDate(member.getModifiedDate());
+
             signFirebaseService.userRegistration(joinDto);
 
             returnFlag = true; 

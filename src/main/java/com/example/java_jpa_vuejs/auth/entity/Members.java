@@ -68,6 +68,7 @@ public class Members{
 	private LocalDateTime createdDate;
 
 	@LastModifiedDate
+	@Column(updatable = true)
 	private LocalDateTime modifiedDate;
     /* 
 	// 게시글 Entity 연관관계 설정(One(회원 Entity) To Many(게시글 Entity)
@@ -109,21 +110,27 @@ public class Members{
 		joinDto.setNickname(MemberEntity.nickname);
 		joinDto.setMobile(MemberEntity.mobile);
 		joinDto.setProfile(MemberEntity.profile);
+		joinDto.setCreatedDate(MemberEntity.createdDate);
+		joinDto.setModifiedDate(MemberEntity.modifiedDate);
+		joinDto.setDeleteYn(MemberEntity.deleteYn);
 
 		return joinDto;
 	}
 
 
 	@Builder
-	public Members(Long id, String email, 
-			String password, String name, 
-			String mobile, String nickname) {
+	public Members(Long id, String email, String password, String name, String mobile, String nickname,
+					String profile, LocalDateTime createdDate, LocalDateTime modifiedDate, String deleteYn) {
 		this.id = id;
 		this.email = email;
 		this.password = password;
 		this.name = name;
 		this.mobile = mobile;
 		this.nickname = nickname;
+		this.profile = profile;
+		this.createdDate = createdDate;
+		this.modifiedDate = modifiedDate;
+		this.deleteYn = deleteYn;
 	}
 
 	public Members(Members loginEntity) {

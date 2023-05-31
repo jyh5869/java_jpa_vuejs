@@ -1,7 +1,8 @@
 package com.example.java_jpa_vuejs.auth;
 
 import lombok.*;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import java.time.LocalDateTime;
 
 import com.example.java_jpa_vuejs.auth.entity.Members;
 
@@ -34,6 +35,16 @@ public class JoinDto {
     @NotBlank(message = "'profile' is a required input value")
     private String profile;
 
+    //@NotBlank(message = "'createdDate' is a required input value")
+    private LocalDateTime createdDate;
+
+    //@NotBlank(message = "'modifiedDate' is a required input value")
+    private LocalDateTime modifiedDate;
+
+    //@NotBlank(message = "'deleteYn' is a required input value")
+    private String deleteYn;
+
+
     public Members toEntity() {
 
         Members build = Members.builder()
@@ -43,6 +54,10 @@ public class JoinDto {
                 .name(name)
                 .nickname(nickname)
                 .mobile(mobile)
+                .profile(profile)
+                //.createdDate(createdDate)
+                .modifiedDate(modifiedDate)
+                .deleteYn(deleteYn)
                 .build();
 
         return build;
