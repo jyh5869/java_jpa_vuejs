@@ -97,6 +97,7 @@ export default {
             name: '',
             nickname: '',
             mobile: '',
+            deleteYn: '',
             error: false,
             accessType: accessType, //접근 타입 1. SIGNUP 2. SIGNIN
             signIn: accessType == 'SIGNIN' ? true : false,
@@ -245,6 +246,7 @@ export default {
                         name: this.name,
                         nickname: this.nickname,
                         mobile: this.mobile,
+                        deleteYn: this.deleteYn,
                     },
                     headers: {
                         'Content-Type': 'multipart/form-data',
@@ -303,6 +305,7 @@ export default {
                 this.name = result.data.name;
                 this.nickname = result.data.nickname;
                 this.mobile = result.data.mobile;
+                this.deleteYn = result.data.deleteYn;
             }
         },
     },

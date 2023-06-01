@@ -1,6 +1,7 @@
 package com.example.java_jpa_vuejs.controller;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -51,6 +52,7 @@ import lombok.RequiredArgsConstructor;
 public class VueProxyTestController {
 
     final private static Logger LOG = Logger.getGlobal();
+
     public static final String SECURED_TEXT = "Hello from the secured resource!";
 
     /* 생성자 생성 방법2
@@ -81,7 +83,6 @@ public class VueProxyTestController {
         return result;
     }
 
-    
     /**
     * @method 로그인
     * @param loginDto
@@ -89,7 +90,8 @@ public class VueProxyTestController {
     */
     @PostMapping(value = {"/signin"})
     public ResponseEntity<AuthenticationDto> appLogin(@Valid @RequestBody LoginDto loginDto) throws Exception {
-        System.out.println("로그인할게용 ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★");
+        LOG.info(" ★ 로그인 시도 ★ ");
+
         AuthenticationDto authentication = new AuthenticationDto();
         
         try {
@@ -108,19 +110,18 @@ public class VueProxyTestController {
 
     @PostMapping(value = {"/reissuance"})
     public  ResponseEntity<AuthenticationDto> reissuance(@Valid @RequestBody AuthenticationDto joinDto) throws Exception {
+        LOG.info(" ★ 엑세스 토큰 재 발급 ★ ");
+        LOG.info("getId       = " + joinDto.getId());
+        LOG.info("getEmail    = " + joinDto.getEmail());
+        LOG.info("getName     = " + joinDto.getName());
+        LOG.info("getMobile   = " + joinDto.getMobile());
+        LOG.info("getNickname = " + joinDto.getNickname());
 
-        System.out.println("토큰을 재 발행 할게요!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         AuthenticationDto authentication = new AuthenticationDto();
         
         authentication.setId(joinDto.getId());
         authentication.setEmail(joinDto.getEmail());
         authentication.setNickname(joinDto.getNickname());
-
-        System.out.println("getId       = " + joinDto.getId());
-        System.out.println("getEmail    = " + joinDto.getEmail());
-        System.out.println("getName     = " + joinDto.getName());
-        System.out.println("getMobile   = " + joinDto.getMobile());
-        System.out.println("getNickname = " + joinDto.getNickname());
 
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set("accesstoken", authProvider.createToken(authentication));
@@ -135,7 +136,7 @@ public class VueProxyTestController {
     */
     @PostMapping(value = {"/signup"})
     public Void appSineUp(LoginDto loginDto) throws Exception {
-        System.out.println("로그인 기능 을 만들거에요.");
+        LOG.info(" ★ 로그인 시도 ★ ");
 
         FirebaseAuth firebaseAuth = firebaseConfiguration.initFirebaseAuth();
         System.out.println(firebaseAuth);
@@ -153,11 +154,10 @@ public class VueProxyTestController {
     */
     @PostMapping(value = {"/idValidation"})
     public Integer idValidation(LoginDto loginDto) throws Exception {
-        System.out.println("아이디 중복체크 기능을 만들거에요.");
+        LOG.info(" ★ 아이디 중복 체크 진입 ★ ");
 
         Integer emailCont = signService.idValidation(loginDto);
-        System.out.println("★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★");
-        System.out.println(emailCont);
+        LOG.info(" SEARCH EMAIL CNT = " + emailCont);
 
         return emailCont;
     }
@@ -169,13 +169,12 @@ public class VueProxyTestController {
     */
     @PostMapping(value = {"/userRegistration"})
     public boolean userRegistration(JoinDto joinDto) throws Exception {
-        System.out.println("회원가입 기능을 만들거에요.");
-        System.out.println("getEmail    = " + joinDto.getEmail());
-        System.out.println("getPassword = " + joinDto.getPassword());
-        System.out.println("getName     = " + joinDto.getName());
-        System.out.println("getMobile   = " + joinDto.getMobile());
-        System.out.println("getNickname = " + joinDto.getNickname());
-        System.out.println("getNickname = " + joinDto.getProfile());
+        LOG.info(" ★ 회원등록 시도 ★ ");
+        LOG.info("getId       = " + joinDto.getId());
+        LOG.info("getEmail    = " + joinDto.getEmail());
+        LOG.info("getName     = " + joinDto.getName());
+        LOG.info("getMobile   = " + joinDto.getMobile());
+        LOG.info("getNickname = " + joinDto.getNickname());
 
         //rs.deletAll();
         //rs.saveMember();
@@ -185,21 +184,10 @@ public class VueProxyTestController {
 
         boolean returnFlag;
         try {
-            long lastIdx = signService.getLastIdex();
-            
-            LoginDto loginDto = new LoginDto();
+            joinDto.setId(signService.getLastIdex());
             
             //데이터 베이스에 회원정보 세팅
             signService.userRegistration(joinDto);
-            
-            loginDto.setId(lastIdx);
-            System.out.println("◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ " + loginDto.getId());
-            Members member = signService.getUserInfo(loginDto);
-            //JoinDto joinDtoCloud = member.toDto(member);
-            
-            joinDto.setCreatedDate(member.getCreatedDate());
-            joinDto.setModifiedDate(member.getModifiedDate());
-
             signFirebaseService.userRegistration(joinDto);
 
             returnFlag = true; 
@@ -220,32 +208,27 @@ public class VueProxyTestController {
     */
     @PostMapping(value = {"/getUserInfo"})
     public JoinDto getUserInfo(LoginDto loginDto) throws Exception {
-        System.out.println("회원 정보를 가져오는 서비스를 만들거에요");
+        LOG.info(" ★ 회원정보 가져오기 ★ ");
 
         Members member = signService.getUserInfo(loginDto);
-        System.out.println(member);
-        //LoginDto loginDto = member.;
         JoinDto joinDto = member.toDto(member);
 
         return joinDto;
     }
 
     /**
-    * @method 회원 정보 가져오기 
+    * @method 회원 정보 수정하기 
     * @param loginDto
     * @throws Exception
     */
     @PostMapping(value = {"/userModify"})
     public Integer userManagement(JoinDto joinDto, @RequestParam(name = "actionType") String actionType) throws Exception {
-        System.out.println("회원정보 수정 기능을 만들거에요.");
-
-        System.out.println("getId       = " + joinDto.getId());
-        System.out.println("getEmail    = " + joinDto.getEmail());
-        System.out.println("getPassword = " + joinDto.getPassword());
-        System.out.println("getName     = " + joinDto.getName());
-        System.out.println("getMobile   = " + joinDto.getMobile());
-        System.out.println("getNickname = " + joinDto.getNickname());
-        System.out.println("getNickname = " + joinDto.getProfile());
+        LOG.info(" ★ 회원정보 수정 진입 ★ ");
+        LOG.info("getId       = " + joinDto.getId());
+        LOG.info("getEmail    = " + joinDto.getEmail());
+        LOG.info("getName     = " + joinDto.getName());
+        LOG.info("getMobile   = " + joinDto.getMobile());
+        LOG.info("getNickname = " + joinDto.getNickname());
 
         boolean returnFlag;
         Integer updateCnt = 0;
@@ -277,8 +260,6 @@ public class VueProxyTestController {
             }
         }
         
-        
-
         return updateCnt;
     }
 

@@ -3,6 +3,7 @@ package com.example.java_jpa_vuejs.auth;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import com.example.java_jpa_vuejs.auth.entity.Members;
 
@@ -16,8 +17,8 @@ public class JoinDto {
 
     private long id;
 
-    @NotBlank(message = "'email' is a required input value")
     @Email(message = "do not email type")
+    @NotBlank(message = "'email' is a required input value")
     private String email;
 
     @NotBlank(message = "'password' is a required input value")
@@ -35,13 +36,10 @@ public class JoinDto {
     @NotBlank(message = "'profile' is a required input value")
     private String profile;
 
-    //@NotBlank(message = "'createdDate' is a required input value")
-    private LocalDateTime createdDate;
+    private ZonedDateTime createdDate;
 
-    //@NotBlank(message = "'modifiedDate' is a required input value")
-    private LocalDateTime modifiedDate;
-
-    //@NotBlank(message = "'deleteYn' is a required input value")
+    private ZonedDateTime modifiedDate;
+    
     private String deleteYn;
 
 
@@ -55,12 +53,9 @@ public class JoinDto {
                 .nickname(nickname)
                 .mobile(mobile)
                 .profile(profile)
-                //.createdDate(createdDate)
-                .modifiedDate(modifiedDate)
                 .deleteYn(deleteYn)
                 .build();
 
         return build;
     }
-
 }

@@ -17,6 +17,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 /* 
@@ -25,6 +27,7 @@ import kr.co.platform.api.posts.domain.entity.PostsComment;
 import javax.persistence.*;
 */
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -63,6 +66,15 @@ public class Members{
 	@Column(length = 1, nullable = false, columnDefinition = "char(1) default 'N'")
 	private String deleteYn;
 
+	/* 
+	
+	■ 해당 Repository가 생성, 변경 될 때 일자를 자동으로 업데이트 시켜주는 코드 ■
+	1. @CreatedDate - 생성일자
+	2. @LastModifiedDate - 변경일자
+	※ 메인 클레스에 @EnableJpaAuditing 어노테이션을 추가해 주어야 인식가능하다.
+	
+	EX> 생성일 컬럼과 수정일 컬럼 사용 예제
+
 	@CreatedDate
 	@Column(updatable = false)
 	private LocalDateTime createdDate;
@@ -70,6 +82,26 @@ public class Members{
 	@LastModifiedDate
 	@Column(updatable = true)
 	private LocalDateTime modifiedDate;
+	
+	*/
+
+	@Column(updatable = false)
+	private ZonedDateTime createdDate;
+
+	@Column(updatable = true)
+	private ZonedDateTime modifiedDate;
+
+	@PrePersist
+	public void prePersist() {
+		this.createdDate = ZonedDateTime.now();
+		this.modifiedDate = ZonedDateTime.now();
+	}
+
+	@PreUpdate
+	public void preUpdate() {
+		this.modifiedDate = ZonedDateTime.now();
+	}
+
     /* 
 	// 게시글 Entity 연관관계 설정(One(회원 Entity) To Many(게시글 Entity)
 	@OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -120,7 +152,7 @@ public class Members{
 
 	@Builder
 	public Members(Long id, String email, String password, String name, String mobile, String nickname,
-					String profile, LocalDateTime createdDate, LocalDateTime modifiedDate, String deleteYn) {
+					String profile, ZonedDateTime createdDate, ZonedDateTime modifiedDate, String deleteYn) {
 		this.id = id;
 		this.email = email;
 		this.password = password;
@@ -133,8 +165,6 @@ public class Members{
 		this.deleteYn = deleteYn;
 	}
 
-	public Members(Members loginEntity) {
-	}
-
+	public Members(Members loginEntity) {}
 
 }

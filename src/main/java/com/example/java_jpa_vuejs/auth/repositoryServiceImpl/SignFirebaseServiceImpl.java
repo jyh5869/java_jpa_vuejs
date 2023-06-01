@@ -18,7 +18,9 @@ import com.example.java_jpa_vuejs.validation.Empty;
 
 import org.springframework.stereotype.Service;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +32,7 @@ import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
+import com.google.cloud.firestore.SetOptions;
 import com.google.cloud.firestore.WriteResult;
 import com.google.cloud.firestore.Query.Direction;
 import com.google.firebase.auth.FirebaseAuth;
@@ -51,17 +54,25 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
 		long reqTime = Util.durationTime ("start", "JPA 테스트", 0, "Proceeding" );
 
         try {     
-
             //파이어 베이스 초기화
             firebaseConfiguration.initializeFCM();
             Firestore db = FirestoreClient.getFirestore();
+            
             String lastIdx = String.valueOf(joinDto.getId());
-            /* 요기서 형식차이로 안들어감 내일 요기 넣자~ 
-             * 오류  
-             * java.lang.reflect.InaccessibleObjectException: Unable to make private java.time.chrono.IsoChronology() accessible: module java.base does not "opens java.time.chrono" to unnamed module @70f4578f
-             * 
-            */
-            ApiFuture<WriteResult> future = db.collection("user").document(lastIdx).set(joinDto);
+
+            Map<String, Object> docData = new HashMap<String, Object>();
+            docData.put("id", joinDto.getId());
+            docData.put("email", joinDto.getEmail());
+            docData.put("password", joinDto.getPassword());
+            docData.put("name", joinDto.getName());
+            docData.put("mobile", joinDto.getMobile());
+            docData.put("nickname", joinDto.getNickname());
+            docData.put("profile", joinDto.getProfile());
+            docData.put("created_date", String.valueOf(ZonedDateTime.now()));
+            docData.put("modified_date", String.valueOf(ZonedDateTime.now()));
+            docData.put("delete_yn", "N");
+            
+            ApiFuture<WriteResult> future = db.collection("user").document(lastIdx).set(docData);
 
             Util.durationTime ("end", "Update time : ", reqTime, "Complete" );
         }
@@ -118,15 +129,24 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
 		long reqTime = Util.durationTime ("start", "JPA 테스트", 0, "Proceeding" );
 
         try {     
-
             //파이어 베이스 초기화
             firebaseConfiguration.initializeFCM();
             Firestore db = FirestoreClient.getFirestore();
 
             String modifyIdx = String.valueOf(joinDto.getId());
-            
-            // DocumentReference docRef = db.collection("user").document(modifyIdx);
-            ApiFuture<WriteResult> future = db.collection("user").document(modifyIdx).set(joinDto);
+
+            Map<String, Object> docData = new HashMap<String, Object>();
+            docData.put("id", joinDto.getId());
+            docData.put("email", joinDto.getEmail());
+            docData.put("password", joinDto.getPassword());
+            docData.put("name", joinDto.getName());
+            docData.put("mobile", joinDto.getMobile());
+            docData.put("nickname", joinDto.getNickname());
+            docData.put("profile", joinDto.getProfile());
+            docData.put("modified_date", String.valueOf(ZonedDateTime.now()));
+            docData.put("delete_yn", "Y");
+
+            ApiFuture<WriteResult> future = db.collection("user").document(modifyIdx).set(docData, SetOptions.merge());
             WriteResult result = future.get();
             System.out.println(result);
 
