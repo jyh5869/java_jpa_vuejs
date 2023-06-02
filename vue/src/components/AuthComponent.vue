@@ -252,7 +252,8 @@ export default {
                         'Content-Type': 'multipart/form-data',
                     },
                 });
-                if (result.status === 200) {
+                if (result.status === 200 || result.data != 0) {
+                    //통신이 성공적이고 변경 건수가 0이 아닌 경우 메인으로 이동
                     this.$router.push({
                         name: 'main',
                     });
@@ -275,7 +276,8 @@ export default {
                             'Content-Type': 'multipart/form-data',
                         },
                     });
-                    if (result.status === 200) {
+                    if (result.status === 200 || result.data != 0) {
+                        //통신이 성공적이고 변경 건수가 0이 아닌 경우 메인으로 이동
                         this.$router.push({
                             name: 'main',
                         });

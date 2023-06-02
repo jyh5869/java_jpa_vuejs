@@ -72,7 +72,7 @@ public class VueProxyTestController {
 
     /**
     * @method 클라우드를 통한 리스트 호출
-    * @param 
+    * @param  null
     * @throws Exception
     */
     @GetMapping("/getList")
@@ -108,6 +108,11 @@ public class VueProxyTestController {
         return ResponseEntity.ok().headers(responseHeaders).body(authentication);
     }
 
+    /**
+    * @method 리프래쉬 토큰을 이용한 엑세스 토큰 재발급
+    * @param joinDto
+    * @throws Exception
+    */
     @PostMapping(value = {"/reissuance"})
     public  ResponseEntity<AuthenticationDto> reissuance(@Valid @RequestBody AuthenticationDto joinDto) throws Exception {
         LOG.info(" ★ 엑세스 토큰 재 발급 ★ ");
@@ -129,23 +134,6 @@ public class VueProxyTestController {
         return ResponseEntity.ok().headers(responseHeaders).body(authentication);
     }
 
-    /**
-    * @method 권한 추가
-    * @param loginDto
-    * @throws Exception
-    */
-    @PostMapping(value = {"/signup"})
-    public Void appSineUp(LoginDto loginDto) throws Exception {
-        LOG.info(" ★ 로그인 시도 ★ ");
-
-        FirebaseAuth firebaseAuth = firebaseConfiguration.initFirebaseAuth();
-        System.out.println(firebaseAuth);
-        FirebaseAuthSignUtil fbas = new FirebaseAuthSignUtil();
-        //fbas.createUser(firebaseAuth);
-        //fbas.getUserById(firebaseAuth, "1GRjJfHbIWVKFT6s3BtMv8c6P6t1");
-
-        return null;
-    }
 
     /**
     * @method ID 유효성 체크 
@@ -176,12 +164,6 @@ public class VueProxyTestController {
         LOG.info("getMobile   = " + joinDto.getMobile());
         LOG.info("getNickname = " + joinDto.getNickname());
 
-        //rs.deletAll();
-        //rs.saveMember();
-        //rs.print();
-        //rs.lazyPrint();
-        //rs.lazyPrint2();
-
         boolean returnFlag;
         try {
             joinDto.setId(signService.getLastIdex());
@@ -202,7 +184,7 @@ public class VueProxyTestController {
     }
 
     /**
-    * @method 회원 정보 가져오기 
+    * @method 회원 정보 가져오기 Select Action 
     * @param loginDto
     * @throws Exception
     */
@@ -230,7 +212,7 @@ public class VueProxyTestController {
         LOG.info("getMobile   = " + joinDto.getMobile());
         LOG.info("getNickname = " + joinDto.getNickname());
 
-        boolean returnFlag;
+        boolean returnFlag = false;
         Integer updateCnt = 0;
 
         if(actionType.equals("UPDATE")){
@@ -259,7 +241,6 @@ public class VueProxyTestController {
                 returnFlag = false;
             }
         }
-        
         return updateCnt;
     }
 
