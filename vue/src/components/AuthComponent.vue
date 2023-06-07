@@ -58,7 +58,9 @@
 
             <!-- Remind Passowrd -->
             <div id="formFooter"><a class="underlineHover" href="javascript:void(0);">Forgot Password?</a></div>
-            <div id="formFooter"><a class="underlineHover" href="javascript:void(0);" @click="userManagement('DELETE')">Delete account</a></div>
+            <div id="formFooter" v-if="accessType == 'MODIFY'">
+                <a class="underlineHover" href="javascript:void(0);" @click="userManagement('DELETE')">Delete account</a>
+            </div>
         </div>
     </div>
 </template>
@@ -252,11 +254,33 @@ export default {
                         'Content-Type': 'multipart/form-data',
                     },
                 });
-                if (result.status === 200 || result.data != 0) {
+
+                let actionType = result.data.actionType;
+                let returnFlag = result.data.returnFlag;
+                let updateCnt = result.data.updateCnt;
+                let errorCode = result.data.errorCode;
+                let errorMsg;
+
+                if (result.status === 200 && returnFlag == true) {
+                    errorMsg = '업데이트(' + actionType + ') 성공  CODE = ' + result.status + ' (' + updateCnt + '건)';
+                    alert(errorMsg);
+
                     //통신이 성공적이고 변경 건수가 0이 아닌 경우 메인으로 이동
                     this.$router.push({
                         name: 'main',
                     });
+                } else {
+                    errorMsg = '업데이트(' + actionType + ') 실패  CODE = ' + result.status + '\n';
+
+                    if (errorCode == 'ERROR01') {
+                        errorMsg = +errorCode + ' - 비밀번호 불일치, 비밀번호를 확인후 다시 시도해주세요. ';
+                    } else if (errorCode == 'ERROR02') {
+                        errorMsg = +errorCode + ' - 수정 처리중 오류 발생, 잠시 후 다시 시도해주세요.';
+                    } else {
+                        errorMsg = +' - 알수 없는 오류 발생 잠시 후 다시 시도해주세요.';
+                    }
+
+                    alert(errorMsg);
                 }
             } else if (type == 'DELETE') {
                 if (confirm('계정을 삭제 하시겠습니까?')) {

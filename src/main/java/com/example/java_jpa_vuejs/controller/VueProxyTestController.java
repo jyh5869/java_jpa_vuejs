@@ -40,6 +40,7 @@ import com.google.cloud.firestore.WriteResult;
 import com.google.cloud.firestore.Query.Direction;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.cloud.FirestoreClient;
+import com.google.gson.JsonObject;
 
 import jakarta.validation.Valid;
 
@@ -204,7 +205,7 @@ public class VueProxyTestController {
     * @throws Exception
     */
     @PostMapping(value = {"/userModify"})
-    public Integer userManagement(JoinDto joinDto, @RequestParam(name = "actionType") String actionType) throws Exception {
+    public String userManagement(JoinDto joinDto, @RequestParam(name = "actionType") String actionType) throws Exception {
         LOG.info(" ★ 회원정보 수정 진입 ★ ");
         LOG.info("getId       = " + joinDto.getId());
         LOG.info("getEmail    = " + joinDto.getEmail());
@@ -214,18 +215,32 @@ public class VueProxyTestController {
 
         boolean returnFlag = false;
         Integer updateCnt = 0;
+        String errorCode = null;
 
         if(actionType.equals("UPDATE")){
             try {
-                updateCnt = signService.userModify(joinDto);
-                signFirebaseService.userModify(joinDto);
-    
-                returnFlag = true; 
+                LoginDto loginDto = new LoginDto();
+                loginDto.setId(joinDto.getId());
+                
+                String validationPw = joinDto.getPassword();
+                String originPw = signService.getUserInfo(loginDto).getPassword();
+
+                if(validationPw.equals(originPw)){
+                    updateCnt = signService.userModify(joinDto);
+                    signFirebaseService.userModify(joinDto);
+                    
+                    returnFlag = true;
+                }
+                else{
+                    returnFlag = false;
+                    errorCode = "ERROR01";
+                }
             } 
             catch (Exception e) {
                 e.printStackTrace();
                 
                 returnFlag = false;
+                errorCode = "ERROR02";
             }
         }
         else if(actionType.equals("DELETE")){
@@ -239,9 +254,17 @@ public class VueProxyTestController {
                 e.printStackTrace();
                 
                 returnFlag = false;
+                errorCode = "ERROR02";
             }
         }
-        return updateCnt;
+
+        JsonObject returnIObj =new JsonObject();
+        returnIObj.addProperty("actionType", actionType);
+        returnIObj.addProperty("returnFlag", returnFlag);
+        returnIObj.addProperty("errorCode", errorCode);
+        returnIObj.addProperty("updateCnt", updateCnt);
+
+        return returnIObj.toString();
     }
 
 }
