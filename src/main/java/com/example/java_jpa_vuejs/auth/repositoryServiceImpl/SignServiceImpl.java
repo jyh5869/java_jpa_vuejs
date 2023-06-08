@@ -83,12 +83,10 @@ public class SignServiceImpl implements SignService {
 	 */
 	public Integer idValidation(LoginDto loginDto) {
 
-		// DTO -> Entity
+		//DTO -> Entity
 		Members loginEntity = loginDto.toEntity();
-		System.out.println(loginEntity.getEmail());
-		// 회원 엔티티 객체 생성 및 조회시작
 		
-		// 회원정보를 인증클래스 객체(authentication)로 매핑
+		//아이디 중복 체크 결과 리턴
 		return memberRepository.countByEmail(loginEntity.getEmail());
 	}
 
@@ -97,12 +95,12 @@ public class SignServiceImpl implements SignService {
 	 */
 	public void userRegistration(JoinDto joinDto) {
 
-		// DTO -> Entity
+		//DTO -> Entity
 		Members joinEntity = joinDto.toEntity();
 
 		Phones phone = new Phones(joinEntity, joinEntity.getMobile());
 
-		// 회원 엔티티 객체 생성 및 조회시작
+		//회원 정보 저장 (Member, Phone Repository)
 		memberRepository.save(joinEntity);
 		phonesRepository.save(phone);
 	}
@@ -123,9 +121,7 @@ public class SignServiceImpl implements SignService {
 	 */
 	@Override
 	public Members getUserInfo(LoginDto loginDto) {
-		System.out.println("☆☆☆☆☆☆☆☆☆☆☆☆☆☆ = = =" + loginDto.getId());
 		Members loginEntity = loginDto.toEntity();
-		System.out.println("☆☆☆☆☆☆☆☆☆☆☆☆☆☆   = = = =" + loginEntity.getId());
 		Members member = memberRepository.findById(loginEntity.getId())
 			.orElseThrow(() -> new UserNotFoundException("User Not Found"));
 
@@ -165,7 +161,6 @@ public class SignServiceImpl implements SignService {
 	 */
 	@Override
 	public Integer userDelete(JoinDto joinDto) {
-		Members memberEntity = joinDto.toEntity();
 
 		String deleteId = String.valueOf(joinDto.getId());
 

@@ -11,7 +11,6 @@ public interface SignService {
 	AuthenticationDto loginMemberMysql(LoginDto loginDto);
 	Integer idValidation(LoginDto loginDto);
 	void userRegistration(JoinDto joinDto);
-	AuthenticationDto loginMemberFirebase(LoginDto loginDto);
 	Members getUserInfo(LoginDto loginDto);
 	Integer userModify(JoinDto joinDto);
 	long getLastIdex();

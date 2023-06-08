@@ -91,7 +91,7 @@ public class VueProxyTestController {
     */
     @PostMapping(value = {"/signin"})
     public ResponseEntity<AuthenticationDto> appLogin(@Valid @RequestBody LoginDto loginDto) throws Exception {
-        LOG.info(" ★ 로그인 시도 ★ ");
+        LOG.info("<로그인 시도>");
 
         AuthenticationDto authentication = new AuthenticationDto();
         
@@ -99,7 +99,7 @@ public class VueProxyTestController {
             authentication = signService.loginMemberMysql(loginDto);
         } 
         catch (Exception e) {
-            authentication = signService.loginMemberFirebase(loginDto);
+            authentication = signFirebaseService.loginMember(loginDto);
         }
 
         HttpHeaders responseHeaders = new HttpHeaders();
@@ -116,7 +116,7 @@ public class VueProxyTestController {
     */
     @PostMapping(value = {"/reissuance"})
     public  ResponseEntity<AuthenticationDto> reissuance(@Valid @RequestBody AuthenticationDto joinDto) throws Exception {
-        LOG.info(" ★ 엑세스 토큰 재 발급 ★ ");
+        LOG.info("<엑세스 토큰 재 발급>");
         LOG.info("getId       = " + joinDto.getId());
         LOG.info("getEmail    = " + joinDto.getEmail());
         LOG.info("getName     = " + joinDto.getName());
@@ -143,7 +143,7 @@ public class VueProxyTestController {
     */
     @PostMapping(value = {"/idValidation"})
     public Integer idValidation(LoginDto loginDto) throws Exception {
-        LOG.info(" ★ 아이디 중복 체크 진입 ★ ");
+        LOG.info("<아이디 중복 체크 진입>");
 
         Integer emailCont = signService.idValidation(loginDto);
         LOG.info(" SEARCH EMAIL CNT = " + emailCont);
@@ -158,7 +158,7 @@ public class VueProxyTestController {
     */
     @PostMapping(value = {"/userRegistration"})
     public boolean userRegistration(JoinDto joinDto) throws Exception {
-        LOG.info(" ★ 회원등록 시도 ★ ");
+        LOG.info("<회원등록 시작>");
         LOG.info("getId       = " + joinDto.getId());
         LOG.info("getEmail    = " + joinDto.getEmail());
         LOG.info("getName     = " + joinDto.getName());
@@ -191,7 +191,7 @@ public class VueProxyTestController {
     */
     @PostMapping(value = {"/getUserInfo"})
     public JoinDto getUserInfo(LoginDto loginDto) throws Exception {
-        LOG.info(" ★ 회원정보 가져오기 ★ ");
+        LOG.info("<회원정보 가져오기>");
 
         Members member = signService.getUserInfo(loginDto);
         JoinDto joinDto = member.toDto(member);
@@ -206,7 +206,7 @@ public class VueProxyTestController {
     */
     @PostMapping(value = {"/userModify"})
     public String userManagement(JoinDto joinDto, @RequestParam(name = "actionType") String actionType) throws Exception {
-        LOG.info(" ★ 회원정보 수정 진입 ★ ");
+        LOG.info("<회원정보 수정 진입>");
         LOG.info("getId       = " + joinDto.getId());
         LOG.info("getEmail    = " + joinDto.getEmail());
         LOG.info("getName     = " + joinDto.getName());
@@ -217,48 +217,50 @@ public class VueProxyTestController {
         Integer updateCnt = 0;
         String errorCode = null;
 
-        if(actionType.equals("UPDATE")){
-            try {
-                LoginDto loginDto = new LoginDto();
-                loginDto.setId(joinDto.getId());
-                
-                String validationPw = joinDto.getPassword();
-                String originPw = signService.getUserInfo(loginDto).getPassword();
+        LoginDto loginDto = new LoginDto();
+        loginDto.setId(joinDto.getId());
+        
+        String validationPw = joinDto.getPassword();
+        String originPw = signService.getUserInfo(loginDto).getPassword();
 
-                if(validationPw.equals(originPw)){
+        if(!validationPw.equals(originPw)){
+            returnFlag = false;
+            errorCode = "ERROR01";
+        }
+        else{
+            if(actionType.equals("UPDATE")){
+                try {
                     updateCnt = signService.userModify(joinDto);
                     signFirebaseService.userModify(joinDto);
                     
                     returnFlag = true;
-                }
-                else{
+                    
+                } 
+                catch (Exception e) {
+                    e.printStackTrace();
+                    
                     returnFlag = false;
-                    errorCode = "ERROR01";
+                    errorCode = "ERROR02";
                 }
-            } 
-            catch (Exception e) {
-                e.printStackTrace();
-                
-                returnFlag = false;
-                errorCode = "ERROR02";
             }
-        }
-        else if(actionType.equals("DELETE")){
-            try {
-                updateCnt = signService.userDelete(joinDto);
-                signFirebaseService.userDelete(joinDto);
-    
-                returnFlag = true; 
-            } 
-            catch (Exception e) {
-                e.printStackTrace();
-                
-                returnFlag = false;
-                errorCode = "ERROR02";
+            else if(actionType.equals("DELETE")){
+                try {
+                    updateCnt = signService.userDelete(joinDto);
+                    signFirebaseService.userDelete(joinDto);
+        
+                    returnFlag = true; 
+                } 
+                catch (Exception e) {
+                    e.printStackTrace();
+                    
+                    returnFlag = false;
+                    errorCode = "ERROR02";
+                }
             }
         }
 
-        JsonObject returnIObj =new JsonObject();
+        //Response Data 세팅 및 RETURN
+        JsonObject returnIObj = new JsonObject();
         returnIObj.addProperty("actionType", actionType);
         returnIObj.addProperty("returnFlag", returnFlag);
         returnIObj.addProperty("errorCode", errorCode);
@@ -266,5 +268,4 @@ public class VueProxyTestController {
 
         return returnIObj.toString();
     }
-
 }
