@@ -85,10 +85,10 @@ public class Members{
 	
 	*/
 
-	@Column(updatable = false)
+	@Column(name="created_date", updatable = false)
 	private ZonedDateTime createdDate;
 
-	@Column(updatable = true)
+	@Column(name="modified_date", updatable = true)
 	private ZonedDateTime modifiedDate;
 
 	@PrePersist

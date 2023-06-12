@@ -9,6 +9,9 @@ const state = {
     role: 'USER',
     email: null,
     nickname: null,
+    authType: null,
+    createdDate: null,
+    modifiedDate: null,
 };
 
 const getters = {
@@ -27,6 +30,9 @@ const mutations = {
         state.role = item.data['role'];
         state.email = item.data['email'];
         state.nickname = item.data['nickname'];
+        state.authType = item.data['authType'];
+        state.createdDate = item.data['createdDate'];
+        state.modifiedDate = item.data['modifiedDate'];
     },
     refresh(state, item) {
         state.token = item.headers['accesstoken'];
@@ -39,6 +45,9 @@ const mutations = {
         state.role = null;
         state.email = null;
         state.nickname = null;
+        state.authType = null;
+        state.createdDate = null;
+        state.modifiedDate = null;
     },
 };
 

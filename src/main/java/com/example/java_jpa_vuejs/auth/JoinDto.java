@@ -2,7 +2,6 @@ package com.example.java_jpa_vuejs.auth;
 
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 import com.example.java_jpa_vuejs.auth.entity.Members;
@@ -41,6 +40,8 @@ public class JoinDto {
     private ZonedDateTime modifiedDate;
     
     private String deleteYn;
+
+    public Object signFirebaseService;
 
 
     public Members toEntity() {

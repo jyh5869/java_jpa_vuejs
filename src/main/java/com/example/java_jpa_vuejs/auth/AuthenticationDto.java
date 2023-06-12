@@ -25,8 +25,12 @@ public class AuthenticationDto {
 
     private String mobile;
 
-    private String regDate;
+    private String createdDate;
 
-    private String modDate;
+    private String modifiedDate;
+
+    private String deleteYn;
+
+    private String authType;
 
 }

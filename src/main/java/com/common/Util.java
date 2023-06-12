@@ -47,7 +47,7 @@ public class Util {
             long reqTime = System.currentTimeMillis(); 
 		    String reqTimeStr = dayTime.format(new Date(reqTime));
 
-            LOG.info("Start " + msg + " Process : TIME:" + reqTimeStr + ", STATUS : " + status + "DURATION" );
+            LOG.info("Start - " + msg + " Process : TIME:" + reqTimeStr + ", STATUS : " + status + "DURATION" );
 
             return reqTime;   
         }
@@ -58,7 +58,7 @@ public class Util {
 		    String resTimeStr = dayTime.format(resTime);
             double durationTime = (resTime - reqTime)/1000.000;
             
-            LOG.info("End " + msg + " Process : TIME:" + resTimeStr + ", STATUS : " + status + "DURATION : " + durationTime );
+            LOG.info("End - " + msg + " Process : TIME:" + resTimeStr + ", STATUS : " + status + "DURATION : " + durationTime );
             
             return resTime;
         }	

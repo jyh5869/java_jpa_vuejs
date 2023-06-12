@@ -5,44 +5,40 @@ import com.example.java_jpa_vuejs.auth.AuthenticationDto;
 import com.example.java_jpa_vuejs.auth.JoinDto;
 import com.example.java_jpa_vuejs.auth.LoginDto;
 import com.example.java_jpa_vuejs.auth.entity.Members;
-import com.example.java_jpa_vuejs.auth.entity.Phones;
-import com.example.java_jpa_vuejs.auth.repositoryJPA.MemberRepository;
-import com.example.java_jpa_vuejs.auth.repositoryJPA.PhonesRepository;
 import com.example.java_jpa_vuejs.auth.repositoryService.SignFirebaseService;
-import com.example.java_jpa_vuejs.auth.repositoryService.SignService;
 import com.example.java_jpa_vuejs.config.FirebaseConfiguration;
-import com.example.java_jpa_vuejs.util.DuplicatedException;
-import com.example.java_jpa_vuejs.util.ForbiddenException;
-import com.example.java_jpa_vuejs.util.UserNotFoundException;
-import com.example.java_jpa_vuejs.validation.Empty;
+
 
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.modelmapper.ModelMapper;
 import lombok.RequiredArgsConstructor;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.SetOptions;
 import com.google.cloud.firestore.WriteResult;
 import com.google.cloud.firestore.Query.Direction;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.cloud.FirestoreClient;
-
 
 
 @Service("signFirebaseService")
 @RequiredArgsConstructor
 public class SignFirebaseServiceImpl implements SignFirebaseService {
+
+    final private static Logger LOG = Logger.getGlobal();
 
 	private final FirebaseConfiguration firebaseConfiguration;
 
@@ -51,7 +47,7 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
 	@Override
 	public void userRegistration(JoinDto joinDto) throws Exception{
 
-		long reqTime = Util.durationTime ("start", "JPA 테스트", 0, "Proceeding" );
+		long reqTime = Util.durationTime ("start", "CLOUD / USER REGISTRATION : ", 0, "Proceeding ::: " );
 
         try {     
             //파이어 베이스 초기화
@@ -74,19 +70,72 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
             
             ApiFuture<WriteResult> future = db.collection("user").document(lastIdx).set(docData);
 
-            Util.durationTime ("end", "Update time : ", reqTime, "Complete" );
+            Util.durationTime ("end", "CLOUD / USER REGISTRATION : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
             
-            Util.durationTime ("end", "JPA 테스트", reqTime, "Fail" );
+            Util.durationTime ("end", "CLOUD / USER REGISTRATION : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
+	}
+
+    @Override
+	public AuthenticationDto loginMember(LoginDto loginDto) throws Exception{
+
+		long reqTime = Util.durationTime ("start", "CLOUD / AUTH USER: ", 0, "Proceeding ::: " );
+        Members member = new Members();
+        JoinDto joinDto = new JoinDto();
+        try {     
+            //파이어 베이스 초기화
+            firebaseConfiguration.initializeFCM();
+            Firestore db = FirestoreClient.getFirestore();
+
+            String email = loginDto.getEmail();
+            String password = loginDto.getPassword();
+            //클라우드 로그인 부터 만들자!
+            ApiFuture<QuerySnapshot> future = db.collection("user").whereEqualTo("email", email).whereEqualTo("password", password).get();
+            List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+            
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss a z");
+            for (DocumentSnapshot document : documents) {
+
+                Map<String, Object> docData = document.getData();
+
+                ZonedDateTime createdDate = ZonedDateTime.parse(String.valueOf(docData.get("created_date")));
+                ZonedDateTime modifiedDate = ZonedDateTime.parse(String.valueOf(docData.get("modified_date")));
+
+                joinDto.setId((long) docData.get("id"));
+                joinDto.setEmail((String) docData.get("email"));
+                joinDto.setMobile((String) docData.get("mobile"));
+                joinDto.setPassword((String) docData.get("password"));
+                joinDto.setName((String) docData.get("name"));
+                joinDto.setNickname((String) docData.get("nickname"));
+                joinDto.setProfile((String) docData.get("profile"));
+                joinDto.setCreatedDate(createdDate);
+                joinDto.setModifiedDate(modifiedDate);
+                joinDto.setDeleteYn((String) docData.get("delete_yn"));
+                
+                /* 문서를 객체와 매칭시켜 데이터를 가져 오는 Code(파라메터 명이 일치 해야 한다.)
+                member = document.toObject(Members.class);
+                */
+            }
+
+            Util.durationTime ("end", "CLOUD / AUTH USER: ", reqTime, "Complete ::: " );
+        }
+        catch (Exception e) {
+            
+            Util.durationTime ("end", "CLOUD / AUTH USER: ", reqTime,  "Fail ::: " );
+            e.printStackTrace();
+        }
+
+        return modelMapper.map(joinDto, AuthenticationDto.class);
 	}
 
 	@Override
 	public List<Map<String, Object>> getList() throws Exception{
 
-		long reqTime = Util.durationTime ("start", "JPA 테스트", 0, "Proceeding" );
+		long reqTime = Util.durationTime ("start", "CLOUD / GET LIST : ", 0, "Proceeding ::: " );
         List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
 		
 		try {     
@@ -100,7 +149,6 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
 
             List<QueryDocumentSnapshot> documents = querySnapshot.getDocuments();
             
-
             for (QueryDocumentSnapshot document : documents) {
                 /* 
 					※ 데이터 출력 Example 
@@ -114,19 +162,19 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
 
                 result.add(data);
             }
+            Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
-			Util.durationTime ("end", "JPA 테스트", reqTime, "Fail" );
+			Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
-		Util.durationTime ("end", "JPA 테스트", reqTime, "Complete" );
 		
 		return result;
 	}
 
 	@Override
 	public void userModify(JoinDto joinDto) throws Exception  {
-		long reqTime = Util.durationTime ("start", "JPA 테스트", 0, "Proceeding" );
+		long reqTime = Util.durationTime ("start", "CLOUD / UPDATE USER INFO : ", 0, "Proceeding ::: " );
 
         try {     
             //파이어 베이스 초기화
@@ -163,21 +211,53 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
 
             */
 
-            Util.durationTime ("end", "Update time : ", reqTime, "Complete" );
+            Util.durationTime ("end", "CLOUD / UPDATE USER INFO : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
             
-            Util.durationTime ("end", "JPA 테스트", reqTime, "Fail" );
+            Util.durationTime ("end", "CLOUD / UPDATE USER INFO : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
 	}
 	
     @Override
+	public Members getUserInfo(LoginDto loginDto) throws Exception  {
+		long reqTime = Util.durationTime ("start", "CLOUD / GET USER INFO : ", 0, "Proceeding ::: " );
+        Members member = new Members();
+        try {     
+            //파이어 베이스 초기화
+            firebaseConfiguration.initializeFCM();
+            Firestore db = FirestoreClient.getFirestore();
+
+            String modifyIdx = String.valueOf(loginDto.getId());
+        
+            DocumentReference docRef = db.collection("user").document(modifyIdx);
+            ApiFuture<DocumentSnapshot> future = docRef.get();
+            DocumentSnapshot document = future.get();
+
+            if (document.exists()) {
+                member = document.toObject(Members.class);
+                LOG.info(member.toString());
+            } 
+            else {
+                LOG.info("CLOUD / GET USER INFO : NO DATA");
+            }
+
+            Util.durationTime ("end", "CLOUD / GET USER INFO : ", reqTime, "Complete ::: " );
+        }
+        catch (Exception e) {
+            Util.durationTime ("end", "CLOUD / GET USER INFO : ", reqTime, "Fail ::: " );
+            e.printStackTrace();
+        }
+       
+        return modelMapper.map(member, Members.class);
+	}
+
+    @Override
 	public void userDelete(JoinDto joinDto) throws Exception  {
-		long reqTime = Util.durationTime ("start", "JPA 테스트", 0, "Proceeding" );
+		long reqTime = Util.durationTime ("start", "DELETE USER INFO", 0, "Proceeding ::: " );
 
         try {     
-
             //파이어 베이스 초기화
             firebaseConfiguration.initializeFCM();
             Firestore db = FirestoreClient.getFirestore();
@@ -189,14 +269,38 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
             WriteResult result = future.get();
             System.out.println(result);
 
-            Util.durationTime ("end", "Update time : ", reqTime, "Complete" );
+            Util.durationTime ("end", "CLOUD / DELETE USER INFO : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
             
-            Util.durationTime ("end", "JPA 테스트", reqTime, "Fail" );
+            Util.durationTime ("end", "CLOUD / DELETE USER INFO : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
 	}
 
-	
+    @Override
+	public Integer idValidation(LoginDto loginDto) throws Exception  {
+		long reqTime = Util.durationTime ("start", "CLOUD / CHECK ID DUPLICATION : ", 0, "Proceeding ::: " );
+
+        Integer emailCnt = 0;
+        try {     
+            //파이어 베이스 초기화
+            firebaseConfiguration.initializeFCM();
+            Firestore db = FirestoreClient.getFirestore();
+        
+            ApiFuture<QuerySnapshot> future = db.collection("user").whereEqualTo("email", loginDto.getEmail()).get();
+            List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+
+            emailCnt = documents.size();
+
+            Util.durationTime ("end", "CLOUD / CHECK ID DUPLICATION : ", reqTime, "Complete ::: " );
+        }
+        catch (Exception e) {
+            Util.durationTime ("end", "CLOUD / CHECK ID DUPLICATION : ", reqTime, "Fail ::: " );
+            e.printStackTrace();
+        }
+       
+        return emailCnt;
+	}
+
 }

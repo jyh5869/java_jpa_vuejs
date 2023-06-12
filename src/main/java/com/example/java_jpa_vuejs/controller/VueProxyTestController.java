@@ -1,13 +1,7 @@
 package com.example.java_jpa_vuejs.controller;
 
-import java.io.IOException;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 import org.springframework.http.HttpHeaders;
@@ -19,10 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.common.Util;
 import com.example.java_jpa_vuejs.auth.AuthProvider;
 import com.example.java_jpa_vuejs.auth.AuthenticationDto;
-import com.example.java_jpa_vuejs.auth.FirebaseAuthSignUtil;
 import com.example.java_jpa_vuejs.auth.JoinDto;
 import com.example.java_jpa_vuejs.auth.LoginDto;
 import com.example.java_jpa_vuejs.auth.entity.Members;
@@ -31,15 +23,6 @@ import com.example.java_jpa_vuejs.auth.repositoryService.SignService;
 import com.example.java_jpa_vuejs.auth2.repositoryService.RepositoryService;
 import com.example.java_jpa_vuejs.config.FirebaseConfiguration;
 
-import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.DocumentReference;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.QueryDocumentSnapshot;
-import com.google.cloud.firestore.QuerySnapshot;
-import com.google.cloud.firestore.WriteResult;
-import com.google.cloud.firestore.Query.Direction;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.cloud.FirestoreClient;
 import com.google.gson.JsonObject;
 
 import jakarta.validation.Valid;
@@ -97,9 +80,13 @@ public class VueProxyTestController {
         
         try {
             authentication = signService.loginMemberMysql(loginDto);
+            authentication.setAuthType("DB");
         } 
         catch (Exception e) {
+            e.printStackTrace();
+            LOG.info(" DB AUTH ERROR - CLOUD AUTH START!");
             authentication = signFirebaseService.loginMember(loginDto);
+            authentication.setAuthType("CLOUD");
         }
 
         HttpHeaders responseHeaders = new HttpHeaders();
@@ -144,11 +131,21 @@ public class VueProxyTestController {
     @PostMapping(value = {"/idValidation"})
     public Integer idValidation(LoginDto loginDto) throws Exception {
         LOG.info("<아이디 중복 체크 진입>");
+        
+        Integer emailCnt;
 
-        Integer emailCont = signService.idValidation(loginDto);
-        LOG.info(" SEARCH EMAIL CNT = " + emailCont);
+        try {
+            emailCnt = signService.idValidation(loginDto);
+            LOG.info("DB / SEARCH EMAIL CNT = " + emailCnt);
+        } 
+        catch (Exception e) {
+            e.printStackTrace();
 
-        return emailCont;
+            emailCnt = signFirebaseService.idValidation(loginDto);
+            LOG.info("COULD / SEARCH EMAIL CNT = " + emailCnt);
+        }
+
+        return emailCnt;
     }
 
     /**
@@ -192,9 +189,16 @@ public class VueProxyTestController {
     @PostMapping(value = {"/getUserInfo"})
     public JoinDto getUserInfo(LoginDto loginDto) throws Exception {
         LOG.info("<회원정보 가져오기>");
-
-        Members member = signService.getUserInfo(loginDto);
-        JoinDto joinDto = member.toDto(member);
+        JoinDto joinDto = new JoinDto();
+        try {
+            Members member = signService.getUserInfo(loginDto);
+            joinDto = member.toDto(member);
+        } 
+        catch (Exception e) {
+            e.printStackTrace();
+            Members member = signFirebaseService.getUserInfo(loginDto);
+            joinDto = member.toDto(member);
+        }
 
         return joinDto;
     }

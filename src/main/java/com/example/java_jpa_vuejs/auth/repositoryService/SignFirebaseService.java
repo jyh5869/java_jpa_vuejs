@@ -8,6 +8,8 @@ import com.example.java_jpa_vuejs.auth.JoinDto;
 import com.example.java_jpa_vuejs.auth.LoginDto;
 import com.example.java_jpa_vuejs.auth.entity.Members;
 
+import jakarta.validation.Valid;
+
 public interface SignFirebaseService {
 
 	void userRegistration(JoinDto joinDto) throws Exception;
@@ -17,5 +19,11 @@ public interface SignFirebaseService {
 	void userModify(JoinDto joinDto) throws Exception;
 
 	void userDelete(JoinDto joinDto) throws Exception;
+
+	AuthenticationDto loginMember(@Valid LoginDto loginDto) throws Exception;
+
+	Members getUserInfo(LoginDto loginDto) throws Exception;
+
+	Integer idValidation(LoginDto loginDto) throws Exception;
 
 }
