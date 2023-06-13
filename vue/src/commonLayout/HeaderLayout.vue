@@ -24,11 +24,9 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <!-- 
                     <li class="nav-item">
-                        <router-link class="nav-link active nav-link" to="/" aria-current="page">Home</router-link>
+                        <router-link class="nav-link active nav-link" to="/mapTest" aria-current="page">Map</router-link>
                     </li>
-                    -->
                     <li class="nav-item">
                         <router-link class="nav-link" to="/main">List</router-link>
                     </li>

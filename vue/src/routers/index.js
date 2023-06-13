@@ -35,6 +35,12 @@ const routes = [
         component: () => import('@/components/AuthComponent.vue'), // [로드 파일]]
         props: true, // [파라메터 Y/N]
     },
+    {
+        path: '/mapTest', // [경로]
+        name: 'mapTest', // [이름]
+        component: () => import('@/components/MapTest.vue'), // [로드 파일]]
+        props: true, // [파라메터 Y/N]
+    },
 ];
 
 // 라우터 설정 실시
