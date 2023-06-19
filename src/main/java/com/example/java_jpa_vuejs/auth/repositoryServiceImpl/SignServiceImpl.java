@@ -106,17 +106,6 @@ public class SignServiceImpl implements SignService {
 	}
 
 	/*
-	 * 파이어베이스 클라우드 로그인... 미완성
-	 */
-	public AuthenticationDto loginMemberFirebase(LoginDto loginDto) {
-		Members loginEntity = loginDto.toEntity();
-		Members member = memberRepository.findByEmail(loginEntity.getEmail())
-			.orElseThrow(() -> new UserNotFoundException("User Not Found"));
-
-		return modelMapper.map(member, AuthenticationDto.class);
-	}
-
-	/*
 	 * 회원 정보 가져오기
 	 */
 	@Override
