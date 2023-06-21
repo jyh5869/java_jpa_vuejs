@@ -13,7 +13,7 @@
     <button @click="drawEnabled = !drawEnabled">Draw</button>
     {{ drawEnabled }}
 
-    <select id="type" v-model="drawType">
+    <select id="type" v-model="drawType" @change="drawEnabled = true">
         <option value="Point">Point</option>
         <option value="LineString">LineString</option>
         <option value="Polygon">Polygon</option>
@@ -58,9 +58,10 @@
 
             
          -->
-        <ol-interaction-clusterselect @select="featureSelected" :pointRadius="20">
+        <!-- <ol-interaction-clusterselect @select="featureSelectedCluster" :pointRadius="20"> -->
+        <ol-interaction-clusterselect :pointRadius="20">
             <ol-style>
-                <ol-style-stroke color="green" :width="5"></ol-style-stroke>
+                <ol-style-stroke color="red" :width="2"></ol-style-stroke>
                 <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
                 <ol-style-icon :src="markerIcon" :scale="0.05"></ol-style-icon>
             </ol-style>
@@ -83,7 +84,7 @@
                 </ol-style-circle>
 
                 <ol-style-text>
-                    <ol-style-fill color="white"></ol-style-fill>
+                    <ol-style-fill color="red"></ol-style-fill>
                 </ol-style-text>
             </ol-style>
         </ol-animated-clusterlayer>
@@ -95,23 +96,26 @@
          -->
         <ol-vector-layer :styles="vectorStyle">
             <ol-source-vector :features="zones">
-                <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"> </ol-interaction-modify>
-                <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend" />
+                <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
+                <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend"> </ol-interaction-draw>
                 <ol-interaction-snap v-if="modifyEnabled" />
             </ol-source-vector>
+
+            <!-- 만들어 지고 나서의 STYLE(태그로 넣기) 
             <ol-style>
-                <ol-style-stroke color="yellow" :width="2"></ol-style-stroke>
+                <ol-style-stroke color="orange" :width="2"></ol-style-stroke>
                 <ol-style-fill color="rgba(255,255,255,0.1)"></ol-style-fill>
                 <ol-style-circle :radius="7">
-                    <ol-style-fill color="yellow"></ol-style-fill>
+                    <ol-style-fill color="orange"></ol-style-fill>
                 </ol-style-circle>
             </ol-style>
+            -->
         </ol-vector-layer>
+
         <ol-interaction-select @select="featureSelected" :condition="selectCondition" :features="selectedFeatures">
             <ol-style>
-                <ol-style-stroke color="green" :width="10"></ol-style-stroke>
+                <ol-style-stroke color="red" :width="2"></ol-style-stroke>
                 <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
-                <ol-style-icon :src="markerIcon" :scale="0.05"></ol-style-icon>
             </ol-style>
         </ol-interaction-select>
 
@@ -190,7 +194,6 @@ import { Collection } from 'ol';
 
 import hereIcon from '@/assets/hereIcon.png';
 import markerIcon from '@/assets/hereIcon.png';
-// import { ref } from 'vue';
 
 const center = ref([40, 40]);
 const projection = ref('EPSG:4326');
@@ -236,6 +239,7 @@ const geoLocChange = (loc) => {
 
 */
 const overrideStyleFunction = (feature, style) => {
+    console.log('클러스터 펼치기 함수');
     const clusteredFeatures = feature.get('features');
     const size = clusteredFeatures.length;
 
@@ -263,17 +267,12 @@ const overrideStyleFunction = (feature, style) => {
 const getRandomInRange = (from, to, fixed) => {
     return (Math.random() * (to - from) + from).toFixed(fixed) * 1;
 };
-/*
-const featureSelected = (event) => {
+/* 
+const featureSelectedCluster = (event) => {
+    console.log('클러스터링 셀렉트!');
     console.log(event);
 };
-
-
-
-
-
 */
-
 //const drawEnable = ref(false);
 const drawType = ref('Polygon');
 const zones = ref([]);
@@ -298,7 +297,7 @@ const drawend = (event) => {
 function vectorStyle() {
     const style = new Style({
         stroke: new Stroke({
-            color: 'blue',
+            color: 'orange',
             width: 3,
         }),
         fill: new Fill({
@@ -317,6 +316,7 @@ function featureSelected(event) {
     if (event.selected.length > 0) {
         modifyEnabled.value = true;
     }
+
     selectedFeatures.value = event.target.getFeatures();
 }
 </script>
