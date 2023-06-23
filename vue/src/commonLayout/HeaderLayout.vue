@@ -24,8 +24,12 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <router-link class="nav-link active nav-link" to="/mapTest" aria-current="page">Map</router-link>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Admin </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><router-link class="nav-link active nav-link" to="/mapTest" aria-current="page">View Map</router-link></li>
+                            <li><router-link class="nav-link active nav-link" to="/boardEdit" aria-current="page">Board Write</router-link></li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <router-link class="nav-link" to="/main">List</router-link>

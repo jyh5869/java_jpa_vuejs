@@ -41,6 +41,12 @@ const routes = [
         component: () => import('@/components/MapTest.vue'), // [로드 파일]]
         props: true, // [파라메터 Y/N]
     },
+    {
+        path: '/boardEdit', // [경로]
+        name: 'boardEdit', // [이름]
+        component: () => import('@/components/BoardEditComponent.vue'), // [로드 파일]]
+        props: true, // [파라메터 Y/N]
+    },
 ];
 
 // 라우터 설정 실시
