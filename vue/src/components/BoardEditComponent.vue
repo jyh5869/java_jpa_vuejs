@@ -59,6 +59,8 @@
 import { ref } from 'vue';
 import { Fill, Stroke, Style } from 'ol/style';
 import { Collection } from 'ol';
+import { GeoJSON } from 'ol/format';
+//import { Feature } from 'ol/Feature.js';
 
 const center = ref([40, 40]);
 const projection = ref('EPSG:4326');
@@ -97,12 +99,71 @@ export default {
                 maxZoom: 14,
             });
         },
+        initMap: await function () {
+            //map.getLayers().forEach((layer) => layer.getSource().refresh());
+            zones.value = [];
+        },
         setGeometry: async function () {
-            console.log(selectedFeatures);
-            console.log(selectedFeatures.value.getKeys());
-            console.log(selectedFeatures.value.get('length'));
-            console.log(selectedFeatures.value.get('length'));
-            console.log(selectedFeatures.value.get);
+            this.initMap();
+            await alert('초기화 완료');
+
+            //console.log(selectedFeatures.value);
+            //console.log(selectedFeatures.value.getArray());
+            //console.log(selectedFeatures.value.getKeys());
+            //console.log(selectedFeatures.value.getLength());
+            //console.log(selectedFeatures.value.getProperties());
+            //console.log(selectedFeatures.value.forEach);
+
+            //console.log(selectedFeatures.value.getArray());
+            //selectedFeatures.value.forEach(function (value, idx, array) {
+            /*
+            selectedFeatures.value.forEach(function (value) {
+                console.log('----------------------------------');
+                //console.log(value.getKeys());
+                console.log(value); //feature
+                //console.log(value.get('geometry')); //feture > value
+                console.log(value.getGeometry());
+                //console.log(idx);
+                //console.log(array);
+                console.log('----------------------------------');
+                //const feature = new Feature(value);
+                //console.log(feature);
+            });
+            */
+            /*
+            var geojson = {
+                name: 'NewFeatureType',
+                type: 'FeatureCollection',
+                features: JSON.stringify(selectedFeatures.value),
+            };
+            
+            console.log(geojson);
+            */
+
+            /* 
+            ※ 컬렉션을 피쳐로 전환하여 지오제이슨 형식으로 만들기
+            참고 URLhttps://gis.stackexchange.com/questions/244656/openlayers-filter-specific-features-from-ol-collection
+            */
+            function filterGeometry(collection, type) {
+                console.log(type);
+                var selectedFeatures = [];
+                var featArray = collection.getArray();
+                for (var i = 0; i < featArray.length; i++) {
+                    //if (featArray[i].getGeometry() instanceof ol.geom[type]) {
+                    selectedFeatures.push(featArray[i]);
+                    //}
+                }
+                return selectedFeatures; //returns array of features with selected geom type
+            }
+
+            var onlyLineStringArray = filterGeometry(selectedFeatures.value, 'LineString');
+            var GeoJSONFormat = new GeoJSON();
+            var GeoJSONString = GeoJSONFormat.writeFeatures(onlyLineStringArray);
+
+            console.log(GeoJSONString);
+
+            //zones.value = new GeoJSON().readFeatures(GeoJSONString);
+
             /*
             const result = await this.$axios({
                 method: 'post',
@@ -143,6 +204,7 @@ const drawstart = (event) => {
 
 const drawend = (event) => {
     console.log('형상 그리기!!');
+    //console.log(event.feature);
     zones.value.push(event.feature);
     selectedFeatures.value.push(event.feature);
 
