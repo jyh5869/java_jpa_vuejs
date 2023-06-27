@@ -157,19 +157,25 @@ export default {
             }
 
             var onlyLineStringArray = filterGeometry(selectedFeatures.value, 'LineString');
+            var onlyPolygonArray = filterGeometry(selectedFeatures.value, 'Polygon');
+            //var onlyPointArray = filterGeometry(selectedFeatures.value, 'Point');
+            //var onlyCircleArray = filterGeometry(selectedFeatures.value, 'Circle');
+
             var GeoJSONFormat = new GeoJSON();
             var GeoJSONString = GeoJSONFormat.writeFeatures(onlyLineStringArray);
 
             console.log(GeoJSONString);
 
             //zones.value = new GeoJSON().readFeatures(GeoJSONString);
+            console.log(GeoJSONFormat.writeFeature(onlyPolygonArray[0]));
 
-            /*
             const result = await this.$axios({
                 method: 'post',
-                url: '/api/setGeometry',
+                url: '/api/setGeomBoard',
                 params: {
-                    feature: feature,
+                    //point: onlyPointArray[0].getGeometry(),
+                    //circle: onlyCircleArray[0].getGeometry(),
+                    polygon: encodeURI(GeoJSONFormat.writeFeatures(onlyPolygonArray[0])),
                 },
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -179,7 +185,6 @@ export default {
             if (result.status === 200) {
                 console.log(result.data);
             }
-            */
         },
     },
 };
