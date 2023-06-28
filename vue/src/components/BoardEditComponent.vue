@@ -105,7 +105,7 @@ export default {
         },
         setGeometry: async function () {
             this.initMap();
-            await alert('초기화 완료');
+            //await alert('초기화 완료');
 
             //console.log(selectedFeatures.value);
             //console.log(selectedFeatures.value.getArray());
@@ -136,11 +136,11 @@ export default {
                 type: 'FeatureCollection',
                 features: JSON.stringify(selectedFeatures.value),
             };
-            
+
             console.log(geojson);
             */
 
-            /* 
+            /*
             ※ 컬렉션을 피쳐로 전환하여 지오제이슨 형식으로 만들기
             참고 URLhttps://gis.stackexchange.com/questions/244656/openlayers-filter-specific-features-from-ol-collection
             */
@@ -156,30 +156,33 @@ export default {
                 return selectedFeatures; //returns array of features with selected geom type
             }
 
-            var onlyLineStringArray = filterGeometry(selectedFeatures.value, 'LineString');
-            var onlyPolygonArray = filterGeometry(selectedFeatures.value, 'Polygon');
+            //var onlyLineStringArray = filterGeometry(selectedFeatures.value, 'LineString');
+            var onlyPolygonArray = await filterGeometry(selectedFeatures.value, 'Polygon');
             //var onlyPointArray = filterGeometry(selectedFeatures.value, 'Point');
             //var onlyCircleArray = filterGeometry(selectedFeatures.value, 'Circle');
 
             var GeoJSONFormat = new GeoJSON();
-            var GeoJSONString = GeoJSONFormat.writeFeatures(onlyLineStringArray);
+            //var GeoJSONString = GeoJSONFormat.writeFeatures(onlyLineStringArray);
 
-            console.log(GeoJSONString);
+            //console.log(GeoJSONString);
 
             //zones.value = new GeoJSON().readFeatures(GeoJSONString);
+            //console.log(GeoJSONFormat.writeFeature(onlyPolygonArray[0]));
+            //console.log(onlyPolygonArray[0].getGeometry());
             console.log(GeoJSONFormat.writeFeature(onlyPolygonArray[0]));
 
             const result = await this.$axios({
-                method: 'post',
+                method: 'get',
                 url: '/api/setGeomBoard',
                 params: {
                     //point: onlyPointArray[0].getGeometry(),
                     //circle: onlyCircleArray[0].getGeometry(),
-                    polygon: encodeURI(GeoJSONFormat.writeFeatures(onlyPolygonArray[0])),
+                    //arrpolygon: GeoJSONFormat.writeFeatures(onlyPolygonArray[0].getGeometry()).toString(),
+                    arrpolygon: encodeURI(GeoJSONFormat.writeFeatures(onlyPolygonArray)),
                 },
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
+                // headers: {
+                //     'Content-Type': 'multipart/form-data',
+                // },
             });
 
             if (result.status === 200) {

@@ -1,9 +1,11 @@
 package com.example.java_jpa_vuejs.controller;
 
+import java.net.URLDecoder;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.springframework.data.geo.Polygon;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +25,10 @@ import com.example.java_jpa_vuejs.auth.repositoryService.SignService;
 import com.example.java_jpa_vuejs.auth2.repositoryService.RepositoryService;
 import com.example.java_jpa_vuejs.config.FirebaseConfiguration;
 import com.example.java_jpa_vuejs.geomBoard.GeomBoardDTO;
+import com.example.java_jpa_vuejs.geomBoard.GeomBoardDto;
 import com.google.gson.JsonObject;
+
+//import org.locationtech.jts.geom.GeometryFactory;
 
 import jakarta.validation.Valid;
 
@@ -44,16 +49,22 @@ public class GeomBoardController {
     * @param  null
     * @throws Exception
     */
-    @PostMapping(value = {"/setGeomBoard"})
-    public String setGeomBoard(@Valid @RequestBody GeomBoardDTO geomBoardDTO) throws Exception {
+    @GetMapping(value = {"/setGeomBoard"})
+    public String setGeomBoard(@Valid GeomBoardDto geomBoardDTO) throws Exception {
+        
+        String decodeData = geomBoardDTO.getArrpolygon().getClass().getName();
+        String decodeData1 = URLDecoder.decode(geomBoardDTO.getArrpolygon().toString(), "UTF-8");
+        
 
         System.out.println("☆ ☆ ☆ --------------------------");
-        System.out.println(geomBoardDTO.getId());
-        System.out.println(geomBoardDTO.getCircle());
-        System.out.println(geomBoardDTO.getPoint());
-        System.out.println(geomBoardDTO.getPolygon());
+        System.out.println(decodeData1);
+        System.out.println(decodeData);
+        //System.out.println(geomBoardDTO.getPoint());
+        System.out.println(geomBoardDTO.getArrpolygon());
         System.out.println("☆ ☆ ☆ --------------------------");
 
+        //GeoJSONReader reader1 = new GeoJSONReader();
+        //Geometry geometry = reader1.read(content);
 
         return "TRUE";
     }
