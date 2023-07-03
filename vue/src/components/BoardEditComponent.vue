@@ -104,8 +104,8 @@ export default {
             zones.value = [];
         },
         setGeometry: async function () {
-            this.initMap();
-            //await alert('초기화 완료');
+            //this.initMap();
+            console.log('지오데이터 전송');
 
             //console.log(selectedFeatures.value);
             //console.log(selectedFeatures.value.getArray());

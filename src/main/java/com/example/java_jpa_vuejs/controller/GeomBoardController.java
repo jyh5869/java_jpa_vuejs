@@ -24,8 +24,8 @@ import com.example.java_jpa_vuejs.auth.repositoryService.SignFirebaseService;
 import com.example.java_jpa_vuejs.auth.repositoryService.SignService;
 import com.example.java_jpa_vuejs.auth2.repositoryService.RepositoryService;
 import com.example.java_jpa_vuejs.config.FirebaseConfiguration;
-import com.example.java_jpa_vuejs.geomBoard.GeomBoardDTO;
-import com.example.java_jpa_vuejs.geomBoard.GeomBoardDto;
+import com.example.java_jpa_vuejs.geomBoard.BoardDto;
+import com.example.java_jpa_vuejs.geomBoard.repositoryService.BoardFirebaseService;
 import com.google.gson.JsonObject;
 
 //import org.locationtech.jts.geom.GeometryFactory;
@@ -43,6 +43,7 @@ public class GeomBoardController {
     final private static Logger LOG = Logger.getGlobal();
 
     public static final String SECURED_TEXT = "Hello from the secured resource!";
+    private final BoardFirebaseService boardFirebaseService;
 
     /**
     * @method 지오메트릭 데이터 저장
@@ -50,22 +51,19 @@ public class GeomBoardController {
     * @throws Exception
     */
     @GetMapping(value = {"/setGeomBoard"})
-    public String setGeomBoard(@Valid GeomBoardDto geomBoardDTO) throws Exception {
+    public String setGeomBoard(@Valid BoardDto boardDTO) throws Exception {
         
-        String decodeData = geomBoardDTO.getArrpolygon().getClass().getName();
-        String decodeData1 = URLDecoder.decode(geomBoardDTO.getArrpolygon().toString(), "UTF-8");
+        String dataType = boardDTO.getArrpolygon().getClass().getName();
+        String geometry = URLDecoder.decode(boardDTO.getArrpolygon().toString(), "UTF-8");
         
 
         System.out.println("☆ ☆ ☆ --------------------------");
-        System.out.println(decodeData1);
-        System.out.println(decodeData);
+        System.out.println(geometry);
         //System.out.println(geomBoardDTO.getPoint());
-        System.out.println(geomBoardDTO.getArrpolygon());
+        System.out.println(boardDTO.getArrpolygon());
         System.out.println("☆ ☆ ☆ --------------------------");
 
-        //GeoJSONReader reader1 = new GeoJSONReader();
-        //Geometry geometry = reader1.read(content);
-
+        boardFirebaseService.setBoardData(boardDTO);;
         return "TRUE";
     }
 }

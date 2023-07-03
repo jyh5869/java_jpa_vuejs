@@ -5,7 +5,7 @@ import jakarta.persistence.Id;
 import org.springframework.data.geo.Point;
 import org.springframework.data.geo.Polygon;
 
-import com.google.gson.JsonObject;
+//import com.google.gson.JsonObject;
 
 import org.springframework.data.geo.Circle;
 
@@ -18,7 +18,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @NoArgsConstructor
-public class GeomBoardDto {
+public class BoardDto {
 
 	@Id
 	private long id;
