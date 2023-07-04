@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,23 +77,29 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
                 System.out.println(obj.toString());
                 System.out.println("○\u25CB\u25CB\u25CB\u25CB\u25CB\u25CB\u25CB\u25CB\u25CB\u25CB\u25CB\u25CB");
 
-                String type = obj.getString("type");
-                System.out.println("type(" + i + "): " + type);
+                String dataType = obj.getString("type");
+                System.out.println("dataType(" + i + "): " + dataType);
 
                 String geometry = obj.getString("geometry");
                 System.out.println("geometry(" + i + "): " + geometry);
                 System.out.println("★ \u2605 \u2605 \u2605 \u2605 \u2605 \u2605");
 
 
-                SimpleDateFormat dayTime = new SimpleDateFormat("yyyy-MM-dd a hh:mm:ss.SS");
+                JSONObject geoObj = new JSONObject(geometry);
+                String geomType = geoObj.getString("type");
+
+
+                SimpleDateFormat dayTime = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                String regDt = dayTime.format(new Date());
                 Map<String, Object> docData = new HashMap<String, Object>();
 
                 docData.put("id", boardDTO.getId());
-                docData.put("geom_type", type);
+                docData.put("data_type", dataType);
+                docData.put("geom_type", geomType);
                 docData.put("geom_value", geometry);
-                docData.put("reg_dt", dayTime.toString());
+                docData.put("reg_dt", regDt);
                 
-                ApiFuture<WriteResult> future = db.collection("geom_board_list").document().set(docData);
+                ApiFuture<WriteResult> future = db.collection("geometry").document().set(docData);
             }
 
             //System.out.println("features: " + features); 
@@ -109,4 +116,45 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
         }
 	}
 
+
+    @Override
+	public List<Map<String, Object>> getBoardData(BoardDto boardDTO) throws Exception{
+
+		long reqTime = Util.durationTime ("start", "CLOUD / GET LIST : ", 0, "Proceeding ::: " );
+        List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
+		
+		try {     
+            //파이어 베이스 초기화
+            firebaseConfiguration.initializeFCM();
+            Firestore db = FirestoreClient.getFirestore();
+
+            //스냅샷 호출 후 리스트 생성(JSON)
+            ApiFuture<QuerySnapshot> query = db.collection("geometry").orderBy("reg_dt", Direction.DESCENDING).get();
+            QuerySnapshot querySnapshot = query.get();
+
+            List<QueryDocumentSnapshot> documents = querySnapshot.getDocuments();
+            
+            for (QueryDocumentSnapshot document : documents) {
+                /* 
+					※ 데이터 출력 Example 
+                	System.out.println("id        : " + document.getId());
+                */
+                Map<String, Object> data = document.getData();
+                /* 
+                String toDayFormat = Util.remakeDate(document.getLong("brddate"),1);
+                
+                
+                data.put("brddate", toDayFormat);
+                */
+                result.add(data);
+            }
+            Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Complete ::: " );
+        }
+        catch (Exception e) {
+			Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Fail ::: " );
+            e.printStackTrace();
+        }
+		
+		return result;
+	}
 }

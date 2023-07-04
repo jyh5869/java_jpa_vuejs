@@ -66,4 +66,17 @@ public class GeomBoardController {
         boardFirebaseService.setBoardData(boardDTO);;
         return "TRUE";
     }
+
+    /**
+    * @method 지오메트릭 데이터 가져오기
+    * @param  null
+    * @throws Exception
+    */
+    @GetMapping(value = {"/getGeomBoard"})
+    public List<Map<String, Object>> getGeomBoard(@Valid BoardDto boardDTO) throws Exception {
+
+        List<Map<String, Object>> list = boardFirebaseService.getBoardData(boardDTO);
+
+        return list;
+    }
 }

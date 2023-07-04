@@ -60,6 +60,7 @@ import { ref } from 'vue';
 import { Fill, Stroke, Style } from 'ol/style';
 import { Collection } from 'ol';
 import { GeoJSON } from 'ol/format';
+//import { Vector } from 'ol/source/Vector.js';
 //import { Feature } from 'ol/Feature.js';
 
 const center = ref([40, 40]);
@@ -82,6 +83,8 @@ export default {
         msg: String,
     },
     data() {
+        this.getGeometry();
+
         return {
             data: 'HELLO OPENLAYERS', // [데이터 정의]
         };
@@ -103,42 +106,59 @@ export default {
             //map.getLayers().forEach((layer) => layer.getSource().refresh());
             zones.value = [];
         },
+        getGeometry: async function () {
+            console.log('저장된 지오데이터 호출');
+            const result = await this.$axios({
+                method: 'get',
+                url: '/api/getGeomBoard',
+                params: {
+                    id: '0',
+                },
+            });
+
+            if (result.status === 200) {
+                console.log(result.data);
+
+                //var GeoJSONFormat = new GeoJSON();
+                //let geogson = GeoJSONFormat.readFeatures(result.data.rows);
+                //console.log(geogson);
+                /*
+                var GeoJSONFormat = new GeoJSON();
+
+                var vectorSource = new Vector({
+                    features: GeoJSONFormat.readFeatures(result.data),
+                });
+                console.log(vectorSource);
+                */
+                /*
+                var vector_load = new Collection.layer.Vector({
+                    source: vectorSource,
+                });
+
+                console.log(vector_load);
+                */
+                //map.addLayer(vector_load);
+
+                /*
+                result.data.forEach(function(value){
+
+                    let feature = value
+                    zones.value.push(feature);
+                    selectedFeatures.value.push(feature);
+                });
+                */
+
+                result.data.forEach(function (value) {
+                    //console.log(value.geom_value);
+                    let feature = JSON.stringify(value.geom_value);
+                    zones.value.push(feature);
+                    //source.addFeature(feature);
+                });
+            }
+        },
         setGeometry: async function () {
             //this.initMap();
             console.log('지오데이터 전송');
-
-            //console.log(selectedFeatures.value);
-            //console.log(selectedFeatures.value.getArray());
-            //console.log(selectedFeatures.value.getKeys());
-            //console.log(selectedFeatures.value.getLength());
-            //console.log(selectedFeatures.value.getProperties());
-            //console.log(selectedFeatures.value.forEach);
-
-            //console.log(selectedFeatures.value.getArray());
-            //selectedFeatures.value.forEach(function (value, idx, array) {
-            /*
-            selectedFeatures.value.forEach(function (value) {
-                console.log('----------------------------------');
-                //console.log(value.getKeys());
-                console.log(value); //feature
-                //console.log(value.get('geometry')); //feture > value
-                console.log(value.getGeometry());
-                //console.log(idx);
-                //console.log(array);
-                console.log('----------------------------------');
-                //const feature = new Feature(value);
-                //console.log(feature);
-            });
-            */
-            /*
-            var geojson = {
-                name: 'NewFeatureType',
-                type: 'FeatureCollection',
-                features: JSON.stringify(selectedFeatures.value),
-            };
-
-            console.log(geojson);
-            */
 
             /*
             ※ 컬렉션을 피쳐로 전환하여 지오제이슨 형식으로 만들기
@@ -169,7 +189,7 @@ export default {
             //zones.value = new GeoJSON().readFeatures(GeoJSONString);
             //console.log(GeoJSONFormat.writeFeature(onlyPolygonArray[0]));
             //console.log(onlyPolygonArray[0].getGeometry());
-            console.log(GeoJSONFormat.writeFeature(onlyPolygonArray[0]));
+            console.log(GeoJSONFormat.writeFeatures(onlyPolygonArray));
 
             const result = await this.$axios({
                 method: 'get',
@@ -212,7 +232,7 @@ const drawstart = (event) => {
 
 const drawend = (event) => {
     console.log('형상 그리기!!');
-    //console.log(event.feature);
+    console.log(event.feature);
     zones.value.push(event.feature);
     selectedFeatures.value.push(event.feature);
 
