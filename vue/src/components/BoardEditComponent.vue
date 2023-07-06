@@ -35,6 +35,14 @@
         <!-- □ 레이어 추가 및 수정 □ -->
         <ol-vector-layer :styles="vectorStyle">
             <ol-source-vector :features="zones">
+                <ol-feature>
+                    <ol-geom-polygon :coordinates="coordinate"></ol-geom-polygon>
+                    <ol-style>
+                        <ol-style-stroke color="red" :width="2"></ol-style-stroke>
+                        <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
+                    </ol-style>
+                </ol-feature>
+
                 <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
                 <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend"> </ol-interaction-draw>
                 <ol-interaction-snap v-if="modifyEnabled" />
@@ -51,6 +59,13 @@
     <div class="btn-wrap navbar-nav mb-2 mb-lg-0">
         <button class="btn login btn-outline-primary" @click="setGeometry()">데이터 저장</button>
     </div>
+    <div>
+        {{ coordinate2 }}
+    </div>
+    ------------------------------------------
+    <div>
+        {{ coordinate }}
+    </div>
     <hr />
 </template>
 
@@ -61,11 +76,15 @@ import { Fill, Stroke, Style } from 'ol/style';
 import { Collection } from 'ol';
 import { GeoJSON } from 'ol/format';
 //import { Vector } from 'ol/source/Vector.js';
-//import { Feature } from 'ol/Feature.js';
+import { Feature } from 'ol/Feature';
+
+//import { Polygon } from 'ol/geom/Polygon';
+import { Point } from 'ol/geom/Point';
+import { LineString } from 'ol/geom/LineString';
 
 const center = ref([40, 40]);
 const projection = ref('EPSG:4326');
-const zoom = ref(8);
+const zoom = ref(2);
 const rotation = ref(0);
 const view = ref(null);
 const map = ref(null);
@@ -77,6 +96,32 @@ const drawType = ref('Polygon');
 const zones = ref([]);
 const selectedFeatures = ref(new Collection());
 
+const coordinate1 = [
+    [
+        [39.4106579663679, 40.55828965269029],
+        [38.94617649542923, 39.72432741895318],
+        [39.820200769602316, 39.81421561911702],
+        [40.039955440419334, 40.51334555260837],
+        [39.4106579663679, 40.55828965269029],
+    ],
+
+    [
+        [40.488621984570116, 40.722694396972656],
+        [40.52704955397017, 40.557899475097656],
+        [40.8180011508563, 40.579872131347656],
+        [40.8180011508563, 40.783119201660156],
+        [40.488621984570116, 40.722694396972656],
+    ],
+
+    [
+        [39.835353304769185, 40.849037170410156],
+        [39.04484330568234, 39.898719787597656],
+        [39.91769809634073, 39.091224670410156],
+        [40.702718442656135, 39.970130920410156],
+        [39.835353304769185, 40.849037170410156],
+    ],
+];
+const coordinate2 = [];
 export default {
     name: 'HelloWorld',
     props: {
@@ -87,7 +132,17 @@ export default {
 
         return {
             data: 'HELLO OPENLAYERS', // [데이터 정의]
+            coordinate: [],
         };
+    },
+    async beforeCreate() {
+        console.log('');
+        console.log('[HomeComponent] : [beforeCreate] : [start]');
+        console.log('설 명 : 인스턴스 초기화 준비');
+        console.log('');
+    },
+    mounted() {
+        //this.getGeometry();
     },
     methods: {
         testMain: function () {
@@ -117,43 +172,58 @@ export default {
             });
 
             if (result.status === 200) {
-                console.log(result.data);
+                //console.log(result.data);
+                var callGeom = [];
+                result.data.forEach(function (value) {
+                    //let geometry = JSON.stringify(value.geom_value);
+                    let geometry = JSON.parse(value.geom_value);
+                    let geomType = geometry.type;
+                    let geomValue = JSON.stringify(geometry.coordinates);
+                    //console.log(geomType);
+                    //console.log(geomValue);
+                    //callGeom.push(geometry);
 
-                //var GeoJSONFormat = new GeoJSON();
-                //let geogson = GeoJSONFormat.readFeatures(result.data.rows);
-                //console.log(geogson);
+                    if (geomType == 'Polygon') {
+                        console.log('폴리곤 넣을게!!');
+                        let geometry = JSON.parse(value.geom_value);
+                        let geomValue = geometry.coordinates;
+                        //console.log(geomValue[0]);
+                        /*
+                        const feature = new Feature({
+                            geometry: new Polygon(geomValue),
+                            //labelPoint: new Point(labelCoords),
+                            name: 'My Polygon',
+                        });
+                        */
+                        callGeom.push(geomValue[0]);
+                        //this.coordinate.push(geomValue[0]);
+                    } else if (geomType == 'LineString1') {
+                        const feature = new Feature({
+                            geometry: new LineString(geomValue),
+                            //labelPoint: new Point(labelCoords),
+                            name: 'My LineString',
+                        });
+
+                        console.log(feature);
+                    } else if (geomType == 'Point1') {
+                        const feature = new Feature({
+                            geometry: new Point(geomValue),
+                            //labelPoint: new Point(labelCoords),
+                            name: 'My Point',
+                        });
+                        console.log(feature);
+                    }
+                });
+                this.coordinate = callGeom;
+                //console.log(this.coordinate);
+                console.log(coordinate1);
+
+                //this.coordinate22 = '하이하이';
                 /*
                 var GeoJSONFormat = new GeoJSON();
-
-                var vectorSource = new Vector({
-                    features: GeoJSONFormat.readFeatures(result.data),
-                });
-                console.log(vectorSource);
+                var geogosn = GeoJSONFormat.writeFeatures(callGeom);
+                console.log(geogosn);
                 */
-                /*
-                var vector_load = new Collection.layer.Vector({
-                    source: vectorSource,
-                });
-
-                console.log(vector_load);
-                */
-                //map.addLayer(vector_load);
-
-                /*
-                result.data.forEach(function(value){
-
-                    let feature = value
-                    zones.value.push(feature);
-                    selectedFeatures.value.push(feature);
-                });
-                */
-
-                result.data.forEach(function (value) {
-                    //console.log(value.geom_value);
-                    let feature = JSON.stringify(value.geom_value);
-                    zones.value.push(feature);
-                    //source.addFeature(feature);
-                });
             }
         },
         setGeometry: async function () {
