@@ -36,10 +36,35 @@
         <ol-vector-layer :styles="vectorStyle">
             <ol-source-vector :features="zones">
                 <ol-feature>
-                    <ol-geom-polygon :coordinates="coordinate"></ol-geom-polygon>
+                    <ol-geom-polygon :coordinates="coordinatePolygonArr"></ol-geom-polygon>
                     <ol-style>
                         <ol-style-stroke color="red" :width="2"></ol-style-stroke>
                         <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
+                    </ol-style>
+                </ol-feature>
+
+                <ol-feature>
+                    <ol-geom-multi-line-string :coordinates="coordinateLineStringArr"></ol-geom-multi-line-string>
+                    <ol-style>
+                        <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
+                    </ol-style>
+                </ol-feature>
+
+                <ol-feature>
+                    <ol-geom-multi-point :coordinates="coordinatePointArr"></ol-geom-multi-point>
+                    <ol-style>
+                        <ol-style-circle :radius="5">
+                            <ol-style-stroke color="green" :width="2"></ol-style-stroke>
+                            <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
+                        </ol-style-circle>
+                    </ol-style>
+                </ol-feature>
+
+                <ol-feature>
+                    <ol-geom-circle :center="[40, 40]" :radius="0.2"></ol-geom-circle>
+                    <ol-style>
+                        <ol-style-stroke color="red" :width="3"></ol-style-stroke>
+                        <ol-style-fill color="rgba(255,200,0,0.2)"></ol-style-fill>
                     </ol-style>
                 </ol-feature>
 
@@ -59,14 +84,9 @@
     <div class="btn-wrap navbar-nav mb-2 mb-lg-0">
         <button class="btn login btn-outline-primary" @click="setGeometry()">데이터 저장</button>
     </div>
-    <div>
-        {{ coordinate2 }}
-    </div>
-    ------------------------------------------
-    <div>
-        {{ coordinate }}
-    </div>
+
     <hr />
+    <div>{{ coordinateLineStringArr }}</div>
 </template>
 
 <!-- [개별 스크립트 설정 실시] -->
@@ -76,15 +96,16 @@ import { Fill, Stroke, Style } from 'ol/style';
 import { Collection } from 'ol';
 import { GeoJSON } from 'ol/format';
 //import { Vector } from 'ol/source/Vector.js';
-import { Feature } from 'ol/Feature';
+//import { Feature } from 'ol/Feature';
 
 //import { Polygon } from 'ol/geom/Polygon';
-import { Point } from 'ol/geom/Point';
-import { LineString } from 'ol/geom/LineString';
+//import { Point } from 'ol/geom/Point';
+//import { LineString } from 'ol/geom/LineString';
 
 const center = ref([40, 40]);
+//const center = ref([106.75257088938741, 52.85123348236084]);
 const projection = ref('EPSG:4326');
-const zoom = ref(2);
+const zoom = ref(2.5);
 const rotation = ref(0);
 const view = ref(null);
 const map = ref(null);
@@ -96,32 +117,6 @@ const drawType = ref('Polygon');
 const zones = ref([]);
 const selectedFeatures = ref(new Collection());
 
-const coordinate1 = [
-    [
-        [39.4106579663679, 40.55828965269029],
-        [38.94617649542923, 39.72432741895318],
-        [39.820200769602316, 39.81421561911702],
-        [40.039955440419334, 40.51334555260837],
-        [39.4106579663679, 40.55828965269029],
-    ],
-
-    [
-        [40.488621984570116, 40.722694396972656],
-        [40.52704955397017, 40.557899475097656],
-        [40.8180011508563, 40.579872131347656],
-        [40.8180011508563, 40.783119201660156],
-        [40.488621984570116, 40.722694396972656],
-    ],
-
-    [
-        [39.835353304769185, 40.849037170410156],
-        [39.04484330568234, 39.898719787597656],
-        [39.91769809634073, 39.091224670410156],
-        [40.702718442656135, 39.970130920410156],
-        [39.835353304769185, 40.849037170410156],
-    ],
-];
-const coordinate2 = [];
 export default {
     name: 'HelloWorld',
     props: {
@@ -132,7 +127,10 @@ export default {
 
         return {
             data: 'HELLO OPENLAYERS', // [데이터 정의]
-            coordinate: [],
+            coordinatePolygonArr: [],
+            coordinateLineStringArr: [],
+            coordinatePointArr: [],
+            coordinateCircleArr: [],
         };
     },
     async beforeCreate() {
@@ -172,58 +170,37 @@ export default {
             });
 
             if (result.status === 200) {
-                //console.log(result.data);
-                var callGeom = [];
+                let coordinatePolygonArr = [];
+                let coordinateLineStringArr = [];
+                let coordinatePointArr = [];
+                let coordinateCircleArr = [];
+
                 result.data.forEach(function (value) {
-                    //let geometry = JSON.stringify(value.geom_value);
                     let geometry = JSON.parse(value.geom_value);
                     let geomType = geometry.type;
-                    let geomValue = JSON.stringify(geometry.coordinates);
-                    //console.log(geomType);
-                    //console.log(geomValue);
-                    //callGeom.push(geometry);
+                    let geomValue = geometry.coordinates;
 
                     if (geomType == 'Polygon') {
-                        console.log('폴리곤 넣을게!!');
-                        let geometry = JSON.parse(value.geom_value);
-                        let geomValue = geometry.coordinates;
-                        //console.log(geomValue[0]);
-                        /*
-                        const feature = new Feature({
-                            geometry: new Polygon(geomValue),
-                            //labelPoint: new Point(labelCoords),
-                            name: 'My Polygon',
-                        });
-                        */
-                        callGeom.push(geomValue[0]);
-                        //this.coordinate.push(geomValue[0]);
-                    } else if (geomType == 'LineString1') {
-                        const feature = new Feature({
-                            geometry: new LineString(geomValue),
-                            //labelPoint: new Point(labelCoords),
-                            name: 'My LineString',
-                        });
+                        //console.log('--- Set Polygon ---');
+                        coordinatePolygonArr.push(geomValue[0]);
+                    } else if (geomType == 'LineString') {
+                        //console.log('--- Set LineString ---');
+                        coordinateLineStringArr.push(geomValue);
+                    } else if (geomType == 'Point') {
+                        //console.log('--- Set Point ---');
 
-                        console.log(feature);
-                    } else if (geomType == 'Point1') {
-                        const feature = new Feature({
-                            geometry: new Point(geomValue),
-                            //labelPoint: new Point(labelCoords),
-                            name: 'My Point',
-                        });
-                        console.log(feature);
+                        console.log(JSON.stringify(geomValue));
+                        coordinatePointArr.push(geomValue);
+                    } else if (geomType == 'Circle') {
+                        //console.log('--- Set Circle ---');
+                        coordinateCircleArr.push(geomValue[0]);
                     }
                 });
-                this.coordinate = callGeom;
-                //console.log(this.coordinate);
-                console.log(coordinate1);
 
-                //this.coordinate22 = '하이하이';
-                /*
-                var GeoJSONFormat = new GeoJSON();
-                var geogosn = GeoJSONFormat.writeFeatures(callGeom);
-                console.log(geogosn);
-                */
+                this.coordinatePolygonArr = coordinatePolygonArr;
+                this.coordinateLineStringArr = coordinateLineStringArr;
+                this.coordinatePointArr = coordinatePointArr;
+                this.coordinateCircleArr = coordinateCircleArr;
             }
         },
         setGeometry: async function () {
@@ -235,44 +212,52 @@ export default {
             참고 URLhttps://gis.stackexchange.com/questions/244656/openlayers-filter-specific-features-from-ol-collection
             */
             function filterGeometry(collection, type) {
-                console.log(type);
                 var selectedFeatures = [];
                 var featArray = collection.getArray();
+
                 for (var i = 0; i < featArray.length; i++) {
-                    //if (featArray[i].getGeometry() instanceof ol.geom[type]) {
-                    selectedFeatures.push(featArray[i]);
-                    //}
+                    let geomType = featArray[i].getGeometry().getType();
+
+                    if (geomType == type) {
+                        console.log(geomType);
+                        if (geomType == 'Circle') {
+                            /* 중심점과 radius 가 있으면 Circle geometry 를 관리할 수 있음. */
+                            //console.log(featArray[i].getGeometry);
+                            console.log(featArray[i].getGeometry().getCenter());
+                            let radiuf = featArray[i].getGeometry().getRadius();
+                            console.log(radiuf);
+                        } else {
+                            selectedFeatures.push(featArray[i]);
+                        }
+                    }
                 }
-                return selectedFeatures; //returns array of features with selected geom type
+                return selectedFeatures;
             }
 
-            //var onlyLineStringArray = filterGeometry(selectedFeatures.value, 'LineString');
-            var onlyPolygonArray = await filterGeometry(selectedFeatures.value, 'Polygon');
-            //var onlyPointArray = filterGeometry(selectedFeatures.value, 'Point');
-            //var onlyCircleArray = filterGeometry(selectedFeatures.value, 'Circle');
+            var lineStringArray = await filterGeometry(selectedFeatures.value, 'LineString');
+            var polygonArray = await filterGeometry(selectedFeatures.value, 'Polygon');
+            var pointArray = await filterGeometry(selectedFeatures.value, 'Point');
+            var circleArray = await filterGeometry(selectedFeatures.value, 'Circle');
 
             var GeoJSONFormat = new GeoJSON();
-            //var GeoJSONString = GeoJSONFormat.writeFeatures(onlyLineStringArray);
 
-            //console.log(GeoJSONString);
-
-            //zones.value = new GeoJSON().readFeatures(GeoJSONString);
-            //console.log(GeoJSONFormat.writeFeature(onlyPolygonArray[0]));
-            //console.log(onlyPolygonArray[0].getGeometry());
-            console.log(GeoJSONFormat.writeFeatures(onlyPolygonArray));
+            console.log(GeoJSONFormat.writeFeatures(polygonArray));
+            console.log(GeoJSONFormat.writeFeatures(lineStringArray));
+            console.log(GeoJSONFormat.writeFeatures(pointArray));
+            console.log(GeoJSONFormat.writeFeatures(circleArray));
 
             const result = await this.$axios({
                 method: 'get',
                 url: '/api/setGeomBoard',
                 params: {
-                    //point: onlyPointArray[0].getGeometry(),
-                    //circle: onlyCircleArray[0].getGeometry(),
-                    //arrpolygon: GeoJSONFormat.writeFeatures(onlyPolygonArray[0].getGeometry()).toString(),
-                    arrpolygon: encodeURI(GeoJSONFormat.writeFeatures(onlyPolygonArray)),
+                    geomPolygons: encodeURI(GeoJSONFormat.writeFeatures(polygonArray)),
+                    geomLineStrings: encodeURI(GeoJSONFormat.writeFeatures(lineStringArray)),
+                    geomPoints: encodeURI(GeoJSONFormat.writeFeatures(pointArray)),
+                    geomCircles: encodeURI(GeoJSONFormat.writeFeatures(circleArray)),
                 },
-                // headers: {
-                //     'Content-Type': 'multipart/form-data',
-                // },
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
             });
 
             if (result.status === 200) {
@@ -284,9 +269,11 @@ export default {
 
 // HTML 최초 로드시 이벤트
 window.onload = function () {
+    /*
     console.log('');
     console.log('[HelloWorld] : [window onload] : [start]');
     console.log('');
+    */
 };
 </script>
 

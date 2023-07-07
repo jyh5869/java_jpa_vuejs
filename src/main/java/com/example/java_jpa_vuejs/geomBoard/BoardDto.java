@@ -23,10 +23,12 @@ public class BoardDto {
 	@Id
 	private long id;
 	
-	private String arrpoint;
+	private String geomPolygons;
 	
-	private String arrpolygon;
-	
-	private String arrcircle;
+	private String geomLineStrings;
+
+	private String geomPoints;
+
+	private String geomCircles;
 
 }

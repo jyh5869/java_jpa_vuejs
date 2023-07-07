@@ -53,17 +53,20 @@ public class GeomBoardController {
     @GetMapping(value = {"/setGeomBoard"})
     public String setGeomBoard(@Valid BoardDto boardDTO) throws Exception {
         
-        String dataType = boardDTO.getArrpolygon().getClass().getName();
-        String geometry = URLDecoder.decode(boardDTO.getArrpolygon().toString(), "UTF-8");
+        String dataType = boardDTO.getGeomPolygons().getClass().getName();
+        String geometry = URLDecoder.decode(boardDTO.getGeomPolygons().toString(), "UTF-8");
         
 
         System.out.println("☆ ☆ ☆ --------------------------");
         System.out.println(geometry);
-        //System.out.println(geomBoardDTO.getPoint());
-        System.out.println(boardDTO.getArrpolygon());
+        System.out.println(boardDTO.getGeomPolygons());
         System.out.println("☆ ☆ ☆ --------------------------");
 
-        boardFirebaseService.setBoardData(boardDTO);;
+        boardFirebaseService.setGeomdData(boardDTO.getId(), boardDTO.getGeomPolygons() );
+        boardFirebaseService.setGeomdData(boardDTO.getId(), boardDTO.getGeomLineStrings());
+        boardFirebaseService.setGeomdData(boardDTO.getId(), boardDTO.getGeomPoints());
+        boardFirebaseService.setGeomdData(boardDTO.getId(), boardDTO.getGeomCircles());
+
         return "TRUE";
     }
 
@@ -75,7 +78,7 @@ public class GeomBoardController {
     @GetMapping(value = {"/getGeomBoard"})
     public List<Map<String, Object>> getGeomBoard(@Valid BoardDto boardDTO) throws Exception {
 
-        List<Map<String, Object>> list = boardFirebaseService.getBoardData(boardDTO);
+        List<Map<String, Object>> list = boardFirebaseService.getGeomData(boardDTO.getId());
 
         return list;
     }

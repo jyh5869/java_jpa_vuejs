@@ -13,8 +13,8 @@ import jakarta.validation.Valid;
 
 public interface BoardFirebaseService {
 
-	void setBoardData(BoardDto boardDTO) throws Exception;
+	void setGeomdData(long id, String geomPolygons) throws Exception;
 
-	List<Map<String, Object>> getBoardData(BoardDto boardDTO) throws Exception;
+	List<Map<String, Object>> getGeomData(long id) throws Exception;
 
 }

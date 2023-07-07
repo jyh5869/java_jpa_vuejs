@@ -51,7 +51,7 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
 	private final ModelMapper modelMapper;
 
 	@Override
-	public void setBoardData(BoardDto boardDTO) throws Exception{
+	public void setGeomdData(long id, String geomPolygons) throws Exception{
 
 		long reqTime = Util.durationTime ("start", "CLOUD / USER REGISTRATION : ", 0, "Proceeding ::: " );
 
@@ -61,9 +61,9 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
             Firestore db = FirestoreClient.getFirestore();
             
             
-            String lastIdx = String.valueOf(boardDTO.getId());
+            String lastIdx = String.valueOf(id);
 
-            String geomData = URLDecoder.decode(boardDTO.getArrpolygon().toString(), "UTF-8");
+            String geomData = URLDecoder.decode(geomPolygons.toString(), "UTF-8");
 
             JSONObject jObject = new JSONObject(geomData);
 
@@ -93,19 +93,14 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
                 String regDt = dayTime.format(new Date());
                 Map<String, Object> docData = new HashMap<String, Object>();
 
-                docData.put("id", boardDTO.getId());
+                docData.put("id", id);
                 docData.put("data_type", dataType);
                 docData.put("geom_type", geomType);
                 docData.put("geom_value", geometry);
                 docData.put("reg_dt", regDt);
                 
                 ApiFuture<WriteResult> future = db.collection("geometry").document().set(docData);
-            }
-
-            //System.out.println("features: " + features); 
-
-            /* */ 
-            
+            }    
                
             Util.durationTime ("end", "CLOUD / USER REGISTRATION : ", reqTime, "Complete ::: " );
         }
@@ -118,7 +113,7 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
 
 
     @Override
-	public List<Map<String, Object>> getBoardData(BoardDto boardDTO) throws Exception{
+	public List<Map<String, Object>> getGeomData(long id) throws Exception{
 
 		long reqTime = Util.durationTime ("start", "CLOUD / GET LIST : ", 0, "Proceeding ::: " );
         List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
