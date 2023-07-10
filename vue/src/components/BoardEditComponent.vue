@@ -96,10 +96,10 @@ import { Fill, Stroke, Style } from 'ol/style';
 import { Collection } from 'ol';
 import { GeoJSON } from 'ol/format';
 //import { Vector } from 'ol/source/Vector.js';
-//import { Feature } from 'ol/Feature';
+import { Feature } from 'ol';
 
 //import { Polygon } from 'ol/geom/Polygon';
-//import { Point } from 'ol/geom/Point';
+import { Point } from 'ol/geom';
 //import { LineString } from 'ol/geom/LineString';
 
 const center = ref([40, 40]);
@@ -222,10 +222,51 @@ export default {
                         console.log(geomType);
                         if (geomType == 'Circle') {
                             /* 중심점과 radius 가 있으면 Circle geometry 를 관리할 수 있음. */
-                            //console.log(featArray[i].getGeometry);
-                            console.log(featArray[i].getGeometry().getCenter());
-                            let radiuf = featArray[i].getGeometry().getRadius();
-                            console.log(radiuf);
+                            let radius = featArray[i].getGeometry().getRadius();
+                            let center = featArray[i].getGeometry().getCenter();
+                            console.log(radius + '                    ' + center);
+                            /*
+                            let geoGson = {
+                                type: 'FeatureCollection',
+                                features: [
+                                    {
+                                        type: 'Feature',
+                                        properties: {
+                                            radius: radius,
+                                        },
+                                        geometry: { type: 'Point', coordinates: center },
+                                    },
+                                ],
+                            };
+                            */
+                            let pointGeo = new Point(center);
+                            console.log(pointGeo);
+                            /*
+                            const geometry = {
+                                type: 'Feature',
+                                properties: {
+                                    radius: radius,
+                                },
+                                geometry: { type: 'Point', coordinates: center },
+                            };
+                            console.log(geometry);
+                            console.log('★★★★★★★★★★★★★★★★');
+                            const feature = new Feature();
+                            feature.setGeometry();
+                            console.log(feature);
+                            */
+
+                            const feature = new Feature({
+                                type: 'Feature',
+                                properties: {
+                                    radius: radius,
+                                },
+                                geometry: new Point(center),
+                            });
+
+                            console.log('★★★★★★★★★★★★★★★★');
+                            console.log(feature);
+                            selectedFeatures.push(feature);
                         } else {
                             selectedFeatures.push(featArray[i]);
                         }
