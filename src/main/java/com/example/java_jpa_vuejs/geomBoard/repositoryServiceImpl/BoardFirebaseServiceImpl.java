@@ -68,6 +68,7 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
             JSONObject jObject = new JSONObject(geomData);
 
             String features = jObject.getString("features");
+            
 
             JSONArray geomArray = new JSONArray(features);
 
@@ -83,7 +84,7 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
                 String geometry = obj.getString("geometry");
                 System.out.println("geometry(" + i + "): " + geometry);
                 System.out.println("★ \u2605 \u2605 \u2605 \u2605 \u2605 \u2605");
-
+                String properties = obj.getString("properties");
 
                 JSONObject geoObj = new JSONObject(geometry);
                 String geomType = geoObj.getString("type");
@@ -97,6 +98,7 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
                 docData.put("data_type", dataType);
                 docData.put("geom_type", geomType);
                 docData.put("geom_value", geometry);
+                docData.put("geom_properties", properties);
                 docData.put("reg_dt", regDt);
                 
                 ApiFuture<WriteResult> future = db.collection("geometry").document().set(docData);

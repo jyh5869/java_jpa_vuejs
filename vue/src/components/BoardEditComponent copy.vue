@@ -176,7 +176,7 @@ export default {
                 let coordinatePointArr = [];
                 let coordinateCircleArr = [];
 
-                result.data.forEach(function (value, index) {
+                result.data.forEach(function (value) {
                     let geometry = JSON.parse(value.geom_value);
                     let properties = JSON.parse(value.geom_properties);
                     let geomType = properties.type;
@@ -204,19 +204,14 @@ export default {
                             geometry: new Circle(center, radius),
                         });
 
-                        //let radiusf = feature.getGeometry().getRadius();
-                        //let centerf = feature.getGeometry().getCenter();
-                        feature.setId(index);
-                        //let idf = feature.getId();
+                        let radiusf = feature.getGeometry().getRadius();
+                        let centerf = feature.getGeometry().getCenter();
 
-                        //console.log(radiusf);
-                        //console.log(centerf);
-                        //console.log(idf);
-
-                        console.log(feature);
+                        console.log(radiusf);
+                        console.log(centerf);
 
                         zones.value.push(feature);
-                        //selectedFeatures.value.push(feature);
+                        selectedFeatures.value.push(feature);
 
                         modifyEnabled.value = true;
                         drawEnabled.value = false;

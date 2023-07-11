@@ -54,12 +54,13 @@ public class GeomBoardController {
     public String setGeomBoard(@Valid BoardDto boardDTO) throws Exception {
         
         String dataType = boardDTO.getGeomPolygons().getClass().getName();
-        String geometry = URLDecoder.decode(boardDTO.getGeomPolygons().toString(), "UTF-8");
+        String geomPolygon = URLDecoder.decode(boardDTO.getGeomPolygons().toString(), "UTF-8");
+        String geomCircle = URLDecoder.decode(boardDTO.getGeomCircles().toString(), "UTF-8");
         
 
         System.out.println("☆ ☆ ☆ --------------------------");
-        System.out.println(geometry);
-        System.out.println(boardDTO.getGeomPolygons());
+        System.out.println(geomCircle);
+        System.out.println(geomPolygon);
         System.out.println("☆ ☆ ☆ --------------------------");
 
         boardFirebaseService.setGeomdData(boardDTO.getId(), boardDTO.getGeomPolygons() );
