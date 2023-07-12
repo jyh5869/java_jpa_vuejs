@@ -61,15 +61,24 @@
                 </ol-feature>
 
                 <ol-feature>
-                    <ol-geom-circle :center="[40, 40]" :radius="0.2"></ol-geom-circle>
+                    <ol-geom-circle v-for="coordinateCircle in coordinateCircleArr" :key="coordinateCircle" :center="coordinateCircle[0]" :radius="coordinateCircle[1]" :layout="['XY']"></ol-geom-circle>
                     <ol-style>
-                        <ol-style-stroke color="red" :width="3"></ol-style-stroke>
+                        <ol-style-stroke color="Yellow" :width="2"></ol-style-stroke>
                         <ol-style-fill color="rgba(255,200,0,0.2)"></ol-style-fill>
                     </ol-style>
                 </ol-feature>
 
+                <!-- 
+                <ol-feature>
+                    <ol-geom-circle :center="[40, 40]" :radius="2"></ol-geom-circle>
+                    <ol-style>
+                        <ol-style-stroke color="black" :width="3"></ol-style-stroke>
+                        <ol-style-fill color="rgba(255,200,0,0.2)"></ol-style-fill>
+                    </ol-style>
+                </ol-feature>
+                -->
                 <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
-                <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend"> </ol-interaction-draw>
+                <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend"></ol-interaction-draw>
                 <ol-interaction-snap v-if="modifyEnabled" />
             </ol-source-vector>
         </ol-vector-layer>
@@ -199,29 +208,27 @@ export default {
                         let radius = properties.radius;
                         let center = geomValue;
 
+                        let circleProp = [center, radius];
+                        coordinateCircleArr.push(circleProp);
+
+                        /* ---------------------------------------- */
+
+                        /* 이 방식으로 넣으면 feature 선택이 안되네?? */
                         let feature = new Feature({
-                            //type: geomType,
+                            type: 'Feature',
                             geometry: new Circle(center, radius),
                         });
 
                         //let radiusf = feature.getGeometry().getRadius();
                         //let centerf = feature.getGeometry().getCenter();
                         feature.setId(index);
-                        //let idf = feature.getId();
-
-                        //console.log(radiusf);
-                        //console.log(centerf);
-                        //console.log(idf);
-
                         console.log(feature);
 
-                        zones.value.push(feature);
+                        //zones.value.push(feature);
                         //selectedFeatures.value.push(feature);
 
-                        modifyEnabled.value = true;
-                        drawEnabled.value = false;
-
-                        //coordinateCircleArr.push(geomValue);
+                        //modifyEnabled.value = true;
+                        //drawEnabled.value = false;
                     }
                 });
 

@@ -9,5 +9,6 @@
 
 
 npm install @vue/cli-service
+5. npm 현재 버전 및 최신버전 확인 : npm outdated
 
 
