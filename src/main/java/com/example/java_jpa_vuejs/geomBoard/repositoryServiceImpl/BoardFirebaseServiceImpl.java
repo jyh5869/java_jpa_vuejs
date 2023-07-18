@@ -69,7 +69,7 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
 
             String features = jObject.getString("features");
             
-
+            
             JSONArray geomArray = new JSONArray(features);
 
             for(int i = 0 ; i < geomArray.length(); i ++){
@@ -84,11 +84,12 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
                 String geometry = obj.getString("geometry");
                 System.out.println("geometry(" + i + "): " + geometry);
                 System.out.println("★ \u2605 \u2605 \u2605 \u2605 \u2605 \u2605");
-                String properties = obj.getString("properties");
-
+                String properties = obj.getString("properties")
+                ;
+                JSONObject propObj = new JSONObject(properties);
                 JSONObject geoObj = new JSONObject(geometry);
                 String geomType = geoObj.getString("type");
-
+                String state = propObj.getString("state");
 
                 SimpleDateFormat dayTime = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
                 String regDt = dayTime.format(new Date());
@@ -100,10 +101,16 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
                 docData.put("geom_value", geometry);
                 docData.put("geom_properties", properties);
                 docData.put("reg_dt", regDt);
-                
-                ApiFuture<WriteResult> future = db.collection("geometry").document().set(docData);
+                System.out.println("○\u25CB\u25CB\u25CB\u25CB\u25CB\u25CB\u25CB\u25CB = " + state);
+                if(state.equals("insert")){//인서트
+                    ApiFuture<WriteResult> future = db.collection("geometry").document().set(docData);
+                }
+                else if(state.equals("update")){//업데이트
+                    String docId = obj.getString("id");
+                    ApiFuture<WriteResult> future = db.collection("geometry").document(docId).set(docData);
+                }
             }    
-               
+                
             Util.durationTime ("end", "CLOUD / USER REGISTRATION : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
@@ -138,11 +145,10 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
                 */
                 Map<String, Object> data = document.getData();
                 /* 
-                String toDayFormat = Util.remakeDate(document.getLong("brddate"),1);
-                
-                
-                data.put("brddate", toDayFormat);
+                    String toDayFormat = Util.remakeDate(document.getLong("brddate"),1);
+                    data.put("brddate", toDayFormat);
                 */
+                data.put("docId", document.getId());
                 result.add(data);
             }
             Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Complete ::: " );

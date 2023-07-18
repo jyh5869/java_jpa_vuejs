@@ -33,66 +33,105 @@
         </ol-tile-layer>
 
         <!-- □ 레이어 추가 및 수정 □ -->
-        <ol-vector-layer :styles="vectorStyle">
-            <ol-source-vector :features="zones">
-                <ol-feature>
-                    <ol-geom-polygon :coordinates="coordinatePolygonArr"></ol-geom-polygon>
-                    <ol-style>
-                        <ol-style-stroke color="red" :width="2"></ol-style-stroke>
-                        <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
-                    </ol-style>
-                </ol-feature>
-
-                <ol-feature>
-                    <ol-geom-multi-line-string :coordinates="coordinateLineStringArr"></ol-geom-multi-line-string>
-                    <ol-style>
-                        <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
-                    </ol-style>
-                </ol-feature>
-
-                <ol-feature>
-                    <ol-geom-multi-point :coordinates="coordinatePointArr"></ol-geom-multi-point>
-                    <ol-style>
-                        <ol-style-circle :radius="5">
-                            <ol-style-stroke color="green" :width="2"></ol-style-stroke>
-                            <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
-                        </ol-style-circle>
-                    </ol-style>
-                </ol-feature>
-
-                <ol-feature>
-                    <ol-geom-circle v-for="coordinateCircle in coordinateCircleArr" :key="coordinateCircle" :center="coordinateCircle[0]" :radius="coordinateCircle[1]" :layout="['XY']"></ol-geom-circle>
-                    <ol-style>
-                        <ol-style-stroke color="Yellow" :width="2"></ol-style-stroke>
-                        <ol-style-fill color="rgba(255,200,0,0.2)"></ol-style-fill>
-                    </ol-style>
-                </ol-feature>
-
-                <!-- 
-                <ol-feature>
-                    <ol-geom-circle :center="[40, 40]" :radius="2"></ol-geom-circle>
-                    <ol-style>
-                        <ol-style-stroke color="black" :width="3"></ol-style-stroke>
-                        <ol-style-fill color="rgba(255,200,0,0.2)"></ol-style-fill>
-                    </ol-style>
-                </ol-feature>
-                -->
+        <!-- <ol-vector-layer :styles="vectorStyle()"> -->
+        <ol-vector-layer>
+            <ol-source-vector :features="zonesPoint">
                 <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
-                <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend"></ol-interaction-draw>
                 <ol-interaction-snap v-if="modifyEnabled" />
             </ol-source-vector>
+
+            <ol-style>
+                <ol-style-stroke color="orange" :width="2"></ol-style-stroke>
+                <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
+                <ol-style-circle :radius="5">
+                    <ol-style-stroke color="orange" :width="2"></ol-style-stroke>
+                    <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
+                </ol-style-circle>
+            </ol-style>
+        </ol-vector-layer>
+
+        <ol-vector-layer>
+            <ol-source-vector :features="zonesPolygon">
+                <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
+                <!-- <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend">
+                    <ol-style>
+                        <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
+                        <ol-style-fill color="rgba(255, 255, 0, 0.4)"></ol-style-fill>
+                    </ol-style>
+                </ol-interaction-draw> -->
+                <ol-interaction-snap v-if="modifyEnabled" />
+            </ol-source-vector>
+
+            <ol-style>
+                <ol-style-stroke color="violet" :width="2"></ol-style-stroke>
+                <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
+                <ol-style-circle :radius="5">
+                    <ol-style-stroke color="violet" :width="2"></ol-style-stroke>
+                    <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
+                </ol-style-circle>
+            </ol-style>
+        </ol-vector-layer>
+
+        <ol-vector-layer>
+            <ol-source-vector :features="zonesCircle">
+                <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
+                <!-- <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend">
+                    <ol-style>
+                        <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
+                        <ol-style-fill color="rgba(255, 255, 0, 0.4)"></ol-style-fill>
+                    </ol-style>
+                </ol-interaction-draw> -->
+                <ol-interaction-snap v-if="modifyEnabled" />
+            </ol-source-vector>
+
+            <ol-style>
+                <ol-style-stroke color="green" :width="2"></ol-style-stroke>
+                <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
+                <ol-style-circle :radius="5">
+                    <ol-style-stroke color="green" :width="2"></ol-style-stroke>
+                    <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
+                </ol-style-circle>
+            </ol-style>
+        </ol-vector-layer>
+
+        <ol-vector-layer>
+            <ol-source-vector :features="zonesLineString">
+                <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
+                <!-- <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend">
+                    <ol-style>
+                        <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
+                        <ol-style-fill color="rgba(255, 255, 0, 0.4)"></ol-style-fill>
+                    </ol-style>
+                </ol-interaction-draw> -->
+                <ol-interaction-snap v-if="modifyEnabled" />
+            </ol-source-vector>
+
+            <ol-style>
+                <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
+                <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
+                <ol-style-circle :radius="5">
+                    <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
+                    <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
+                </ol-style-circle>
+            </ol-style>
         </ol-vector-layer>
 
         <ol-interaction-select @select="featureSelected" :features="selectedFeatures">
             <ol-style>
                 <ol-style-stroke color="red" :width="2"></ol-style-stroke>
-                <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
+                <ol-style-fill color="rgba(255, 200, 0, 0.2)"></ol-style-fill>
                 <ol-style-circle :radius="5">
                     <ol-style-stroke color="red" :width="2"></ol-style-stroke>
-                    <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
+                    <ol-style-fill color="rgba(255, 200, 0, 0.2)"></ol-style-fill>
                 </ol-style-circle>
             </ol-style>
         </ol-interaction-select>
+        <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend">
+            <ol-style>
+                <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
+                <ol-style-fill color="rgba(255, 255, 0, 0.4)"></ol-style-fill>
+            </ol-style>
+        </ol-interaction-draw>
     </ol-map>
     <div class="btn-wrap navbar-nav mb-2 mb-lg-0">
         <button class="btn login btn-outline-primary" @click="setGeometry()">데이터 저장</button>
@@ -111,13 +150,13 @@ import { GeoJSON } from 'ol/format';
 //import { Vector } from 'ol/source/Vector.js';
 import { Feature } from 'ol';
 
-//import { Polygon } from 'ol/geom/Polygon';
+import { Polygon } from 'ol/geom';
 import { Point } from 'ol/geom';
 import { Circle } from 'ol/geom';
-//import { LineString } from 'ol/geom/LineString';
+import { LineString } from 'ol/geom';
 
 const center = ref([40, 40]);
-//const center = ref([106.75257088938741, 52.85123348236084]);
+
 const projection = ref('EPSG:4326');
 const zoom = ref(2.5);
 const rotation = ref(0);
@@ -128,7 +167,12 @@ const modifyEnabled = ref(false);
 const drawEnabled = ref(false);
 
 const drawType = ref('Polygon');
-const zones = ref([]);
+
+const zonesLineString = ref([]);
+const zonesCircle = ref([]);
+const zonesPoint = ref([]);
+const zonesPolygon = ref([]);
+
 const selectedFeatures = ref(new Collection());
 
 export default {
@@ -147,12 +191,14 @@ export default {
             coordinateCircleArr: [],
         };
     },
+    /*
     async beforeCreate() {
         console.log('');
         console.log('[HomeComponent] : [beforeCreate] : [start]');
         console.log('설 명 : 인스턴스 초기화 준비');
         console.log('');
     },
+    */
     mounted() {
         //this.getGeometry();
     },
@@ -171,7 +217,10 @@ export default {
         },
         initMap: await function () {
             //map.getLayers().forEach((layer) => layer.getSource().refresh());
-            zones.value = [];
+            zonesLineString.value = ref([]);
+            zonesCircle.value = ref([]);
+            zonesPoint.value = ref([]);
+            zonesPolygon.value = ref([]);
         },
         getGeometry: async function () {
             console.log('저장된 지오데이터 호출');
@@ -189,33 +238,52 @@ export default {
                 let coordinatePointArr = [];
                 let coordinateCircleArr = [];
 
-                result.data.forEach(function (value, index) {
+                result.data.forEach(function (value) {
                     let geometry = JSON.parse(value.geom_value);
                     let properties = JSON.parse(value.geom_properties);
                     let geomType = properties.type;
                     let geomValue = geometry.coordinates;
+                    let geomId = value.docId;
 
                     if (geomType == 'Polygon') {
                         //console.log('--- Set Polygon ---');
-                        coordinatePolygonArr.push(geomValue[0]);
+                        let feature = new Feature({
+                            type: 'Feature',
+                            geometry: new Polygon(geomValue),
+                            //id: geomId,
+                        });
+
+                        feature.setId(geomId);
+                        feature.setProperties({ type: geomType, state: 'update' });
+
+                        zonesPolygon.value.push(feature);
                     } else if (geomType == 'LineString') {
                         //console.log('--- Set LineString ---');
-                        coordinateLineStringArr.push(geomValue);
+                        let feature = new Feature({
+                            type: 'Feature',
+                            geometry: new LineString(geomValue),
+                        });
+
+                        feature.setId(geomId);
+                        feature.setProperties({ type: geomType, state: 'update' });
+
+                        zonesLineString.value.push(feature);
                     } else if (geomType == 'Point') {
                         //console.log('--- Set Point ---');
+                        let feature = new Feature({
+                            type: 'Feature',
+                            geometry: new Point(geomValue),
+                        });
 
-                        console.log(JSON.stringify(geomValue));
-                        coordinatePointArr.push(geomValue);
+                        feature.setId(geomId);
+                        feature.setProperties({ type: geomType, state: 'update' });
+
+                        zonesPoint.value.push(feature);
                     } else if (geomType == 'Circle') {
                         console.log('--- Set Circle ---');
 
                         let radius = properties.radius;
                         let center = geomValue;
-
-                        let circleProp = [center, radius];
-                        coordinateCircleArr.push(circleProp);
-
-                        /* ---------------------------------------- */
 
                         /* 이 방식으로 넣으면 feature 선택이 안되네?? */
                         let feature = new Feature({
@@ -223,16 +291,10 @@ export default {
                             geometry: new Circle(center, radius),
                         });
 
-                        //let radiusf = feature.getGeometry().getRadius();
-                        //let centerf = feature.getGeometry().getCenter();
-                        feature.setId(index);
-                        console.log(feature);
+                        feature.setId(geomId);
+                        feature.setProperties({ type: geomType, state: 'update' });
 
-                        //zones.value.push(feature);
-                        //selectedFeatures.value.push(feature);
-
-                        //modifyEnabled.value = true;
-                        //drawEnabled.value = false;
+                        zonesCircle.value.push(feature);
                     }
                 });
 
@@ -257,6 +319,14 @@ export default {
 
                 for (var i = 0; i < featArray.length; i++) {
                     let geomType = featArray[i].getGeometry().getType();
+                    let id = featArray[i].getId();
+                    console.log(id);
+                    console.log('★★★★★★★★');
+                    if (id == undefined) {
+                        featArray[i].setProperties({ type: geomType, state: 'insert' });
+                    } else {
+                        featArray[i].setProperties({ type: geomType, state: 'update' });
+                    }
 
                     if (geomType == type) {
                         console.log(geomType);
@@ -269,13 +339,13 @@ export default {
                                 type: geomType,
                                 geometry: new Point(center),
                                 radius: radius,
-                                id: i,
+                                //id: i,
                             });
 
                             selectedFeatures.push(feature);
                         } else {
-                            featArray[i].setProperties({ type: geomType });
-                            featArray[i].setId(i);
+                            //featArray[i].setProperties({ type: geomType });
+                            //featArray[i].setId(i);
 
                             selectedFeatures.push(featArray[i]);
                         }
@@ -284,10 +354,10 @@ export default {
                 return selectedFeatures;
             }
 
-            var lineStringArray = await filterGeometry(zones.value, 'LineString');
-            var polygonArray = await filterGeometry(zones.value, 'Polygon');
-            var pointArray = await filterGeometry(zones.value, 'Point');
-            var circleArray = await filterGeometry(zones.value, 'Circle');
+            var lineStringArray = await filterGeometry(zonesLineString.value, 'LineString');
+            var polygonArray = await filterGeometry(zonesPolygon.value, 'Polygon');
+            var pointArray = await filterGeometry(zonesPoint.value, 'Point');
+            var circleArray = await filterGeometry(zonesCircle.value, 'Circle');
 
             var GeoJSONFormat = new GeoJSON();
 
@@ -331,17 +401,29 @@ window.onload = function () {
 /* 현재 지도 정보를 표출해주기 위한 함수 */
 
 /* 형상 그리기에를 위한 함수 (그리기시작 및 그리기종료) */
-//const drawEnable = ref(false);
-
 const drawstart = (event) => {
     console.log(event);
+    console.log('형상 그리기 시작');
 };
 
 const drawend = (event) => {
-    console.log('형상 그리기!!');
+    console.log('형상 그리기 완료!!');
     console.log(event.feature);
-    zones.value.push(event.feature);
-    selectedFeatures.value.push(event.feature);
+
+    const feature = event.feature;
+    let geomType = feature.getGeometry().getType();
+
+    if (geomType == 'Polygon') {
+        zonesPolygon.value.push(feature);
+    } else if (geomType == 'LineString') {
+        zonesLineString.value.push(feature);
+    } else if (geomType == 'Point') {
+        zonesPoint.value.push(feature);
+    } else if (geomType == 'Circle') {
+        zonesCircle.value.push(feature);
+    }
+
+    selectedFeatures.value.push(feature);
 
     modifyEnabled.value = true;
     drawEnabled.value = false;
@@ -349,18 +431,20 @@ const drawend = (event) => {
 
 /* 레이어 STYLE 리턴을 위한 함수 */
 function vectorStyle() {
-    const style = new Style({
-        stroke: new Stroke({
-            color: 'orange',
-            width: 3,
+    const style = [
+        new Style({
+            stroke: new Stroke({
+                color: 'Green',
+                width: 2,
+            }),
+            fill: new Fill({
+                color: 'rgba(255,255,255,0.5)',
+            }),
         }),
-        fill: new Fill({
-            color: 'rgba(0, 0, 255, 0.4)',
-        }),
-    });
+    ];
     return style;
 }
-
+console.log(vectorStyle());
 /* 형상 클릭시 이벤트발생을 위한 함수 */
 function featureSelected(event) {
     console.log('형상 클릭 이벤트발생 수정 가능');

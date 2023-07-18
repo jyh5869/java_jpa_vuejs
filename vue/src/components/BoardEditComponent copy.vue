@@ -33,8 +33,9 @@
         </ol-tile-layer>
 
         <!-- □ 레이어 추가 및 수정 □ -->
-        <ol-vector-layer :styles="vectorStyle">
-            <ol-source-vector :features="zones">
+        <!-- <ol-vector-layer :styles="vectorStyle()"> -->
+        <ol-vector-layer>
+            <ol-source-vector>
                 <ol-feature>
                     <ol-geom-polygon :coordinates="coordinatePolygonArr"></ol-geom-polygon>
                     <ol-style>
@@ -61,15 +62,15 @@
                 </ol-feature>
 
                 <ol-feature>
-                    <ol-geom-circle :center="[40, 40]" :radius="0.2"></ol-geom-circle>
+                    <ol-geom-circle v-for="coordinateCircle in coordinateCircleArr" :key="coordinateCircle" :center="coordinateCircle[0]" :radius="coordinateCircle[1]" :layout="['XY']"></ol-geom-circle>
                     <ol-style>
-                        <ol-style-stroke color="red" :width="3"></ol-style-stroke>
+                        <ol-style-stroke color="Yellow" :width="2"></ol-style-stroke>
                         <ol-style-fill color="rgba(255,200,0,0.2)"></ol-style-fill>
                     </ol-style>
                 </ol-feature>
 
                 <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
-                <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend"> </ol-interaction-draw>
+                <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend"></ol-interaction-draw>
                 <ol-interaction-snap v-if="modifyEnabled" />
             </ol-source-vector>
         </ol-vector-layer>
@@ -78,6 +79,10 @@
             <ol-style>
                 <ol-style-stroke color="red" :width="2"></ol-style-stroke>
                 <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
+                <ol-style-circle :radius="5">
+                    <ol-style-stroke color="red" :width="2"></ol-style-stroke>
+                    <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
+                </ol-style-circle>
             </ol-style>
         </ol-interaction-select>
     </ol-map>
@@ -98,13 +103,13 @@ import { GeoJSON } from 'ol/format';
 //import { Vector } from 'ol/source/Vector.js';
 import { Feature } from 'ol';
 
-//import { Polygon } from 'ol/geom/Polygon';
+//import { Polygon } from 'ol/geom';
 import { Point } from 'ol/geom';
-import { Circle } from 'ol/geom';
-//import { LineString } from 'ol/geom/LineString';
+//import { Circle } from 'ol/geom';
+//import { LineString } from 'ol/geom';
 
 const center = ref([40, 40]);
-//const center = ref([106.75257088938741, 52.85123348236084]);
+
 const projection = ref('EPSG:4326');
 const zoom = ref(2.5);
 const rotation = ref(0);
@@ -134,12 +139,14 @@ export default {
             coordinateCircleArr: [],
         };
     },
+    /*
     async beforeCreate() {
         console.log('');
         console.log('[HomeComponent] : [beforeCreate] : [start]');
         console.log('설 명 : 인스턴스 초기화 준비');
         console.log('');
     },
+    */
     mounted() {
         //this.getGeometry();
     },
@@ -190,33 +197,15 @@ export default {
                         coordinateLineStringArr.push(geomValue);
                     } else if (geomType == 'Point') {
                         //console.log('--- Set Point ---');
-
-                        console.log(JSON.stringify(geomValue));
                         coordinatePointArr.push(geomValue);
                     } else if (geomType == 'Circle') {
-                        console.log('--- Set Circle ---');
+                        //console.log('--- Set Circle ---');
 
                         let radius = properties.radius;
                         let center = geomValue;
 
-                        let feature = new Feature({
-                            //type: geomType,
-                            geometry: new Circle(center, radius),
-                        });
-
-                        let radiusf = feature.getGeometry().getRadius();
-                        let centerf = feature.getGeometry().getCenter();
-
-                        console.log(radiusf);
-                        console.log(centerf);
-
-                        zones.value.push(feature);
-                        selectedFeatures.value.push(feature);
-
-                        modifyEnabled.value = true;
-                        drawEnabled.value = false;
-
-                        //coordinateCircleArr.push(geomValue);
+                        let circleProp = [center, radius];
+                        coordinateCircleArr.push(circleProp);
                     }
                 });
 
@@ -298,6 +287,38 @@ export default {
                 console.log(result.data);
             }
         },
+        drawend: function (event) {
+            console.log('형상 그리기!!');
+            console.log(event.feature);
+            const feature = event.feature;
+
+            let geomType = feature.getGeometry().getType();
+            let geomValue = feature.getGeometry().getCoordinates();
+
+            if (geomType == 'Polygon') {
+                console.log('--- Set Polygon ---');
+                this.coordinatePolygonArr.push(geomValue[0]);
+            } else if (geomType == 'LineString') {
+                console.log('--- Set LineString ---');
+                this.coordinateLineStringArr.push(geomValue);
+            } else if (geomType == 'Point') {
+                console.log('--- Set Point ---');
+                this.coordinatePointArr.push(geomValue);
+            } else if (geomType == 'Circle') {
+                console.log('--- Set Circle ---');
+
+                let radius = feature.getGeometry().getRadius();
+                let center = feature.getGeometry().getCenter();
+
+                let circleProp = [center, radius];
+                this.coordinateCircleArr.push(circleProp);
+            }
+
+            selectedFeatures.value.push(event.feature);
+
+            modifyEnabled.value = true;
+            drawEnabled.value = false;
+        },
     },
 };
 
@@ -320,31 +341,56 @@ window.onload = function () {
 const drawstart = (event) => {
     console.log(event);
 };
-
-const drawend = (event) => {
+/*
+const drawend = async (event) => {
     console.log('형상 그리기!!');
     console.log(event.feature);
-    zones.value.push(event.feature);
+    const feature = event.feature;
+
+    let geomType = feature.getGeometry().getType();
+    let geomValue = feature.getGeometry().getCoordinates();
+
+    console.log(geomValue);
+
+    if (geomType == 'Polygon') {
+        console.log('--- Set Polygon ---');
+        this.coordinatePolygonArr.push(geomValue);
+    } else if (geomType == 'LineString') {
+        console.log('--- Set LineString ---');
+        this.coordinateLineStringArr.push(geomValue);
+    } else if (geomType == 'Point') {
+        console.log('--- Set Point ---');
+        this.coordinatePointArr.push(geomValue);
+    } else if (geomType == 'Circle') {
+        console.log('--- Set Circle ---');
+
+        let radius = feature.getGeometry().getRadius();
+        let center = feature.getGeometry().getCenter();
+
+        let circleProp = [center, radius];
+        this.coordinateCircleArr.push(circleProp);
+    }
+
     selectedFeatures.value.push(event.feature);
 
     modifyEnabled.value = true;
     drawEnabled.value = false;
 };
-
+*/
 /* 레이어 STYLE 리턴을 위한 함수 */
 function vectorStyle() {
     const style = new Style({
         stroke: new Stroke({
-            color: 'orange',
-            width: 3,
+            color: 'Green',
+            width: 2,
         }),
         fill: new Fill({
-            color: 'rgba(0, 0, 255, 0.4)',
+            color: 'rgba(255,255,255,0.5)',
         }),
     });
     return style;
 }
-
+console.log(vectorStyle());
 /* 형상 클릭시 이벤트발생을 위한 함수 */
 function featureSelected(event) {
     console.log('형상 클릭 이벤트발생 수정 가능');
