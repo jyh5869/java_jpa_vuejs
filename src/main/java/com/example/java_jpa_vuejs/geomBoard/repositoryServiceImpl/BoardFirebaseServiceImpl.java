@@ -160,4 +160,30 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
 		
 		return result;
 	}
+
+    @Override
+	public void deleteGeomdData(String[] geomDeleteArr) throws Exception{
+
+		long reqTime = Util.durationTime ("start", "CLOUD / GET LIST : ", 0, "Proceeding ::: " );
+        List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
+		
+		try {     
+            //파이어 베이스 초기화
+            firebaseConfiguration.initializeFCM();
+            Firestore db = FirestoreClient.getFirestore();
+
+            for (String element : geomDeleteArr) {;
+                
+                ApiFuture<WriteResult> writeResult = db.collection("geometry").document(element).delete();
+                System.out.println("Delete Time : " + writeResult.get().getUpdateTime() + "/ Delete Id : " + element);
+            }
+                        
+            Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Complete ::: " );
+        }
+        catch (Exception e) {
+			Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Fail ::: " );
+            e.printStackTrace();
+        }
+
+	}
 }

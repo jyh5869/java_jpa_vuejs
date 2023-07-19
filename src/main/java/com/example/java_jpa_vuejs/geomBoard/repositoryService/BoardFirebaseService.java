@@ -15,6 +15,8 @@ public interface BoardFirebaseService {
 
 	void setGeomdData(long id, String geomPolygons) throws Exception;
 
+	void deleteGeomdData(String[] geomDeleteArr) throws Exception;
+
 	List<Map<String, Object>> getGeomData(long id) throws Exception;
 
 }

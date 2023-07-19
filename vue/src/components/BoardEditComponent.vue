@@ -38,6 +38,12 @@
             <ol-source-vector :features="zonesPoint">
                 <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
                 <ol-interaction-snap v-if="modifyEnabled" />
+
+                <ol-overlay v-for="(item, index) in zonesPoint" :key="index" :position="[item.getGeometry().getExtent()[2] + 3, item.getGeometry().getExtent()[3] + 5]">
+                    <template v-slot="position">
+                        <div class="overlay-content" @click="geomEvent(item, position)"></div>
+                    </template>
+                </ol-overlay>
             </ol-source-vector>
 
             <ol-style>
@@ -60,6 +66,12 @@
                     </ol-style>
                 </ol-interaction-draw> -->
                 <ol-interaction-snap v-if="modifyEnabled" />
+
+                <ol-overlay v-for="(item, index) in zonesPolygon" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
+                    <template v-slot="position">
+                        <div class="overlay-content" @click="geomEvent(item, position)"></div>
+                    </template>
+                </ol-overlay>
             </ol-source-vector>
 
             <ol-style>
@@ -82,6 +94,12 @@
                     </ol-style>
                 </ol-interaction-draw> -->
                 <ol-interaction-snap v-if="modifyEnabled" />
+
+                <ol-overlay v-for="(item, index) in zonesCircle" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
+                    <template v-slot="position">
+                        <div class="overlay-content" @click="geomEvent(item, position)"></div>
+                    </template>
+                </ol-overlay>
             </ol-source-vector>
 
             <ol-style>
@@ -104,6 +122,12 @@
                     </ol-style>
                 </ol-interaction-draw> -->
                 <ol-interaction-snap v-if="modifyEnabled" />
+
+                <ol-overlay v-for="(item, index) in zonesLineString" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
+                    <template v-slot="position">
+                        <div class="overlay-content" @click="geomEvent(item, position)"></div>
+                    </template>
+                </ol-overlay>
             </ol-source-vector>
 
             <ol-style>
@@ -172,6 +196,7 @@ const zonesLineString = ref([]);
 const zonesCircle = ref([]);
 const zonesPoint = ref([]);
 const zonesPolygon = ref([]);
+const zonesDelete = ref([]);
 
 const selectedFeatures = ref(new Collection());
 
@@ -342,6 +367,12 @@ export default {
                                 //id: i,
                             });
 
+                            if (id == undefined) {
+                                feature.setProperties({ type: geomType, state: 'insert' });
+                            } else {
+                                feature.setProperties({ type: geomType, state: 'update' });
+                            }
+
                             selectedFeatures.push(feature);
                         } else {
                             //featArray[i].setProperties({ type: geomType });
@@ -374,6 +405,7 @@ export default {
                     geomLineStrings: encodeURI(GeoJSONFormat.writeFeatures(lineStringArray)),
                     geomPoints: encodeURI(GeoJSONFormat.writeFeatures(pointArray)),
                     geomCircles: encodeURI(GeoJSONFormat.writeFeatures(circleArray)),
+                    geomDeleteArr: encodeURI(zonesDelete.value),
                 },
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -383,6 +415,48 @@ export default {
             if (result.status === 200) {
                 console.log(result.data);
             }
+        },
+        geomEvent: async function (targetFeature, position) {
+            let targetFeatureId = targetFeature.getId();
+            let targetGemonType = targetFeature.getGeometry().getType();
+            console.log(position);
+            if (targetGemonType == 'LineString') {
+                zonesLineString.value.forEach(function (feature, index) {
+                    let arrFeatureId = feature.getId();
+
+                    if (targetFeatureId == arrFeatureId) {
+                        zonesLineString.value.splice(index, 1);
+                    }
+                });
+            } else if (targetGemonType == 'Polygon') {
+                zonesPolygon.value.forEach(function (feature, index) {
+                    let arrFeatureId = feature.getId();
+
+                    if (targetFeatureId == arrFeatureId) {
+                        zonesPolygon.value.splice(index, 1);
+                    }
+                });
+            } else if (targetGemonType == 'Point') {
+                zonesPoint.value.forEach(function (feature, index) {
+                    let arrFeatureId = feature.getId();
+
+                    if (targetFeatureId == arrFeatureId) {
+                        zonesPoint.value.splice(index, 1);
+                    }
+                });
+            } else if (targetGemonType == 'Circle') {
+                zonesCircle.value.forEach(function (feature, index) {
+                    let arrFeatureId = feature.getId();
+
+                    if (targetFeatureId == arrFeatureId) {
+                        zonesCircle.value.splice(index, 1);
+                    }
+                });
+            }
+
+            //삭제 배열에 추가
+            zonesDelete.value.push(targetFeatureId);
+            console.log(targetFeatureId);
         },
     },
 };
@@ -483,6 +557,17 @@ a {
 }
 
 .overlay-content {
+    background-image: url('@/assets/close.png');
+    background-size: 8px;
+    background-repeat: no-repeat;
+    background-color: #fff;
+    background-position: center;
+    padding: 8px 8px;
+    font-size: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+.overlay-content-org {
     background: #efefef;
     box-shadow: 0 5px 10px rgb(2 2 2 / 20%);
     padding: 10px 20px;

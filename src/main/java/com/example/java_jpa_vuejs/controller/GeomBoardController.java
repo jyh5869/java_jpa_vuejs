@@ -68,6 +68,11 @@ public class GeomBoardController {
         boardFirebaseService.setGeomdData(boardDTO.getId(), boardDTO.getGeomPoints());
         boardFirebaseService.setGeomdData(boardDTO.getId(), boardDTO.getGeomCircles());
 
+        //삭제할 배열이 있을경우 삭제
+        if(boardDTO.getGeomDeleteArr().length != 0){
+            boardFirebaseService.deleteGeomdData(boardDTO.getGeomDeleteArr());
+        }
+
         return "TRUE";
     }
 

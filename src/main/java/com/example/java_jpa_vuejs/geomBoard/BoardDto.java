@@ -31,4 +31,6 @@ public class BoardDto {
 
 	private String geomCircles;
 
+	private String[] geomDeleteArr;
+
 }
