@@ -39,11 +39,13 @@
                 <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
                 <ol-interaction-snap v-if="modifyEnabled" />
 
-                <ol-overlay v-for="(item, index) in zonesPoint" :key="index" :position="[item.getGeometry().getExtent()[2] + 3, item.getGeometry().getExtent()[3] + 5]">
-                    <template v-slot="position">
-                        <div class="overlay-content" @click="geomEvent(item, position)"></div>
-                    </template>
-                </ol-overlay>
+                <div v-if="modifyEnabled">
+                    <ol-overlay v-for="(item, index) in zonesPoint" :key="index" :position="[item.getGeometry().getExtent()[2] + 3, item.getGeometry().getExtent()[3] + 5]">
+                        <template v-slot="position">
+                            <div class="overlay-content" @click="geomEvent(item, position)"></div>
+                        </template>
+                    </ol-overlay>
+                </div>
             </ol-source-vector>
 
             <ol-style>
@@ -66,12 +68,13 @@
                     </ol-style>
                 </ol-interaction-draw> -->
                 <ol-interaction-snap v-if="modifyEnabled" />
-
-                <ol-overlay v-for="(item, index) in zonesPolygon" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
-                    <template v-slot="position">
-                        <div class="overlay-content" @click="geomEvent(item, position)"></div>
-                    </template>
-                </ol-overlay>
+                <div v-if="modifyEnabled">
+                    <ol-overlay v-for="(item, index) in zonesPolygon" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
+                        <template v-slot="position">
+                            <div class="overlay-content" @click="geomEvent(item, position)"></div>
+                        </template>
+                    </ol-overlay>
+                </div>
             </ol-source-vector>
 
             <ol-style>
@@ -94,12 +97,13 @@
                     </ol-style>
                 </ol-interaction-draw> -->
                 <ol-interaction-snap v-if="modifyEnabled" />
-
-                <ol-overlay v-for="(item, index) in zonesCircle" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
-                    <template v-slot="position">
-                        <div class="overlay-content" @click="geomEvent(item, position)"></div>
-                    </template>
-                </ol-overlay>
+                <div v-if="modifyEnabled">
+                    <ol-overlay v-for="(item, index) in zonesCircle" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
+                        <template v-slot="position">
+                            <div class="overlay-content" @click="geomEvent(item, position)"></div>
+                        </template>
+                    </ol-overlay>
+                </div>
             </ol-source-vector>
 
             <ol-style>
@@ -115,15 +119,9 @@
         <ol-vector-layer>
             <ol-source-vector :features="zonesLineString">
                 <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
-                <!-- <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend">
-                    <ol-style>
-                        <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
-                        <ol-style-fill color="rgba(255, 255, 0, 0.4)"></ol-style-fill>
-                    </ol-style>
-                </ol-interaction-draw> -->
                 <ol-interaction-snap v-if="modifyEnabled" />
 
-                <ol-overlay v-for="(item, index) in zonesLineString" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
+                <ol-overlay ref="overlay" v-for="(item, index) in zonesLineString" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
                     <template v-slot="position">
                         <div class="overlay-content" @click="geomEvent(item, position)"></div>
                     </template>
@@ -226,6 +224,9 @@ export default {
     */
     mounted() {
         //this.getGeometry();
+        console.log('마운트 완료!');
+        console.log(this.$refs);
+        console.log(this.$refs.map);
     },
     methods: {
         testMain: function () {
