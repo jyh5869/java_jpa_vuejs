@@ -39,13 +39,11 @@
                 <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
                 <ol-interaction-snap v-if="modifyEnabled" />
 
-                <div v-if="modifyEnabled">
-                    <ol-overlay v-for="(item, index) in zonesPoint" :key="index" :position="[item.getGeometry().getExtent()[2] + 3, item.getGeometry().getExtent()[3] + 5]">
-                        <template v-slot="position">
-                            <div class="overlay-content" @click="geomEvent(item, position)"></div>
-                        </template>
-                    </ol-overlay>
-                </div>
+                <ol-overlay :ref="'lineString_ovl_' + item.getId()" class="overlay-wrap" :id="'point_ovl_' + item.getId()" v-for="(item, index) in zonesPoint" :key="index" :position="[item.getGeometry().getExtent()[2] + 3, item.getGeometry().getExtent()[3] + 5]">
+                    <template v-slot="position">
+                        <div class="overlay-content" @click="geomEvent(item, position)"></div>
+                    </template>
+                </ol-overlay>
             </ol-source-vector>
 
             <ol-style>
@@ -68,13 +66,11 @@
                     </ol-style>
                 </ol-interaction-draw> -->
                 <ol-interaction-snap v-if="modifyEnabled" />
-                <div v-if="modifyEnabled">
-                    <ol-overlay v-for="(item, index) in zonesPolygon" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
-                        <template v-slot="position">
-                            <div class="overlay-content" @click="geomEvent(item, position)"></div>
-                        </template>
-                    </ol-overlay>
-                </div>
+                <ol-overlay :ref="'lineString_ovl_' + item.getId()" class="overlay-wrap" :id="'polygon_ovl_' + item.getId()" v-for="(item, index) in zonesPolygon" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
+                    <template v-slot="position">
+                        <div class="overlay-content" @click="geomEvent(item, position)"></div>
+                    </template>
+                </ol-overlay>
             </ol-source-vector>
 
             <ol-style>
@@ -97,13 +93,12 @@
                     </ol-style>
                 </ol-interaction-draw> -->
                 <ol-interaction-snap v-if="modifyEnabled" />
-                <div v-if="modifyEnabled">
-                    <ol-overlay v-for="(item, index) in zonesCircle" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
-                        <template v-slot="position">
-                            <div class="overlay-content" @click="geomEvent(item, position)"></div>
-                        </template>
-                    </ol-overlay>
-                </div>
+
+                <ol-overlay :ref="'lineString_ovl_' + item.getId()" class="overlay-wrap" :id="'circle_ovl_' + item.getId()" v-for="(item, index) in zonesCircle" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
+                    <template v-slot="position">
+                        <div class="overlay-content" @click="geomEvent(item, position)"></div>
+                    </template>
+                </ol-overlay>
             </ol-source-vector>
 
             <ol-style>
@@ -121,7 +116,7 @@
                 <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
                 <ol-interaction-snap v-if="modifyEnabled" />
 
-                <ol-overlay ref="overlay" v-for="(item, index) in zonesLineString" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
+                <ol-overlay :ref="'lineString_ovl_' + item.getId()" class="overlay-wrap" :id="'lineString_ovl_' + item.getId()" v-for="(item, index) in zonesLineString" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
                     <template v-slot="position">
                         <div class="overlay-content" @click="geomEvent(item, position)"></div>
                     </template>
@@ -160,7 +155,6 @@
     </div>
 
     <hr />
-    <div>{{ coordinateLineStringArr }}</div>
 </template>
 
 <!-- [개별 스크립트 설정 실시] -->
@@ -214,19 +208,14 @@ export default {
             coordinateCircleArr: [],
         };
     },
-    /*
-    async beforeCreate() {
-        console.log('');
-        console.log('[HomeComponent] : [beforeCreate] : [start]');
-        console.log('설 명 : 인스턴스 초기화 준비');
-        console.log('');
-    },
-    */
     mounted() {
-        //this.getGeometry();
+        //DOM 렌더링 완료 후 실행
         console.log('마운트 완료!');
-        console.log(this.$refs);
-        console.log(this.$refs.map);
+        this.featureOverlayInit();
+    },
+    updated() {
+        //DOM 상태 및 데이터 변경 완료 후 실행
+        this.featureOverlayInit();
     },
     methods: {
         testMain: function () {
@@ -264,7 +253,7 @@ export default {
                 let coordinatePointArr = [];
                 let coordinateCircleArr = [];
 
-                result.data.forEach(function (value) {
+                result.data.forEach(function async(value) {
                     let geometry = JSON.parse(value.geom_value);
                     let properties = JSON.parse(value.geom_properties);
                     let geomType = properties.type;
@@ -328,6 +317,8 @@ export default {
                 this.coordinateLineStringArr = coordinateLineStringArr;
                 this.coordinatePointArr = coordinatePointArr;
                 this.coordinateCircleArr = coordinateCircleArr;
+
+                this.featureOverlayInit();
             }
         },
         setGeometry: async function () {
@@ -459,6 +450,52 @@ export default {
             zonesDelete.value.push(targetFeatureId);
             console.log(targetFeatureId);
         },
+        featureSelected: async function (event) {
+            console.log('형상 클릭 이벤트발생 수정 가능');
+
+            let featArray = event.target.getFeatures().getArray();
+
+            this.featureOverlayInit();
+
+            for (var i = 0; i < featArray.length; i++) {
+                let geomType = featArray[i].getGeometry().getType();
+                let geomId = featArray[i].getId();
+                console.log('geomId  : ' + geomId);
+                if (geomType == 'Polygon') {
+                    console.log('Polygon action');
+                    document.querySelector('#polygon_ovl_' + geomId).style.display = 'block';
+                } else if (geomType == 'LineString') {
+                    console.log('LineString action');
+                    document.querySelector('#lineString_ovl_' + geomId).style.display = 'block';
+                } else if (geomType == 'Point') {
+                    console.log('Point action');
+                    document.querySelector('#point_ovl_' + geomId).style.display = 'block';
+                } else if (geomType == 'Circle') {
+                    console.log('Circle action');
+                    document.querySelector('#circle_ovl_' + geomId).style.display = 'block';
+                }
+            }
+
+            modifyEnabled.value = false;
+            if (event.selected.length > 0) {
+                modifyEnabled.value = true;
+            }
+
+            selectedFeatures.value = event.target.getFeatures();
+        },
+        /* Overlay Wrap 초기화 */
+        featureOverlayInit: function () {
+            console.log('하이하이요');
+            let clickMe = document.querySelectorAll('[id*=_ovl_]');
+            //let clickMe = document.querySelectorAll('.overlay-wrap');
+
+            clickMe.forEach(function (value, index) {
+                //clickMe[k].classList.remove('active');
+                if (value != null) {
+                    clickMe[index].style.display = 'none';
+                }
+            });
+        },
     },
 };
 
@@ -521,16 +558,6 @@ function vectorStyle() {
 }
 console.log(vectorStyle());
 /* 형상 클릭시 이벤트발생을 위한 함수 */
-function featureSelected(event) {
-    console.log('형상 클릭 이벤트발생 수정 가능');
-
-    modifyEnabled.value = false;
-    if (event.selected.length > 0) {
-        modifyEnabled.value = true;
-    }
-
-    selectedFeatures.value = event.target.getFeatures();
-}
 </script>
 
 <!-- [개별 스타일 설정 실시] -->
