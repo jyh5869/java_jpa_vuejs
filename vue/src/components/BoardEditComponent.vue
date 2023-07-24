@@ -35,24 +35,29 @@
         <!-- □ 레이어 추가 및 수정 □ -->
         <!-- <ol-vector-layer :styles="vectorStyle()"> -->
         <ol-vector-layer>
-            <ol-source-vector :features="zonesPoint">
-                <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
-                <ol-interaction-snap v-if="modifyEnabled" />
+            <ol-source-cluster :distance="40">
+                <ol-source-vector :features="zonesPoint">
+                    <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
+                    <ol-interaction-snap v-if="modifyEnabled" />
 
-                <ol-overlay :ref="'lineString_ovl_' + item.getId()" class="overlay-wrap" :id="'point_ovl_' + item.getId()" v-for="(item, index) in zonesPoint" :key="index" :position="[item.getGeometry().getExtent()[2] + 3, item.getGeometry().getExtent()[3] + 5]">
-                    <template v-slot="position">
-                        <div class="overlay-content" @click="geomEvent(item, position)"></div>
-                    </template>
-                </ol-overlay>
-            </ol-source-vector>
+                    <ol-overlay :ref="'lineString_ovl_' + item.getId()" :class="'overlay-wrap point ' + item.getId()" :id="'point_ovl_' + item.getId()" v-for="(item, index) in zonesPoint" :key="index" :position="[item.getGeometry().getExtent()[2] + 3, item.getGeometry().getExtent()[3] + 5]">
+                        <template v-slot="position">
+                            <div class="overlay-content" @click="geomEvent(item, position)"></div>
+                        </template>
+                    </ol-overlay>
+                </ol-source-vector>
+            </ol-source-cluster>
 
-            <ol-style>
+            <ol-style :overrideStyleFunction="overrideStyleFunction">
                 <ol-style-stroke color="orange" :width="2"></ol-style-stroke>
                 <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
-                <ol-style-circle :radius="5">
-                    <ol-style-stroke color="orange" :width="2"></ol-style-stroke>
-                    <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
+                <ol-style-circle :radius="10">
+                    <ol-style-stroke color="#fff" :width="2"></ol-style-stroke>
+                    <ol-style-fill color="#3399CC"></ol-style-fill>
                 </ol-style-circle>
+                <ol-style-text>
+                    <ol-style-fill color="#fff" :width="1"></ol-style-fill>
+                </ol-style-text>
             </ol-style>
         </ol-vector-layer>
 
@@ -116,7 +121,7 @@
                 <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
                 <ol-interaction-snap v-if="modifyEnabled" />
 
-                <ol-overlay :ref="'lineString_ovl_' + item.getId()" class="overlay-wrap" :id="'lineString_ovl_' + item.getId()" v-for="(item, index) in zonesLineString" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
+                <ol-overlay :ref="'lineString_ovl_' + item.getId()" :class="'overlay-wrap' + item.getId()" :id="'lineString_ovl_' + item.getId()" v-for="(item, index) in zonesLineString" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
                     <template v-slot="position">
                         <div class="overlay-content" @click="geomEvent(item, position)"></div>
                     </template>
@@ -137,8 +142,8 @@
             <ol-style>
                 <ol-style-stroke color="red" :width="2"></ol-style-stroke>
                 <ol-style-fill color="rgba(255, 200, 0, 0.2)"></ol-style-fill>
-                <ol-style-circle :radius="5">
-                    <ol-style-stroke color="red" :width="2"></ol-style-stroke>
+                <ol-style-circle :radius="7">
+                    <ol-style-stroke color="red" :width="1"></ol-style-stroke>
                     <ol-style-fill color="rgba(255, 200, 0, 0.2)"></ol-style-fill>
                 </ol-style-circle>
             </ol-style>
@@ -165,6 +170,7 @@ import { Collection } from 'ol';
 import { GeoJSON } from 'ol/format';
 //import { Vector } from 'ol/source/Vector.js';
 import { Feature } from 'ol';
+import { Select } from 'ol/interaction';
 
 import { Polygon } from 'ol/geom';
 import { Point } from 'ol/geom';
@@ -199,6 +205,7 @@ export default {
     },
     data() {
         this.getGeometry();
+        //this.featureOverlayInit();
 
         return {
             data: 'HELLO OPENLAYERS', // [데이터 정의]
@@ -210,12 +217,9 @@ export default {
     },
     mounted() {
         //DOM 렌더링 완료 후 실행
-        console.log('마운트 완료!');
-        this.featureOverlayInit();
     },
     updated() {
         //DOM 상태 및 데이터 변경 완료 후 실행
-        this.featureOverlayInit();
     },
     methods: {
         testMain: function () {
@@ -253,7 +257,7 @@ export default {
                 let coordinatePointArr = [];
                 let coordinateCircleArr = [];
 
-                result.data.forEach(function async(value) {
+                await result.data.forEach(function async(value) {
                     let geometry = JSON.parse(value.geom_value);
                     let properties = JSON.parse(value.geom_properties);
                     let geomType = properties.type;
@@ -291,7 +295,7 @@ export default {
                         });
 
                         feature.setId(geomId);
-                        feature.setProperties({ type: geomType, state: 'update' });
+                        feature.setProperties({ type: geomType, state: 'update', id: geomId });
 
                         zonesPoint.value.push(feature);
                     } else if (geomType == 'Circle') {
@@ -337,8 +341,7 @@ export default {
                 for (var i = 0; i < featArray.length; i++) {
                     let geomType = featArray[i].getGeometry().getType();
                     let id = featArray[i].getId();
-                    console.log(id);
-                    console.log('★★★★★★★★');
+
                     if (id == undefined) {
                         featArray[i].setProperties({ type: geomType, state: 'insert' });
                     } else {
@@ -454,7 +457,7 @@ export default {
             console.log('형상 클릭 이벤트발생 수정 가능');
 
             let featArray = event.target.getFeatures().getArray();
-
+            let selectedFlag = true;
             this.featureOverlayInit();
 
             for (var i = 0; i < featArray.length; i++) {
@@ -468,33 +471,80 @@ export default {
                     console.log('LineString action');
                     document.querySelector('#lineString_ovl_' + geomId).style.display = 'block';
                 } else if (geomType == 'Point') {
-                    console.log('Point action');
-                    document.querySelector('#point_ovl_' + geomId).style.display = 'block';
+                    console.log('Point action Start');
+                    let clickMe = document.querySelectorAll('.overlay-wrap.point');
+
+                    if (featArray[i].get('features').length > 1) {
+                        alert('클러스터링 되어있습니다. 지도를 확대하여 선택해 주세요.');
+                        selectedFlag = false;
+                    } else {
+                        await clickMe.forEach(function (domValue) {
+                            //console.log('index = ' + index);
+                            if (domValue.classList.contains('active')) {
+                                let domId = domValue.id;
+                                featArray[i].get('features').forEach(function (geomVal) {
+                                    let geomId = geomVal.getId();
+                                    if (domId == 'point_ovl_' + geomId) {
+                                        domValue.style.display = 'block';
+                                    }
+                                });
+                            }
+                        });
+                    }
                 } else if (geomType == 'Circle') {
                     console.log('Circle action');
                     document.querySelector('#circle_ovl_' + geomId).style.display = 'block';
                 }
             }
 
-            modifyEnabled.value = false;
-            if (event.selected.length > 0) {
-                modifyEnabled.value = true;
-            }
+            if ((await selectedFlag) == true) {
+                console.log('셀렉트 피쳐 세팅');
+                modifyEnabled.value = false;
+                if (event.selected.length > 0) {
+                    modifyEnabled.value = true;
+                }
 
-            selectedFeatures.value = event.target.getFeatures();
+                selectedFeatures.value = event.target.getFeatures();
+            } else {
+                console.log('피쳐 초기화!!!!!!!!!!!!!!!!!');
+                let select = new Select();
+                console.log(select);
+            }
         },
         /* Overlay Wrap 초기화 */
         featureOverlayInit: function () {
-            console.log('하이하이요');
+            console.log('Overlay Style Init');
             let clickMe = document.querySelectorAll('[id*=_ovl_]');
-            //let clickMe = document.querySelectorAll('.overlay-wrap');
 
             clickMe.forEach(function (value, index) {
-                //clickMe[k].classList.remove('active');
                 if (value != null) {
                     clickMe[index].style.display = 'none';
                 }
             });
+        },
+        /* Point Geometry Clustering Function */
+        //overrideStyleFunction: function (feature, style, resolution) {
+        overrideStyleFunction: function (feature, style) {
+            //console.log({ feature, style, resolution });
+            const clusteredFeatures = feature.get('features');
+            const size = clusteredFeatures.length;
+            style.getText().setText(size.toString());
+
+            if (size > 1) {
+                let overlays = document.querySelectorAll('.overlay-wrap.point');
+
+                overlays.forEach(function (value, index) {
+                    if (value != null) {
+                        overlays[index].classList.remove('active');
+                    }
+                });
+            } else {
+                let overlays = document.querySelectorAll('.overlay-wrap.point');
+
+                overlays.forEach(function (value, index) {
+                    overlays[index].classList.add('active');
+                });
+            }
         },
     },
 };
