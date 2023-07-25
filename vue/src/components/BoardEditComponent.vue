@@ -170,7 +170,7 @@ import { Collection } from 'ol';
 import { GeoJSON } from 'ol/format';
 //import { Vector } from 'ol/source/Vector.js';
 import { Feature } from 'ol';
-import { Select } from 'ol/interaction';
+//import { Select } from 'ol/interaction';
 
 import { Polygon } from 'ol/geom';
 import { Point } from 'ol/geom';
@@ -457,10 +457,12 @@ export default {
             console.log('형상 클릭 이벤트발생 수정 가능');
 
             let featArray = event.target.getFeatures().getArray();
+
             let selectedFlag = true;
             this.featureOverlayInit();
 
             for (var i = 0; i < featArray.length; i++) {
+                console.log('선택된 형상 배열 순회!');
                 let geomType = featArray[i].getGeometry().getType();
                 let geomId = featArray[i].getId();
                 console.log('geomId  : ' + geomId);
@@ -474,8 +476,13 @@ export default {
                     console.log('Point action Start');
                     let clickMe = document.querySelectorAll('.overlay-wrap.point');
 
+                    console.log(featArray[i].get('features').length);
                     if (featArray[i].get('features').length > 1) {
                         alert('클러스터링 되어있습니다. 지도를 확대하여 선택해 주세요.');
+
+                        //event.target.getFeatures().pop();
+
+                        event.target.getFeatures().clear();
                         selectedFlag = false;
                     } else {
                         await clickMe.forEach(function (domValue) {
@@ -497,6 +504,7 @@ export default {
                 }
             }
 
+            console.log(await selectedFlag);
             if ((await selectedFlag) == true) {
                 console.log('셀렉트 피쳐 세팅');
                 modifyEnabled.value = false;
@@ -506,9 +514,36 @@ export default {
 
                 selectedFeatures.value = event.target.getFeatures();
             } else {
+                /*
                 console.log('피쳐 초기화!!!!!!!!!!!!!!!!!');
-                let select = new Select();
-                console.log(select);
+                //let select = new Select();
+                //console.log(select.getFeatures());
+                //console.log(map.value);
+                //console.log(map.value.getView());
+
+                let select = event.target;
+
+                await select.getFeatures().forEach(function (feat) {
+                    let clustering = feat.get('features');
+
+                    clustering.forEach(function (feature) {
+                        if (feature === null) {
+                            return false;
+                        }
+                        //console.log(feature);
+                        //select.clear();
+                        //console.log(select.getFeatures());
+                        //select.getFeatures().clear();
+                        //select.getFeatures().remove(feature);
+                        //select.getFeatures().pop();
+                        //console.log(feature.getElement());
+                        //select.getFeatures().remove(feature);
+                        console.log(select.getFeatures().getArray());
+                        console.log(select.getFeatures());
+                        console.log('삭제처리!');
+                    });
+                });
+                */
             }
         },
         /* Overlay Wrap 초기화 */
