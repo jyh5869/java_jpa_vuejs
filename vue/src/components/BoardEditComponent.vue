@@ -35,7 +35,7 @@
         <!-- □ 레이어 추가 및 수정 □ -->
         <!-- <ol-vector-layer :styles="vectorStyle()"> -->
         <ol-vector-layer>
-            <ol-source-cluster :distance="40">
+            <ol-source-cluster :distance="1">
                 <ol-source-vector :features="zonesPoint">
                     <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
                     <ol-interaction-snap v-if="modifyEnabled" />
@@ -142,10 +142,13 @@
             <ol-style>
                 <ol-style-stroke color="red" :width="2"></ol-style-stroke>
                 <ol-style-fill color="rgba(255, 200, 0, 0.2)"></ol-style-fill>
-                <ol-style-circle :radius="7">
+                <ol-style-circle :radius="10">
                     <ol-style-stroke color="red" :width="1"></ol-style-stroke>
-                    <ol-style-fill color="rgba(255, 200, 0, 0.2)"></ol-style-fill>
+                    <ol-style-fill color="#3399CC"></ol-style-fill>
                 </ol-style-circle>
+                <ol-style-text>
+                    <ol-style-fill color="#fff" :width="1"></ol-style-fill>
+                </ol-style-text>
             </ol-style>
         </ol-interaction-select>
         <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend">
@@ -181,6 +184,7 @@ const center = ref([40, 40]);
 
 const projection = ref('EPSG:4326');
 const zoom = ref(2.5);
+const currentZoom = ref();
 const rotation = ref(0);
 const view = ref(null);
 const map = ref(null);
@@ -233,6 +237,10 @@ export default {
             this.view.value.fit([loc[0], loc[1], loc[0], loc[1]], {
                 maxZoom: 14,
             });
+        },
+        zoomChanged: await function (zoomLevel) {
+            //console.log('줌 레벨 변경 : ' + zoomLevel);
+            currentZoom.value = zoomLevel;
         },
         initMap: await function () {
             //map.getLayers().forEach((layer) => layer.getSource().refresh());
@@ -326,7 +334,6 @@ export default {
             }
         },
         setGeometry: async function () {
-            //this.initMap();
             console.log('지오데이터 전송');
 
             /*
@@ -454,59 +461,84 @@ export default {
             console.log(targetFeatureId);
         },
         featureSelected: async function (event) {
-            console.log('형상 클릭 이벤트발생 수정 가능');
+            console.log('Feature 클릭 이벤트발생');
 
-            let featArray = event.target.getFeatures().getArray();
+            let featArray = event.target.getFeatures().getArray(); //Select 객체의 Feature 배열
+            let selectedFlag = true; //Select 이벤트 정상여부 Flag
 
-            let selectedFlag = true;
-            this.featureOverlayInit();
+            //Overlay 초기화
+            await this.featureOverlayInit();
 
+            //SELECT 배열을 순회하며 오버레이,클러스터링을 고려해 이벤트 처리
             for (var i = 0; i < featArray.length; i++) {
-                console.log('선택된 형상 배열 순회!');
                 let geomType = featArray[i].getGeometry().getType();
                 let geomId = featArray[i].getId();
-                console.log('geomId  : ' + geomId);
+
                 if (geomType == 'Polygon') {
                     console.log('Polygon action');
-                    document.querySelector('#polygon_ovl_' + geomId).style.display = 'block';
+                    let polygonDom = document.querySelector('#polygon_ovl_' + geomId);
+
+                    if (!polygonDom.classList.contains('active')) {
+                        polygonDom.classList.add('active');
+                        polygonDom.style.display = 'block';
+                    }
                 } else if (geomType == 'LineString') {
                     console.log('LineString action');
-                    document.querySelector('#lineString_ovl_' + geomId).style.display = 'block';
-                } else if (geomType == 'Point') {
-                    console.log('Point action Start');
-                    let clickMe = document.querySelectorAll('.overlay-wrap.point');
+                    let linStringDom = document.querySelector('#lineString_ovl_' + geomId);
 
-                    console.log(featArray[i].get('features').length);
-                    if (featArray[i].get('features').length > 1) {
-                        alert('클러스터링 되어있습니다. 지도를 확대하여 선택해 주세요.');
-
-                        //event.target.getFeatures().pop();
-
-                        event.target.getFeatures().clear();
-                        selectedFlag = false;
-                    } else {
-                        await clickMe.forEach(function (domValue) {
-                            //console.log('index = ' + index);
-                            if (domValue.classList.contains('active')) {
-                                let domId = domValue.id;
-                                featArray[i].get('features').forEach(function (geomVal) {
-                                    let geomId = geomVal.getId();
-                                    if (domId == 'point_ovl_' + geomId) {
-                                        domValue.style.display = 'block';
-                                    }
-                                });
-                            }
-                        });
+                    if (!linStringDom.classList.contains('active')) {
+                        linStringDom.classList.add('active');
+                        linStringDom.style.display = 'block';
                     }
                 } else if (geomType == 'Circle') {
                     console.log('Circle action');
-                    document.querySelector('#circle_ovl_' + geomId).style.display = 'block';
+                    let circleDom = document.querySelector('#circle_ovl_' + geomId);
+
+                    if (!circleDom.classList.contains('active')) {
+                        circleDom.classList.add('active');
+                        circleDom.style.display = 'block';
+                    }
+                } else if (geomType == 'Point') {
+                    console.log('Point action Start');
+
+                    if (featArray[i].get('features').length > 1) {
+                        //선택된 피쳐에 여러개의 피쳐가 있을경우 클러스터링으로 판단하여 선택 불가
+                        alert('클러스터링 되어있습니다. 지도를 확대하여 선택해 주세요.');
+
+                        event.target.getFeatures().remove(featArray[i]); //이미 선택된 피쳐 삭제
+                        selectedFlag = false;
+                    } else if (featArray[i].get('features')[0].getId() == undefined) {
+                        //선택된 피쳐 배열에 ID 값이 없을경우 같은 피쳐 선택으로 판단하여 선택 불가
+                        selectedFlag = false;
+                    } else {
+                        //선택된 포인트 피쳐의 길이를 하나로 판단하여 선택 가능 및 오버레이 동작
+                        let clickMe = document.querySelectorAll('.overlay-wrap.point');
+
+                        featArray[i].get('features').forEach(function async(geomVal) {
+                            console.log(geomVal);
+                            clickMe.forEach(function (domValue) {
+                                //선택된 피쳐 순회
+                                if (domValue.classList.contains('active') == false) {
+                                    let domId = domValue.id; //포인트 오버레이 iD
+                                    let geomId = geomVal.getId(); //선택된 피쳐 ID
+
+                                    if (domId == 'point_ovl_' + geomId) {
+                                        domValue.classList.add('active');
+                                        domValue.style.display = 'block';
+                                    } else {
+                                        domValue.classList.remove('active');
+                                        domValue.style.display = 'none';
+                                    }
+                                }
+                            });
+                        });
+                    }
                 }
             }
 
-            console.log(await selectedFlag);
-            if ((await selectedFlag) == true) {
-                console.log('셀렉트 피쳐 세팅');
+            if (selectedFlag == true) {
+                //수정가능 AND selectFeature 배열에 선택된 feature 추가
+                console.log('수정가능');
                 modifyEnabled.value = false;
                 if (event.selected.length > 0) {
                     modifyEnabled.value = true;
@@ -514,70 +546,46 @@ export default {
 
                 selectedFeatures.value = event.target.getFeatures();
             } else {
-                /*
-                console.log('피쳐 초기화!!!!!!!!!!!!!!!!!');
-                //let select = new Select();
-                //console.log(select.getFeatures());
-                //console.log(map.value);
-                //console.log(map.value.getView());
-
-                let select = event.target;
-
-                await select.getFeatures().forEach(function (feat) {
-                    let clustering = feat.get('features');
-
-                    clustering.forEach(function (feature) {
-                        if (feature === null) {
-                            return false;
-                        }
-                        //console.log(feature);
-                        //select.clear();
-                        //console.log(select.getFeatures());
-                        //select.getFeatures().clear();
-                        //select.getFeatures().remove(feature);
-                        //select.getFeatures().pop();
-                        //console.log(feature.getElement());
-                        //select.getFeatures().remove(feature);
-                        console.log(select.getFeatures().getArray());
-                        console.log(select.getFeatures());
-                        console.log('삭제처리!');
-                    });
-                });
-                */
+                //수정 불가
+                modifyEnabled.value = false;
             }
         },
         /* Overlay Wrap 초기화 */
-        featureOverlayInit: function () {
-            console.log('Overlay Style Init');
+        featureOverlayInit: async function (geomType) {
+            console.log('Overlay Style Init : ' + geomType);
+            //let clickMe = geomType == null ? document.querySelectorAll('[id*=_ovl_]') : document.querySelectorAll('[id*=' + geomType + '_ovl_]');
             let clickMe = document.querySelectorAll('[id*=_ovl_]');
 
             clickMe.forEach(function (value, index) {
                 if (value != null) {
                     clickMe[index].style.display = 'none';
+                    clickMe[index].classList.remove('active');
                 }
             });
         },
         /* Point Geometry Clustering Function */
-        //overrideStyleFunction: function (feature, style, resolution) {
         overrideStyleFunction: function (feature, style) {
             //console.log({ feature, style, resolution });
+            console.log('Clustering Action');
+
             const clusteredFeatures = feature.get('features');
             const size = clusteredFeatures.length;
             style.getText().setText(size.toString());
 
-            if (size > 1) {
-                let overlays = document.querySelectorAll('.overlay-wrap.point');
+            let overlays = document.querySelectorAll('.overlay-wrap.point');
 
+            //클러스터링 여부에 따라 오버레이 비활성화/활성화
+            if (size > 1) {
                 overlays.forEach(function (value, index) {
                     if (value != null) {
                         overlays[index].classList.remove('active');
                     }
                 });
             } else {
-                let overlays = document.querySelectorAll('.overlay-wrap.point');
-
                 overlays.forEach(function (value, index) {
-                    overlays[index].classList.add('active');
+                    if (value != null) {
+                        overlays[index].classList.add('active');
+                    }
                 });
             }
         },
