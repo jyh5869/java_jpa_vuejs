@@ -40,7 +40,7 @@
                     <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
                     <ol-interaction-snap v-if="modifyEnabled" />
 
-                    <ol-overlay :ref="'lineString_ovl_' + item.getId()" :class="'overlay-wrap point ' + item.getId()" :id="'point_ovl_' + item.getId()" v-for="(item, index) in zonesPoint" :key="index" :position="[item.getGeometry().getExtent()[2] + 3, item.getGeometry().getExtent()[3] + 5]">
+                    <ol-overlay :ref="'lineString_ovl_' + item.getId()" :class="'overlay-wrap point ' + item.getId()" :id="'point_ovl_' + item.getId()" v-for="(item, index) in zonesPoint" :key="index" :position="[item.getGeometry().getExtent()[0] + 3, item.getGeometry().getExtent()[1] + 5]">
                         <template v-slot="position">
                             <div class="overlay-content" @click="geomEvent(item, position)"></div>
                         </template>
@@ -368,7 +368,7 @@ export default {
                                 radius: radius,
                                 //id: i,
                             });
-
+                            feature.setId(featArray[i].getId());
                             if (id == undefined) {
                                 feature.setProperties({ type: geomType, state: 'insert' });
                             } else {
@@ -532,23 +532,31 @@ export default {
                                 }
                             });
                         });
+
+                        selectedFlag = true;
                     }
                 }
             }
 
-            if (selectedFlag == true) {
-                //수정가능 AND selectFeature 배열에 선택된 feature 추가
-                console.log('수정가능');
-                modifyEnabled.value = false;
-                if (event.selected.length > 0) {
-                    modifyEnabled.value = true;
-                }
+            modifyEnabled.value = false;
+            if (event.selected.length > 0) {
+                modifyEnabled.value = true;
+                console.log(selectedFlag + '  수정가능 : ' + modifyEnabled.value + ' 선택된 피쳐 갯수 : ' + event.selected.length);
+            }
 
-                selectedFeatures.value = event.target.getFeatures();
+            selectedFeatures.value = event.target.getFeatures();
+            /*
+            if (selectedFlag == true && event.selected.length > 0) {
+                //수정가능 AND selectFeature 배열에 선택된 feature 추가
+                console.log('수정가능 조건 통과');
             } else {
                 //수정 불가
-                modifyEnabled.value = false;
+                console.log('수정불가');
+                //modifyEnabled.value = false;
+
+                //selectedFeatures.value = event.target.getFeatures();
             }
+            */
         },
         /* Overlay Wrap 초기화 */
         featureOverlayInit: async function (geomType) {
@@ -573,6 +581,21 @@ export default {
             style.getText().setText(size.toString());
 
             let overlays = document.querySelectorAll('.overlay-wrap.point');
+
+            /*
+            console.log('-------------------ZONE POINT------------------');
+            zonesPoint.value.forEach(function (feature) {
+                //console.log(feature.getGeometry());
+                clusteredFeatures.forEach(function (clustFeature) {
+                    if (feature.getId() == clustFeature.getId()) {
+                        console.log('일치');
+                        feature.setGeometry(clustFeature.getGeometry());
+                    }
+                });
+                //console.log(feature.getGeometry());
+            });
+            console.log('-------------------ZONE POINT------------------');
+            */
 
             //클러스터링 여부에 따라 오버레이 비활성화/활성화
             if (size > 1) {
