@@ -6,162 +6,205 @@
     <div>
         <h1>{{ data }}</h1>
     </div>
-
-    <!-- □ 형상 종류별 그리기 및 수정 선택 박스 □ -->
-    <!-- ※ 체크박스로 그리기 및 수정여부 선택 할수 있도록 하는 마크업
+    <div class="row g-3">
+        <!-- □ 형상 종류별 그리기 및 수정 선택 박스 □ -->
+        <!-- ※ 체크박스로 그리기 및 수정여부 선택 할수 있도록 하는 마크업
         <input type="checkbox" id="checkbox" v-model="drawEnable" />
         <label for="checkbox">Draw Enable</label>
     -->
-    <div>
-        <button @click="drawEnabled = !drawEnabled">Draw</button>
-        <span>{{ '  ' + drawEnabled + '  ' }}</span>
+        <div>
+            <button @click="drawEnabled = !drawEnabled">Draw</button>
+            <span>{{ '  ' + drawEnabled + '  ' }}</span>
 
-        <select id="type" v-model="drawType" @change="drawEnabled = true">
-            <option value="Point">Point</option>
-            <option value="LineString">LineString</option>
-            <option value="Polygon">Polygon</option>
-            <option value="Circle">Circle</option>
-        </select>
-    </div>
+            <select id="type" v-model="drawType" @change="drawEnabled = true">
+                <option value="Point">Point</option>
+                <option value="LineString">LineString</option>
+                <option value="Polygon">Polygon</option>
+                <option value="Circle">Circle</option>
+            </select>
+        </div>
 
-    <!-- □ 지도 생성 □ -->
-    <ol-map :loadTilesWhileAnimating="true" :loadTilesWhileInteracting="true" style="height: 400px" ref="map">
-        <ol-view ref="view" :center="center" :rotation="rotation" :zoom="zoom" :projection="projection" @zoomChanged="zoomChanged" @centerChanged="centerChanged" @resolutionChanged="resolutionChanged" @rotationChanged="rotationChanged" />
+        <!-- □ 지도 생성 □ -->
+        <ol-map :loadTilesWhileAnimating="true" :loadTilesWhileInteracting="true" style="height: 400px" ref="map">
+            <ol-view ref="view" :center="center" :rotation="rotation" :zoom="zoom" :projection="projection" @zoomChanged="zoomChanged" @centerChanged="centerChanged" @resolutionChanged="resolutionChanged" @rotationChanged="rotationChanged" />
 
-        <ol-tile-layer>
-            <ol-source-osm />
-        </ol-tile-layer>
+            <ol-tile-layer>
+                <ol-source-osm />
+            </ol-tile-layer>
 
-        <!-- □ 레이어 추가 및 수정 □ -->
-        <!-- <ol-vector-layer :styles="vectorStyle()"> -->
-        <ol-vector-layer>
-            <ol-source-cluster :distance="1">
-                <ol-source-vector :features="zonesPoint">
+            <!-- □ 레이어 추가 및 수정 □ -->
+            <!-- <ol-vector-layer :styles="vectorStyle()"> -->
+            <ol-vector-layer>
+                <ol-source-cluster :distance="1">
+                    <ol-source-vector :features="zonesPoint">
+                        <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
+                        <ol-interaction-snap v-if="modifyEnabled" />
+
+                        <ol-overlay :ref="'lineString_ovl_' + item.getId()" :class="'overlay-wrap point ' + item.getId()" :id="'point_ovl_' + item.getId()" v-for="(item, index) in zonesPoint" :key="index" :position="[item.getGeometry().getExtent()[0] + 3, item.getGeometry().getExtent()[1] + 5]">
+                            <template v-slot="position">
+                                <div class="overlay-content" @click="geomEvent(item, position)"></div>
+                            </template>
+                        </ol-overlay>
+                    </ol-source-vector>
+                </ol-source-cluster>
+
+                <ol-style :overrideStyleFunction="overrideStyleFunction">
+                    <ol-style-stroke color="orange" :width="2"></ol-style-stroke>
+                    <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
+                    <ol-style-circle :radius="10">
+                        <ol-style-stroke color="#fff" :width="2"></ol-style-stroke>
+                        <ol-style-fill color="#3399CC"></ol-style-fill>
+                    </ol-style-circle>
+                    <ol-style-text>
+                        <ol-style-fill color="#fff" :width="1"></ol-style-fill>
+                    </ol-style-text>
+                </ol-style>
+            </ol-vector-layer>
+
+            <ol-vector-layer>
+                <ol-source-vector :features="zonesPolygon">
                     <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
+                    <!-- <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend">
+                    <ol-style>
+                        <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
+                        <ol-style-fill color="rgba(255, 255, 0, 0.4)"></ol-style-fill>
+                    </ol-style>
+                </ol-interaction-draw> -->
                     <ol-interaction-snap v-if="modifyEnabled" />
-
-                    <ol-overlay :ref="'lineString_ovl_' + item.getId()" :class="'overlay-wrap point ' + item.getId()" :id="'point_ovl_' + item.getId()" v-for="(item, index) in zonesPoint" :key="index" :position="[item.getGeometry().getExtent()[0] + 3, item.getGeometry().getExtent()[1] + 5]">
+                    <ol-overlay :ref="'lineString_ovl_' + item.getId()" class="overlay-wrap" :id="'polygon_ovl_' + item.getId()" v-for="(item, index) in zonesPolygon" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
                         <template v-slot="position">
                             <div class="overlay-content" @click="geomEvent(item, position)"></div>
                         </template>
                     </ol-overlay>
                 </ol-source-vector>
-            </ol-source-cluster>
 
-            <ol-style :overrideStyleFunction="overrideStyleFunction">
-                <ol-style-stroke color="orange" :width="2"></ol-style-stroke>
-                <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
-                <ol-style-circle :radius="10">
-                    <ol-style-stroke color="#fff" :width="2"></ol-style-stroke>
-                    <ol-style-fill color="#3399CC"></ol-style-fill>
-                </ol-style-circle>
-                <ol-style-text>
-                    <ol-style-fill color="#fff" :width="1"></ol-style-fill>
-                </ol-style-text>
-            </ol-style>
-        </ol-vector-layer>
-
-        <ol-vector-layer>
-            <ol-source-vector :features="zonesPolygon">
-                <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
-                <!-- <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend">
-                    <ol-style>
-                        <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
-                        <ol-style-fill color="rgba(255, 255, 0, 0.4)"></ol-style-fill>
-                    </ol-style>
-                </ol-interaction-draw> -->
-                <ol-interaction-snap v-if="modifyEnabled" />
-                <ol-overlay :ref="'lineString_ovl_' + item.getId()" class="overlay-wrap" :id="'polygon_ovl_' + item.getId()" v-for="(item, index) in zonesPolygon" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
-                    <template v-slot="position">
-                        <div class="overlay-content" @click="geomEvent(item, position)"></div>
-                    </template>
-                </ol-overlay>
-            </ol-source-vector>
-
-            <ol-style>
-                <ol-style-stroke color="violet" :width="2"></ol-style-stroke>
-                <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
-                <ol-style-circle :radius="5">
+                <ol-style>
                     <ol-style-stroke color="violet" :width="2"></ol-style-stroke>
                     <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
-                </ol-style-circle>
-            </ol-style>
-        </ol-vector-layer>
+                    <ol-style-circle :radius="5">
+                        <ol-style-stroke color="violet" :width="2"></ol-style-stroke>
+                        <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
+                    </ol-style-circle>
+                </ol-style>
+            </ol-vector-layer>
 
-        <ol-vector-layer>
-            <ol-source-vector :features="zonesCircle">
-                <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
-                <!-- <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend">
+            <ol-vector-layer>
+                <ol-source-vector :features="zonesCircle">
+                    <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
+                    <!-- <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend">
                     <ol-style>
                         <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
                         <ol-style-fill color="rgba(255, 255, 0, 0.4)"></ol-style-fill>
                     </ol-style>
                 </ol-interaction-draw> -->
-                <ol-interaction-snap v-if="modifyEnabled" />
+                    <ol-interaction-snap v-if="modifyEnabled" />
 
-                <ol-overlay :ref="'lineString_ovl_' + item.getId()" class="overlay-wrap" :id="'circle_ovl_' + item.getId()" v-for="(item, index) in zonesCircle" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
-                    <template v-slot="position">
-                        <div class="overlay-content" @click="geomEvent(item, position)"></div>
-                    </template>
-                </ol-overlay>
-            </ol-source-vector>
+                    <ol-overlay :ref="'lineString_ovl_' + item.getId()" class="overlay-wrap" :id="'circle_ovl_' + item.getId()" v-for="(item, index) in zonesCircle" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
+                        <template v-slot="position">
+                            <div class="overlay-content" @click="geomEvent(item, position)"></div>
+                        </template>
+                    </ol-overlay>
+                </ol-source-vector>
 
-            <ol-style>
-                <ol-style-stroke color="green" :width="2"></ol-style-stroke>
-                <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
-                <ol-style-circle :radius="5">
+                <ol-style>
                     <ol-style-stroke color="green" :width="2"></ol-style-stroke>
                     <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
-                </ol-style-circle>
-            </ol-style>
-        </ol-vector-layer>
+                    <ol-style-circle :radius="5">
+                        <ol-style-stroke color="green" :width="2"></ol-style-stroke>
+                        <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
+                    </ol-style-circle>
+                </ol-style>
+            </ol-vector-layer>
 
-        <ol-vector-layer>
-            <ol-source-vector :features="zonesLineString">
-                <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
-                <ol-interaction-snap v-if="modifyEnabled" />
+            <ol-vector-layer>
+                <ol-source-vector :features="zonesLineString">
+                    <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
+                    <ol-interaction-snap v-if="modifyEnabled" />
 
-                <ol-overlay :ref="'lineString_ovl_' + item.getId()" :class="'overlay-wrap' + item.getId()" :id="'lineString_ovl_' + item.getId()" v-for="(item, index) in zonesLineString" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
-                    <template v-slot="position">
-                        <div class="overlay-content" @click="geomEvent(item, position)"></div>
-                    </template>
-                </ol-overlay>
-            </ol-source-vector>
+                    <ol-overlay :ref="'lineString_ovl_' + item.getId()" :class="'overlay-wrap' + item.getId()" :id="'lineString_ovl_' + item.getId()" v-for="(item, index) in zonesLineString" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
+                        <template v-slot="position">
+                            <div class="overlay-content" @click="geomEvent(item, position)"></div>
+                        </template>
+                    </ol-overlay>
+                </ol-source-vector>
 
-            <ol-style>
-                <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
-                <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
-                <ol-style-circle :radius="5">
+                <ol-style>
                     <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
                     <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
-                </ol-style-circle>
-            </ol-style>
-        </ol-vector-layer>
+                    <ol-style-circle :radius="5">
+                        <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
+                        <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
+                    </ol-style-circle>
+                </ol-style>
+            </ol-vector-layer>
 
-        <ol-interaction-select @select="featureSelected" :features="selectedFeatures">
-            <ol-style>
-                <ol-style-stroke color="red" :width="2"></ol-style-stroke>
-                <ol-style-fill color="rgba(255, 200, 0, 0.2)"></ol-style-fill>
-                <ol-style-circle :radius="10">
-                    <ol-style-stroke color="red" :width="1"></ol-style-stroke>
-                    <ol-style-fill color="#3399CC"></ol-style-fill>
-                </ol-style-circle>
-                <ol-style-text>
-                    <ol-style-fill color="#fff" :width="1"></ol-style-fill>
-                </ol-style-text>
-            </ol-style>
-        </ol-interaction-select>
-        <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend">
-            <ol-style>
-                <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
-                <ol-style-fill color="rgba(255, 255, 0, 0.4)"></ol-style-fill>
-            </ol-style>
-        </ol-interaction-draw>
-    </ol-map>
-    <div class="btn-wrap navbar-nav mb-2 mb-lg-0">
-        <button class="btn login btn-outline-primary" @click="setGeometry()">데이터 저장</button>
+            <ol-interaction-select @select="featureSelected" :features="selectedFeatures">
+                <ol-style>
+                    <ol-style-stroke color="red" :width="2"></ol-style-stroke>
+                    <ol-style-fill color="rgba(255, 200, 0, 0.2)"></ol-style-fill>
+                    <ol-style-circle :radius="10">
+                        <ol-style-stroke color="red" :width="1"></ol-style-stroke>
+                        <ol-style-fill color="#3399CC"></ol-style-fill>
+                    </ol-style-circle>
+                    <ol-style-text>
+                        <ol-style-fill color="#fff" :width="1"></ol-style-fill>
+                    </ol-style-text>
+                </ol-style>
+            </ol-interaction-select>
+            <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend">
+                <ol-style>
+                    <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
+                    <ol-style-fill color="rgba(255, 255, 0, 0.4)"></ol-style-fill>
+                </ol-style>
+            </ol-interaction-draw>
+        </ol-map>
+
+        <div class="col-md-6">
+            <label for="userEmail" class="form-label">User Email</label>
+            <input type="email" class="form-control" v-model="userEmail" />
+        </div>
+        <div class="col-md-6">
+            <label for="userNm" class="form-label">User Name</label>
+            <input type="text" class="form-control" v-model="userNm" />
+        </div>
+        <div class="col-12">
+            <label for="title" class="form-label">title</label>
+            <input type="text" class="form-control" placeholder="1234 Main St" v-model="title" />
+        </div>
+        <div class="col-12">
+            <label for="contents1" class="form-label">Contents1</label>
+            <input type="text" class="form-control" placeholder="1234 Main St" v-model="contents1" />
+        </div>
+        <div class="col-12">
+            <label for="contents2" class="form-label">Contents2</label>
+            <input type="text" class="form-control" placeholder="Apartment, studio, or floor" v-model="contents2" />
+        </div>
+        <div class="col-md-6">
+            <label for="userAdress" class="form-label">User Adress</label>
+            <input type="text" class="form-control" v-model="userAdress" />
+        </div>
+        <div class="col-md-4">
+            <label for="state" class="form-label">State</label>
+            <select id="state" class="form-select" v-model="state">
+                <option selected>Choose...</option>
+                <option>...</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label for="zipCd" class="form-label">Zip</label>
+            <input type="text" class="form-control" v-model="zipCd" />
+        </div>
+        <div class="col-12">
+            <div class="form-check">
+                <input class="form-check-input" id="useYn" type="checkbox" v-model="useYn" />
+                <label class="form-check-label" for="useYn"> Check User Y/N </label>
+            </div>
+        </div>
+
+        <div class="btn-wrap navbar-nav mb-2 mb-lg-0">
+            <button class="btn login btn-outline-primary" @click="setGeometry()">데이터 저장</button>
+        </div>
     </div>
-
     <hr />
 </template>
 
@@ -217,6 +260,14 @@ export default {
             coordinateLineStringArr: [],
             coordinatePointArr: [],
             coordinateCircleArr: [],
+            userEmail: '',
+            userNm: '',
+            userAdress: '',
+            title: '',
+            contents1: '',
+            contents2: '',
+            zipCd: '',
+            useYn: '',
         };
     },
     mounted() {
@@ -399,6 +450,7 @@ export default {
             console.log(GeoJSONFormat.writeFeatures(pointArray));
             console.log(GeoJSONFormat.writeFeatures(circleArray));
 
+            console.log('checkYn------------------------------------>' + this.useYn);
             const result = await this.$axios({
                 method: 'get',
                 url: '/api/setGeomBoard',
@@ -408,6 +460,15 @@ export default {
                     geomPoints: encodeURI(GeoJSONFormat.writeFeatures(pointArray)),
                     geomCircles: encodeURI(GeoJSONFormat.writeFeatures(circleArray)),
                     geomDeleteArr: encodeURI(zonesDelete.value),
+                    userEmail: this.userEmail,
+                    userNm: this.userNm,
+                    userAdress: this.userAdress,
+                    title: this.title,
+                    contents1: this.contents1,
+                    contents2: this.contents2,
+                    state: this.state,
+                    zipCd: this.zipCd,
+                    useYn: this.useYn,
                 },
                 headers: {
                     'Content-Type': 'multipart/form-data',

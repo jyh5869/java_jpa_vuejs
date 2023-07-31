@@ -59,14 +59,26 @@ public class GeomBoardController {
         
 
         System.out.println("☆ ☆ ☆ --------------------------");
-        System.out.println(geomCircle);
-        System.out.println(geomPolygon);
+        System.out.println(boardDTO.getUserEmail());
+        System.out.println(boardDTO.getUserNm());
+        System.out.println(boardDTO.getUserAdress());
+        System.out.println(boardDTO.getTitle());
+        System.out.println(boardDTO.getContents1());
+        System.out.println(boardDTO.getContents2());
+        System.out.println(boardDTO.getState());
+        System.out.println(boardDTO.getZipCd());
+        System.out.println(boardDTO.getUseYn());
         System.out.println("☆ ☆ ☆ --------------------------");
+        
+
+        boardDTO.setId(boardFirebaseService.getLastIndex());
 
         boardFirebaseService.setGeomdData(boardDTO.getId(), boardDTO.getGeomPolygons() );
         boardFirebaseService.setGeomdData(boardDTO.getId(), boardDTO.getGeomLineStrings());
         boardFirebaseService.setGeomdData(boardDTO.getId(), boardDTO.getGeomPoints());
         boardFirebaseService.setGeomdData(boardDTO.getId(), boardDTO.getGeomCircles());
+
+        boardFirebaseService.setBoardData(boardDTO.getId(), boardDTO);
 
         //삭제할 배열이 있을경우 삭제
         if(boardDTO.getGeomDeleteArr().length != 0){
@@ -85,6 +97,19 @@ public class GeomBoardController {
     public List<Map<String, Object>> getGeomBoard(@Valid BoardDto boardDTO) throws Exception {
 
         List<Map<String, Object>> list = boardFirebaseService.getGeomData(boardDTO.getId());
+
+        return list;
+    }
+
+    /**
+    * @method 지오메트릭 글 리스트 가져오기
+    * @param  null
+    * @throws Exception
+    */
+    @GetMapping(value = {"/getGeomBoardList"})
+    public List<Map<String, Object>> getGeomBoardList(@Valid BoardDto boardDTO) throws Exception {
+
+        List<Map<String, Object>> list = boardFirebaseService.getGeomBoardList();
 
         return list;
     }

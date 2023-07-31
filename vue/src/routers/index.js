@@ -47,6 +47,12 @@ const routes = [
         component: () => import('@/components/BoardEditComponent.vue'), // [로드 파일]]
         props: true, // [파라메터 Y/N]
     },
+    {
+        path: '/boardList', // [경로]
+        name: 'boardList', // [이름]
+        component: () => import('@/components/BoardListComponent.vue'), // [로드 파일]]
+        props: true, // [파라메터 Y/N]
+    },
 ];
 
 // 라우터 설정 실시

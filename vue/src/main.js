@@ -11,6 +11,10 @@ import 'bootstrap-vue-3/dist/bootstrap-vue-3.css';
 import OpenLayersMap from 'vue3-openlayers';
 //import 'vue3-openlayers/dist/vue3-openlayers.css';
 
+/*
+import 'bootstrap/dist/css/bootstrap.min.css'; // [bootstrap]
+import 'bootstrap'; // [bootstrap]
+*/
 import store from './routers/store/index.js';
 
 const app = createApp(App);

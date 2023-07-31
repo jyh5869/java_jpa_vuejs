@@ -33,4 +33,21 @@ public class BoardDto {
 
 	private String[] geomDeleteArr;
 
+	private String userEmail;
+
+	private String userNm;
+
+	private String userAdress;
+
+	private String title;
+
+	private String contents1;
+
+	private String contents2;
+
+	private String state;
+
+	private String zipCd;
+
+	private String useYn;
 }

@@ -33,6 +33,7 @@
                     </li>
                     <li class="nav-item">
                         <router-link class="nav-link" to="/main">List</router-link>
+                        <router-link class="nav-link" to="/boardList">Geometry Board List</router-link>
                     </li>
                     <!-- 
                     <li class="nav-item dropdown">
