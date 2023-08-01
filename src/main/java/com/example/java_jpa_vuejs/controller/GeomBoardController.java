@@ -70,9 +70,13 @@ public class GeomBoardController {
         System.out.println(boardDTO.getUseYn());
         System.out.println("☆ ☆ ☆ --------------------------");
         
-
-        boardDTO.setId(boardFirebaseService.getLastIndex());
-
+        if(boardDTO.getActionType().equals("Insert")){
+            boardDTO.setId(boardFirebaseService.getLastIndex());
+        }
+        else if(boardDTO.getActionType().equals("Insert")){
+            boardDTO.setId(boardDTO.getId());
+        }
+        
         boardFirebaseService.setGeomdData(boardDTO.getId(), boardDTO.getGeomPolygons() );
         boardFirebaseService.setGeomdData(boardDTO.getId(), boardDTO.getGeomLineStrings());
         boardFirebaseService.setGeomdData(boardDTO.getId(), boardDTO.getGeomPoints());

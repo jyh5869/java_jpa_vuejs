@@ -131,13 +131,13 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
             Firestore db = FirestoreClient.getFirestore();
             
             
-            String lastIdx = String.valueOf(id);
+            String updateId = String.valueOf(id);
 
             SimpleDateFormat dayTime = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
             String regDt = dayTime.format(new Date());
             Map<String, Object> docData = new HashMap<String, Object>();
 
-            docData.put("board_Sq", id);
+            docData.put("board_sq", id);
             docData.put("user_email", boardDTO.getUserEmail());
             docData.put("user_name", boardDTO.getUserNm());
             docData.put("user_adress", boardDTO.getUserAdress());
@@ -145,17 +145,18 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
             docData.put("contents1", boardDTO.getContents1());
             docData.put("contents2", boardDTO.getContents2());
             docData.put("state", boardDTO.getState());
-            docData.put("useYN", boardDTO.getUseYn());
+            docData.put("use_yn", boardDTO.getUseYn());
+            docData.put("zip_cd", boardDTO.getZipCd());
             docData.put("reg_dt", regDt);
 
-            String state = "insert";
-
+            String state = boardDTO.getActionType();
+            System.out.println("ActionType-----------------------------> " + state +   "   /   " + id);
             if(state.equals("insert")){//인서트
                 ApiFuture<WriteResult> future = db.collection("geometry_board").document().set(docData);
             }
             else if(state.equals("update")){//업데이트
 
-                ApiFuture<WriteResult> future = db.collection("geometry_board").document(lastIdx).set(docData);
+                ApiFuture<WriteResult> future = db.collection("geometry_board").document(updateId).set(docData);
             }
             
             Util.durationTime ("end", "CLOUD / USER REGISTRATION : ", reqTime, "Complete ::: " );
@@ -213,7 +214,7 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
             Firestore db = FirestoreClient.getFirestore();
 
             //스냅샷 호출 후 리스트 생성(JSON)
-            ApiFuture<QuerySnapshot> query = db.collection("geometry").orderBy("reg_dt", Direction.DESCENDING).get();
+            ApiFuture<QuerySnapshot> query = db.collection("geometry").whereEqualTo("id", id).get();
             QuerySnapshot querySnapshot = query.get();
 
             List<QueryDocumentSnapshot> documents = querySnapshot.getDocuments();

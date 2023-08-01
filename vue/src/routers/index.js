@@ -42,7 +42,7 @@ const routes = [
         props: true, // [파라메터 Y/N]
     },
     {
-        path: '/boardEdit', // [경로]
+        path: '/boardEdit/:document', // [경로]
         name: 'boardEdit', // [이름]
         component: () => import('@/components/BoardEditComponent.vue'), // [로드 파일]]
         props: true, // [파라메터 Y/N]

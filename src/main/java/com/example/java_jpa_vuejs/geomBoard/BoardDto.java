@@ -22,6 +22,8 @@ public class BoardDto {
 
 	@Id
 	private long id;
+
+	private String actionType;
 	
 	private String geomPolygons;
 	
@@ -50,4 +52,5 @@ public class BoardDto {
 	private String zipCd;
 
 	private String useYn;
+
 }

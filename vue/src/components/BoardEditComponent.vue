@@ -251,23 +251,37 @@ export default {
         msg: String,
     },
     data() {
-        this.getGeometry();
-        //this.featureOverlayInit();
+        let actionType;
+        let document = {};
+        let callType = JSON.parse(this.$route.params.document).callType;
+
+        if (callType == 'Detail') {
+            document = JSON.parse(this.$route.params.document).boardData;
+            actionType = 'update';
+
+            this.getGeometry();
+        } else if (callType == 'Write') {
+            actionType = 'insert';
+        }
 
         return {
             data: 'HELLO OPENLAYERS', // [데이터 정의]
+            actionType: actionType,
+            callType: callType,
             coordinatePolygonArr: [],
             coordinateLineStringArr: [],
             coordinatePointArr: [],
             coordinateCircleArr: [],
-            userEmail: '',
-            userNm: '',
-            userAdress: '',
-            title: '',
-            contents1: '',
-            contents2: '',
-            zipCd: '',
-            useYn: '',
+            boardSq: document.board_Sq,
+            userEmail: document.user_email,
+            userNm: document.user_name,
+            userAdress: document.user_adress,
+            title: document.title,
+            contents1: document.contents1,
+            contents2: document.contents2,
+            state: document.state,
+            zipCd: document.zip_cd,
+            useYn: document.use_yn,
         };
     },
     mounted() {
@@ -294,7 +308,6 @@ export default {
             currentZoom.value = zoomLevel;
         },
         initMap: await function () {
-            //map.getLayers().forEach((layer) => layer.getSource().refresh());
             zonesLineString.value = ref([]);
             zonesCircle.value = ref([]);
             zonesPoint.value = ref([]);
@@ -306,7 +319,7 @@ export default {
                 method: 'get',
                 url: '/api/getGeomBoard',
                 params: {
-                    id: '0',
+                    id: this.boardSq,
                 },
             });
 
@@ -455,6 +468,7 @@ export default {
                 method: 'get',
                 url: '/api/setGeomBoard',
                 params: {
+                    actionType: this.actionType,
                     geomPolygons: encodeURI(GeoJSONFormat.writeFeatures(polygonArray)),
                     geomLineStrings: encodeURI(GeoJSONFormat.writeFeatures(lineStringArray)),
                     geomPoints: encodeURI(GeoJSONFormat.writeFeatures(pointArray)),

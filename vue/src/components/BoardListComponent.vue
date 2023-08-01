@@ -28,15 +28,18 @@
                     <strong>Loading...</strong>
                 </div>
             </template>
-            <template #cell(brdno)="brdno"> {{ brdno.index + 1 }} </template>
-            <template #cell(brdtitle)="title">
+            <template #cell(board_Sq)="board_Sq"> {{ board_Sq.index + 1 }} </template>
+            <template #cell(title)="title">
                 <!-- <a href="#" v-on:click="viewDetail(title.index, $event)" class="text-primary text-decoration-none">{{ title.value == null ? 'No Title' : title.value }}</a> -->
                 <router-link
                     class="text-secondary text-decoration-none"
                     :to="{
-                        name: 'hello',
+                        name: 'boardEdit',
                         params: {
-                            document: JSON.stringify(this.dataList[title.index]),
+                            document: JSON.stringify({
+                                boardData: this.dataList[title.index],
+                                callType: 'Detail',
+                            }),
                         },
                     }"
                     >{{ title.value == null ? 'No Title' : title.value }}
@@ -45,6 +48,9 @@
             <template #cell(reg_dt)="reg_dt"> {{ reg_dt.value }} </template>
             <template #table-caption>Data List</template>
         </b-table>
+    </div>
+    <div class="col-12">
+        <button type="button" class="btn float-right btn-success">글쓰기</button>
     </div>
 </template>
 
@@ -108,7 +114,7 @@ export default {
 
             this.$router.push({
                 name: 'hello',
-                params: { document: JSON.stringify(this.dataList[index]) },
+                params: { callType: 'detail', document: JSON.stringify(this.dataList[index]) },
             });
         },
         toggleBusy() {

@@ -28,7 +28,21 @@
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Admin </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <li><router-link class="nav-link active nav-link" to="/mapTest" aria-current="page">View Map</router-link></li>
-                            <li><router-link class="nav-link active nav-link" to="/boardEdit" aria-current="page">Board Write</router-link></li>
+                            <li>
+                                <router-link
+                                    class="nav-link active nav-link"
+                                    :to="{
+                                        name: 'boardEdit',
+                                        params: {
+                                            document: JSON.stringify({
+                                                boardData: null,
+                                                callType: 'Write',
+                                            }),
+                                        },
+                                    }"
+                                    >Geometry Board Write
+                                </router-link>
+                            </li>
                         </ul>
                     </li>
                     <li class="nav-item">
