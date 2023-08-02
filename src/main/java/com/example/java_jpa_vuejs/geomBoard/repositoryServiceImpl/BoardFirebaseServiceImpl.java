@@ -148,7 +148,7 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
             docData.put("use_yn", boardDTO.getUseYn());
             docData.put("zip_cd", boardDTO.getZipCd());
             docData.put("reg_dt", regDt);
-
+            
             String state = boardDTO.getActionType();
             System.out.println("ActionType-----------------------------> " + state +   "   /   " + id);
             if(state.equals("insert")){//인서트
