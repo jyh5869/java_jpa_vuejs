@@ -25,6 +25,10 @@ public interface BoardFirebaseService {
 	
     long getLastIndex() throws Exception;
 
+	void setDeleteGeomData(String boardSq) throws Exception;
+
+    void setDeleteBoardData(String boardSq) throws Exception;
+
 	
 ;
 

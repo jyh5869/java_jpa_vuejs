@@ -92,11 +92,11 @@
                 <ol-source-vector :features="zonesCircle">
                     <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
                     <!-- <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend">
-                    <ol-style>
-                        <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
-                        <ol-style-fill color="rgba(255, 255, 0, 0.4)"></ol-style-fill>
-                    </ol-style>
-                </ol-interaction-draw> -->
+                        <ol-style>
+                            <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
+                            <ol-style-fill color="rgba(255, 255, 0, 0.4)"></ol-style-fill>
+                        </ol-style>
+                    </ol-interaction-draw> -->
                     <ol-interaction-snap v-if="modifyEnabled" />
 
                     <ol-overlay :ref="'lineString_ovl_' + item.getId()" class="overlay-wrap" :id="'circle_ovl_' + item.getId()" v-for="(item, index) in zonesCircle" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
@@ -204,6 +204,11 @@
         <div class="btn-wrap navbar-nav mb-2 mb-lg-0">
             <button class="btn login btn-outline-primary" @click="setGeometry()">데이터 저장</button>
         </div>
+
+        <div class="col-12">
+            <button type="button" class="btn mx-1 px-3 float-right btn-outline-success" v-if="actionType == 'insert' || actionType == 'update'" @click="getBoardList">리스트</button>
+            <button type="button" class="btn mx-1 px-3 float-right btn-outline-danger" v-if="actionType == 'update'" @click="setBoardDelete">삭제</button>
+        </div>
     </div>
     <hr />
 </template>
@@ -255,11 +260,14 @@ export default {
         let document = {};
         let callType = JSON.parse(this.$route.params.document).callType;
 
+        //지도 초기화
+        this.initMap();
+
         if (callType == 'Detail') {
             document = JSON.parse(this.$route.params.document).boardData;
             actionType = 'update';
 
-            this.getGeometry();
+            this.getGeometry(document.board_sq);
         } else if (callType == 'Write') {
             actionType = 'insert';
         }
@@ -267,12 +275,13 @@ export default {
         return {
             data: 'HELLO OPENLAYERS', // [데이터 정의]
             actionType: actionType,
+            docId: document.docId,
+            boardSq: document.board_sq,
             callType: callType,
             coordinatePolygonArr: [],
             coordinateLineStringArr: [],
             coordinatePointArr: [],
             coordinateCircleArr: [],
-            boardSq: document.board_Sq,
             userEmail: document.user_email,
             userNm: document.user_name,
             userAdress: document.user_adress,
@@ -308,18 +317,19 @@ export default {
             currentZoom.value = zoomLevel;
         },
         initMap: await function () {
-            zonesLineString.value = ref([]);
-            zonesCircle.value = ref([]);
-            zonesPoint.value = ref([]);
-            zonesPolygon.value = ref([]);
+            zonesLineString.value.length = 0;
+            zonesCircle.value.length = 0;
+            zonesPoint.value.length = 0;
+            zonesPolygon.value.length = 0;
         },
-        getGeometry: async function () {
-            console.log('저장된 지오데이터 호출');
+        getGeometry: async function (boardSq) {
+            console.log('저장된 지오데이터 호출 BoardSq : ' + boardSq);
+
             const result = await this.$axios({
                 method: 'get',
                 url: '/api/getGeomBoard',
                 params: {
-                    id: this.boardSq,
+                    boardSq: boardSq,
                 },
             });
 
@@ -469,6 +479,8 @@ export default {
                 url: '/api/setGeomBoard',
                 params: {
                     actionType: this.actionType,
+                    docId: this.docId,
+                    boardSq: this.boardSq,
                     geomPolygons: encodeURI(GeoJSONFormat.writeFeatures(polygonArray)),
                     geomLineStrings: encodeURI(GeoJSONFormat.writeFeatures(lineStringArray)),
                     geomPoints: encodeURI(GeoJSONFormat.writeFeatures(pointArray)),
@@ -491,6 +503,7 @@ export default {
 
             if (result.status === 200) {
                 console.log(result.data);
+                this.getBoardList();
             }
         },
         geomEvent: async function (targetFeature, position) {
@@ -686,6 +699,28 @@ export default {
                     }
                 });
             }
+        },
+        setBoardDelete: async function () {
+            if (confirm('글을 삭제하시겠습니까?')) {
+                const result = await this.$axios({
+                    method: 'get',
+                    url: '/api/setGeomBoard',
+                    params: {
+                        boardSq: this.boardSq,
+                        actionType: 'delete',
+                    },
+                });
+
+                if (result.status === 200) {
+                    //삭제완료 후 리스트로 이동
+                    this.getBoardList();
+                }
+            }
+        },
+        getBoardList: async function () {
+            this.$router.push({
+                name: 'boardList',
+            });
         },
     },
 };

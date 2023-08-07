@@ -50,7 +50,7 @@
         </b-table>
     </div>
     <div class="col-12">
-        <button type="button" class="btn float-right btn-success">글쓰기</button>
+        <button type="button" class="btn float-right btn-success" @click="getBoardWrite">글쓰기</button>
     </div>
 </template>
 
@@ -103,9 +103,17 @@ export default {
     },
     // [메소드 정의 실시]
     methods: {
-        // [testMain 함수 정의 실시]
-        testMain: function () {
-            return 'testData';
+        // 글쓰기 페이지로 이동
+        getBoardWrite: async function () {
+            this.$router.push({
+                name: 'boardEdit',
+                params: {
+                    document: JSON.stringify({
+                        boardData: null,
+                        callType: 'Write',
+                    }),
+                },
+            });
         },
         viewDetail: function (index, event) {
             const targetId = event.currentTarget.id;

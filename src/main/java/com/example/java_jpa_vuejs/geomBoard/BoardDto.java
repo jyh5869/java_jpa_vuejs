@@ -23,7 +23,11 @@ public class BoardDto {
 	@Id
 	private long id;
 
+	private String docId;
+
 	private String actionType;
+
+	private String boardSq;
 	
 	private String geomPolygons;
 	

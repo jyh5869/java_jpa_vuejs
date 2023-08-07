@@ -131,13 +131,13 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
             Firestore db = FirestoreClient.getFirestore();
             
             
-            String updateId = String.valueOf(id);
+            String updateId = String.valueOf(boardDTO.getDocId());
 
             SimpleDateFormat dayTime = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
             String regDt = dayTime.format(new Date());
             Map<String, Object> docData = new HashMap<String, Object>();
 
-            docData.put("board_sq", id);
+            docData.put("board_sq", boardDTO.getBoardSq());
             docData.put("user_email", boardDTO.getUserEmail());
             docData.put("user_name", boardDTO.getUserNm());
             docData.put("user_adress", boardDTO.getUserAdress());
@@ -281,21 +281,23 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
             Firestore db = FirestoreClient.getFirestore();
 
             //스냅샷 호출 후 리스트 생성(JSON)
-            ApiFuture<QuerySnapshot> query = db.collection("geometry_board").orderBy("reg_dt", Direction.DESCENDING).limitToLast(1).get();
+            ApiFuture<QuerySnapshot> query = db.collection("geometry_board").orderBy("board_sq", Direction.ASCENDING).limitToLast(1).get();
             QuerySnapshot querySnapshot = query.get();
 
             List<QueryDocumentSnapshot> documents = querySnapshot.getDocuments();
 
             if(documents.size() == 0){
-                lastIdx = 1;
+                lastIdx = 0;
             }
             else{
                 for (QueryDocumentSnapshot document : documents) {
 
                     Map<String, Object> data = document.getData();
-
-                    lastIdx =  Integer.parseInt((String) data.get("board_Sq"));
                     
+                    lastIdx =  Integer.parseInt((String) data.get("board_sq")) + 1;
+                    
+                    System.out.println("글 쓰기 라스트 인덱스 ------------------------------------------>  " + data.get("board_sq") + "        "+ lastIdx);
+
                     continue;
                 }
             }
@@ -311,6 +313,58 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
 		
 		return lastIdx;
 	}
+
+    @Override
+    public void setDeleteGeomData(String boardSq) throws Exception {
+        long reqTime = Util.durationTime ("start", "CLOUD / GET LIST : ", 0, "Proceeding ::: " );
+        
+        try {
+            firebaseConfiguration.initializeFCM();
+            Firestore db = FirestoreClient.getFirestore();
+
+            //스냅샷 호출 후 리스트 생성(JSON)
+            ApiFuture<QuerySnapshot> query = db.collection("geometry").whereEqualTo("id", Integer.parseInt(boardSq)).get();
+            int deleted = 0;
+            // future.get() blocks on document retrieval
+            List<QueryDocumentSnapshot> documents = query.get().getDocuments();
+            for (QueryDocumentSnapshot document : documents) {
+                document.getReference().delete();
+                ++deleted;
+            }
+
+            Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Complete ::: " );
+        }
+        catch (Exception e) {
+			Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Fail ::: " );
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void setDeleteBoardData(String boardSq) throws Exception {
+        long reqTime = Util.durationTime ("start", "CLOUD / GET LIST : ", 0, "Proceeding ::: " );
+
+        try {
+            firebaseConfiguration.initializeFCM();
+            Firestore db = FirestoreClient.getFirestore();
+
+            //스냅샷 호출 후 리스트 생성(JSON)
+            ApiFuture<QuerySnapshot> query = db.collection("geometry_board").whereEqualTo("board_sq", boardSq).get();
+            int deleted = 0;
+            // future.get() blocks on document retrieval
+            List<QueryDocumentSnapshot> documents = query.get().getDocuments();
+            for (QueryDocumentSnapshot document : documents) {
+                document.getReference().delete();
+                ++deleted;
+            }
+
+            Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Complete ::: " );
+        }
+        catch (Exception e) {
+			Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Fail ::: " );
+            e.printStackTrace();
+        }
+    }
 
 
 }

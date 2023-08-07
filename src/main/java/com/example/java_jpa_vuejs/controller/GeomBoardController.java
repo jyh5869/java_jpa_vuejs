@@ -52,13 +52,12 @@ public class GeomBoardController {
     */
     @GetMapping(value = {"/setGeomBoard"})
     public String setGeomBoard(@Valid BoardDto boardDTO) throws Exception {
-        
-        String dataType = boardDTO.getGeomPolygons().getClass().getName();
-        String geomPolygon = URLDecoder.decode(boardDTO.getGeomPolygons().toString(), "UTF-8");
-        String geomCircle = URLDecoder.decode(boardDTO.getGeomCircles().toString(), "UTF-8");
-        
 
         System.out.println("☆ ☆ ☆ --------------------------");
+        System.out.println(boardDTO.getActionType());
+        System.out.println(boardDTO.getId());
+        System.out.println(boardDTO.getDocId());
+        System.out.println(boardDTO.getBoardSq());
         System.out.println(boardDTO.getUserEmail());
         System.out.println(boardDTO.getUserNm());
         System.out.println(boardDTO.getUserAdress());
@@ -70,17 +69,27 @@ public class GeomBoardController {
         System.out.println(boardDTO.getUseYn());
         System.out.println("☆ ☆ ☆ --------------------------");
         
-        if(boardDTO.getActionType().equals("Insert")){
-            boardDTO.setId(boardFirebaseService.getLastIndex());
+        if(boardDTO.getActionType().equals("insert")){
+            //boardDTO.setId(boardFirebaseService.getLastIndex());
+            boardDTO.setBoardSq(String.valueOf(boardFirebaseService.getLastIndex()));
         }
-        else if(boardDTO.getActionType().equals("Insert")){
-            boardDTO.setId(boardDTO.getId());
+        else if(boardDTO.getActionType().equals("update")){
+            boardDTO.setDocId(boardDTO.getDocId());
+        }
+        else if(boardDTO.getActionType().equals("delete")){
+            
+            String boardSq = boardDTO.getBoardSq();
+
+            boardFirebaseService.setDeleteGeomData(boardSq);
+            boardFirebaseService.setDeleteBoardData(boardSq);
+
+            return "TRUE";
         }
         
-        boardFirebaseService.setGeomdData(boardDTO.getId(), boardDTO.getGeomPolygons() );
-        boardFirebaseService.setGeomdData(boardDTO.getId(), boardDTO.getGeomLineStrings());
-        boardFirebaseService.setGeomdData(boardDTO.getId(), boardDTO.getGeomPoints());
-        boardFirebaseService.setGeomdData(boardDTO.getId(), boardDTO.getGeomCircles());
+        boardFirebaseService.setGeomdData(Integer.parseInt(boardDTO.getBoardSq()), boardDTO.getGeomPolygons() );
+        boardFirebaseService.setGeomdData(Integer.parseInt(boardDTO.getBoardSq()), boardDTO.getGeomLineStrings());
+        boardFirebaseService.setGeomdData(Integer.parseInt(boardDTO.getBoardSq()), boardDTO.getGeomPoints());
+        boardFirebaseService.setGeomdData(Integer.parseInt(boardDTO.getBoardSq()), boardDTO.getGeomCircles());
 
         boardFirebaseService.setBoardData(boardDTO.getId(), boardDTO);
 
@@ -100,7 +109,7 @@ public class GeomBoardController {
     @GetMapping(value = {"/getGeomBoard"})
     public List<Map<String, Object>> getGeomBoard(@Valid BoardDto boardDTO) throws Exception {
 
-        List<Map<String, Object>> list = boardFirebaseService.getGeomData(boardDTO.getId());
+        List<Map<String, Object>> list = boardFirebaseService.getGeomData(Integer.parseInt(boardDTO.getBoardSq()));
 
         return list;
     }
