@@ -33,4 +33,6 @@ public class AuthenticationDto {
 
     private String authType;
 
+    private String loginType;
+
 }

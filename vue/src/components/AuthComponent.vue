@@ -100,6 +100,7 @@ export default {
             nickname: '',
             mobile: '',
             deleteYn: '',
+            authType: this.$store.getters.authType,
             error: false,
             accessType: accessType, //접근 타입 1. SIGNUP 2. SIGNIN
             signIn: accessType == 'SIGNIN' ? true : false,
@@ -215,6 +216,7 @@ export default {
                         name: this.name,
                         nickname: this.nickname,
                         mobile: this.mobile,
+                        authType: 'user',
                     },
                     headers: {
                         'Content-Type': 'multipart/form-data',
@@ -225,7 +227,7 @@ export default {
                     this.signUpAndModify = false;
                 }
             } else if (this.accessType == 'MODIFY' && type != 'DELETE') {
-                console.log('회원정보 수정');
+                console.log('회원정보 수정 : ' + this.authType);
 
                 if ((await this.formValidation()) == false) {
                     return false;
@@ -249,6 +251,7 @@ export default {
                         nickname: this.nickname,
                         mobile: this.mobile,
                         deleteYn: this.deleteYn,
+                        authType: this.authType,
                     },
                     headers: {
                         'Content-Type': 'multipart/form-data',
@@ -338,7 +341,8 @@ export default {
         },
         getUserInfo: async function () {
             let id = this.$store.getters.id;
-            console.log('유저 정보 : ' + id);
+            let authType = this.$store.getters.authType;
+            console.log('유저 정보 : ' + id + ' / ' + authType);
 
             const result = await this.$axios({
                 method: 'post',

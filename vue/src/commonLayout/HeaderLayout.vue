@@ -25,7 +25,7 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Admin </a>
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" v-if="this.$store.getters.authType == 'admin'"> Admin </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <li><router-link class="nav-link active nav-link" to="/mapTest" aria-current="page">View Map</router-link></li>
                             <li>

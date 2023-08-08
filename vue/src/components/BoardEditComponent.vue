@@ -161,11 +161,11 @@
 
         <div class="col-md-6">
             <label for="userEmail" class="form-label">User Email</label>
-            <input type="email" class="form-control" v-model="userEmail" />
+            <input type="email" class="form-control" v-model="userEmail" readonly />
         </div>
         <div class="col-md-6">
             <label for="userNm" class="form-label">User Name</label>
-            <input type="text" class="form-control" v-model="userNm" />
+            <input type="text" class="form-control" v-model="userNm" readonly />
         </div>
         <div class="col-12">
             <label for="title" class="form-label">title</label>
@@ -258,6 +258,7 @@ export default {
     data() {
         let actionType;
         let document = {};
+
         let callType = JSON.parse(this.$route.params.document).callType;
 
         //지도 초기화
@@ -274,23 +275,23 @@ export default {
 
         return {
             data: 'HELLO OPENLAYERS', // [데이터 정의]
-            actionType: actionType,
-            docId: document.docId,
-            boardSq: document.board_sq,
-            callType: callType,
-            coordinatePolygonArr: [],
-            coordinateLineStringArr: [],
-            coordinatePointArr: [],
-            coordinateCircleArr: [],
-            userEmail: document.user_email,
-            userNm: document.user_name,
-            userAdress: document.user_adress,
-            title: document.title,
-            contents1: document.contents1,
-            contents2: document.contents2,
-            state: document.state,
-            zipCd: document.zip_cd,
-            useYn: document.use_yn,
+            actionType: actionType, //동작타입: 1.insert, 2.update
+            docId: document.docId, //게시글 ID(문자열)
+            boardSq: document.board_sq, //게시글 INDEX(정수)
+            callType: callType, //진입경로
+            coordinatePolygonArr: [], //Polygon 배열
+            coordinateLineStringArr: [], //LineString 배열
+            coordinatePointArr: [], //Point 배열
+            coordinateCircleArr: [], //Circle 배열
+            userEmail: callType == 'Detail' ? document.user_email : this.$store.getters.email, //이메일: 상세보기의 경우 게시글정보, 글쓰기의경우 이용자정보
+            userNm: callType == 'Detail' ? document.user_name : this.$store.getters.name, //이름: 상세보기의 경우 게시글정보, 글쓰기의경우 이용자정보
+            userAdress: document.user_adress, // 사용자 주소
+            title: document.title, //게시글 제목
+            contents1: document.contents1, //게시글 내용1
+            contents2: document.contents2, ///게시글 내용2
+            state: document.state, //게시글 상태
+            zipCd: document.zip_cd, //게시글 우편번호
+            useYn: document.use_yn, //게시글 사용여부
         };
     },
     mounted() {

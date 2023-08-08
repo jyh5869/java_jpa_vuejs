@@ -10,6 +10,7 @@ const state = {
     email: null,
     nickname: null,
     authType: null,
+    loginType: null,
     createdDate: null,
     modifiedDate: null,
 };
@@ -19,6 +20,9 @@ const getters = {
     refreshToken: (state) => state.refreshToken,
     id: (state) => state.id,
     email: (state) => state.email,
+    name: (state) => state.name,
+    authType: (state) => state.authType,
+    loginType: (state) => state.loginType,
     nickname: (state) => state.nickname,
 };
 
@@ -29,8 +33,10 @@ const mutations = {
         state.id = item.data['id'];
         state.role = item.data['role'];
         state.email = item.data['email'];
+        state.name = item.data['name'];
         state.nickname = item.data['nickname'];
         state.authType = item.data['authType'];
+        state.loginType = item.data['loginType'];
         state.createdDate = item.data['createdDate'];
         state.modifiedDate = item.data['modifiedDate'];
     },
@@ -46,6 +52,7 @@ const mutations = {
         state.email = null;
         state.nickname = null;
         state.authType = null;
+        state.loginType = null;
         state.createdDate = null;
         state.modifiedDate = null;
     },

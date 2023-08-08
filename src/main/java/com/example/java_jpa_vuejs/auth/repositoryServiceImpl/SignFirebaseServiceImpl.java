@@ -67,6 +67,7 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
             docData.put("created_date", String.valueOf(ZonedDateTime.now()));
             docData.put("modified_date", String.valueOf(ZonedDateTime.now()));
             docData.put("delete_yn", "N");
+            docData.put("auth_type", joinDto.getAuthType());
             
             ApiFuture<WriteResult> future = db.collection("user").document(lastIdx).set(docData);
 
@@ -115,6 +116,7 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
                 joinDto.setCreatedDate(createdDate);
                 joinDto.setModifiedDate(modifiedDate);
                 joinDto.setDeleteYn((String) docData.get("delete_yn"));
+                joinDto.setAuthType((String) docData.get("auth_type"));
                 
                 /* 문서를 객체와 매칭시켜 데이터를 가져 오는 Code(파라메터 명이 일치 해야 한다.)
                 member = document.toObject(Members.class);
@@ -191,6 +193,7 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
             docData.put("mobile", joinDto.getMobile());
             docData.put("nickname", joinDto.getNickname());
             docData.put("profile", joinDto.getProfile());
+            docData.put("auth_type", joinDto.getAuthType());
             docData.put("modified_date", String.valueOf(ZonedDateTime.now()));
             docData.put("delete_yn", "Y");
 

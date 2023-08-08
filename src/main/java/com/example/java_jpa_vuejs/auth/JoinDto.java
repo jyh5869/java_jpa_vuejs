@@ -41,6 +41,8 @@ public class JoinDto {
     
     private String deleteYn;
 
+    private String authType;
+
     public Object signFirebaseService;
 
 
@@ -54,6 +56,7 @@ public class JoinDto {
                 .nickname(nickname)
                 .mobile(mobile)
                 .profile(profile)
+                .authType(authType)
                 .deleteYn(deleteYn)
                 .build();
 

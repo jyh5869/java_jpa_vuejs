@@ -80,13 +80,14 @@ public class VueProxyTestController {
         
         try {
             authentication = signService.loginMemberMysql(loginDto);
-            authentication.setAuthType("DB");
+            authentication.setLoginType("DB");
+            
         } 
         catch (Exception e) {
             e.printStackTrace();
             LOG.info(" DB AUTH ERROR - CLOUD AUTH START!");
             authentication = signFirebaseService.loginMember(loginDto);
-            authentication.setAuthType("CLOUD");
+            authentication.setLoginType("CLOUD");
         }
 
         HttpHeaders responseHeaders = new HttpHeaders();
@@ -216,6 +217,7 @@ public class VueProxyTestController {
         LOG.info("getName     = " + joinDto.getName());
         LOG.info("getMobile   = " + joinDto.getMobile());
         LOG.info("getNickname = " + joinDto.getNickname());
+        LOG.info("getNickname = " + joinDto.getAuthType());
 
         boolean returnFlag = false;
         Integer updateCnt = 0;

@@ -45,12 +45,14 @@ const routes = [
         path: '/boardEdit/:document', // [경로]
         name: 'boardEdit', // [이름]
         component: () => import('@/components/BoardEditComponent.vue'), // [로드 파일]]
+        meta: { authRequired: true },
         props: true, // [파라메터 Y/N]
     },
     {
         path: '/boardList', // [경로]
         name: 'boardList', // [이름]
         component: () => import('@/components/BoardListComponent.vue'), // [로드 파일]]
+        meta: { authRequired: true },
         props: true, // [파라메터 Y/N]
     },
 ];

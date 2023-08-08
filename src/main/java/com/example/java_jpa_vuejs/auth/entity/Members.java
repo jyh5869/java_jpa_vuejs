@@ -63,6 +63,9 @@ public class Members{
 	@Column(length = 200)
 	private String profile;
 
+	@Column(length = 200)
+	private String authType;
+
 	@Column(length = 1, nullable = false, columnDefinition = "char(1) default 'N'")
 	private String deleteYn;
 
@@ -145,6 +148,7 @@ public class Members{
 		joinDto.setCreatedDate(MemberEntity.createdDate);
 		joinDto.setModifiedDate(MemberEntity.modifiedDate);
 		joinDto.setDeleteYn(MemberEntity.deleteYn);
+		joinDto.setAuthType(MemberEntity.authType);
 
 		return joinDto;
 	}
@@ -152,7 +156,7 @@ public class Members{
 
 	@Builder
 	public Members(Long id, String email, String password, String name, String mobile, String nickname,
-					String profile, ZonedDateTime createdDate, ZonedDateTime modifiedDate, String deleteYn) {
+					String profile, ZonedDateTime createdDate, ZonedDateTime modifiedDate, String deleteYn, String authType) {
 		this.id = id;
 		this.email = email;
 		this.password = password;
@@ -163,6 +167,7 @@ public class Members{
 		this.createdDate = createdDate;
 		this.modifiedDate = modifiedDate;
 		this.deleteYn = deleteYn;
+		this.authType = authType;
 	}
 
 	public Members(Members loginEntity) {}
