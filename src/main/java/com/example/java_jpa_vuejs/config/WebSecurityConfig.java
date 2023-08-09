@@ -67,6 +67,7 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
                     .requestMatchers("/api/userRegistration").permitAll()// 회원가입 페이지 접근
 					.requestMatchers("/api/idValidation").permitAll()// 로그인 페이지 접근
                     .requestMatchers("/api/reissuance").permitAll()// 토큰 재발행
+                    .requestMatchers("/api/setSendAuthEmail").permitAll()// 토큰 재발행
 					.requestMatchers("/exception/**").permitAll() // 예외처리 포인트 접근
 					//.requestMatchers("/**").hasRole("USER")// 상세 권한 설정
                     .anyRequest().authenticated() 

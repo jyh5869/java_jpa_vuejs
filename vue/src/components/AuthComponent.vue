@@ -33,7 +33,7 @@
             <input type="button" class="fadeIn fourth" value="Log In" @click="login()" />
 
             <!-- Remind Passowrd -->
-            <div id="formFooter"><a class="underlineHover" href="#">Forgot Password?</a></div>
+            <div id="formFooter"><a class="underlineHover" href="javascript:void('0');" @click="sendAuthEmail()">Forgot Password?!</a></div>
         </div>
     </div>
     <div class="wrapper fadeInDown" v-show="signUpAndModify">
@@ -57,7 +57,7 @@
             <input type="button" class="fadeIn fourth" value="Information Change" @click="userManagement()" />
 
             <!-- Remind Passowrd -->
-            <div id="formFooter"><a class="underlineHover" href="javascript:void(0);">Forgot Password?</a></div>
+            <!-- <div id="formFooter"><a class="underlineHover" href="javascript:void(0);">Forgot Password?</a></div> -->
             <div id="formFooter" v-if="accessType == 'MODIFY'">
                 <a class="underlineHover" href="javascript:void(0);" @click="userManagement('DELETE')">Delete account</a>
             </div>
@@ -82,7 +82,14 @@ export default {
 
         //회원정보 수정일 경우 호출
         if (accessType == 'MODIFY') {
-            this.getUserInfo();
+            console.log('☆☆☆☆☆☆☆☆☆☆☆');
+            console.log(this.$route);
+            console.log('☆☆☆☆☆☆☆☆☆☆☆');
+
+            let id = this.$store.getters.id;
+            let authType = this.$store.getters.authType;
+
+            this.getUserInfo(id, authType);
         }
 
         let idValidationMsg = '';
@@ -339,9 +346,7 @@ export default {
                 }
             }
         },
-        getUserInfo: async function () {
-            let id = this.$store.getters.id;
-            let authType = this.$store.getters.authType;
+        getUserInfo: async function (id, authType) {
             console.log('유저 정보 : ' + id + ' / ' + authType);
 
             const result = await this.$axios({
@@ -363,6 +368,24 @@ export default {
                 this.nickname = result.data.nickname;
                 this.mobile = result.data.mobile;
                 this.deleteYn = result.data.deleteYn;
+            }
+        },
+        sendAuthEmail: async function () {
+            console.log('아이디 찾겠습니다.');
+            var id = this.user; // 현재 입력된 아이디
+
+            const result = await this.$axios({
+                method: 'post',
+                url: '/api/setSendAuthEmail',
+                params: {
+                    email: id,
+                },
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            if (result.status === 200) {
+                console.log(result);
             }
         },
     },

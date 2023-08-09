@@ -1,5 +1,6 @@
 package com.example.java_jpa_vuejs.controller;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -18,6 +19,7 @@ import com.example.java_jpa_vuejs.auth.AuthenticationDto;
 import com.example.java_jpa_vuejs.auth.JoinDto;
 import com.example.java_jpa_vuejs.auth.LoginDto;
 import com.example.java_jpa_vuejs.auth.entity.Members;
+import com.example.java_jpa_vuejs.common.repositoryService.EmailService;
 import com.example.java_jpa_vuejs.auth.repositoryService.SignFirebaseService;
 import com.example.java_jpa_vuejs.auth.repositoryService.SignService;
 import com.example.java_jpa_vuejs.auth2.repositoryService.RepositoryService;
@@ -48,6 +50,8 @@ public class VueProxyTestController {
 
     private final SignService signService;
     private final SignFirebaseService signFirebaseService;
+
+    private final EmailService emailService;
 
     private final FirebaseConfiguration firebaseConfiguration;
 
@@ -273,5 +277,44 @@ public class VueProxyTestController {
         returnIObj.addProperty("updateCnt", updateCnt);
 
         return returnIObj.toString();
+    }
+
+    /**
+    * @method 회원 정보 가져오기 Select Action 
+    * @param loginDto
+    * @throws Exception
+    */
+    @PostMapping(value = {"/setSendAuthEmail"})
+    public ResponseEntity<LoginDto> setSendAuthEmail(LoginDto loginDto) throws Exception {
+        LOG.info("<토큰 생성 후 이메일 발송>");
+        /*
+         * 1. 토큰생성
+         * 2. 비밀변경 URL생성 (아이디 + 토큰)
+         * 3. URL을 이메일로 발송
+         * 4. URL클릭시 유효기간 체크 후 유효할 경우 비밀번호 변경 페이지 이동
+         */
+
+        long tokenValidTime = Duration.ofMinutes(60).toMillis(); // 만료시간 10분인 엑세스 토큰 
+        
+        try {
+            //토큰 생성
+            HttpHeaders responseHeaders = new HttpHeaders();
+
+            String validToken = authProvider.createTokenCustom(tokenValidTime, loginDto.getEmail());
+            
+            responseHeaders.set("accesstoken", validToken);            
+            
+            
+            String confirm = emailService.sendSimpleMessage(loginDto.getEmail(), validToken);
+
+            //sybvifbfdfnighch
+            return ResponseEntity.ok().headers(responseHeaders).body(loginDto);
+        } 
+        catch (Exception e) {
+            e.printStackTrace();
+            
+        }
+
+        return null;
     }
 }

@@ -46,6 +46,31 @@ public class AuthProvider {
     private long refreshTokenValidTime = Duration.ofDays(1).toMillis(); // 만료시간 하루 리프레쉬 토큰
     //private long refreshTokenValidTime = Duration.ofSeconds(20).toMillis(); // 만료시간 10분인 엑세스 토큰 
     
+
+    /**
+     * @throws Exception
+     * @method 설명 : jwt 토큰 발급()
+     */
+    public String createTokenCustom(long tokenValidTime, String id) {
+
+        LOG.info("Enter Create Token - Email : " + id + " / validTime : " + tokenValidTime);
+    	
+    	// 유효기간설정을 위한 Date 객체 선언
+    	Date now = new Date();
+    
+        final JwtBuilder builder = Jwts.builder()
+                .setHeaderParam("typ", "JWT")
+                .setSubject("accesstoken")
+                .setExpiration(new Date(now.getTime() + accessTokenValidTime))
+                .claim("email", id)
+                .signWith(SignatureAlgorithm.HS256, atSecretKey);
+
+        LOG.info("End And Success Create Token - Email :" + id + " / validTime : " + tokenValidTime);
+
+        return builder.compact();
+    }
+
+
     /**
      * @throws Exception
      * @method 설명 : jwt 토큰 발급()
@@ -63,7 +88,7 @@ public class AuthProvider {
     	 * 따라서 UserDetails를 세부 구현한 CustomUserDetails로 회원정보 전달
     	 */
     	CustomUserDetails user = new CustomUserDetails(
-    			userPk, 	// 번호
+    			userPk, 	    // 번호
     			userEmail,      // 이메일
                 userNickname);  // 닉네임
     	
@@ -174,4 +199,5 @@ public class AuthProvider {
             return false;
         }
     }
+    
 }
