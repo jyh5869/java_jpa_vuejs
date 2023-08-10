@@ -82,14 +82,20 @@ export default {
 
         //회원정보 수정일 경우 호출
         if (accessType == 'MODIFY') {
-            console.log('☆☆☆☆☆☆☆☆☆☆☆');
-            console.log(this.$route);
-            console.log('☆☆☆☆☆☆☆☆☆☆☆');
+            /* 
+                1. 비밀번호 분실로 이메일 인증을통해 토큰을 가지고 접근한 경우
+                2. 로그인 후 정보변경을 위해 접근한경우
+            */
+            if (this.$route.query.token != undefined && this.$route.query.token != null) {
+                let id = this.$route.query.id;
+                let token = this.$route.query.token;
 
-            let id = this.$store.getters.id;
-            let authType = this.$store.getters.authType;
+                this.getUserInfoAuthEmail(id, token);
+            } else {
+                let id = this.$store.getters.id;
 
-            this.getUserInfo(id, authType);
+                this.getUserInfo(id);
+            }
         }
 
         let idValidationMsg = '';
@@ -346,14 +352,39 @@ export default {
                 }
             }
         },
-        getUserInfo: async function (id, authType) {
-            console.log('유저 정보 : ' + id + ' / ' + authType);
+        getUserInfo: async function (id) {
+            console.log('유저 정보 : ' + id + ' / ');
 
             const result = await this.$axios({
                 method: 'post',
                 url: '/api/getUserInfo',
                 params: {
                     id: id,
+                },
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (result.status === 200) {
+                this.id = result.data.id;
+                this.user = result.data.email;
+                this.password = result.data.password;
+                this.name = result.data.name;
+                this.nickname = result.data.nickname;
+                this.mobile = result.data.mobile;
+                this.deleteYn = result.data.deleteYn;
+            }
+        },
+        getUserInfoAuthEmail: async function (id, token) {
+            console.log('유저 정보 : id = ' + id + ' /  token = ' + token);
+
+            const result = await this.$axios({
+                method: 'post',
+                url: '/api/getUserInfoAuthEmail',
+                params: {
+                    id: id,
+                    token: token,
                 },
                 headers: {
                     'Content-Type': 'multipart/form-data',

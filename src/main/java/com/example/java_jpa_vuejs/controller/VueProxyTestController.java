@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.hibernate.mapping.Join;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -209,6 +210,39 @@ public class VueProxyTestController {
     }
 
     /**
+    * @method 회원 정보 가져오기 Select Action 
+    * @param loginDto
+    * @throws Exception
+    */
+    @PostMapping(value = {"/getUserInfoAuthEmail"})
+    public JoinDto getUserInfoFromEmail(LoginDto loginDto) throws Exception {
+        LOG.info("<회원정보 가져오기 (이메일 인증)>");
+
+        JoinDto joinDto = new JoinDto();
+
+        String token = loginDto.getToken();
+
+        //토큰 유효성 검사 후 회원정보 조회
+        if(authProvider.validateToken(token)) {
+            System.out.println("토큰 유효성 체크 완료");
+            try {
+                Members member = signService.getUserInfo(loginDto);
+                joinDto = member.toDto(member);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                Members member = signFirebaseService.getUserInfo(loginDto);
+                joinDto = member.toDto(member);
+            }
+        }
+        else{
+            System.out.println("토큰 유효성 기긴 만료");
+        }
+
+        return joinDto;
+    }
+
+    /**
     * @method 회원 정보 수정하기 
     * @param loginDto
     * @throws Exception
@@ -297,6 +331,11 @@ public class VueProxyTestController {
         long tokenValidTime = Duration.ofMinutes(60).toMillis(); // 만료시간 10분인 엑세스 토큰 
         
         try {
+
+            //1. 찾을 유저정보 가져오기 및 세팅
+            Members member = signService.getUserInfoEmail(loginDto);
+            JoinDto joinDto = member.toDto(member);
+            
             //토큰 생성
             HttpHeaders responseHeaders = new HttpHeaders();
 
@@ -305,7 +344,7 @@ public class VueProxyTestController {
             responseHeaders.set("accesstoken", validToken);            
             
             
-            String confirm = emailService.sendSimpleMessage(loginDto.getEmail(), validToken);
+            String confirm = emailService.sendSimpleMessage(joinDto, validToken);
 
             //sybvifbfdfnighch
             return ResponseEntity.ok().headers(responseHeaders).body(loginDto);

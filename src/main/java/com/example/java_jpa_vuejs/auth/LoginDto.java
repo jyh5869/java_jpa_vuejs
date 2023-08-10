@@ -24,6 +24,8 @@ public class LoginDto {
 	@NotBlank(message = "'password' is a required input value")
 	private String password;
 
+	private String token;
+
 	
 	public Members toEntity() {
 		Members build = Members.builder()

@@ -12,6 +12,7 @@ public interface SignService {
 	Integer idValidation(LoginDto loginDto);
 	void userRegistration(JoinDto joinDto);
 	Members getUserInfo(LoginDto loginDto);
+	Members getUserInfoEmail(LoginDto loginDto);
 	Integer userModify(JoinDto joinDto);
 	long getLastIdex();
 	Integer userDelete(JoinDto joinDto);

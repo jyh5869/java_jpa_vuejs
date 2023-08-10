@@ -91,6 +91,18 @@ public class SignServiceImpl implements SignService {
 	}
 
 	/*
+	 * 회원정보 가져오기
+	 */
+	public Members getUserInfoEmail(LoginDto loginDto) {
+
+		Members loginEntity = loginDto.toEntity();
+		Members member = memberRepository.findByEmail(loginEntity.getEmail())
+			.orElseThrow(() -> new UserNotFoundException("User Not Found"));
+
+		return member;
+	}
+
+	/*
 	 * 회원 가입
 	 */
 	public void userRegistration(JoinDto joinDto) {

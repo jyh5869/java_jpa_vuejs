@@ -12,6 +12,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import com.example.java_jpa_vuejs.auth.AuthProvider;
+import com.example.java_jpa_vuejs.auth.JoinDto;
 import com.example.java_jpa_vuejs.common.repositoryService.EmailService;
 
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,11 @@ public class EmailServiceImpl implements EmailService{
 
     public static final String ePw = createKey();
  
-    private MimeMessage createMessage(String to, String validToken)throws Exception{
+    private MimeMessage createMessage(JoinDto joinDto, String validToken)throws Exception{
+
+        String to = joinDto.getEmail();
+        long id = joinDto.getId();
+        
         System.out.println("보내는 대상 : "+ to);
         System.out.println("인증 번호 : "+ePw);
         MimeMessage  message = emailSender.createMimeMessage();
@@ -55,7 +60,7 @@ public class EmailServiceImpl implements EmailService{
 		msgg+= "<div align='center' style='border:1px solid black; font-family:verdana';>";
         msgg+= "<h3 style='color:blue;'>회원정보 변경 URL입니다.</h3>";
         msgg+= "<div style='font-size:130%'>";
-        msgg+= "CODE : <a href='http://localhost:8080/auth?accessType=MODIFY&email="+to+"&token="+ validToken +"'><strong>회원정보 변경하기";
+        msgg+= "CODE : <a href='http://localhost:8080/auth?accessType=MODIFY&email="+to+"&token="+ validToken +"&id="+id+"'><strong>회원정보 변경하기";
         msgg+= "</strong></a><div><br/> ";
         msgg+= "</div>";
         message.setText(msgg, "utf-8", "html");//내용
@@ -91,9 +96,9 @@ public class EmailServiceImpl implements EmailService{
         return key.toString();
     }
     @Override
-    public String sendSimpleMessage(String to, String validToken)throws Exception {
+    public String sendSimpleMessage(JoinDto joinDto, String validToken)throws Exception {
         // TODO Auto-generated method stub
-        MimeMessage message = createMessage(to, validToken);
+        MimeMessage message = createMessage(joinDto, validToken);
         try{//예외처리
             emailSender.send(message);
         }catch(MailException es){
