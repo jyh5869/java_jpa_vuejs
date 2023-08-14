@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.modelmapper.ModelMapper;
 import org.hibernate.mapping.Join;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ import com.example.java_jpa_vuejs.auth.repositoryService.SignFirebaseService;
 import com.example.java_jpa_vuejs.auth.repositoryService.SignService;
 import com.example.java_jpa_vuejs.auth2.repositoryService.RepositoryService;
 import com.example.java_jpa_vuejs.config.FirebaseConfiguration;
-
+import com.example.java_jpa_vuejs.util.ForbiddenException;
 import com.google.gson.JsonObject;
 
 import jakarta.validation.Valid;
@@ -48,6 +49,8 @@ public class VueProxyTestController {
     */
 
     private final RepositoryService rs;
+
+    private final ModelMapper modelMapper;
 
     private final SignService signService;
     private final SignFirebaseService signFirebaseService;
@@ -80,26 +83,54 @@ public class VueProxyTestController {
     @PostMapping(value = {"/signin"})
     public ResponseEntity<AuthenticationDto> appLogin(@Valid @RequestBody LoginDto loginDto) throws Exception {
         LOG.info("<로그인 시도>");
+        /*
+         * 내일 할 일
+         * DELETE_YN 기준으로 조회 되게 수정하기
+         */
+        // 1.객체 및 변수 선언
+        AuthenticationDto authentication = new AuthenticationDto(); //유저 권한인즈으 객체(리턴용)
+        Members member = new Members();                             //회원 정보 객체(정보 가져오기용)
+        String loginType = "";                                      //로그인 타입 1.DB / 2.CLOUD
+        String loginRes  = "";                                      //로그인 결과 1.SUCCESS / 2.FAIL
 
-        AuthenticationDto authentication = new AuthenticationDto();
-        
+        // 2.입력된 아이디로 유저정보 가져오기
         try {
-            authentication = signService.loginMemberMysql(loginDto);
-            authentication.setLoginType("DB");
-            
+            // 1] - MYSQL에서 아이디로 정보 조회 (정보가 없거나 통신 실패시 예외 발생)
+            member = signService.loginMemberMysql(loginDto);
+            loginType = "DB";
         } 
         catch (Exception e) {
-            e.printStackTrace();
+            // 2] - MYSQL에서 정보조회 실패시 FIREBASE로 조회
             LOG.info(" DB AUTH ERROR - CLOUD AUTH START!");
-            authentication = signFirebaseService.loginMember(loginDto);
-            authentication.setLoginType("CLOUD");
+
+            e.printStackTrace();
+            
+            member = signFirebaseService.loginMember(loginDto);
+            loginType = "CLOUD";
         }
 
-        HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.set("accesstoken", authProvider.createToken(authentication));
-        responseHeaders.set("refreshtoken", authProvider.createRefreshToken(authentication));
+        // 3.비밀번호 일치 검증 후 인증 객체 리턴(IF: 실패, ELSE: 성공)
+        if (!loginDto.getPassword().equals(member.getPassword())){
+            /* 비밀번호 불일치 시 예외를 발생시켜 처리하는 코드(운영적 관점에서 부적합)
+			   throw new ForbiddenException("Passwords do not match");
+            */
+            //로그인 결과 세팅 후 리턴
+            authentication.setLoginRes("FAIL");
+            return ResponseEntity.ok().body(authentication);
+		}
+        else{
+            //유저 정보 및 로그인 결과 세팅 
+            authentication = modelMapper.map(member, AuthenticationDto.class);
+            authentication.setLoginType(loginType);
+            authentication.setLoginRes("SUCCESS");
 
-        return ResponseEntity.ok().headers(responseHeaders).body(authentication);
+            //응답 객체 생성 및 세팅 후 리턴
+            HttpHeaders responseHeaders = new HttpHeaders();
+            responseHeaders.set("accesstoken", authProvider.createToken(authentication));
+            responseHeaders.set("refreshtoken", authProvider.createRefreshToken(authentication));
+
+            return ResponseEntity.ok().headers(responseHeaders).body(authentication);
+        }
     }
 
     /**
@@ -215,31 +246,82 @@ public class VueProxyTestController {
     * @throws Exception
     */
     @PostMapping(value = {"/getUserInfoAuthEmail"})
-    public JoinDto getUserInfoFromEmail(LoginDto loginDto) throws Exception {
+    public JoinDto getUserInfoFromEmail(JoinDto joinDto) throws Exception {
         LOG.info("<회원정보 가져오기 (이메일 인증)>");
 
-        JoinDto joinDto = new JoinDto();
+        LoginDto loginDto = new LoginDto();
+        JoinDto joinDtoRes = new JoinDto();
 
-        String token = loginDto.getToken();
+        loginDto.setId(joinDto.getId());
 
+        String token = joinDto.getToken();
+        String actionType = joinDto.getActionType();
         //토큰 유효성 검사 후 회원정보 조회
+
         if(authProvider.validateToken(token)) {
-            System.out.println("토큰 유효성 체크 완료");
-            try {
-                Members member = signService.getUserInfo(loginDto);
-                joinDto = member.toDto(member);
+            System.out.println("토큰 유효성 체크 완료 : TARGETID  -------------> " + joinDto.getId());
+
+            boolean returnFlag = false;
+            Integer updateCnt = 0;
+            String errorCode = null;
+
+            if(actionType.equals("DETAIL")){
+                
+                try {
+                    Members member = signService.getUserInfo(loginDto);
+                    joinDtoRes = member.toDto(member);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    Members member = signFirebaseService.getUserInfo(loginDto);
+                    joinDtoRes = member.toDto(member);
+                }
+
             }
-            catch (Exception e) {
-                e.printStackTrace();
-                Members member = signFirebaseService.getUserInfo(loginDto);
-                joinDto = member.toDto(member);
+            else if(actionType.equals("UPDATE")){
+
+                try {
+                    updateCnt = signService.userModify(joinDto);
+                    signFirebaseService.userModify(joinDto);
+                    
+                    returnFlag = true;
+                    
+                } 
+                catch (Exception e) {
+                    e.printStackTrace();
+                    
+                    returnFlag = false;
+                    errorCode = "ERROR02";
+                }
+
+                joinDtoRes.setActionResCd(returnFlag);
+                joinDtoRes.setErrorCd(errorCode);
+                joinDtoRes.setActionCnt(updateCnt);
+            }
+            else if(actionType.equals("DELETE")){
+                try {
+                    updateCnt = signService.userDelete(joinDto);
+                    signFirebaseService.userDelete(joinDto);
+        
+                    returnFlag = true; 
+                } 
+                catch (Exception e) {
+                    e.printStackTrace();
+                    
+                    returnFlag = false;
+                    errorCode = "ERROR02";
+                }
+
+                joinDtoRes.setActionResCd(returnFlag);
+                joinDtoRes.setErrorCd(errorCode);
+                joinDtoRes.setActionCnt(updateCnt);
             }
         }
         else{
             System.out.println("토큰 유효성 기긴 만료");
         }
 
-        return joinDto;
+        return joinDtoRes;
     }
 
     /**

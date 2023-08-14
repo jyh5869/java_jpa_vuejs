@@ -43,6 +43,16 @@ public class JoinDto {
 
     private String authType;
 
+    private String token;
+
+    private String actionType;
+
+    private Boolean actionResCd;
+
+    private String errorCd;
+
+    private Integer actionCnt;
+    
     public Object signFirebaseService;
 
 

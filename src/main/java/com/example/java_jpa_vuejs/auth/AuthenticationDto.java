@@ -33,6 +33,8 @@ public class AuthenticationDto {
 
     private String authType;
 
-    private String loginType;
+    private String loginType;// 1.DB, 2.CLOUD
+
+    private String loginRes;// 1.SUCCESS, 2.FAIL 
 
 }

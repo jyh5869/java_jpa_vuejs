@@ -20,7 +20,7 @@ public interface SignFirebaseService {
 
 	void userDelete(JoinDto joinDto) throws Exception;
 
-	AuthenticationDto loginMember(@Valid LoginDto loginDto) throws Exception;
+	Members loginMember(@Valid LoginDto loginDto) throws Exception;
 
 	Members getUserInfo(LoginDto loginDto) throws Exception;
 

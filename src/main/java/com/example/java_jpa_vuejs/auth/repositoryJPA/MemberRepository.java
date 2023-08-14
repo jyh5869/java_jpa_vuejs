@@ -45,7 +45,7 @@ public interface MemberRepository extends CrudRepository<Members, Long> {
 
     @Modifying
     @Transactional
-    @Query(value = "UPDATE MEMBERS SET IS_DELETED = 'Y' WHERE ID = :deleteId ", nativeQuery = true)
+    @Query(value = "UPDATE MEMBERS SET DELETE_YN = 'Y' WHERE ID = :deleteId ", nativeQuery = true)
     Integer setDeleteUser(@Param("deleteId") String deleteId);
 }
 

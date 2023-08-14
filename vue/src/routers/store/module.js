@@ -70,16 +70,20 @@ const actions = {
                 headers: { 'content-type': 'application/json' },
             })
             .then(async (res) => {
-                commit('login', res);
-                console.log('-----------------Login Result-----------------');
-                console.log(res);
-                console.log('sotre------------Login Result-----------------');
+                if (res.data.loginRes == 'SUCCESS') {
+                    commit('login', res);
+                    console.log('-----------------Login Result-----------------');
+                    console.log(res);
+                    console.log('sotre------------Login Result-----------------');
 
-                router.push('/main');
+                    router.push('/main');
+                } else {
+                    alert('아이디 및 비밀번호를 확인해 주세요.');
+                }
             })
             .catch((error) => {
                 console.log(error);
-                alert('로그인 요청에 문제가 발생했습니다.');
+                alert('로그인 요청에 알수 없는 문제가 발생했습니다.\n잠시 후 다시 시도해 주세요.');
             });
     },
     refresh({ commit }) {

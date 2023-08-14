@@ -81,7 +81,7 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
 	}
 
     @Override
-	public AuthenticationDto loginMember(LoginDto loginDto) throws Exception{
+	public Members loginMember(LoginDto loginDto) throws Exception{
 
 		long reqTime = Util.durationTime ("start", "CLOUD / AUTH USER: ", 0, "Proceeding ::: " );
         Members member = new Members();
@@ -131,7 +131,7 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
             e.printStackTrace();
         }
 
-        return modelMapper.map(joinDto, AuthenticationDto.class);
+        return modelMapper.map(joinDto, Members.class);
 	}
 
 	@Override

@@ -8,7 +8,7 @@ import com.example.java_jpa_vuejs.auth.entity.Members;
 public interface SignService {
 
 	Boolean regMember(JoinDto joinDto);
-	AuthenticationDto loginMemberMysql(LoginDto loginDto);
+	Members loginMemberMysql(LoginDto loginDto);
 	Integer idValidation(LoginDto loginDto);
 	void userRegistration(JoinDto joinDto);
 	Members getUserInfo(LoginDto loginDto);

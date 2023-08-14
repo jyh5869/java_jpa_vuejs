@@ -56,7 +56,7 @@ public class SignServiceImpl implements SignService {
 	/*
 	 * 로그인 처리
 	 */
-	public AuthenticationDto loginMemberMysql(LoginDto loginDto) {
+	public Members loginMemberMysql(LoginDto loginDto) {
 
 		// DTO -> Entity
 		Members loginEntity = loginDto.toEntity();
@@ -70,12 +70,11 @@ public class SignServiceImpl implements SignService {
 			throw new ForbiddenException("Passwords do not match");
 		}
 		*/
-		if (!loginEntity.getPassword().equals(member.getPassword())){
-			throw new ForbiddenException("Passwords do not match");
-		}
+		
 		
 		// 회원정보를 인증클래스 객체(authentication)로 매핑
-		return modelMapper.map(member, AuthenticationDto.class);
+		//return modelMapper.map(member, AuthenticationDto.class);
+		return modelMapper.map(member, Members.class);
 	}
 
 	/*

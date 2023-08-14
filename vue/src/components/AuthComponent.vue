@@ -54,12 +54,14 @@
             <input type="text" id="nickname" class="fadeIn third" name="nickname" v-model="nickname" placeholder="nickname" />
             <input type="text" id="mobile" class="fadeIn third" name="mobile" v-model="mobile" placeholder="mobile" />
 
-            <input type="button" class="fadeIn fourth" value="Information Change" @click="userManagement()" />
+            <input type="button" class="fadeIn fourth" value="Information Change(Login)" v-if="accessPath == 'login'" @click="userManagement()" />
+            <input type="button" class="fadeIn fourth" value="Information Change(EmailAuth)" v-if="accessPath == 'emailAuth'" @click="userManagementAuthEmail('MODIFY')" />
 
             <!-- Remind Passowrd -->
             <!-- <div id="formFooter"><a class="underlineHover" href="javascript:void(0);">Forgot Password?</a></div> -->
             <div id="formFooter" v-if="accessType == 'MODIFY'">
-                <a class="underlineHover" href="javascript:void(0);" @click="userManagement('DELETE')">Delete account</a>
+                <a class="underlineHover" href="javascript:void(0);" v-if="accessPath == 'login'" @click="userManagement('DELETE')">Delete account(Login)</a>
+                <a class="underlineHover" href="javascript:void(0);" v-if="accessPath == 'emailAuth'" @click="userManagementAuthEmail('DELETE')">Delete account(EmailAuth)</a>
             </div>
         </div>
     </div>
@@ -78,6 +80,7 @@ export default {
     // [컴포넌트 생성 시 초기 데이터 설정 (리턴 값 지정)]
     data() {
         let accessType = this.$route.query.accessType == undefined ? 'SIGNIN' : this.$route.query.accessType;
+        let accessPath = this.$route.query.accessPath == 'emailAuth' ? 'emailAuth' : 'login';
         let authYn = this.$store.getters.token == null ? false : true;
 
         //회원정보 수정일 경우 호출
@@ -86,7 +89,8 @@ export default {
                 1. 비밀번호 분실로 이메일 인증을통해 토큰을 가지고 접근한 경우
                 2. 로그인 후 정보변경을 위해 접근한경우
             */
-            if (this.$route.query.token != undefined && this.$route.query.token != null) {
+            //if (this.$route.query.token != undefined && this.$route.query.token != null) {
+            if (accessPath == 'emailAuth') {
                 let id = this.$route.query.id;
                 let token = this.$route.query.token;
 
@@ -116,6 +120,7 @@ export default {
             authType: this.$store.getters.authType,
             error: false,
             accessType: accessType, //접근 타입 1. SIGNUP 2. SIGNIN
+            accessPath: accessPath, //인증 타입 1. Login 2. EmailAuth
             signIn: accessType == 'SIGNIN' ? true : false,
             signUpAndModify: accessType == 'SIGNUP' || accessType == 'MODIFY' ? true : false,
             idValidationFlag: accessType == 'SIGNUP' ? false : true,
@@ -135,7 +140,7 @@ export default {
 
                 this.$store.dispatch('login', { id, password }); // 로그인
             } else {
-                alert('아이디 또는 비밀번호가 입력되지 않았습니다.');
+                alert('아이디 또는 비밀번호가 입력되지 않았습니다.\n 확인 후 다시 시도해 주세요.');
                 return false;
             }
         },
@@ -376,6 +381,116 @@ export default {
                 this.deleteYn = result.data.deleteYn;
             }
         },
+        userManagementAuthEmail: async function (actionType) {
+            if (actionType == 'DELETE') {
+                if (confirm('회원정보를 정말 삭제 하시겠습니까?')) {
+                    let id = this.$route.query.id;
+                    let token = this.$route.query.token;
+
+                    let result = await this.$axios({
+                        method: 'post',
+                        url: '/api/getUserInfoAuthEmail',
+                        params: {
+                            actionType: 'DELETE',
+                            token: token,
+                            id: id,
+                        },
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        },
+                    });
+
+                    let actionType = result.data.actionType;
+                    let returnFlag = result.data.actionResCd;
+                    let updateCnt = result.data.actionCnt;
+                    let errorCode = result.data.errorCode;
+                    let errorMsg;
+
+                    if (result.status === 200 && returnFlag == true) {
+                        errorMsg = '삭제(' + actionType + ') 성공  Communication Code = ' + result.status + ' (' + updateCnt + '건)';
+                        alert(errorMsg);
+
+                        //통신이 성공적이고 변경 건수가 0이 아닌 경우 메인으로 이동
+                        this.$router.push({
+                            name: 'main',
+                        });
+                    } else {
+                        errorMsg = '삭제(' + actionType + ') 실패! Communication Code = ' + result.status + '\n';
+
+                        if (errorCode == 'ERROR01') {
+                            errorMsg += errorCode + ' - 비밀번호 불일치, 비밀번호를 확인후 다시 시도해주세요. ';
+                        } else if (errorCode == 'ERROR02') {
+                            errorMsg += errorCode + ' - 삭제 처리중 오류 발생, 잠시 후 다시 시도해주세요.';
+                        } else {
+                            errorMsg += ' - 알수 없는 오류 발생 잠시 후 다시 시도해주세요.';
+                        }
+
+                        alert(errorMsg);
+                    }
+                }
+            } else if (actionType == 'MODIFY') {
+                if ((await this.formValidation()) == false) {
+                    return false;
+                }
+
+                //패스워드 일치확인 검증
+                if ((await this.pwValidation()) === false) {
+                    this.pwValidationMsg = '비밀번호화 비밀번호 확인을 입력 해주세요.';
+                    return false;
+                }
+
+                let id = this.$route.query.id;
+                let token = this.$route.query.token;
+
+                let result = await this.$axios({
+                    method: 'post',
+                    url: '/api/getUserInfoAuthEmail',
+                    params: {
+                        actionType: 'UPDATE',
+                        token: token,
+                        id: id,
+                        email: this.user,
+                        password: this.password,
+                        name: this.name,
+                        nickname: this.nickname,
+                        mobile: this.mobile,
+                        deleteYn: this.deleteYn,
+                        authType: this.authType,
+                    },
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+
+                let actionType = result.data.actionType;
+                let returnFlag = result.data.actionResCd;
+                let updateCnt = result.data.actionCnt;
+                let errorCode = result.data.errorCode;
+                let errorMsg;
+
+                if (result.status === 200 && returnFlag == true) {
+                    errorMsg = '업데이트(' + actionType + ') 성공  Communication Code = ' + result.status + ' (' + updateCnt + '건)';
+                    alert(errorMsg);
+
+                    //통신이 성공적이고 변경 건수가 0이 아닌 경우 메인으로 이동
+                    this.$router.push({
+                        name: 'main',
+                    });
+                } else {
+                    errorMsg = '업데이트(' + actionType + ') 실패  Communication Code = ' + result.status + '\n';
+
+                    if (errorCode == 'ERROR01') {
+                        errorMsg += errorCode + ' - 비밀번호 불일치, 비밀번호를 확인후 다시 시도해주세요. ';
+                    } else if (errorCode == 'ERROR02') {
+                        errorMsg += errorCode + ' - 수정 처리중 오류 발생, 잠시 후 다시 시도해주세요.';
+                    } else {
+                        errorMsg += ' - 알수 없는 오류 발생 잠시 후 다시 시도해주세요.';
+                    }
+
+                    alert(errorMsg);
+                }
+            }
+        },
         getUserInfoAuthEmail: async function (id, token) {
             console.log('유저 정보 : id = ' + id + ' /  token = ' + token);
 
@@ -383,6 +498,7 @@ export default {
                 method: 'post',
                 url: '/api/getUserInfoAuthEmail',
                 params: {
+                    actionType: 'DETAIL',
                     id: id,
                     token: token,
                 },

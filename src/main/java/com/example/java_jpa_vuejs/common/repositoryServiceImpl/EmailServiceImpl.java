@@ -60,7 +60,7 @@ public class EmailServiceImpl implements EmailService{
 		msgg+= "<div align='center' style='border:1px solid black; font-family:verdana';>";
         msgg+= "<h3 style='color:blue;'>회원정보 변경 URL입니다.</h3>";
         msgg+= "<div style='font-size:130%'>";
-        msgg+= "CODE : <a href='http://localhost:8080/auth?accessType=MODIFY&email="+to+"&token="+ validToken +"&id="+id+"'><strong>회원정보 변경하기";
+        msgg+= "CODE : <a href='http://localhost:8080/auth?accessType=MODIFY&accessPath=emailAuth&email="+to+"&token="+ validToken +"&id="+id+"'><strong>회원정보 변경하기";
         msgg+= "</strong></a><div><br/> ";
         msgg+= "</div>";
         message.setText(msgg, "utf-8", "html");//내용
