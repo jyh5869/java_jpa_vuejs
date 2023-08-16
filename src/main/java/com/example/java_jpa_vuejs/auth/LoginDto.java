@@ -25,7 +25,6 @@ public class LoginDto {
 	private String password;
 
 	private String token;
-
 	
 	public Members toEntity() {
 		Members build = Members.builder()

@@ -195,7 +195,7 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
             docData.put("profile", joinDto.getProfile());
             docData.put("auth_type", joinDto.getAuthType());
             docData.put("modified_date", String.valueOf(ZonedDateTime.now()));
-            docData.put("delete_yn", "Y");
+            docData.put("delete_yn", "N");
 
             ApiFuture<WriteResult> future = db.collection("user").document(modifyIdx).set(docData, SetOptions.merge());
             WriteResult result = future.get();

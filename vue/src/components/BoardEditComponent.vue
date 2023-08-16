@@ -332,6 +332,10 @@ export default {
                 params: {
                     boardSq: boardSq,
                 },
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    accesstoken: this.$store.state.token,
+                },
             });
 
             if (result.status === 200) {

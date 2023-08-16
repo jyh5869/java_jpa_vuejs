@@ -273,6 +273,7 @@ export default {
                     },
                     headers: {
                         'Content-Type': 'multipart/form-data',
+                        accesstoken: this.$store.state.token,
                     },
                 });
 
@@ -325,6 +326,7 @@ export default {
                         },
                         headers: {
                             'Content-Type': 'multipart/form-data',
+                            accesstoken: this.$store.state.token,
                         },
                     });
                     let actionType = result.data.actionType;
@@ -337,10 +339,8 @@ export default {
                         errorMsg = '삭제(' + actionType + ') 성공  Communication Code = ' + result.status + ' (' + updateCnt + '건)';
                         alert(errorMsg);
 
-                        //통신이 성공적이고 변경 건수가 0이 아닌 경우 메인으로 이동
-                        this.$router.push({
-                            name: 'main',
-                        });
+                        //통신이 성공적이고 변경 건수가 0이 아닌 경우 로그아웃 처리 후 메인으로 이동
+                        this.$store.dispatch('logout');
                     } else {
                         errorMsg = '삭제(' + actionType + ') 실패! Communication Code = ' + result.status + '\n';
 
@@ -368,6 +368,7 @@ export default {
                 },
                 headers: {
                     'Content-Type': 'multipart/form-data',
+                    accesstoken: this.$store.state.token,
                 },
             });
 
@@ -472,10 +473,8 @@ export default {
                     errorMsg = '업데이트(' + actionType + ') 성공  Communication Code = ' + result.status + ' (' + updateCnt + '건)';
                     alert(errorMsg);
 
-                    //통신이 성공적이고 변경 건수가 0이 아닌 경우 메인으로 이동
-                    this.$router.push({
-                        name: 'main',
-                    });
+                    //통신이 성공적이고 변경 건수가 0이 아닌 경우 로그아웃 처리 후 메인으로 이동
+                    this.$store.dispatch('logout');
                 } else {
                     errorMsg = '업데이트(' + actionType + ') 실패  Communication Code = ' + result.status + '\n';
 
@@ -515,24 +514,41 @@ export default {
                 this.nickname = result.data.nickname;
                 this.mobile = result.data.mobile;
                 this.deleteYn = result.data.deleteYn;
+                this.authType = result.data.authType;
             }
         },
         sendAuthEmail: async function () {
             console.log('아이디 찾겠습니다.');
             var id = this.user; // 현재 입력된 아이디
 
-            const result = await this.$axios({
-                method: 'post',
-                url: '/api/setSendAuthEmail',
-                params: {
-                    email: id,
-                },
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            if (result.status === 200) {
-                console.log(result);
+            if (id === '') {
+                alert('이메일 인증 후 정보를 변경할 수 있도록 합니다.\n가입당시 사용하였던 올바른 아이디를 입력 후 다시 클릭해 주세요.');
+            } else {
+                const result = await this.$axios({
+                    method: 'post',
+                    url: '/api/setSendAuthEmail',
+                    params: {
+                        email: id,
+                    },
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+
+                //발송결과에 따른 안내문구 표출
+                if (result.status === 200) {
+                    let satateCd = result.headers['state-code'];
+
+                    if (satateCd == 'SUCCESS00') {
+                        alert('기재해주신 이메일로 인증정보를 발송해 드렸습니다.\n이메일을 확인해 주세요.');
+                    } else if (satateCd == 'ERROR00') {
+                        alert('이메일 발송중 애러가 발생하였습니다.\n잠시 후 다시 시도해 주세요.');
+                    } else if (satateCd == 'ERROR01') {
+                        alert('아이디로 등록되어 있지 않은 이메일 주소입니다.\n다시한번 확인해 주세요.');
+                    }
+                } else {
+                    alert('이메일 발송중 애러가 발생하였습니다.\n잠시 후 다시 시도해 주세요.');
+                }
             }
         },
     },

@@ -63,7 +63,7 @@ public class Members{
 	@Column(length = 200)
 	private String profile;
 
-	@Column(length = 200)
+	@Column(length = 10, nullable = false, columnDefinition = "varchar(10) default 'user'")
 	private String authType;
 
 	@Column(length = 1, nullable = false, columnDefinition = "char(1) default 'N'")

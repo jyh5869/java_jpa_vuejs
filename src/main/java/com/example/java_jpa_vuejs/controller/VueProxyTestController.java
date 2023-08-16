@@ -98,7 +98,7 @@ public class VueProxyTestController {
             // 1] - MYSQL에서 아이디로 정보 조회 (정보가 없거나 통신 실패시 예외 발생)
             member = signService.loginMemberMysql(loginDto);
             loginType = "DB";
-        } 
+        }
         catch (Exception e) {
             // 2] - MYSQL에서 정보조회 실패시 FIREBASE로 조회
             LOG.info(" DB AUTH ERROR - CLOUD AUTH START!");
@@ -109,8 +109,8 @@ public class VueProxyTestController {
             loginType = "CLOUD";
         }
 
-        // 3.비밀번호 일치 검증 후 인증 객체 리턴(IF: 실패, ELSE: 성공)
-        if (!loginDto.getPassword().equals(member.getPassword())){
+        // 3.비밀번호 일치 및 사용가능(Y/N) 검증 후 인증 객체 리턴(IF: 실패, ELSE: 성공)
+        if (!loginDto.getPassword().equals(member.getPassword()) || member.getDeleteYn().equals("Y")){
             /* 비밀번호 불일치 시 예외를 발생시켜 처리하는 코드(운영적 관점에서 부적합)
 			   throw new ForbiddenException("Passwords do not match");
             */
@@ -410,32 +410,36 @@ public class VueProxyTestController {
          * 4. URL클릭시 유효기간 체크 후 유효할 경우 비밀번호 변경 페이지 이동
          */
 
-        long tokenValidTime = Duration.ofMinutes(60).toMillis(); // 만료시간 10분인 엑세스 토큰 
         
+        HttpHeaders responseHeaders = new HttpHeaders();//응답 헤더 생성
         try {
+             
+            //응답 해더 생성 및 이메일 유효성 판단
+            long tokenValidTime = Duration.ofMinutes(60).toMillis(); // 만료시간 10분인 엑세스 토큰 
+            Integer emailCnt = signService.idValidation(loginDto);
 
-            //1. 찾을 유저정보 가져오기 및 세팅
-            Members member = signService.getUserInfoEmail(loginDto);
-            JoinDto joinDto = member.toDto(member);
-            
-            //토큰 생성
-            HttpHeaders responseHeaders = new HttpHeaders();
+            if(emailCnt == 1){
+                //1. 찾을 유저정보 가져오기 및 세팅
+                Members member = signService.getUserInfoEmail(loginDto);
+                JoinDto joinDto = member.toDto(member);
+                
+                //토큰 생성 및 이메일 발송
+                String validToken = authProvider.createTokenCustom(tokenValidTime, loginDto.getEmail());
+                String confirm = emailService.sendSimpleMessage(joinDto, validToken);
 
-            String validToken = authProvider.createTokenCustom(tokenValidTime, loginDto.getEmail());
-            
-            responseHeaders.set("accesstoken", validToken);            
-            
-            
-            String confirm = emailService.sendSimpleMessage(joinDto, validToken);
-
-            //sybvifbfdfnighch
-            return ResponseEntity.ok().headers(responseHeaders).body(loginDto);
+                responseHeaders.set("state-code", "SUCCESS00");            
+                return ResponseEntity.ok().headers(responseHeaders).body(loginDto);
+            }
+            else{
+                responseHeaders.set("state-code", "ERROR01");            
+                return ResponseEntity.ok().headers(responseHeaders).body(loginDto);
+            }
         } 
         catch (Exception e) {
             e.printStackTrace();
             
+            responseHeaders.set("state-code", "ERROR00");            
+            return ResponseEntity.ok().headers(responseHeaders).body(loginDto);
         }
-
-        return null;
     }
 }

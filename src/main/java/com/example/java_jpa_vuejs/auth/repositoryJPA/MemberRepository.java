@@ -20,15 +20,15 @@ public interface MemberRepository extends CrudRepository<Members, Long> {
     Optional<Members> findById(String id);    
 
     @Query(value =
-            "select count(*) " +
-            "from members " +
-            "where email = :email ", nativeQuery = true)
+            "SELECT COUNT(*) " +
+            "FROM MEMBERS " +
+            "WHERE EMAIL = :email AND DELETE_YN = 'N'", nativeQuery = true)
     Integer countByEmail(@Param("email") String email);
 
     @Query(value =
-            "select count(*) " +
-            "from members " +
-            "where mobile = :mobile ", nativeQuery = true)
+            "SELECT COUNT(*) " +
+            "FROM MEMBERS " +
+            "WHERE MOBILE = :mobile ", nativeQuery = true)
     Integer countByMobile(@Param("mobile") String mobile);
 
     
