@@ -425,9 +425,10 @@ public class VueProxyTestController {
                 
                 //토큰 생성 및 이메일 발송
                 String validToken = authProvider.createTokenCustom(tokenValidTime, loginDto.getEmail());
-                String confirm = emailService.sendSimpleMessage(joinDto, validToken);
+                String confirmStr = emailService.sendSimpleMessage(joinDto, validToken);
 
-                responseHeaders.set("state-code", "SUCCESS00");            
+                responseHeaders.set("state-code", "SUCCESS00");
+                
                 return ResponseEntity.ok().headers(responseHeaders).body(loginDto);
             }
             else{
@@ -438,6 +439,55 @@ public class VueProxyTestController {
         catch (Exception e) {
             e.printStackTrace();
             
+            responseHeaders.set("state-code", "ERROR00");            
+            return ResponseEntity.ok().headers(responseHeaders).body(loginDto);
+        }
+    }
+    
+
+    /**
+    * @method 아이디로 사용될 이메일 유효성 체크
+    * @param loginDto
+    * @throws Exception
+    */
+    @PostMapping(value = {"/chkEmailValidity"})
+    public ResponseEntity<LoginDto> chkEmailValidity(LoginDto loginDto) throws Exception {
+        LOG.info("<토큰 생성 후 이메일 발송>");
+        /*
+         * 1. 토큰생성
+         * 2. 비밀변경 URL생성 (아이디 + 토큰)
+         * 3. URL을 이메일로 발송
+         * 4. URL클릭시 유효기간 체크 후 유효할 경우 비밀번호 변경 페이지 이동
+         */
+
+        
+        HttpHeaders responseHeaders = new HttpHeaders();//응답 헤더 생성
+        try {
+             
+            //응답 해더 생성 및 이메일 유효성 판단
+            long tokenValidTime = Duration.ofMinutes(10).toMillis(); // 만료시간 10분인 엑세스 토큰 
+            Integer emailCnt = signService.idValidation(loginDto);
+
+            //올바른 이메일입니다. 해당이메일로 이메일을 발송하겠습니다.
+            if(emailCnt == 0){
+                
+                //토큰 생성 및 이메일 발송
+                String validToken = authProvider.createTokenCustom(tokenValidTime, loginDto.getEmail());
+                String confirmStr = emailService.sendSimpleMessage2(loginDto, validToken);
+
+                responseHeaders.set("state-code", "SUCCESS00");
+                responseHeaders.set("authentication-code", confirmStr);
+
+                return ResponseEntity.ok().headers(responseHeaders).body(loginDto);
+            }
+            else{//이미 존재하는 아이디 입니다. 아이디 중복체크를 완료해 주세요.
+                responseHeaders.set("state-code", "ERROR01");            
+                return ResponseEntity.ok().headers(responseHeaders).body(loginDto);
+            }
+        } 
+        catch (Exception e) {
+            e.printStackTrace();
+            //이메일 인증과정 알수없는 문제가 발생하였습니다. 잠시 후 다시 시도해 주세요.
             responseHeaders.set("state-code", "ERROR00");            
             return ResponseEntity.ok().headers(responseHeaders).body(loginDto);
         }
