@@ -400,7 +400,7 @@ public class VueProxyTestController {
     * @param loginDto
     * @throws Exception
     */
-    @PostMapping(value = {"/setSendAuthEmail"})
+    @PostMapping(value = {"/noAuth/setSendAuthEmail"})
     public ResponseEntity<LoginDto> setSendAuthEmail(LoginDto loginDto) throws Exception {
         LOG.info("<토큰 생성 후 이메일 발송>");
         /*
@@ -450,7 +450,7 @@ public class VueProxyTestController {
     * @param loginDto
     * @throws Exception
     */
-    @PostMapping(value = {"/chkEmailValidity"})
+    @PostMapping(value = {"/noAuth/chkEmailValidity"})
     public ResponseEntity<LoginDto> chkEmailValidity(LoginDto loginDto) throws Exception {
         LOG.info("<토큰 생성 후 이메일 발송>");
         /*

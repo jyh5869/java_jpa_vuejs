@@ -33,7 +33,7 @@
             <input type="button" class="fadeIn fourth" value="Log In" @click="login()" />
 
             <!-- Remind Passowrd -->
-            <div id="formFooter"><a class="underlineHover" href="javascript:void('0');" @click="sendAuthEmail()">Forgot Password?!</a></div>
+            <div id="formFooter"><a class="underlineHover" href="javascript:void('0');" @click="sendAuthEmail('changeInfo')">Forgot Password?!</a></div>
         </div>
     </div>
     <div class="wrapper fadeInDown" v-show="signUpAndModify">
@@ -46,10 +46,15 @@
 
             <!-- Login Form -->
             <input type="text" id="userId" class="fadeIn second" name="userId" v-model="user" placeholder="User Id" @keyup="idValidation()" :disabled="accessType == 'MODIFY'" />
-            <p v-if="idValidationMsg != ''">{{ idValidationMsg }}</p>
+            <p class="text sm" v-if="idValidationMsg != ''">{{ idValidationMsg }}</p>
+            <input type="button" class="fadeIn fourth small" @click="sendAuthEmail('emailAuth')" value="이메일 인증하기" />
+            <div v-if="emailSendYN == true">
+                <input type="text" class="fadeIn fourth small" placeholder="코드를 입력해 주세요." />
+                <input type="button" class="fadeIn fourth small" value="인증코드 확인" />
+            </div>
             <input type="text" id="password1" class="fadeIn third" name="password1" v-model="password" placeholder="Password1" @keyup="pwValidation()" />
             <input type="text" id="password2" class="fadeIn third" name="password2" v-model="password2" placeholder="Password2" @keyup="pwValidation()" />
-            <p v-if="pwValidationMsg != ''">{{ pwValidationMsg }}</p>
+            <p class="text sm" v-if="pwValidationMsg != ''">{{ pwValidationMsg }}</p>
             <input type="text" id="name" class="fadeIn third" name="name" v-model="name" placeholder="name" />
             <input type="text" id="nickname" class="fadeIn third" name="nickname" v-model="nickname" placeholder="nickname" />
             <input type="text" id="mobile" class="fadeIn third" name="mobile" v-model="mobile" placeholder="mobile" />
@@ -127,6 +132,8 @@ export default {
             pwValidationFlag: false,
             idValidationMsg: idValidationMsg,
             pwValidationMsg: pwValidationMsg,
+            emailSendYN: false,
+            emailAuthCd: '',
         };
     },
     mounted() {},
@@ -517,16 +524,18 @@ export default {
                 this.authType = result.data.authType;
             }
         },
-        sendAuthEmail: async function () {
-            console.log('아이디 찾겠습니다.');
-            var id = this.user; // 현재 입력된 아이디
+        sendAuthEmail: async function (type) {
+            console.log('이메일을 발송하겠습니다. TYPE : ' + type);
 
-            if (id === '') {
+            var id = this.user; // 현재 입력된 아이디
+            let targetUrl = type == 'changeInfo' ? '/api/noAuth/setSendAuthEmail' : '/api/noAuth/chkEmailValidity';
+
+            if (id === '' || idValidationFlag == true) {
                 alert('이메일 인증 후 정보를 변경할 수 있도록 합니다.\n가입당시 사용하였던 올바른 아이디를 입력 후 다시 클릭해 주세요.');
             } else {
                 const result = await this.$axios({
                     method: 'post',
-                    url: '/api/setSendAuthEmail',
+                    url: targetUrl,
                     params: {
                         email: id,
                     },
@@ -535,12 +544,25 @@ export default {
                     },
                 });
 
+                //가입을 위한 이메일 인증의 경우 인증코드 입력란 초기화.
+                if (type == 'emailAuth') {
+                    this.emailSendYN = false;
+                }
+
                 //발송결과에 따른 안내문구 표출
                 if (result.status === 200) {
                     let satateCd = result.headers['state-code'];
-
                     if (satateCd == 'SUCCESS00') {
-                        alert('기재해주신 이메일로 인증정보를 발송해 드렸습니다.\n이메일을 확인해 주세요.');
+                        if (type == 'emailAuth') {
+                            //가입을 위한 이메일 유효성 확인 메일
+                            alert('이메일로 인증정보를 발송해 드렸습니다.\n받으신 인증번호를 입력해 주세요,');
+
+                            this.emailAuthCd = result.headers['authentication-code']; //인증코드 변수에 할당
+                            this.emailSendYN = true; //인증코드 입력란 활성화
+                        } else if (type == 'changeInfo') {
+                            //분실로인한 비밀번호를 변경하기위한 링크 발송 메일
+                            alert('이메일로 인증정보를 발송해 드렸습니다.\n받으신 링크를 통해 정보를 변경해 주세요.');
+                        }
                     } else if (satateCd == 'ERROR00') {
                         alert('이메일 발송중 애러가 발생하였습니다.\n잠시 후 다시 시도해 주세요.');
                     } else if (satateCd == 'ERROR01') {
@@ -582,7 +604,9 @@ h2 {
     margin: 40px 8px 10px 8px;
     color: #cccccc;
 }
-
+p.text.sm {
+    margin: 0px;
+}
 /* STRUCTURE */
 
 .wrapper {
@@ -655,6 +679,14 @@ input[type='reset'] {
     transition: all 0.3s ease-in-out;
 }
 
+input[type='button'].small,
+input[type='submit'].small,
+input[type='reset'].small {
+    background-color: #364a5f;
+    padding: 10px 15px;
+    margin: 5px 20px 5px 20px;
+}
+
 input[type='button']:hover,
 input[type='submit']:hover,
 input[type='reset']:hover {
@@ -690,6 +722,13 @@ input[type='text'] {
     transition: all 0.5s ease-in-out;
     -webkit-border-radius: 5px 5px 5px 5px;
     border-radius: 5px 5px 5px 5px;
+}
+
+input[type='text'].small {
+    padding: 10px 15px;
+    margin: 5px 5px 5px 20px;
+    font-size: 10px;
+    width: auto;
 }
 
 input[type='text']:focus {
