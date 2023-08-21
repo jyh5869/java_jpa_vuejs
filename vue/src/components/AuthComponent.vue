@@ -46,11 +46,21 @@
 
             <!-- Login Form -->
             <input type="text" id="userId" class="fadeIn second" name="userId" v-model="user" placeholder="User Id" @keyup="idValidation()" :disabled="accessType == 'MODIFY'" />
-            <p class="text sm" v-if="idValidationMsg != ''">{{ idValidationMsg }}</p>
-            <input type="button" class="fadeIn fourth small" @click="sendAuthEmail('emailAuth')" value="이메일 인증하기" />
-            <div v-if="emailSendYN == true">
-                <input type="text" class="fadeIn fourth small" placeholder="코드를 입력해 주세요." />
-                <input type="button" class="fadeIn fourth small" value="인증코드 확인" />
+            <p class="text-success sm" v-if="idValidationMsg != ''">{{ idValidationMsg }}</p>
+
+            <div v-if="accessType == 'SIGNUP'">
+                <!-- 이메일인증 전 -->
+                <div v-if="emailAuthYN == false">
+                    <input type="button" class="fadeIn fourth small" @click="sendAuthEmail('emailAuth')" value="이메일 인증하기" />
+                    <div v-if="emailSendYN == true">
+                        <input type="text" id="inputEmailAuthCd" class="fadeIn fourth small" placeholder="코드를 입력해 주세요." />
+                        <input type="button" class="fadeIn fourth small" value="인증코드 확인" @click="emailAuthYn()" />
+                    </div>
+                </div>
+                <!-- 이메일인증 후 -->
+                <div v-if="emailAuthYN == true">
+                    <p class="text-success sm">이메일 인증이 완료되었습니다!</p>
+                </div>
             </div>
             <input type="text" id="password1" class="fadeIn third" name="password1" v-model="password" placeholder="Password1" @keyup="pwValidation()" />
             <input type="text" id="password2" class="fadeIn third" name="password2" v-model="password2" placeholder="Password2" @keyup="pwValidation()" />
@@ -90,7 +100,7 @@ export default {
 
         //회원정보 수정일 경우 호출
         if (accessType == 'MODIFY') {
-            /* 
+            /*
                 1. 비밀번호 분실로 이메일 인증을통해 토큰을 가지고 접근한 경우
                 2. 로그인 후 정보변경을 위해 접근한경우
             */
@@ -134,6 +144,7 @@ export default {
             pwValidationMsg: pwValidationMsg,
             emailSendYN: false,
             emailAuthCd: '',
+            emailAuthYN: false,
         };
     },
     mounted() {},
@@ -222,12 +233,19 @@ export default {
                 }
             }
 
+            //회원가입의 경후 이메일 인증을 체크한다.
+            if (this.accessType == 'SIGNUP' && this.emailAuthYN == false) {
+                alert('가입을 위한 이메일 인증을 완료해 주세요.');
+                return false;
+            }
+
             return true;
         },
         userManagement: async function (type) {
             if (this.accessType == 'SIGNUP' && type != 'DELETE') {
                 console.log('회원가입 진행');
 
+                //1.가입형식 체크 및 이메일 인증여부 체크
                 if ((await this.formValidation()) == false) {
                     return false;
                 }
@@ -530,8 +548,13 @@ export default {
             var id = this.user; // 현재 입력된 아이디
             let targetUrl = type == 'changeInfo' ? '/api/noAuth/setSendAuthEmail' : '/api/noAuth/chkEmailValidity';
 
-            if (id === '' || idValidationFlag == true) {
-                alert('이메일 인증 후 정보를 변경할 수 있도록 합니다.\n가입당시 사용하였던 올바른 아이디를 입력 후 다시 클릭해 주세요.');
+            //1.아이디 입력란이 공백이거나 아이디 중복 체크가 되지 않았을때.
+            if (id === '' || this.idValidationFlag == false) {
+                if (type == 'changeInfo') {
+                    alert('이메일 인증 후 정보를 변경할 수 있도록 합니다.\n가입당시 사용하였던 올바른 아이디를 입력 후 다시 클릭해 주세요.');
+                } else if (type == 'emailAuth') {
+                    alert('이메일 유효성 인증을 위한 메일을 보내드리려 합니다.\n유효한 형식의 이메일을 주세요.');
+                }
             } else {
                 const result = await this.$axios({
                     method: 'post',
@@ -571,6 +594,27 @@ export default {
                 } else {
                     alert('이메일 발송중 애러가 발생하였습니다.\n잠시 후 다시 시도해 주세요.');
                 }
+            }
+        },
+        emailAuthYn: async function () {
+            //입력된 인증코드와 발송시 생선된 코드의 일치여부 확인 후 emailAuthYn = true;
+
+            let inputEmailAuthCd = document.querySelector('#inputEmailAuthCd').value;
+            console.log(inputEmailAuthCd + '          ' + this.emailAuthCd);
+            if (this.emailAuthCd == inputEmailAuthCd) {
+                this.emailAuthYN = true;
+
+                document.querySelector('#userId').disabled = true;
+
+                alert('이메일 인증이 완료되었습니다.');
+            } else {
+                this.emailSendYN = false; //이메일 발송 FLAG
+                this.emailAuthYN = false; //이메일 인증 FLAG
+                this.emailAuthCd = ''; //이메일 인증 코드
+
+                document.querySelector('#userId').disabled = false;
+
+                alert('인증 코드가 일치하지 않거나 유효기간이 지난 코드입니다.\n코드를 다시 발급받아 주세요.');
             }
         },
     },

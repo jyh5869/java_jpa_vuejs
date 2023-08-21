@@ -93,8 +93,8 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
 
             String email = loginDto.getEmail();
             String password = loginDto.getPassword();
-            //클라우드 로그인 부터 만들자!
-            ApiFuture<QuerySnapshot> future = db.collection("user").whereEqualTo("email", email).whereEqualTo("password", password).get();
+
+            ApiFuture<QuerySnapshot> future = db.collection("user").whereEqualTo("email", email).whereEqualTo("password", password).whereEqualTo("delete_yn", "N").get();
             List<QueryDocumentSnapshot> documents = future.get().getDocuments();
             
 
@@ -118,6 +118,7 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
                 joinDto.setDeleteYn((String) docData.get("delete_yn"));
                 joinDto.setAuthType((String) docData.get("auth_type"));
                 
+
                 /* 문서를 객체와 매칭시켜 데이터를 가져 오는 Code(파라메터 명이 일치 해야 한다.)
                 member = document.toObject(Members.class);
                 */
@@ -130,8 +131,8 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
             Util.durationTime ("end", "CLOUD / AUTH USER: ", reqTime,  "Fail ::: " );
             e.printStackTrace();
         }
-
-        return modelMapper.map(joinDto, Members.class);
+                
+        return modelMapper.map(joinDto.toEntity(), Members.class);
 	}
 
 	@Override

@@ -17,6 +17,8 @@ import java.util.Optional;
 public interface MemberRepository extends CrudRepository<Members, Long> {
 
     Optional<Members> findByEmail(String email);
+    Optional<Members> findByEmailAndDeleteYn(String email, String deleteYn);
+
     Optional<Members> findById(String id);    
 
     @Query(value =

@@ -62,7 +62,7 @@ public class SignServiceImpl implements SignService {
 		Members loginEntity = loginDto.toEntity();
 		System.out.println(loginEntity.getEmail());
 		// 회원 엔티티 객체 생성 및 조회시작
-		Members member = memberRepository.findByEmail(loginEntity.getEmail())
+		Members member = memberRepository.findByEmailAndDeleteYn(loginEntity.getEmail(), "N")
 				.orElseThrow(() -> new UserNotFoundException("User Not Found"));
 		
 		/* 

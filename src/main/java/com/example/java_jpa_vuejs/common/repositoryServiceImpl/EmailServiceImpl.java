@@ -72,7 +72,7 @@ public class EmailServiceImpl implements EmailService{
  
         for (int i = 0; i < 8; i++) { // 인증코드 8자리
             int index = rnd.nextInt(3); // 0~2 까지 랜덤
- 
+            System.out.println(index);
             switch (index) {
                 case 0:
                     key.append((char) ((int) (rnd.nextInt(26)) + 97));
@@ -88,6 +88,7 @@ public class EmailServiceImpl implements EmailService{
                     break;
             }
         }
+
         return key.toString();
     }
 

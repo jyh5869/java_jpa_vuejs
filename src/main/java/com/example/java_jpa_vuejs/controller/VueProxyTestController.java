@@ -83,10 +83,7 @@ public class VueProxyTestController {
     @PostMapping(value = {"/signin"})
     public ResponseEntity<AuthenticationDto> appLogin(@Valid @RequestBody LoginDto loginDto) throws Exception {
         LOG.info("<로그인 시도>");
-        /*
-         * 내일 할 일
-         * DELETE_YN 기준으로 조회 되게 수정하기
-         */
+
         // 1.객체 및 변수 선언
         AuthenticationDto authentication = new AuthenticationDto(); //유저 권한인즈으 객체(리턴용)
         Members member = new Members();                             //회원 정보 객체(정보 가져오기용)
@@ -103,10 +100,10 @@ public class VueProxyTestController {
             // 2] - MYSQL에서 정보조회 실패시 FIREBASE로 조회
             LOG.info(" DB AUTH ERROR - CLOUD AUTH START!");
 
-            e.printStackTrace();
-            
             member = signFirebaseService.loginMember(loginDto);
             loginType = "CLOUD";
+
+            e.printStackTrace();
         }
 
         // 3.비밀번호 일치 및 사용가능(Y/N) 검증 후 인증 객체 리턴(IF: 실패, ELSE: 성공)
