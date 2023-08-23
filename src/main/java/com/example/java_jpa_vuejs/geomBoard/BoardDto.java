@@ -5,6 +5,10 @@ import jakarta.persistence.Id;
 import org.springframework.data.geo.Point;
 import org.springframework.data.geo.Polygon;
 
+import com.example.java_jpa_vuejs.geomBoard.entity.GeometryBoard;
+
+import java.time.ZonedDateTime;
+
 //import com.google.gson.JsonObject;
 
 import org.springframework.data.geo.Circle;
@@ -56,5 +60,9 @@ public class BoardDto {
 	private String zipCd;
 
 	private String useYn;
+
+	private String createdDate;
+
+	private String modifiedDate;
 
 }

@@ -6,6 +6,8 @@ import org.springframework.data.repository.query.Param;
 
 import com.example.java_jpa_vuejs.auth.JoinDto;
 import com.example.java_jpa_vuejs.auth.entity.Members;
+import com.example.java_jpa_vuejs.controller.GeomBoardController;
+import com.example.java_jpa_vuejs.geomBoard.entity.GeometryBoard;
 
 import jakarta.transaction.Transactional;
 
@@ -14,12 +16,12 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.Optional;
 
 
-public interface GeometryBoardRepository extends CrudRepository<Members, Long> {
+public interface GeometryBoardRepository extends CrudRepository<GeometryBoard, Long> {
 
-    Optional<Members> findByEmail(String email);
-    Optional<Members> findByEmailAndDeleteYn(String email, String deleteYn);
+    //Optional<Members> findByEmail(String email);
+    //Optional<Members> findByEmailAndDeleteYn(String email, String deleteYn);
 
-    Optional<Members> findById(String id);    
+    //Optional<Members> findById(String id);    
 
     @Query(value =
             "SELECT COUNT(*) " +

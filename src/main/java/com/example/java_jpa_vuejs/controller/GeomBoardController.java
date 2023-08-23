@@ -1,10 +1,19 @@
 package com.example.java_jpa_vuejs.controller;
 
 import java.net.URLDecoder;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 
+import org.apache.commons.collections.IteratorUtils;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.data.geo.Polygon;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -25,13 +34,22 @@ import com.example.java_jpa_vuejs.auth.repositoryService.SignService;
 import com.example.java_jpa_vuejs.auth2.repositoryService.RepositoryService;
 import com.example.java_jpa_vuejs.config.FirebaseConfiguration;
 import com.example.java_jpa_vuejs.geomBoard.BoardDto;
+import com.example.java_jpa_vuejs.geomBoard.entity.GeometryBoard;
 import com.example.java_jpa_vuejs.geomBoard.repositoryService.BoardFirebaseService;
+import com.example.java_jpa_vuejs.geomBoard.repositoryService.BoardService;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.common.collect.Lists;
+import com.google.gson.FieldNamingPolicy;
+//import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
 //import org.locationtech.jts.geom.GeometryFactory;
 
 import jakarta.validation.Valid;
-
 import lombok.RequiredArgsConstructor;
 
 
@@ -43,6 +61,10 @@ public class GeomBoardController {
     final private static Logger LOG = Logger.getGlobal();
 
     public static final String SECURED_TEXT = "Hello from the secured resource!";
+
+    private final ModelMapper modelMapper;
+
+    private final BoardService boardService;
     private final BoardFirebaseService boardFirebaseService;
 
     /**
@@ -114,6 +136,9 @@ public class GeomBoardController {
         return list;
     }
 
+
+
+    ObjectMapper objectMapper = new ObjectMapper();
     /**
     * @method 지오메트릭 글 리스트 가져오기
     * @param  null
@@ -122,8 +147,52 @@ public class GeomBoardController {
     @GetMapping(value = {"/getGeomBoardList"})
     public List<Map<String, Object>> getGeomBoardList(@Valid BoardDto boardDTO) throws Exception {
 
-        List<Map<String, Object>> list = boardFirebaseService.getGeomBoardList();
+        //List<Map<String, Object>> list = boardFirebaseService.getGeomBoardList();
 
-        return list;
+        //List<Map<String, Object>> list = boardFirebaseService.getGeomBoardList();
+
+        Iterable<GeometryBoard> list = boardService.getGeomBoardList();
+        
+        Iterator<GeometryBoard> itr = list.iterator();
+
+        List<Map<String, Object>> retList = new ArrayList<Map<String, Object>>();
+
+        System.out.println("★\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605");
+        while(itr.hasNext()){
+            //Map<String, Object> map = new HashMap<>();
+            /*
+             * 
+             * 
+
+
+
+
+
+
+
+
+
+
+
+
+             ㅈ가업하자 디티오로 안바뀐다.
+             */
+            GeometryBoard str = itr.next();
+            BoardDto boardDto = new BoardDto();
+
+            BoardDto str1 = str.toDto(str);
+            
+            
+            Map<String, Object> map = objectMapper.convertValue(str1, new TypeReference<Map<String, Object>>() {});
+
+            //modelMapper.map(str, Members.class);
+            
+            retList.add(map);
+            System.out.println(str.getBoardSq());
+        }
+        System.out.println("★\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605");
+        
+
+        return retList;
     }
 }

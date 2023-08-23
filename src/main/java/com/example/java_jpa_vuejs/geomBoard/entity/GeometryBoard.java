@@ -8,6 +8,11 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.example.java_jpa_vuejs.auth.JoinDto;
+import com.example.java_jpa_vuejs.geomBoard.BoardDto;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -23,6 +28,7 @@ import jakarta.persistence.Table;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -37,7 +43,7 @@ public class GeometryBoard{
 
 	@Id
 	@Column(length = 100, nullable = false)
-	private Integer boardSq;
+	private long boardSq;
 
 	@Column(length = 100, nullable = false)
 	private String title;
@@ -85,9 +91,12 @@ public class GeometryBoard{
 	
 	*/
 
+
 	@Column(name="created_date", updatable = false)
 	private ZonedDateTime createdDate;
 
+	//@JsonSerialize(using = LocalDateTimeSerializer.class)
+    //@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 	@Column(name="modified_date", updatable = true)
 	private ZonedDateTime modifiedDate;
 
@@ -112,25 +121,24 @@ public class GeometryBoard{
 	private List<PostsComment> postsComment = new ArrayList<>();
     */
 
-	public JoinDto toDto(GeometryBoard geometryBoardEntity) {
+	public BoardDto toDto(GeometryBoard geometryBoardEntity) {
 
-		JoinDto joinDto = new JoinDto();
+		BoardDto boardDto = new BoardDto();
 
-		joinDto.setId( geometryBoardEntity.boardSq);
-		joinDto.setEmail(geometryBoardEntity.title);
-		joinDto.setPassword(geometryBoardEntity.contents1);
-		joinDto.setName(geometryBoardEntity.contents2);
-		joinDto.setNickname(geometryBoardEntity.userName);
-		joinDto.setMobile(geometryBoardEntity.userEmail);
-		joinDto.setProfile(geometryBoardEntity.userAdress);
-		joinDto.setDeleteYn(geometryBoardEntity.userName);
-		joinDto.setAuthType(geometryBoardEntity.zipCd);
-		joinDto.setAuthType(geometryBoardEntity.state);
-		joinDto.setAuthType(geometryBoardEntity.useYn);
-		joinDto.setCreatedDate(geometryBoardEntity.createdDate);
-		joinDto.setModifiedDate(geometryBoardEntity.modifiedDate);
-
-		return joinDto;
+		boardDto.setId( geometryBoardEntity.boardSq);
+		boardDto.setTitle(geometryBoardEntity.title);
+		boardDto.setContents1(geometryBoardEntity.contents1);
+		boardDto.setContents2(geometryBoardEntity.contents2);
+		boardDto.setUserNm(geometryBoardEntity.userName);
+		boardDto.setUserEmail(geometryBoardEntity.userEmail);
+		boardDto.setUserAdress(geometryBoardEntity.userAdress);
+		boardDto.setZipCd(geometryBoardEntity.zipCd);
+		boardDto.setState(geometryBoardEntity.state);
+		boardDto.setUseYn(geometryBoardEntity.useYn);
+		boardDto.setCreatedDate(toGeneralDateTimeFormat(geometryBoardEntity.createdDate));
+		boardDto.setModifiedDate(toGeneralDateTimeFormat(geometryBoardEntity.modifiedDate));
+		
+		return boardDto;
 	}
 
 
@@ -154,4 +162,16 @@ public class GeometryBoard{
 
 	public GeometryBoard(GeometryBoard GeometryBoardEntity) {}
 
+	/* yyyyMMdd_HHmmss
+	public static ZonedDateTime toZonedDateTime(String datetimeString) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd.HH-mm-ss");
+		return ZonedDateTime.of(LocalDateTime.parse(datetimeString, formatter));
+	}
+	*/
+
+	public static String toGeneralDateTimeFormat(ZonedDateTime value) {
+		//출력 결과 (예. 20201022_123020)
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd.HH-mm-ss");
+		return value.format(formatter);
+	}
 }

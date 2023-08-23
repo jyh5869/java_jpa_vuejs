@@ -102,13 +102,13 @@ export default {
                     variant: '',
                 },
                 {
-                    key: 'user_name',
+                    key: 'userName',
                     label: '작성자',
                     sortable: false,
                     variant: '',
                 },
                 {
-                    key: 'reg_dt',
+                    key: 'createdDate',
                     label: '작성일',
                     sortable: true,
                     variant: '',
@@ -161,7 +161,8 @@ export default {
                 },
             });
             this.dataList = res.data; //데이터 세팅
-            console.log(res.data);
+            console.log('---------- 리스트 호출 응답 객체 ----------');
+            console.log(res);
             this.toggleBusy(); //로딩 스피너 토글
         },
     },
