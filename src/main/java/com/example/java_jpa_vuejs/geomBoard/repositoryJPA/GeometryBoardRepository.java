@@ -1,5 +1,8 @@
 package com.example.java_jpa_vuejs.geomBoard.repositoryJPA;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -51,6 +54,9 @@ public interface GeometryBoardRepository extends CrudRepository<GeometryBoard, L
     @Transactional
     @Query(value = "UPDATE MEMBERS SET DELETE_YN = 'Y' WHERE ID = :deleteId ", nativeQuery = true)
     Integer setDeleteUser(@Param("deleteId") String deleteId);
+
+    Page<GeometryBoard> findAll(Pageable pageable);
+
 }
 
 

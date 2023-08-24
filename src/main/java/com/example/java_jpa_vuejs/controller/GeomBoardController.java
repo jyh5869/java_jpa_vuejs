@@ -14,6 +14,8 @@ import java.util.Iterator;
 import org.apache.commons.collections.IteratorUtils;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.geo.Polygon;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -63,9 +65,11 @@ public class GeomBoardController {
     public static final String SECURED_TEXT = "Hello from the secured resource!";
 
     private final ModelMapper modelMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final BoardService boardService;
     private final BoardFirebaseService boardFirebaseService;
+
 
     /**
     * @method 지오메트릭 데이터 저장
@@ -123,6 +127,7 @@ public class GeomBoardController {
         return "TRUE";
     }
 
+
     /**
     * @method 지오메트릭 데이터 가져오기
     * @param  null
@@ -136,62 +141,42 @@ public class GeomBoardController {
         return list;
     }
 
-
-
-    ObjectMapper objectMapper = new ObjectMapper();
+    
     /**
     * @method 지오메트릭 글 리스트 가져오기
     * @param  null
     * @throws Exception
     */
-    @GetMapping(value = {"/getGeomBoardList"})
-    public List<Map<String, Object>> getGeomBoardList(@Valid BoardDto boardDTO) throws Exception {
-
-        //List<Map<String, Object>> list = boardFirebaseService.getGeomBoardList();
-
-        //List<Map<String, Object>> list = boardFirebaseService.getGeomBoardList();
-
-        Iterable<GeometryBoard> list = boardService.getGeomBoardList();
-        
-        Iterator<GeometryBoard> itr = list.iterator();
-
+    @GetMapping(value = {"/getGeomBoardList"})//Pageable pageable
+    public List<Map<String, Object>> getGeomBoardList() throws Exception {
+        //응답 리스트 객체 정의
         List<Map<String, Object>> retList = new ArrayList<Map<String, Object>>();
 
-        System.out.println("★\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605");
-        while(itr.hasNext()){
-            //Map<String, Object> map = new HashMap<>();
-            /*
-             * 
-             * 
+        try {
 
+            // 1] - MYSQL에서 정보조회
 
+            Iterable<GeometryBoard> list = boardService.getGeomBoardList();
+            Iterator<GeometryBoard> itr = list.iterator();
 
-
-
-
-
-
-
-
-
-
-             ㅈ가업하자 디티오로 안바뀐다.
-             */
-            GeometryBoard str = itr.next();
-            BoardDto boardDto = new BoardDto();
-
-            BoardDto str1 = str.toDto(str);
+            //리턴 리스트에 담기위한 형식변경
+            while(itr.hasNext()){
             
-            
-            Map<String, Object> map = objectMapper.convertValue(str1, new TypeReference<Map<String, Object>>() {});
+                GeometryBoard GeometryBoardEntity = itr.next();
+                BoardDto boardDto = GeometryBoardEntity.toDto(GeometryBoardEntity);
 
-            //modelMapper.map(str, Members.class);
+                Map<String, Object> map = objectMapper.convertValue(boardDto, new TypeReference<Map<String, Object>>() {});
+
+                retList.add(map);
+            }
             
-            retList.add(map);
-            System.out.println(str.getBoardSq());
+        } catch (Exception e) {
+            // 2] - MYSQL에서 정보조회 실패시 FIREBASE로 조회
+            LOG.info(" DB AUTH ERROR - CLOUD AUTH START!");
+            retList = boardFirebaseService.getGeomBoardList();
+
+            e.printStackTrace();
         }
-        System.out.println("★\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605");
-        
 
         return retList;
     }

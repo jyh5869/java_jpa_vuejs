@@ -102,7 +102,7 @@ export default {
                     variant: '',
                 },
                 {
-                    key: 'userName',
+                    key: 'userNm',
                     label: '작성자',
                     sortable: false,
                     variant: '',

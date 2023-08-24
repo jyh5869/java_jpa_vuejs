@@ -16,13 +16,17 @@ import com.example.java_jpa_vuejs.util.ForbiddenException;
 import com.example.java_jpa_vuejs.util.UserNotFoundException;
 import com.example.java_jpa_vuejs.validation.Empty;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
+
 import lombok.RequiredArgsConstructor;
 
 
@@ -38,10 +42,25 @@ public class BoardServiceImpl implements BoardService {
 	public Iterable<GeometryBoard> getGeomBoardList() {
 		//DTO -> Entity   
 		//Members loginEntity = loginDto.toEntity();
-		 
-		geometryBoardRepository.findAll();
+		Pageable pageable = PageRequest.of(0, 1);
 
+		Page<GeometryBoard> list = geometryBoardRepository.findAll(pageable);
+
+		System.out.println("★\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605 =    "+ list.toString());
 		//아이디 중복 체크 결과 리턴
-		return geometryBoardRepository.findAll();
+		return list;
+	}
+
+	@Override
+	public Iterable<GeometryBoard> getGeomBoardList2(PageRequest pageable) {
+		//DTO -> Entity   
+		//Members loginEntity = loginDto.toEntity();
+		Pageable pageable1 = PageRequest.of(0, 1);
+
+		Page<GeometryBoard> list = geometryBoardRepository.findAll(pageable1);
+
+		System.out.println("★\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605 =    "+ list.toString());
+		//아이디 중복 체크 결과 리턴
+		return list;
 	}
 }

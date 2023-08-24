@@ -189,6 +189,10 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
 
                 Map<String, Object> data = document.getData();
                 data.put("docId", document.getId());
+                data.put("createdDate", data.get("reg_dt"));
+                data.put("userAdress", data.get("user_adress"));
+                data.put("userEmail", data.get("user_email"));
+                data.put("userNm", data.get("user_name"));
             
                 result.add(data);
             }
