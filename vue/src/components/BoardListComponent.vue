@@ -115,6 +115,8 @@ export default {
                 },
             ],
             dataList: [],
+            totalCount: 0, //총 개시물 갯수
+            currentPage: 0, //현재 페이지 정보
         };
     },
     mounted() {
@@ -152,8 +154,8 @@ export default {
                 method: 'get',
                 url: '/api/getGeomBoardList',
                 params: {
-                    // callType: useParams.callType,
-                    // targetId: useParams.targetId,
+                    currentPage: this.currentPage,
+                    callType: 'First',
                 },
                 headers: {
                     'Content-Type': 'multipart/form-data',

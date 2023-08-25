@@ -8,6 +8,7 @@ import com.example.java_jpa_vuejs.auth.entity.Phones;
 import com.example.java_jpa_vuejs.auth.repositoryJPA.MemberRepository;
 import com.example.java_jpa_vuejs.auth.repositoryJPA.PhonesRepository;
 import com.example.java_jpa_vuejs.auth.repositoryService.SignService;
+import com.example.java_jpa_vuejs.common.PaginationDto;
 import com.example.java_jpa_vuejs.geomBoard.entity.GeometryBoard;
 import com.example.java_jpa_vuejs.geomBoard.repositoryJPA.GeometryBoardRepository;
 import com.example.java_jpa_vuejs.geomBoard.repositoryService.BoardService;
@@ -39,9 +40,15 @@ public class BoardServiceImpl implements BoardService {
 	
 
 	@Override
-	public Iterable<GeometryBoard> getGeomBoardList() {
-		//DTO -> Entity   
-		//Members loginEntity = loginDto.toEntity();
+	public Iterable<GeometryBoard> getGeomBoardList(PaginationDto paginationDto) {
+
+		long currentPage = paginationDto.getCurrentPage();
+		long resultCnt = paginationDto.getResultCnt();
+		long blockPage = paginationDto.getBlockPage();
+		long totalCount = paginationDto.getTotalCount();
+		String callType = paginationDto.getCallType();
+		
+		//paginationDto.get
 		Pageable pageable = PageRequest.of(0, 1);
 
 		Page<GeometryBoard> list = geometryBoardRepository.findAll(pageable);
@@ -52,15 +59,12 @@ public class BoardServiceImpl implements BoardService {
 	}
 
 	@Override
-	public Iterable<GeometryBoard> getGeomBoardList2(PageRequest pageable) {
-		//DTO -> Entity   
-		//Members loginEntity = loginDto.toEntity();
-		Pageable pageable1 = PageRequest.of(0, 1);
+	public long getTotalCount() {
 
-		Page<GeometryBoard> list = geometryBoardRepository.findAll(pageable1);
+		long totalCount = geometryBoardRepository.count();
 
-		System.out.println("★\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605 =    "+ list.toString());
+		System.out.println("★\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605  totalCOunt =    " + totalCount);
 		//아이디 중복 체크 결과 리턴
-		return list;
+		return totalCount;
 	}
 }

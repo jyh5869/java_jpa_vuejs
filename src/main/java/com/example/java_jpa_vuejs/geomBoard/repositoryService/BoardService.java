@@ -10,11 +10,11 @@ import com.example.java_jpa_vuejs.auth.AuthenticationDto;
 import com.example.java_jpa_vuejs.auth.JoinDto;
 import com.example.java_jpa_vuejs.auth.LoginDto;
 import com.example.java_jpa_vuejs.auth.entity.Members;
+import com.example.java_jpa_vuejs.common.PaginationDto;
 import com.example.java_jpa_vuejs.geomBoard.entity.GeometryBoard;
 
 public interface BoardService {
 
-     Iterable<GeometryBoard> getGeomBoardList();
-     Iterable<GeometryBoard> getGeomBoardList2(PageRequest pageable);
-
+     Iterable<GeometryBoard> getGeomBoardList(PaginationDto paginationDto);
+     long getTotalCount();
 }

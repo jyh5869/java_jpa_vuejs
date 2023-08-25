@@ -16,6 +16,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.jaxb.SpringDataJaxb.PageRequestDto;
 import org.springframework.data.geo.Polygon;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,7 @@ import com.example.java_jpa_vuejs.auth.entity.Members;
 import com.example.java_jpa_vuejs.auth.repositoryService.SignFirebaseService;
 import com.example.java_jpa_vuejs.auth.repositoryService.SignService;
 import com.example.java_jpa_vuejs.auth2.repositoryService.RepositoryService;
+import com.example.java_jpa_vuejs.common.PaginationDto;
 import com.example.java_jpa_vuejs.config.FirebaseConfiguration;
 import com.example.java_jpa_vuejs.geomBoard.BoardDto;
 import com.example.java_jpa_vuejs.geomBoard.entity.GeometryBoard;
@@ -148,15 +150,16 @@ public class GeomBoardController {
     * @throws Exception
     */
     @GetMapping(value = {"/getGeomBoardList"})//Pageable pageable
-    public List<Map<String, Object>> getGeomBoardList() throws Exception {
+    public List<Map<String, Object>> getGeomBoardList(@Valid PaginationDto paginationDto) throws Exception {
         //응답 리스트 객체 정의
         List<Map<String, Object>> retList = new ArrayList<Map<String, Object>>();
 
         try {
 
             // 1] - MYSQL에서 정보조회
-
-            Iterable<GeometryBoard> list = boardService.getGeomBoardList();
+            
+            paginationDto.setTotalCount(boardService.getTotalCount());
+            Iterable<GeometryBoard> list = boardService.getGeomBoardList(paginationDto);
             Iterator<GeometryBoard> itr = list.iterator();
 
             //리턴 리스트에 담기위한 형식변경
