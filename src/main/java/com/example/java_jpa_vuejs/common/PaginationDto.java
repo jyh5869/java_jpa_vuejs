@@ -11,13 +11,13 @@ import lombok.ToString;
 @NoArgsConstructor
 public class PaginationDto {
     
-    private long totalCount = 0;
+    private Integer totalCount = 0;
 
-    private long currentPage = 0;
+    private Integer currentPage = 0;
 
-    private long blockPage = 10;
+    private Integer blockPage = 10;
 
-    private long resultCnt = 10;
+    private Integer resultCnt = 10;
 
     private String callType;
 }

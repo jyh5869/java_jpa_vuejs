@@ -16,5 +16,5 @@ import com.example.java_jpa_vuejs.geomBoard.entity.GeometryBoard;
 public interface BoardService {
 
      Iterable<GeometryBoard> getGeomBoardList(PaginationDto paginationDto);
-     long getTotalCount();
+     Integer getTotalCount();
 }

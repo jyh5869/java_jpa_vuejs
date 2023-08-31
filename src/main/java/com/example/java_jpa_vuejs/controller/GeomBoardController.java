@@ -163,11 +163,11 @@ public class GeomBoardController {
             Iterator<GeometryBoard> itr = list.iterator();
 
             //리턴 리스트에 담기위한 형식변경
-            while(itr.hasNext()){
+            while(itr.hasNext()){ 
             
                 GeometryBoard GeometryBoardEntity = itr.next();
                 BoardDto boardDto = GeometryBoardEntity.toDto(GeometryBoardEntity);
-
+ 
                 Map<String, Object> map = objectMapper.convertValue(boardDto, new TypeReference<Map<String, Object>>() {});
 
                 retList.add(map);

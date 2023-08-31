@@ -42,28 +42,40 @@ public class BoardServiceImpl implements BoardService {
 	@Override
 	public Iterable<GeometryBoard> getGeomBoardList(PaginationDto paginationDto) {
 
-		long currentPage = paginationDto.getCurrentPage();
-		long resultCnt = paginationDto.getResultCnt();
-		long blockPage = paginationDto.getBlockPage();
-		long totalCount = paginationDto.getTotalCount();
+		Integer currentPage = paginationDto.getCurrentPage();
+		//Integer countPerPage = paginationDto.getResultCnt();
+		Integer countPerPage = 1;
+		Integer blockPage = paginationDto.getBlockPage();
+		Integer totalCount = paginationDto.getTotalCount();
 		String callType = paginationDto.getCallType();
 		
-		//paginationDto.get
-		Pageable pageable = PageRequest.of(0, 1);
+		//Integer  pageTotal = ((totalCount -1) / 1);
+		Integer  pageTotal = 1;
+
+		Pageable pageable =  PageRequest.of(0, countPerPage);//페이징 객체 선언
+		
+		if(callType.equals("first")){
+			pageable = PageRequest.of(0, countPerPage);
+		}
+		else if(callType.equals("middle")){
+			pageable = PageRequest.of(pageTotal, countPerPage);
+		}
+		else if(callType.equals("last")){
+			pageable = PageRequest.of(pageTotal, countPerPage);
+		}
 
 		Page<GeometryBoard> list = geometryBoardRepository.findAll(pageable);
-
-		System.out.println("★\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605 =    "+ list.toString());
-		//아이디 중복 체크 결과 리턴
+		
 		return list;
 	}
 
 	@Override
-	public long getTotalCount() {
+	public Integer getTotalCount() {
+		long longTotlCount = geometryBoardRepository.count();
 
-		long totalCount = geometryBoardRepository.count();
+		Integer totalCount = Long.valueOf(longTotlCount).intValue();
 
-		System.out.println("★\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605  totalCOunt =    " + totalCount);
+		System.out.println("★------------------------------------> totalCOunt : " + totalCount);
 		//아이디 중복 체크 결과 리턴
 		return totalCount;
 	}
