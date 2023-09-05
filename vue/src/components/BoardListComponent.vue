@@ -49,6 +49,7 @@
             <template #table-caption>Data List</template>
         </b-table>
     </div>
+    <!-- 
     <nav aria-label="Page navigation example">
         <ul class="pagination justify-content-center">
             <li class="page-item">
@@ -68,6 +69,9 @@
             </li>
         </ul>
     </nav>
+    -->
+    <div v-html="pagination"></div>
+
     <div class="col-12">
         <button type="button" class="btn float-right btn-success" @click="getBoardWrite">글쓰기</button>
     </div>
@@ -115,12 +119,16 @@ export default {
                 },
             ],
             dataList: [],
+            pagination: null,
             totalCount: 0, //총 개시물 갯수
             currentPage: 0, //현재 페이지 정보
         };
     },
     mounted() {
         this.getList();
+    },
+    created() {
+        window.getList = this.getList;
     },
     // [메소드 정의 실시]
     methods: {
@@ -149,20 +157,25 @@ export default {
         toggleBusy() {
             this.isBusy = !this.isBusy;
         },
-        getList: async function () {
+        getList: async function (currentPage, countPerPage, params) {
+            this.isBusy = true;
             let res = await this.$axios({
                 method: 'get',
                 url: '/api/getGeomBoardList',
                 params: {
-                    currentPage: this.currentPage,
-                    callType: 'First',
+                    currentPage: currentPage,
+                    countPerPage: countPerPage,
+                    actionTarget: 'getList',
+                    params: params,
                 },
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     accesstoken: this.$store.state.token,
                 },
             });
-            this.dataList = res.data; //데이터 세팅
+
+            this.dataList = res.data.list; //데이터 세팅
+            this.pagination = res.data.pagination; //페이징 세팅
             console.log('---------- 리스트 호출 응답 객체 ----------');
             console.log(res);
             this.toggleBusy(); //로딩 스피너 토글

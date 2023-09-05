@@ -41,6 +41,9 @@ import com.example.java_jpa_vuejs.geomBoard.BoardDto;
 import com.example.java_jpa_vuejs.geomBoard.entity.GeometryBoard;
 import com.example.java_jpa_vuejs.geomBoard.repositoryService.BoardFirebaseService;
 import com.example.java_jpa_vuejs.geomBoard.repositoryService.BoardService;
+import com.example.java_jpa_vuejs.util.PaginationAsync;
+import com.example.java_jpa_vuejs.util.PaginationAsyncPageable;
+import com.example.java_jpa_vuejs.util.PaginationSync;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -150,8 +153,9 @@ public class GeomBoardController {
     * @throws Exception
     */
     @GetMapping(value = {"/getGeomBoardList"})//Pageable pageable
-    public List<Map<String, Object>> getGeomBoardList(@Valid PaginationDto paginationDto) throws Exception {
+    public Map<String, Object> getGeomBoardList(@Valid PaginationDto paginationDto) throws Exception {
         //응답 리스트 객체 정의
+        Map<String, Object> retMap = new HashMap<String, Object>();
         List<Map<String, Object>> retList = new ArrayList<Map<String, Object>>();
 
         try {
@@ -181,6 +185,11 @@ public class GeomBoardController {
             e.printStackTrace();
         }
 
-        return retList;
+        String pagination = PaginationAsyncPageable.getDividePageFormByParams(paginationDto);
+
+        retMap.put("list", retList);
+        retMap.put("pagination", pagination);
+
+        return retMap;
     }
 }
