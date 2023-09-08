@@ -15,7 +15,7 @@ public class PaginationAsyncPageable {
 		String strActionUrl = paginationDto.getActionTarget();
 
 		Integer intPageTotal = (intTotalCount / intCountPerPage);
-		Integer intPageGroupStart = (((intCurrentPage) / intPageGroupSize) * intPageGroupSize);
+		Integer intPageGroupStart = (((intCurrentPage ) / intPageGroupSize) * intPageGroupSize);
 		Integer intPageGroupEnd = (intPageGroupStart + intPageGroupSize);
 
 		System.out.println("@@@@@@      intTotalCount     = " + intTotalCount);
@@ -23,7 +23,7 @@ public class PaginationAsyncPageable {
 		System.out.println("@@@@@@      intPageGroupStart = " + intPageGroupStart);
 		System.out.println("@@@@@@      intPageGroupEnd   = " + intPageGroupEnd);
 
-		if(intPageGroupStart <= 0){intPageGroupStart = 0; }; 
+		if(intPageGroupStart < 0){intPageGroupStart = 0; }; 
 		if(intPageGroupEnd > intPageTotal){intPageGroupEnd = intPageTotal+1; }; 
 
 		System.out.println("######      intTotalCount     = " + intTotalCount);
@@ -42,16 +42,16 @@ public class PaginationAsyncPageable {
 		//2.이전 페이지
 		if(intPageGroupStart > intCountPerPage ){
 			System.out.println("-----이전111  = " + intPageGroupStart + " / " + intCountPerPage);
-			strPagingBuf.append(makeButtonLinkByParams((intPageGroupStart -1)-intCountPerPage, "PREV_TAG", strParams, strActionUrl, intCountPerPage));
+			strPagingBuf.append(makeButtonLinkByParams((intPageGroupStart-intPageGroupSize), "PREV_TAG", strParams, strActionUrl, intCountPerPage));
 		}
 		else if(intPageGroupStart <= intCountPerPage ){//첫페이지
 			System.out.println("-----이전222  = "  + intPageGroupStart + " / " + intCountPerPage);
 			strPagingBuf.append(makeButtonLinkByParams(0, "PREV_TAG", strParams, strActionUrl, intCountPerPage));
 		}
-		/* */
+
 		else if(intPageGroupStart < intCountPerPage ){
 			System.out.println("-----이전333  = "  + intPageGroupStart + " / " + intCountPerPage);
-			strPagingBuf.append(makeButtonLinkByParams((intPageGroupStart -1)-intCountPerPage, "PREV_TAG", strParams, strActionUrl, intCountPerPage));
+			strPagingBuf.append(makeButtonLinkByParams((intPageGroupStart-intPageGroupSize), "PREV_TAG", strParams, strActionUrl, intCountPerPage));
 		}
 
 		//3.개별 페이징
@@ -68,12 +68,12 @@ public class PaginationAsyncPageable {
 		if((intPageGroupEnd * intCountPerPage) < intTotalCount){
 			System.out.println("-----다음111   = " + ((intPageGroupEnd * intCountPerPage) < intTotalCount) + "     / " + (intPageGroupEnd * intCountPerPage));
 			
-			strPagingBuf.append(makeButtonLinkByParams(intPageGroupEnd, "NEXT_TAG", strParams, strActionUrl, intCountPerPage));
+			strPagingBuf.append(makeButtonLinkByParams((intPageGroupEnd)  , "NEXT_TAG", strParams, strActionUrl, intCountPerPage));
 		}
 		else{
 			System.out.println("-----다음22   = " +  ((intPageGroupEnd * intCountPerPage) < intTotalCount) + "     / " + (intPageGroupEnd * intCountPerPage));
 			
-			strPagingBuf.append(makeButtonLinkByParams(intPageGroupEnd-1, "NEXT_TAG", strParams, strActionUrl, intCountPerPage));
+			strPagingBuf.append(makeButtonLinkByParams((intPageGroupEnd -1 ) , "NEXT_TAG", strParams, strActionUrl, intCountPerPage));
 		}
 
 		//5. 마지막 페이지
