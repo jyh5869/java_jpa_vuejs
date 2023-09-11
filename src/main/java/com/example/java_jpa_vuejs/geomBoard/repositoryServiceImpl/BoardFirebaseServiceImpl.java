@@ -6,6 +6,7 @@ import com.example.java_jpa_vuejs.auth.JoinDto;
 import com.example.java_jpa_vuejs.auth.LoginDto;
 import com.example.java_jpa_vuejs.auth.entity.Members;
 import com.example.java_jpa_vuejs.auth.repositoryService.SignFirebaseService;
+import com.example.java_jpa_vuejs.common.PaginationDto;
 import com.example.java_jpa_vuejs.config.FirebaseConfiguration;
 import com.example.java_jpa_vuejs.geomBoard.BoardDto;
 import com.example.java_jpa_vuejs.geomBoard.repositoryService.BoardFirebaseService;
@@ -29,6 +30,7 @@ import org.modelmapper.ModelMapper;
 import lombok.RequiredArgsConstructor;
 
 import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.AggregateQuerySnapshot;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
@@ -169,18 +171,24 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
 	}
 
     @Override
-	public List<Map<String, Object>> getGeomBoardList() throws Exception{
+	public List<Map<String, Object>> getGeomBoardList(PaginationDto paginationDto) throws Exception{
 
 		long reqTime = Util.durationTime ("start", "CLOUD / GET LIST : ", 0, "Proceeding ::: " );
         List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
-		
+
+		Integer currentPage = paginationDto.getCurrentPage();
+        Integer countPerPage = paginationDto.getCountPerPage();
+        String startAt = String.valueOf((currentPage) * countPerPage);
+        
+        System.out.println("★----------------------------------- startAt >>>>>>>> = " + startAt);
 		try {     
             //파이어 베이스 초기화
             firebaseConfiguration.initializeFCM();
             Firestore db = FirestoreClient.getFirestore();
 
             //스냅샷 호출 후 리스트 생성(JSON)
-            ApiFuture<QuerySnapshot> query = db.collection("geometry_board").orderBy("reg_dt", Direction.DESCENDING).get();
+            //ApiFuture<QuerySnapshot> query = db.collection("geometry_board").orderBy("reg_dt", Direction.DESCENDING).whereEqualTo("board_sq",  startAt).limit(countPerPage).get();
+            ApiFuture<QuerySnapshot> query = db.collection("geometry_board").orderBy("reg_dt", Direction.DESCENDING).whereEqualTo("board_sq",  startAt).limit(countPerPage).get();
             QuerySnapshot querySnapshot = query.get();
 
             List<QueryDocumentSnapshot> documents = querySnapshot.getDocuments();
@@ -342,6 +350,32 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
 			Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public Integer getTotalCount(PaginationDto paginationDto) throws Exception {
+        
+        long reqTime = Util.durationTime ("start", "CLOUD / GET LIST : ", 0, "Proceeding ::: " );
+        
+        Integer totalCount = 0;
+        try {
+            firebaseConfiguration.initializeFCM();
+            Firestore db = FirestoreClient.getFirestore();
+
+            //스냅샷 호출 후 리스트 생성(JSON)
+            AggregateQuerySnapshot snapshot = db.collection("geometry_board").count().get().get();
+            System.out.println("---------------------------------------------->>>>>> Count: " + snapshot.getCount());
+
+            Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Complete ::: " );
+
+           totalCount =  (int) snapshot.getCount();
+        }
+        catch (Exception e) {
+			Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Fail ::: " );
+            e.printStackTrace();
+        }
+
+        return totalCount;
     }
 
     @Override

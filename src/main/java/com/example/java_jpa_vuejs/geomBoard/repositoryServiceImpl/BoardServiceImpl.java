@@ -46,7 +46,7 @@ public class BoardServiceImpl implements BoardService {
 		Integer intCountPerPage = paginationDto.getCountPerPage();
 		
 		//페이징 호출
-		Pageable pageable =  PageRequest.of(intCurrentPage, intCountPerPage);//페이징 객체 선언
+		Pageable pageable =  PageRequest.of(-1, intCountPerPage);//페이징 객체 선언
 		
 		/* 
 		if(callType.equals("first")){

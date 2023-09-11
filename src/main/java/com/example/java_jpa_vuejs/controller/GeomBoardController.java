@@ -180,7 +180,9 @@ public class GeomBoardController {
         } catch (Exception e) {
             // 2] - MYSQL에서 정보조회 실패시 FIREBASE로 조회
             LOG.info(" DB AUTH ERROR - CLOUD AUTH START!");
-            retList = boardFirebaseService.getGeomBoardList();
+
+            paginationDto.setTotalCount(boardFirebaseService.getTotalCount(paginationDto));
+            retList = boardFirebaseService.getGeomBoardList(paginationDto);
 
             e.printStackTrace();
         }

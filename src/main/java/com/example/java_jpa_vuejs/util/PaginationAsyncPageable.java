@@ -5,31 +5,21 @@ import com.example.java_jpa_vuejs.common.PaginationDto;
 public class PaginationAsyncPageable {
     public static String getDividePageFormByParams(PaginationDto paginationDto){
 
-        Integer intCurrentPage = paginationDto.getCurrentPage();
-		Integer intCountPerPage = paginationDto.getCountPerPage();// 한페이지당 몇개씩 보여줄건지
-		Integer intPageGroupSize = paginationDto.getBlockPage();// 패아장 몇페이지까지 보여줄건지
+        Integer intCurrentPage = paginationDto.getCurrentPage();// 보여줄 현재 페이지
+		Integer intCountPerPage = paginationDto.getCountPerPage();// 한페이지당 보여질 게시물 수
+		Integer intPageGroupSize = paginationDto.getBlockPage();// 패아장을 제공할 페이지 블록 수
+		Integer intTotalCount = paginationDto.getTotalCount();// 총 게시물 갯수
 
-		Integer intTotalCount = paginationDto.getTotalCount();
-		String strResType = paginationDto.getResType();
-		String strParams = paginationDto.getParams();
-		String strActionUrl = paginationDto.getActionTarget();
+		String strParams = paginationDto.getParams();// 조건 파라메터
+		String strActionUrl = paginationDto.getActionTarget();// 1. 타겟 URL(동기), 2. 함수 명(비동기)
+		String strResType = paginationDto.getResType();// 추가적으로 조건이 필요할시 사용할 파라메터
 
-		Integer intPageTotal = (intTotalCount / intCountPerPage);
-		Integer intPageGroupStart = (((intCurrentPage ) / intPageGroupSize) * intPageGroupSize);
-		Integer intPageGroupEnd = (intPageGroupStart + intPageGroupSize);
+		Integer intPageTotal = ((intTotalCount -1) / intCountPerPage);// 총 페이지 수
+		Integer intPageGroupStart = (((intCurrentPage ) / intPageGroupSize) * intPageGroupSize);// 보여질 페이지 시작점 EX> 3페이지 부터
+		Integer intPageGroupEnd = (intPageGroupStart + intPageGroupSize) ;// 보여질 페이지 끝점 EX> 5페이지 까지
 
-		System.out.println("@@@@@@      intTotalCount     = " + intTotalCount);
-		System.out.println("@@@@@@      intPageTotal      = " + intPageTotal);
-		System.out.println("@@@@@@      intPageGroupStart = " + intPageGroupStart);
-		System.out.println("@@@@@@      intPageGroupEnd   = " + intPageGroupEnd);
-
-		if(intPageGroupStart < 0){intPageGroupStart = 0; }; 
-		if(intPageGroupEnd > intPageTotal){intPageGroupEnd = intPageTotal+1; }; 
-
-		System.out.println("######      intTotalCount     = " + intTotalCount);
-		System.out.println("######      intPageTotal      = " + intPageTotal);
-		System.out.println("######      intPageGroupStart = " + intPageGroupStart);
-		System.out.println("######      intPageGroupEnd   = " + intPageGroupEnd);
+		if(intPageGroupStart < 0){intPageGroupStart = 0; };// 이전페이지의 동작으로 인해 음수의 페이지를 호출할 경우 1페이지로 이동
+		if(intPageGroupEnd > intPageTotal){intPageGroupEnd = intPageTotal +1; }// 보여질 페이지의 끝점이 토탈페이지 보다 클경우 마지막페이지로 이동
 
 		StringBuffer strPagingBuf = new StringBuffer();
 
@@ -40,11 +30,11 @@ public class PaginationAsyncPageable {
 		strPagingBuf.append(makeButtonLinkByParams(0, "BEGIN_TAG", strParams, strActionUrl, intCountPerPage));
 		
 		//2.이전 페이지
-		if(intPageGroupStart > intCountPerPage ){
+		if(intPageGroupStart >= intCountPerPage ){
 			System.out.println("-----이전111  = " + intPageGroupStart + " / " + intCountPerPage);
 			strPagingBuf.append(makeButtonLinkByParams((intPageGroupStart-intPageGroupSize), "PREV_TAG", strParams, strActionUrl, intCountPerPage));
 		}
-		else if(intPageGroupStart <= intCountPerPage ){//첫페이지
+		else if(intPageGroupStart < intCountPerPage ){//첫페이지
 			System.out.println("-----이전222  = "  + intPageGroupStart + " / " + intCountPerPage);
 			strPagingBuf.append(makeButtonLinkByParams(0, "PREV_TAG", strParams, strActionUrl, intCountPerPage));
 		}
@@ -77,16 +67,9 @@ public class PaginationAsyncPageable {
 		}
 
 		//5. 마지막 페이지
-		//if("total".equalsIgnoreCase(strResType)){
-		//	if((intPageGroupEnd * intCountPerPage) < intTotalCount){
-		//		System.out.println("-----마지막11   = " +  ((intPageGroupEnd * intCountPerPage) < intTotalCount) + "     / " + (intPageGroupEnd * intCountPerPage) + "    intTotalCount / " +intTotalCount);
-		//		strPagingBuf.append(makeButtonLinkByParams(intPageTotal-1, "END_TAG", strParams, strActionUrl, intCountPerPage));
-		//	}
-		//	else{
-				System.out.println("-----마지막22   = " +  ((intPageGroupEnd * intCountPerPage) < intTotalCount) + "     / " + (intPageGroupEnd * intCountPerPage) + "    intTotalCount / " + intTotalCount);
-				strPagingBuf.append(makeButtonLinkByParams(intPageTotal, "END_TAG", strParams, strActionUrl, intCountPerPage));
-		//	}
-		//}
+		System.out.println("-----마지막22   = " +  ((intPageGroupEnd * intCountPerPage) < intTotalCount) + "     / " + (intPageGroupEnd * intCountPerPage) + "    intTotalCount / " + intTotalCount);
+		strPagingBuf.append(makeButtonLinkByParams(intPageTotal, "END_TAG", strParams, strActionUrl, intCountPerPage));
+
 
         strPagingBuf.append("</ul>\r\n");
 		strPagingBuf.append("</nav>\r\n");

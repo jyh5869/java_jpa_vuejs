@@ -15,9 +15,17 @@ public class PaginationDto {
 
     private Integer currentPage = 0;
 
-    private Integer blockPage = 2;//한번에 몇개의 페이징 정보를 제공할것인지 ex> 1,2,3,4,5,6,7,8,9,10 페이지
+    //1. MySQL 페이징 테스트 변수 1
+    //private Integer blockPage =2;//한번에 몇개의 페이징 정보를 제공할것인지 ex> 1,2,3,4,5,6,7,8,9,10 페이지
+    //private Integer countPerPage = 4;//한페이지에 몇개의 개시물을 보여줄것인지 ex> 10개
 
-    private Integer countPerPage = 3;//한페이지에 몇개의 개시물을 보여줄것인지 ex> 10개
+    //1. MySQL 페이징 테스트 변수 2
+    //private Integer blockPage =3;//한번에 몇개의 페이징 정보를 제공할것인지 ex> 1,2,3,4,5,6,7,8,9,10 페이지
+    //private Integer countPerPage = 2;//한페이지에 몇개의 개시물을 보여줄것인지 ex> 10개
+
+    //2. 클라우드 페이징 테스트 변수 1
+    private Integer blockPage =2;//한번에 몇개의 페이징 정보를 제공할것인지 ex> 1,2,3,4,5,6,7,8,9,10 페이지
+    private Integer countPerPage = 1;//한페이지에 몇개의 개시물을 보여줄것인지 ex> 10개
 
     private String callType;
 
