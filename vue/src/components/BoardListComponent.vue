@@ -49,27 +49,7 @@
             <template #table-caption>Data List</template>
         </b-table>
     </div>
-    <!-- 
-    <nav aria-label="Page navigation example">
-        <ul class="pagination justify-content-center">
-            <li class="page-item">
-                <a class="page-link text-success" href="#" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
-                    <span class="sr-only"></span>
-                </a>
-            </li>
-            <li class="page-item"><a class="page-link text-success" href="#">1</a></li>
-            <li class="page-item"><a class="page-link text-success" href="#">2</a></li>
-            <li class="page-item"><a class="page-link text-success" href="#">3</a></li>
-            <li class="page-item">
-                <a class="page-link text-success" href="#" aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
-                    <span class="sr-only"></span>
-                </a>
-            </li>
-        </ul>
-    </nav>
-    -->
+
     <div v-html="pagination"></div>
 
     <div class="col-12">

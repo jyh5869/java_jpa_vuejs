@@ -11,27 +11,25 @@ import lombok.ToString;
 @NoArgsConstructor
 public class PaginationDto {
     
-    private Integer totalCount = 0;
-
-    private Integer currentPage = 0;
-
     //1. MySQL 페이징 테스트 변수 1
-    //private Integer blockPage =2;//한번에 몇개의 페이징 정보를 제공할것인지 ex> 1,2,3,4,5,6,7,8,9,10 페이지
-    //private Integer countPerPage = 4;//한페이지에 몇개의 개시물을 보여줄것인지 ex> 10개
+    //private Integer blockPage =2;
+    //private Integer countPerPage = 4;
 
     //1. MySQL 페이징 테스트 변수 2
-    //private Integer blockPage =3;//한번에 몇개의 페이징 정보를 제공할것인지 ex> 1,2,3,4,5,6,7,8,9,10 페이지
-    //private Integer countPerPage = 2;//한페이지에 몇개의 개시물을 보여줄것인지 ex> 10개
+    //private Integer blockPage =3;
+    //private Integer countPerPage = 2;
 
-    //2. 클라우드 페이징 테스트 변수 1
-    private Integer blockPage =2;//한번에 몇개의 페이징 정보를 제공할것인지 ex> 1,2,3,4,5,6,7,8,9,10 페이지
-    private Integer countPerPage = 1;//한페이지에 몇개의 개시물을 보여줄것인지 ex> 10개
+    private Integer blockPage = 10;// 한번에 제공할 페이징 이미지 수  ex> 1,2,3,4,5,6,7,8,9,10 페이지
 
-    private String callType;
+    private Integer countPerPage = 10;// 한페이지당 보여줄 게시물 수  ex> 10개
+
+    private Integer totalCount = 0;// 리스트의 총 갯수
+
+    private Integer currentPage = 0;// 호출된 현재 페이지
+
+    private String callType;// 호출 타입(필요시 사용)
 
     private String actionTarget;// 1.동기 - 컨트롤러 명  2.비동기 - 컨트롤러 호출 함수명
 
-    private String params;
-
-    private String resType = "";
+    private String params;// 조건 파라메터
 }

@@ -1,11 +1,6 @@
 package com.example.java_jpa_vuejs.geomBoard.repositoryServiceImpl;
 
 import com.common.Util;
-import com.example.java_jpa_vuejs.auth.AuthenticationDto;
-import com.example.java_jpa_vuejs.auth.JoinDto;
-import com.example.java_jpa_vuejs.auth.LoginDto;
-import com.example.java_jpa_vuejs.auth.entity.Members;
-import com.example.java_jpa_vuejs.auth.repositoryService.SignFirebaseService;
 import com.example.java_jpa_vuejs.common.PaginationDto;
 import com.example.java_jpa_vuejs.config.FirebaseConfiguration;
 import com.example.java_jpa_vuejs.geomBoard.BoardDto;
@@ -17,8 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -31,61 +24,57 @@ import lombok.RequiredArgsConstructor;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.AggregateQuerySnapshot;
-import com.google.cloud.firestore.DocumentReference;
-import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
-import com.google.cloud.firestore.SetOptions;
 import com.google.cloud.firestore.WriteResult;
 import com.google.cloud.firestore.Query.Direction;
 import com.google.firebase.cloud.FirestoreClient;
-
 
 @Service("boardFirebaseService")
 @RequiredArgsConstructor
 public class BoardFirebaseServiceImpl implements BoardFirebaseService {
 
-    final private static Logger LOG = Logger.getGlobal();
+    final private static Logger LOG = Logger.getLogger(BoardFirebaseServiceImpl.class.getName());
 
 	private final FirebaseConfiguration firebaseConfiguration;
 
 	private final ModelMapper modelMapper;
 
+    /**
+    * @method 지오메트릭 데이터 등록하기
+    * @param id
+    * @param boardDTO
+    * @throws Exception
+    */
 	@Override
 	public void setGeomdData(long id, String geomPolygons) throws Exception{
 
-		long reqTime = Util.durationTime ("start", "CLOUD / USER REGISTRATION : ", 0, "Proceeding ::: " );
+		long reqTime = Util.durationTime ("start", "CLOUD / < SET GEOMETRY DATA - INSERT> : ", 0, "Proceeding ::: " );
 
         try {
             //파이어 베이스 초기화
             firebaseConfiguration.initializeFCM();
             Firestore db = FirestoreClient.getFirestore();
             
-            
             String lastIdx = String.valueOf(id);
-
             String geomData = URLDecoder.decode(geomPolygons.toString(), "UTF-8");
 
             JSONObject jObject = new JSONObject(geomData);
 
             String features = jObject.getString("features");
             
-            
             JSONArray geomArray = new JSONArray(features);
 
             for(int i = 0 ; i < geomArray.length(); i ++){
-                System.out.println("★ \u2605 \u2605 \u2605 \u2605 \u2605 \u2605");
                 JSONObject obj = geomArray.getJSONObject(i);
-                System.out.println(obj.toString());
-                System.out.println("○\u25CB\u25CB\u25CB\u25CB\u25CB\u25CB\u25CB\u25CB\u25CB\u25CB\u25CB\u25CB");
+                //System.out.println(obj.toString());
 
                 String dataType = obj.getString("type");
-                System.out.println("dataType(" + i + "): " + dataType);
+                //System.out.println("dataType(" + i + "): " + dataType);
 
                 String geometry = obj.getString("geometry");
-                System.out.println("geometry(" + i + "): " + geometry);
-                System.out.println("★ \u2605 \u2605 \u2605 \u2605 \u2605 \u2605");
+                //System.out.println("geometry(" + i + "): " + geometry);
                 String properties = obj.getString("properties")
                 ;
                 JSONObject propObj = new JSONObject(properties);
@@ -103,7 +92,7 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
                 docData.put("geom_value", geometry);
                 docData.put("geom_properties", properties);
                 docData.put("reg_dt", regDt);
-                System.out.println("○\u25CB\u25CB\u25CB\u25CB\u25CB\u25CB\u25CB\u25CB = " + state);
+
                 if(state.equals("insert")){//인서트
                     ApiFuture<WriteResult> future = db.collection("geometry").document().set(docData);
                 }
@@ -113,25 +102,30 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
                 }
             }    
                 
-            Util.durationTime ("end", "CLOUD / USER REGISTRATION : ", reqTime, "Complete ::: " );
+            Util.durationTime ("end", "CLOUD / < SET GEOMETRY DATA - INSERT > : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
             
-            Util.durationTime ("end", "CLOUD / USER REGISTRATION : ", reqTime, "Fail ::: " );
+            Util.durationTime ("end", "CLOUD / < SET GEOMETRY DATA - INSERT > : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
 	}
 
+    /**
+    * @method 지오메트릭 게시글 등록하기
+    * @param id
+    * @param boardDTO
+    * @throws Exception
+    */
     @Override
 	public void setBoardData(long id, BoardDto boardDTO) throws Exception{
 
-		long reqTime = Util.durationTime ("start", "CLOUD / USER REGISTRATION : ", 0, "Proceeding ::: " );
+		long reqTime = Util.durationTime ("start", "CLOUD / < SET GEOMETRY DATA - UPDATE > : ", 0, "Proceeding ::: " );
 
         try {
             //파이어 베이스 초기화
             firebaseConfiguration.initializeFCM();
             Firestore db = FirestoreClient.getFirestore();
-            
             
             String updateId = String.valueOf(boardDTO.getDocId());
 
@@ -152,7 +146,7 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
             docData.put("reg_dt", regDt);
             
             String state = boardDTO.getActionType();
-            System.out.println("ActionType-----------------------------> " + state +   "   /   " + id);
+
             if(state.equals("insert")){//인서트
                 ApiFuture<WriteResult> future = db.collection("geometry_board").document().set(docData);
             }
@@ -161,33 +155,36 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
                 ApiFuture<WriteResult> future = db.collection("geometry_board").document(updateId).set(docData);
             }
             
-            Util.durationTime ("end", "CLOUD / USER REGISTRATION : ", reqTime, "Complete ::: " );
+            Util.durationTime ("end", "CLOUD / < SET GEOMETRY DATA - UPDATE > : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
             
-            Util.durationTime ("end", "CLOUD / USER REGISTRATION : ", reqTime, "Fail ::: " );
+            Util.durationTime ("end", "CLOUD / < SET GEOMETRY DATA - UPDATE > : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
 	}
 
+    /**
+    * @method 지오메트릭 게시글 리스트 가져오기
+    * @param  paginationDto
+    * @throws Exception
+    */
     @Override
 	public List<Map<String, Object>> getGeomBoardList(PaginationDto paginationDto) throws Exception{
 
-		long reqTime = Util.durationTime ("start", "CLOUD / GET LIST : ", 0, "Proceeding ::: " );
+		long reqTime = Util.durationTime ("start", "CLOUD / < GET GEOMETRY BOARD LIST - SELECT > : ", 0, "Proceeding ::: " );
         List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
 
 		Integer currentPage = paginationDto.getCurrentPage();
         Integer countPerPage = paginationDto.getCountPerPage();
         String startAt = String.valueOf((currentPage) * countPerPage);
-        
-        System.out.println("★----------------------------------- startAt >>>>>>>> = " + startAt);
+
 		try {     
             //파이어 베이스 초기화
             firebaseConfiguration.initializeFCM();
             Firestore db = FirestoreClient.getFirestore();
 
             //스냅샷 호출 후 리스트 생성(JSON)
-            //ApiFuture<QuerySnapshot> query = db.collection("geometry_board").orderBy("reg_dt", Direction.DESCENDING).whereEqualTo("board_sq",  startAt).limit(countPerPage).get();
             ApiFuture<QuerySnapshot> query = db.collection("geometry_board").orderBy("reg_dt", Direction.DESCENDING).whereEqualTo("board_sq",  startAt).limit(countPerPage).get();
             QuerySnapshot querySnapshot = query.get();
 
@@ -204,20 +201,25 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
             
                 result.add(data);
             }
-            Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Complete ::: " );
+            Util.durationTime ("end", "CLOUD / < GET GEOMETRY BOARD LIST - SELECT > : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
-			Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Fail ::: " );
+			Util.durationTime ("end", "CLOUD / < GET GEOMETRY BOARD LIST - SELECT > : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
 		
 		return result;
 	}
     
+    /**
+    * @method 지오메트릭 데이터 가져오기
+    * @param  id
+    * @throws Exception
+    */
     @Override
 	public List<Map<String, Object>> getGeomData(long id) throws Exception{
 
-		long reqTime = Util.durationTime ("start", "CLOUD / GET LIST : ", 0, "Proceeding ::: " );
+		long reqTime = Util.durationTime ("start", "CLOUD / < GET GEOMETRY DATA LIST - SELECT > : ", 0, "Proceeding ::: " );
         List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
 		
 		try {     
@@ -244,20 +246,25 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
                 data.put("docId", document.getId());
                 result.add(data);
             }
-            Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Complete ::: " );
+            Util.durationTime ("end", "CLOUD / < GET GEOMETRY DATA LIST - SELECT > : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
-			Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Fail ::: " );
+			Util.durationTime ("end", "CLOUD / < GET GEOMETRY DATA LIST - SELECT > : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
 		
 		return result;
 	}
 
+    /**
+    * @method 지오메트릭 데이터 삭제하기
+    * @param  geomDeleteArr
+    * @throws Exception
+    */
     @Override
 	public void deleteGeomdData(String[] geomDeleteArr) throws Exception{
 
-		long reqTime = Util.durationTime ("start", "CLOUD / GET LIST : ", 0, "Proceeding ::: " );
+		long reqTime = Util.durationTime ("start", "CLOUD / < SET GEOMETRY DATA - DELETE > : ", 0, "Proceeding ::: " );
         List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
 		
 		try {     
@@ -271,19 +278,23 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
                 System.out.println("Delete Time : " + writeResult.get().getUpdateTime() + "/ Delete Id : " + element);
             }
                         
-            Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Complete ::: " );
+            Util.durationTime ("end", "CLOUD / < SET GEOMETRY DATA - DELETE > : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
-			Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Fail ::: " );
+			Util.durationTime ("end", "CLOUD / < SET GEOMETRY DATA - DELETE > : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
 	}
 
-
+    /**
+    * @method 지오메트릭 게시글 마지막인덱스 가져오기
+    * @param  null
+    * @throws Exception
+    */
     @Override
 	public long getLastIndex() throws Exception{
 
-		long reqTime = Util.durationTime ("start", "CLOUD / GET LIST : ", 0, "Proceeding ::: " );
+		long reqTime = Util.durationTime ("start", "CLOUD / < SET BOARD LAST INDEX - SELECT > : ", 0, "Proceeding ::: " );
         
         long lastIdx = 0;
 		
@@ -307,28 +318,30 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
                     Map<String, Object> data = document.getData();
                     
                     lastIdx =  Integer.parseInt((String) data.get("board_sq")) + 1;
-                    
-                    System.out.println("글 쓰기 라스트 인덱스 ------------------------------------------>  " + data.get("board_sq") + "        "+ lastIdx);
+                    LOG.info("BOARD LAST INDEX - " + data.get("board_sq"));
 
                     continue;
                 }
             }
 
-            
-            
-            Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Complete ::: " );
+            Util.durationTime ("end", "CLOUD / < SET BOARD LAST INDEX - SELECT > : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
-			Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Fail ::: " );
+			Util.durationTime ("end", "CLOUD / < SET BOARD LAST INDEX - SELECT > : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
 		
 		return lastIdx;
 	}
 
+    /**
+    * @method 지오메트릭 데이터 삭제하기
+    * @param  boardSq
+    * @throws Exception
+    */
     @Override
     public void setDeleteGeomData(String boardSq) throws Exception {
-        long reqTime = Util.durationTime ("start", "CLOUD / GET LIST : ", 0, "Proceeding ::: " );
+        long reqTime = Util.durationTime ("start", "CLOUD / < SET DELETE GEOMETRY DATA - DELETE >  : ", 0, "Proceeding ::: " );
         
         try {
             firebaseConfiguration.initializeFCM();
@@ -337,25 +350,30 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
             //스냅샷 호출 후 리스트 생성(JSON)
             ApiFuture<QuerySnapshot> query = db.collection("geometry").whereEqualTo("id", Integer.parseInt(boardSq)).get();
             int deleted = 0;
-            // future.get() blocks on document retrieval
+
             List<QueryDocumentSnapshot> documents = query.get().getDocuments();
             for (QueryDocumentSnapshot document : documents) {
                 document.getReference().delete();
                 ++deleted;
             }
 
-            Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Complete ::: " );
+            Util.durationTime ("end", "CLOUD / < SET DELETE GEOMETRY DATA - DELETE > : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
-			Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Fail ::: " );
+			Util.durationTime ("end", "CLOUD / < SET DELETE GEOMETRY DATA - DELETE > : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
     }
 
+    /**
+    * @method 지오메트릭 게시글 총 갯수 가져오기
+    * @param  paginationDto
+    * @throws Exception
+    */
     @Override
     public Integer getTotalCount(PaginationDto paginationDto) throws Exception {
         
-        long reqTime = Util.durationTime ("start", "CLOUD / GET LIST : ", 0, "Proceeding ::: " );
+        long reqTime = Util.durationTime ("start", "CLOUD / < GET BOARD TOTALCOUNT - SELECT > : ", 0, "Proceeding ::: " );
         
         Integer totalCount = 0;
         try {
@@ -364,23 +382,28 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
 
             //스냅샷 호출 후 리스트 생성(JSON)
             AggregateQuerySnapshot snapshot = db.collection("geometry_board").count().get().get();
-            System.out.println("---------------------------------------------->>>>>> Count: " + snapshot.getCount());
+            LOG.info("Get ToalCount - " + snapshot.getCount());
 
-            Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Complete ::: " );
+            Util.durationTime ("end", "CLOUD / < GET BOARD TOTALCOUNT - SELECT > : ", reqTime, "Complete ::: " );
 
            totalCount =  (int) snapshot.getCount();
         }
         catch (Exception e) {
-			Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Fail ::: " );
+			Util.durationTime ("end", "CLOUD / < GET BOARD TOTALCOUNT - SELECT > : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
 
         return totalCount;
     }
 
+    /**
+    * @method 지오메트릭 글 삭제
+    * @param  boardSq
+    * @throws Exception
+    */
     @Override
     public void setDeleteBoardData(String boardSq) throws Exception {
-        long reqTime = Util.durationTime ("start", "CLOUD / GET LIST : ", 0, "Proceeding ::: " );
+        long reqTime = Util.durationTime ("start", "CLOUD / < SET DELETE GEOMETRY BOARD - DELETE > : ", 0, "Proceeding ::: " );
 
         try {
             firebaseConfiguration.initializeFCM();
@@ -396,10 +419,10 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
                 ++deleted;
             }
 
-            Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Complete ::: " );
+            Util.durationTime ("end", "CLOUD / < SET DELETE GEOMETRY BOARD - DELETE > : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
-			Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Fail ::: " );
+			Util.durationTime ("end", "CLOUD / < SET DELETE GEOMETRY BOARD - DELETE > : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
     }

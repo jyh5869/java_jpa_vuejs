@@ -1,9 +1,5 @@
 package com.example.java_jpa_vuejs.controller;
 
-import java.net.URLDecoder;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -11,54 +7,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.apache.commons.collections.IteratorUtils;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.jaxb.SpringDataJaxb.PageRequestDto;
-import org.springframework.data.geo.Polygon;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.java_jpa_vuejs.auth.AuthProvider;
-import com.example.java_jpa_vuejs.auth.AuthenticationDto;
-import com.example.java_jpa_vuejs.auth.JoinDto;
-import com.example.java_jpa_vuejs.auth.LoginDto;
-import com.example.java_jpa_vuejs.auth.entity.Members;
-import com.example.java_jpa_vuejs.auth.repositoryService.SignFirebaseService;
-import com.example.java_jpa_vuejs.auth.repositoryService.SignService;
-import com.example.java_jpa_vuejs.auth2.repositoryService.RepositoryService;
 import com.example.java_jpa_vuejs.common.PaginationDto;
-import com.example.java_jpa_vuejs.config.FirebaseConfiguration;
 import com.example.java_jpa_vuejs.geomBoard.BoardDto;
 import com.example.java_jpa_vuejs.geomBoard.entity.GeometryBoard;
 import com.example.java_jpa_vuejs.geomBoard.repositoryService.BoardFirebaseService;
 import com.example.java_jpa_vuejs.geomBoard.repositoryService.BoardService;
-import com.example.java_jpa_vuejs.util.PaginationAsync;
 import com.example.java_jpa_vuejs.util.PaginationAsyncPageable;
-import com.example.java_jpa_vuejs.util.PaginationSync;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.google.common.collect.Lists;
-import com.google.gson.FieldNamingPolicy;
-//import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-
-//import org.locationtech.jts.geom.GeometryFactory;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api")
@@ -69,7 +34,6 @@ public class GeomBoardController {
 
     public static final String SECURED_TEXT = "Hello from the secured resource!";
 
-    private final ModelMapper modelMapper;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final BoardService boardService;
@@ -84,24 +48,23 @@ public class GeomBoardController {
     @GetMapping(value = {"/setGeomBoard"})
     public String setGeomBoard(@Valid BoardDto boardDTO) throws Exception {
 
-        System.out.println("☆ ☆ ☆ --------------------------");
-        System.out.println(boardDTO.getActionType());
-        System.out.println(boardDTO.getId());
-        System.out.println(boardDTO.getDocId());
-        System.out.println(boardDTO.getBoardSq());
-        System.out.println(boardDTO.getUserEmail());
-        System.out.println(boardDTO.getUserNm());
-        System.out.println(boardDTO.getUserAdress());
-        System.out.println(boardDTO.getTitle());
-        System.out.println(boardDTO.getContents1());
-        System.out.println(boardDTO.getContents2());
-        System.out.println(boardDTO.getState());
-        System.out.println(boardDTO.getZipCd());
-        System.out.println(boardDTO.getUseYn());
-        System.out.println("☆ ☆ ☆ --------------------------");
+        System.out.println("---------SET GEOMETRY BOARD PARAMS-----------");
+        System.out.println("getActionType - " + boardDTO.getActionType());
+        System.out.println("getId         - " + boardDTO.getId());
+        System.out.println("getDocId      - " + boardDTO.getDocId());
+        System.out.println("getBoardSq    - " + boardDTO.getBoardSq());
+        System.out.println("getUserEmail  - " + boardDTO.getUserEmail());
+        System.out.println("getUserNm     - " + boardDTO.getUserNm());
+        System.out.println("getUserAdress - " + boardDTO.getUserAdress());
+        System.out.println("getTitle      - " + boardDTO.getTitle());
+        System.out.println("getContents1  - " + boardDTO.getContents1());
+        System.out.println("getContents2  - " + boardDTO.getContents2());
+        System.out.println("getState      - " + boardDTO.getState());
+        System.out.println("getZipCd      - " + boardDTO.getZipCd());
+        System.out.println("getUseYn      - " + boardDTO.getUseYn());
+        System.out.println("--------------------------------------------");
         
         if(boardDTO.getActionType().equals("insert")){
-            //boardDTO.setId(boardFirebaseService.getLastIndex());
             boardDTO.setBoardSq(String.valueOf(boardFirebaseService.getLastIndex()));
         }
         else if(boardDTO.getActionType().equals("update")){
@@ -159,9 +122,14 @@ public class GeomBoardController {
         List<Map<String, Object>> retList = new ArrayList<Map<String, Object>>();
 
         try {
+            // 1] - MYSQL에서 정보조회 실패시 FIREBASE로 조회
+            LOG.info(" DB AUTH ERROR - CLOUD AUTH START!");
 
-            // 1] - MYSQL에서 정보조회
-            
+            paginationDto.setTotalCount(boardFirebaseService.getTotalCount(paginationDto));
+            retList = boardFirebaseService.getGeomBoardList(paginationDto); 
+        } 
+        catch (Exception e) {
+            // 2] - MYSQL에서 정보조회
             paginationDto.setTotalCount(boardService.getTotalCount());
             Iterable<GeometryBoard> list = boardService.getGeomBoardList(paginationDto);
             Iterator<GeometryBoard> itr = list.iterator();
@@ -176,13 +144,6 @@ public class GeomBoardController {
 
                 retList.add(map);
             }
-            
-        } catch (Exception e) {
-            // 2] - MYSQL에서 정보조회 실패시 FIREBASE로 조회
-            LOG.info(" DB AUTH ERROR - CLOUD AUTH START!");
-
-            paginationDto.setTotalCount(boardFirebaseService.getTotalCount(paginationDto));
-            retList = boardFirebaseService.getGeomBoardList(paginationDto);
 
             e.printStackTrace();
         }
