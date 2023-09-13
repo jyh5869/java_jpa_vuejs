@@ -2,18 +2,23 @@ package com.example.java_jpa_vuejs.util;
 
 import com.example.java_jpa_vuejs.common.PaginationDto;
 
+import java.util.List;
 import java.util.logging.Logger;
 
-public class PaginationAsyncPageable {
+public class PaginationAsyncCloud {
 
 	final private static Logger LOG = Logger.getLogger(PaginationAsyncPageable.class.getName());
 
     public static String getDividePageFormByParams(PaginationDto paginationDto){
 
-        Integer intCurrentPage = Integer.valueOf(paginationDto.getCurrentPage());// 보여줄 현재 페이지
-		Integer intCountPerPage = Integer.valueOf(paginationDto.getCountPerPage());// 한페이지당 보여질 게시물 수
-		Integer intPageGroupSize = Integer.valueOf(paginationDto.getBlockPage());// 패아장을 제공할 페이지 블록 수
-		Integer intTotalCount = Integer.valueOf(paginationDto.getTotalCount());// 총 게시물 갯수
+		List<String> docIdArr = paginationDto.getDocIdArr();
+
+        String strTargetDoc = paginationDto.getCurrentPage();// 보여줄 현재 페이지
+
+		Integer intCurrentPage = 1;
+		Integer intCountPerPage = paginationDto.getCountPerPage();// 한페이지당 보여질 게시물 수
+		Integer intPageGroupSize = paginationDto.getBlockPage();// 패아장을 제공할 페이지 블록 수
+		Integer intTotalCount = paginationDto.getTotalCount();// 총 게시물 갯수
 
 		String strParams = paginationDto.getParams();// 조건 파라메터
 		String strActionUrl = paginationDto.getActionTarget();// 1. 타겟 URL(동기), 2. 함수 명(비동기)
@@ -33,7 +38,7 @@ public class PaginationAsyncPageable {
 
 		strPagingBuf.append("<nav aria-label='Page navigation example'>\r\n");
         strPagingBuf.append("<ul class='pagination justify-content-center'>\r\n");
-
+/* 
 		// 1.처음 페이지
 		strPagingBuf.append(makeButtonLinkByParams(0, "BEGIN_TAG", strParams, strActionUrl, intCountPerPage));
 		
@@ -46,17 +51,25 @@ public class PaginationAsyncPageable {
 			LOG.info("이전2 - intPageGroupStart: " + intPageGroupStart + " / intCountPerPage: " + intCountPerPage);
 			strPagingBuf.append(makeButtonLinkByParams(0, "PREV_TAG", strParams, strActionUrl, intCountPerPage));
 		}
-
+*/
 		// 3.개별 페이징
-		for(int i = intPageGroupStart; i < intPageGroupEnd; i++){
+		for(int i = 0; i < intPageGroupSize; i++){
+			Integer pageNum = i * intCountPerPage;
+			Integer pageLinkNm = (i * intCountPerPage) / intCountPerPage;//(i*2) /5
+
+			Object[] arr = docIdArr.toArray();
+			strPagingBuf.append(makeLinkByParams(String.valueOf(arr[pageNum]), "" + String.valueOf((pageLinkNm+1)) + "",  strParams, strActionUrl, intCountPerPage));
+
+			/* 
 			if( i == intCurrentPage){// 선택된 페이지 일때
 				strPagingBuf.append("<strong class='page-link success' title='").append(i+1).append("페이지(선택됨)'>").append(i + 1).append("</strong>\r\n");
 			}
 			else{//선택된 페이지가 아닐때
 				strPagingBuf.append(makeLinkByParams(i, "" + (i + 1) + "",  strParams, strActionUrl, intCountPerPage));
 			}
+			*/
 		}
-
+/* 
 		//4. 다음 페이지
 		if((intPageGroupEnd * intCountPerPage) < intTotalCount){//호출 페이지가 마지막 페이지를 넘어가지 않을때(일반적인 다음페이지 호출)
 			LOG.info("다음1 - intPageGroupEnd * intCountPerPage): " +  (intPageGroupEnd * intCountPerPage) + " / intTotalCount: " + intTotalCount);
@@ -72,6 +85,7 @@ public class PaginationAsyncPageable {
 
         strPagingBuf.append("</ul>\r\n");
 		strPagingBuf.append("</nav>\r\n");
+*/
 		/* 페이징 HTML 생성 END */
 		
 		LOG.info("--------------------Making Paging HTML--------------------");
@@ -135,7 +149,7 @@ public class PaginationAsyncPageable {
 	 * @param countPerPage 페이징 보여질 개시물 수
 	 * @return 개별페이징 HTML
 	 */
-	private static String makeLinkByParams(final int intPageNum, final String strLinkNum, final String strParams, final String actionUrl, final int countPerPage){
+	private static String makeLinkByParams(final String strDocId, final String strLinkNum, final String strParams, final String actionUrl, final int countPerPage){
 
 		StringBuffer strLinkBuf = new StringBuffer();
 
@@ -143,7 +157,7 @@ public class PaginationAsyncPageable {
 			.append(" <li class='page-item'><a class='page-link text-success'")
 			.append("title='").append(strLinkNum).append("페이지' ")
 			.append("href=\"javascript:").append(actionUrl)
-			.append("(").append(intPageNum).append(",").append(countPerPage).append(",").append(strParams).append(")\">")
+			.append("('").append(strDocId).append("',").append(countPerPage).append(",").append(strParams).append(")\">")
 			.append(strLinkNum).append("</a></li>\r\n");
 
 		return strLinkBuf.toString();

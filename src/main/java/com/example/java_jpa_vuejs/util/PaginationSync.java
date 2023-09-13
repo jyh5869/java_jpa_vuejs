@@ -5,13 +5,13 @@ import com.example.java_jpa_vuejs.common.PaginationDto;
 public class PaginationSync {
     public static String getDividePageFormByParams(PaginationDto paginationDto){
 
-        Integer intCurrentPage = paginationDto.getCurrentPage();
-		//Integer countPerPage = paginationDto.getResultCnt();
+        Integer intCurrentPage = Integer.valueOf(paginationDto.getCurrentPage());
 		Integer intCountPerPage = 1;
 		Integer intPageGroupSize = paginationDto.getCountPerPage();
 		Integer intTotalCount = paginationDto.getTotalCount();
+		
 		String callType = paginationDto.getCallType();
-		String strResType = paginationDto.getResType();
+		String strResType = paginationDto.getCallType();
 		String strParams = "";
 		String strActionUrl = "";
 

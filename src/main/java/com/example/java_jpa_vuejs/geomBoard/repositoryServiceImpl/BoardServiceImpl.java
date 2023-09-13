@@ -23,8 +23,8 @@ public class BoardServiceImpl implements BoardService {
 	@Override
 	public Iterable<GeometryBoard> getGeomBoardList(PaginationDto paginationDto) {
 
-		Integer intCurrentPage = paginationDto.getCurrentPage();
-		Integer intCountPerPage = paginationDto.getCountPerPage();
+		Integer intCurrentPage = Integer.valueOf(paginationDto.getCurrentPage());
+		Integer intCountPerPage = Integer.valueOf(paginationDto.getCountPerPage());
 		
 		//페이징 호출
 		Pageable pageable =  PageRequest.of(intCurrentPage, intCountPerPage);//페이징 객체 선언

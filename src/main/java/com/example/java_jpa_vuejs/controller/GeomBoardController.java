@@ -17,6 +17,7 @@ import com.example.java_jpa_vuejs.geomBoard.BoardDto;
 import com.example.java_jpa_vuejs.geomBoard.entity.GeometryBoard;
 import com.example.java_jpa_vuejs.geomBoard.repositoryService.BoardFirebaseService;
 import com.example.java_jpa_vuejs.geomBoard.repositoryService.BoardService;
+import com.example.java_jpa_vuejs.util.PaginationAsyncCloud;
 import com.example.java_jpa_vuejs.util.PaginationAsyncPageable;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -120,13 +121,22 @@ public class GeomBoardController {
         //응답 리스트 객체 정의
         Map<String, Object> retMap = new HashMap<String, Object>();
         List<Map<String, Object>> retList = new ArrayList<Map<String, Object>>();
+        String pagination = "";
 
         try {
             // 1] - MYSQL에서 정보조회 실패시 FIREBASE로 조회
             LOG.info(" DB AUTH ERROR - CLOUD AUTH START!");
 
             paginationDto.setTotalCount(boardFirebaseService.getTotalCount(paginationDto));
-            retList = boardFirebaseService.getGeomBoardList(paginationDto); 
+            paginationDto.setDocIdArr(boardFirebaseService.getDocIdList(paginationDto));
+            pagination = PaginationAsyncCloud.getDividePageFormByParams(paginationDto);
+            
+            System.out.println("★ ★ ★ ★ ★★★★★★★★★★");
+            System.out.println(String.valueOf(paginationDto.getDocIdArr()));
+
+            retMap.put("dorIdArr", String.valueOf(paginationDto.getDocIdArr()));
+            
+            retList = boardFirebaseService.getGeomBoardList2(paginationDto); 
         } 
         catch (Exception e) {
             // 2] - MYSQL에서 정보조회
@@ -145,10 +155,10 @@ public class GeomBoardController {
                 retList.add(map);
             }
 
+            pagination = PaginationAsyncPageable.getDividePageFormByParams(paginationDto);
+
             e.printStackTrace();
         }
-
-        String pagination = PaginationAsyncPageable.getDividePageFormByParams(paginationDto);
 
         retMap.put("list", retList);
         retMap.put("pagination", pagination);

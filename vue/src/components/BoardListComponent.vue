@@ -157,7 +157,9 @@ export default {
             this.dataList = res.data.list; //데이터 세팅
             this.pagination = res.data.pagination; //페이징 세팅
             console.log('---------- 리스트 호출 응답 객체 ----------');
+            console.log(res.data.dorIdArr);
             console.log(res);
+
             this.toggleBusy(); //로딩 스피너 토글
         },
     },
