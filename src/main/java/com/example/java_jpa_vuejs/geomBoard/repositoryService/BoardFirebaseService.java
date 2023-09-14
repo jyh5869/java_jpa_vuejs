@@ -6,6 +6,8 @@ import java.util.Map;
 import com.example.java_jpa_vuejs.common.PaginationDto;
 import com.example.java_jpa_vuejs.geomBoard.BoardDto;
 
+import jakarta.validation.Valid;
+
 public interface BoardFirebaseService {
 
 	void setGeomdData(long id, String geomPolygons) throws Exception;
@@ -28,5 +30,12 @@ public interface BoardFirebaseService {
 
 	List<Map<String, Object>> getGeomBoardList2(PaginationDto paginationDto) throws Exception;
 
+
+
+	
 	List<String> getDocIdList(PaginationDto paginationDto) throws Exception;
+
+	String getFirstDoc(PaginationDto paginationDto) throws Exception;
+
+    String getLastDoc(PaginationDto paginationDto) throws Exception;
 }

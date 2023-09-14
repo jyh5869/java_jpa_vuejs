@@ -35,6 +35,15 @@ public class PaginationDto {
 
     private String params;// 조건 파라메터
 
+
+
+
+
+
     private List<String> docIdArr;//페이징을 위한 클라우드 도큐먼트 ID ARR
+
+    private String lastDoc;
+
+    private String firstDoc;
 
 }

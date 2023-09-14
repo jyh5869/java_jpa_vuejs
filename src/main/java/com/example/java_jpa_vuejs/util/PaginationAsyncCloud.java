@@ -14,6 +14,13 @@ public class PaginationAsyncCloud {
 		List<String> docIdArr = paginationDto.getDocIdArr();
 
         String strTargetDoc = paginationDto.getCurrentPage();// 보여줄 현재 페이지
+		String strFirstDoc = paginationDto.getFirstDoc();
+		String strLastDoc = paginationDto.getLastDoc();
+		String strCurrensPage = paginationDto.getCurrentPage();
+
+
+
+
 
 		Integer intCurrentPage = 1;
 		Integer intCountPerPage = paginationDto.getCountPerPage();// 한페이지당 보여질 게시물 수
@@ -38,10 +45,10 @@ public class PaginationAsyncCloud {
 
 		strPagingBuf.append("<nav aria-label='Page navigation example'>\r\n");
         strPagingBuf.append("<ul class='pagination justify-content-center'>\r\n");
-/* 
+
 		// 1.처음 페이지
-		strPagingBuf.append(makeButtonLinkByParams(0, "BEGIN_TAG", strParams, strActionUrl, intCountPerPage));
-		
+		strPagingBuf.append(makeButtonLinkByParams(strFirstDoc, "BEGIN_TAG", strParams, strActionUrl, intCountPerPage));
+/* 		
 		// 2.이전 페이지
 		if(intPageGroupStart >= intCountPerPage ){// 첫페이지가 아닐때
 			LOG.info("이전1 - intPageGroupStart: " + intPageGroupStart + " / intCountPerPage: " + intCountPerPage);
@@ -53,21 +60,21 @@ public class PaginationAsyncCloud {
 		}
 */
 		// 3.개별 페이징
-		for(int i = 0; i < intPageGroupSize; i++){
+		for(int i = 0; i < 6; i++){
 			Integer pageNum = i * intCountPerPage;
 			Integer pageLinkNm = (i * intCountPerPage) / intCountPerPage;//(i*2) /5
+			
+			
 
 			Object[] arr = docIdArr.toArray();
-			strPagingBuf.append(makeLinkByParams(String.valueOf(arr[pageNum]), "" + String.valueOf((pageLinkNm+1)) + "",  strParams, strActionUrl, intCountPerPage));
-
-			/* 
-			if( i == intCurrentPage){// 선택된 페이지 일때
-				strPagingBuf.append("<strong class='page-link success' title='").append(i+1).append("페이지(선택됨)'>").append(i + 1).append("</strong>\r\n");
+			System.out.println("＠ @ @ @ @ @  @ @ @ =  arr[pageNum] : " + arr[pageNum] + "  //  strCurrensPage : " + strCurrensPage );
+			
+			if(arr[pageNum].equals(strCurrensPage)){//선택된 페이지 일경우
+				strPagingBuf.append("<strong class='page-link success' title='").append("" + String.valueOf((pageLinkNm+1)) + "").append("페이지(선택됨)'>").append(String.valueOf((pageLinkNm+1))).append("</strong>\r\n");
 			}
-			else{//선택된 페이지가 아닐때
-				strPagingBuf.append(makeLinkByParams(i, "" + (i + 1) + "",  strParams, strActionUrl, intCountPerPage));
+			else{//비선택된 나머지 페이지의 경우
+				strPagingBuf.append(makeLinkByParams(String.valueOf(arr[pageNum]), "" + String.valueOf((pageLinkNm+1)) + "",  strParams, strActionUrl, intCountPerPage));
 			}
-			*/
 		}
 /* 
 		//4. 다음 페이지
@@ -79,13 +86,13 @@ public class PaginationAsyncCloud {
 			LOG.info("다음2 - intPageGroupEnd * intCountPerPage): " +  (intPageGroupEnd * intCountPerPage) + " / intTotalCount: " + intTotalCount);
 			strPagingBuf.append(makeButtonLinkByParams((intPageGroupEnd -1 ) , "NEXT_TAG", strParams, strActionUrl, intCountPerPage));
 		}
-
+*/
 		//5. 마지막 페이지
-		strPagingBuf.append(makeButtonLinkByParams(intPageTotal, "END_TAG", strParams, strActionUrl, intCountPerPage));
+		strPagingBuf.append(makeButtonLinkByParams(strLastDoc, "END_TAG", strParams, strActionUrl, intCountPerPage));
 
         strPagingBuf.append("</ul>\r\n");
 		strPagingBuf.append("</nav>\r\n");
-*/
+
 		/* 페이징 HTML 생성 END */
 		
 		LOG.info("--------------------Making Paging HTML--------------------");
@@ -103,7 +110,7 @@ public class PaginationAsyncCloud {
 	 * @param countPerPage 페이징 보여질 개시물 수
 	 * @return 특수 페이징 HTML(처음, 이전, 다음, 마지막)
 	 */
-    private static String makeButtonLinkByParams(final int intPageNum, final String strLinkImg, final String strParams, final String actionUrl, final int countPerPage){
+    private static String makeButtonLinkByParams(final String strDocId, final String strLinkImg, final String strParams, final String actionUrl, final int countPerPage){
 		StringBuffer strLinkBuf = new StringBuffer();
 
 		if("PREV_TAG".equals(strLinkImg)){
@@ -123,7 +130,7 @@ public class PaginationAsyncCloud {
 			strLinkBuf.append("<a title='다음페이지' class='page-link text-success next' href='javascript:");
 		}
 
-		strLinkBuf.append(actionUrl).append("(").append(intPageNum).append(",").append(countPerPage).append(",").append(strParams).append(")'>");
+		strLinkBuf.append(actionUrl).append("(").append("\""+strDocId+"\"").append(",").append(countPerPage).append(",").append(strParams).append(")'>");
 
 		if("PREV_TAG".equals(strLinkImg)){//이전 페이지
 			strLinkBuf.append("&lsaquo;</a></li>\r\n");

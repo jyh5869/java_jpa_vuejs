@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import org.modelmapper.ModelMapper;
@@ -24,12 +25,15 @@ import lombok.RequiredArgsConstructor;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.AggregateQuerySnapshot;
+import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteResult;
 import com.google.cloud.firestore.Query.Direction;
 import com.google.firebase.cloud.FirestoreClient;
+
+import io.opencensus.metrics.export.Summary.Snapshot;
 
 @Service("boardFirebaseService")
 @RequiredArgsConstructor
@@ -227,14 +231,23 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
         Integer countPerPage = Integer.valueOf(paginationDto.getCountPerPage());
 
         //String startAt = String.valueOf((currentPage * countPerPage)-1) ;
-
+        System.out.println("currentPage = " + currentPage + " //  countPerPage" + countPerPage);
 		try {     
             //파이어 베이스 초기화
             firebaseConfiguration.initializeFCM();
             Firestore db = FirestoreClient.getFirestore();
 
+            //Snapshot snapshot;
+            ApiFuture<DocumentSnapshot> future;
+          
+            future = db.collection("geometry_board").document(currentPage).get();
+            DocumentSnapshot snapshot = future.get(30, TimeUnit.SECONDS);
+
+
+
+
             //스냅샷 호출 후 리스트 생성(JSON)
-            ApiFuture<QuerySnapshot> query = db.collection("geometry_board").orderBy("reg_dt", Direction.ASCENDING).startAt(currentPage).limit(countPerPage).get();
+            ApiFuture<QuerySnapshot> query = db.collection("geometry_board").orderBy("reg_dt", Direction.ASCENDING).startAt(snapshot).limit(countPerPage).get();
             QuerySnapshot querySnapshot = query.get();
 
             List<QueryDocumentSnapshot> documents = querySnapshot.getDocuments();
@@ -494,7 +507,7 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
         Integer intCountPerPage = paginationDto.getCountPerPage();
         Integer intPageGroupSize = paginationDto.getBlockPage();
 
-        Integer callSize = intCountPerPage * intPageGroupSize;
+        Integer callSize = (intCountPerPage * intPageGroupSize) + intPageGroupSize;
 
         //String[] docIdList = new String[intCountPerPage];
         List<String> docIdList = new ArrayList<String>();
@@ -528,5 +541,98 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
         return docIdList;
     }
 
+    /**
+    * @method 지오메트릭 마지막 글 가져오기
+    * @param  boardSq
+    * @throws Exception
+    */
+    @Override
+    public String getLastDoc(PaginationDto paginationDto) throws Exception {
+        long reqTime = Util.durationTime ("start", "CLOUD / < SET DELETE GEOMETRY BOARD - DELETE > : ", 0, "Proceeding ::: " );
 
+        String lastDocId = "";
+        Integer countPerPage = paginationDto.getCountPerPage();
+        String strCurrentPage = paginationDto.getCurrentPage();
+        Integer intTotalCount = paginationDto.getTotalCount();
+        Integer intPageGroupSize = paginationDto.getBlockPage();
+
+        Integer intPageTotal = (intTotalCount -1) / intPageGroupSize;
+        /*
+         * 
+         * 마지막 페이지 조건 두어서 구해보자... 
+         * 1.페이지 토탈 * 카운트퍼 페이지  <= 토탈 카우트?? 몰라..
+         * 
+         */
+
+        try {
+            firebaseConfiguration.initializeFCM();
+            Firestore db = FirestoreClient.getFirestore();
+
+            //스냅샷 호출 후 리스트 생성(JSON)
+            ApiFuture<QuerySnapshot> query = db.collection("geometry_board").orderBy("reg_dt", Direction.ASCENDING).limitToLast(countPerPage).get();
+
+            // future.get() blocks on document retrieval
+            List<QueryDocumentSnapshot> documents = query.get().getDocuments();
+            
+            /* 
+            for (QueryDocumentSnapshot document : documents) {
+                if(document.getId().equals(strCurrentPage)){
+                    lastDocId = document.getId();
+                }
+            }
+            */
+
+            QueryDocumentSnapshot lastDoc = documents.get(0);
+            lastDocId = lastDoc.getId();
+
+            Util.durationTime ("end", "CLOUD / < SET DELETE GEOMETRY BOARD - DELETE > : ", reqTime, "Complete ::: " );
+        }
+        catch (Exception e) {
+			Util.durationTime ("end", "CLOUD / < SET DELETE GEOMETRY BOARD - DELETE > : ", reqTime, "Fail ::: " );
+            e.printStackTrace();
+        }
+
+        return lastDocId;
+    }
+
+
+    /**
+    * @method 지오메트릭 첫번째 글 가져오기
+    * @param  paginationDto
+    * @throws Exception
+    */
+    @Override
+    public String getFirstDoc(PaginationDto paginationDto) throws Exception {
+        long reqTime = Util.durationTime ("start", "CLOUD / < SET DELETE GEOMETRY BOARD - DELETE > : ", 0, "Proceeding ::: " );
+
+        String intCurrentPage = paginationDto.getCurrentPage();
+
+        String firstDoc = "";
+
+        try {
+            firebaseConfiguration.initializeFCM();
+            Firestore db = FirestoreClient.getFirestore();
+
+            //스냅샷 호출 후 리스트 생성(JSON)
+            ApiFuture<QuerySnapshot> query = db.collection("geometry_board").orderBy("reg_dt", Direction.ASCENDING).limit(1).get();
+
+            // future.get() blocks on document retrieval
+            List<QueryDocumentSnapshot> documents = query.get().getDocuments();
+
+            for (QueryDocumentSnapshot document : documents) {
+                
+                firstDoc = document.getId();
+            }
+            if(intCurrentPage.equals("0")){
+                paginationDto.setCurrentPage(firstDoc);
+            }
+            Util.durationTime ("end", "CLOUD / < SET DELETE GEOMETRY BOARD - DELETE > : ", reqTime, "Complete ::: " );
+        }
+        catch (Exception e) {
+			Util.durationTime ("end", "CLOUD / < SET DELETE GEOMETRY BOARD - DELETE > : ", reqTime, "Fail ::: " );
+            e.printStackTrace();
+        }
+
+        return firstDoc;
+    }
 }

@@ -129,13 +129,16 @@ public class GeomBoardController {
 
             paginationDto.setTotalCount(boardFirebaseService.getTotalCount(paginationDto));
             paginationDto.setDocIdArr(boardFirebaseService.getDocIdList(paginationDto));
+            paginationDto.setFirstDoc(boardFirebaseService.getFirstDoc(paginationDto));
+            paginationDto.setLastDoc(boardFirebaseService.getLastDoc(paginationDto));
+
+
             pagination = PaginationAsyncCloud.getDividePageFormByParams(paginationDto);
-            
-            System.out.println("★ ★ ★ ★ ★★★★★★★★★★");
-            System.out.println(String.valueOf(paginationDto.getDocIdArr()));
+
+
 
             retMap.put("dorIdArr", String.valueOf(paginationDto.getDocIdArr()));
-            
+
             retList = boardFirebaseService.getGeomBoardList2(paginationDto); 
         } 
         catch (Exception e) {
