@@ -1,5 +1,6 @@
 package com.example.java_jpa_vuejs.common;
 
+import java.net.URLDecoder;
 import java.util.List;
 
 import lombok.Getter;
@@ -21,7 +22,7 @@ public class PaginationDto {
     //private Integer blockPage =3;
     //private Integer countPerPage = 2;
 
-    private Integer blockPage = 5;// 한번에 제공할 페이징 이미지 수  ex> 1,2,3,4,5,6,7,8,9,10 페이지
+    private Integer blockPage = 3;// 한번에 제공할 페이징 이미지 수  ex> 1,2,3,4,5,6,7,8,9,10 페이지
 
     private Integer countPerPage = 2;// 한페이지당 보여줄 게시물 수  ex> 10개
 
@@ -33,17 +34,30 @@ public class PaginationDto {
 
     private String actionTarget;// 1.동기 - 컨트롤러 명  2.비동기 - 컨트롤러 호출 함수명
 
-    private String params;// 조건 파라메터
+    private String params = "";// 조건 파라메터
 
 
 
 
 
 
-    private List<String> docIdArr;//페이징을 위한 클라우드 도큐먼트 ID ARR
+    private String docIdArr;//페이징을 위한 클라우드 도큐먼트 ID ARR
 
     private String lastDoc;
 
     private String firstDoc;
 
+    private String pageGroupFirst;
+
+    /* 
+    public String getDocIdArr(){
+        return URLDecoder.decode(docIdArr);
+    }
+
+    public String setDocIdArr(){
+        return URLDecoder.decode(docIdArr);
+    }
+    */
+
+    
 }

@@ -137,15 +137,16 @@ export default {
         toggleBusy() {
             this.isBusy = !this.isBusy;
         },
-        getList: async function (currentPage, countPerPage, params) {
+        getList: async function (currentPage, countPerPage, params, docIdArr) {
             this.isBusy = true;
             let res = await this.$axios({
-                method: 'get',
+                method: 'post',
                 url: '/api/getGeomBoardList',
                 params: {
                     currentPage: currentPage,
                     countPerPage: countPerPage,
                     actionTarget: 'getList',
+                    docIdArr: encodeURI(docIdArr),
                     params: params,
                 },
                 headers: {
