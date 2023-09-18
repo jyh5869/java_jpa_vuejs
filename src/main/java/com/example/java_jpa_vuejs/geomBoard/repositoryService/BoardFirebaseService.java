@@ -37,6 +37,8 @@ public interface BoardFirebaseService {
 
 	String getFirstDoc(PaginationDto paginationDto) throws Exception;
 
+	String getNextDoc(PaginationDto paginationDto) throws Exception;
+
     String getLastDoc(PaginationDto paginationDto) throws Exception;
 
 	String getPageGroupFirst(PaginationDto paginationDto) throws Exception;

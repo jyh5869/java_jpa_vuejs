@@ -47,13 +47,16 @@ public class PaginationDto {
 
     private String firstDoc;
 
+    private String nextDoc;
+
     private String pageGroupFirst;
 
-    /* 
+
     public String getDocIdArr(){
         return URLDecoder.decode(docIdArr);
     }
 
+    /*
     public String setDocIdArr(){
         return URLDecoder.decode(docIdArr);
     }

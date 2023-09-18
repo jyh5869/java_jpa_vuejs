@@ -136,6 +136,8 @@ public class GeomBoardController {
             paginationDto.setLastDoc(boardFirebaseService.getLastDoc(paginationDto));
             //paginationDto.setPageGroupFirst(boardFirebaseService.getPageGroupFirst(paginationDto));
             paginationDto.setDocIdArr(boardFirebaseService.getDocIdList(paginationDto));
+            paginationDto.setNextDoc(boardFirebaseService.getNextDoc(paginationDto));
+            
 
             System.out.println(String.valueOf(paginationDto.getDocIdArr()));
 

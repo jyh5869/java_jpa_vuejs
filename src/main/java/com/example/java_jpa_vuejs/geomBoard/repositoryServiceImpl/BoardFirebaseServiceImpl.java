@@ -506,21 +506,58 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
     public String getDocIdList(PaginationDto paginationDto) throws Exception {
         long reqTime = Util.durationTime ("start", "CLOUD / < SET DELETE GEOMETRY BOARD - DELETE > : ", 0, "Proceeding ::: " );
 
-        
+        System.out.println("★  ★ ★ ★ ★ ★★ ★ ★ ★ ★ ★ ★ -------------------> getCurrentPage()  =  " + paginationDto.getCurrentPage());
         Integer intCountPerPage = paginationDto.getCountPerPage();
         Integer intPageGroupSize = paginationDto.getBlockPage();
+        Integer intTotalCount = paginationDto.getTotalCount();
         String strCurrentDocId = paginationDto.getCurrentPage().split("\\|")[0]; 
+        String strCurrentPage = paginationDto.getCurrentPage().split("\\|")[1]; 
         String strCallType = paginationDto.getCurrentPage().split("\\|")[2];
-        System.out.println("★  ★ ★ ★ ★ ★★ ★ ★ ★ ★ ★ ★ -------------------> strCurrentDocId  =  " + strCurrentDocId);
-        Integer callSize = (intCountPerPage * intPageGroupSize) + intPageGroupSize;
+        Integer intCurrentPage = Integer.valueOf(strCurrentPage);
+        Integer callSize = (intCountPerPage * intPageGroupSize);// + intPageGroupSize;
 
+        
         //String[] docIdList = new String[intCountPerPage];
         List<String> docIdList = new ArrayList<String>();
         String strDocIdList = "";
         try {
-            if(!strCallType.equals("EACH")){
-                 firebaseConfiguration.initializeFCM();
-                Firestore db = FirestoreClient.getFirestore();
+            firebaseConfiguration.initializeFCM();
+            Firestore db = FirestoreClient.getFirestore();
+
+            if(strCallType.equals("LAST")){
+
+                Integer intPageGroupStart = (((intCurrentPage ) / intPageGroupSize) * intPageGroupSize);// 보여질 페이지 시작점 EX> 3페이지 부터
+                /*
+                 * 
+                 * 마지막페이지를 계산해라  totalCOunt - intPageGroupStart * intCountPerPage 
+                 * 한 숫자 만큼 뒤에서부터 호출하면댐 
+                 */
+                
+
+
+                ApiFuture<DocumentSnapshot> future = db.collection("geometry_board").document(strCurrentDocId).get();
+                DocumentSnapshot snapshot = future.get(30, TimeUnit.SECONDS);
+                
+                //스냅샷 호출 후 리스트 생성(JSON)
+                ApiFuture<QuerySnapshot> query = db.collection("geometry_board").orderBy("reg_dt", Direction.ASCENDING).startAt(snapshot).limit(callSize).get();
+                
+                // future.get() blocks on document retrieval
+                List<QueryDocumentSnapshot> documents = query.get().getDocuments();
+
+                for (QueryDocumentSnapshot document : documents) {
+                    
+                    Map<String, Object> data = document.getData();
+
+                    String boardSq =  (String) data.get("board_sq");
+                    String docId = document.getId();
+
+                    docIdList.add(docId);
+                }
+
+                strDocIdList = Arrays.toString(docIdList.toArray()).replaceAll("\\[","").replaceAll("\\]","");;
+            }
+            else if(!strCallType.equals("EACH")){
+                
 
                 ApiFuture<DocumentSnapshot> future = db.collection("geometry_board").document(strCurrentDocId).get();
                 DocumentSnapshot snapshot = future.get(30, TimeUnit.SECONDS);
@@ -540,7 +577,8 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
 
                     docIdList.add(docId);
                 }
-                strDocIdList = Arrays.toString(docIdList.toArray());
+
+                strDocIdList = Arrays.toString(docIdList.toArray()).replaceAll("\\[","").replaceAll("\\]","");;
             }
             else{
                 strDocIdList = paginationDto.getDocIdArr();
@@ -652,6 +690,47 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
         return firstDoc;
     }
 
+    /**
+    * @method 지오메트릭 첫번째 글 가져오기
+    * @param  paginationDto
+    * @throws Exception
+    */
+    @Override
+    public String getNextDoc(PaginationDto paginationDto) throws Exception {
+        long reqTime = Util.durationTime ("start", "CLOUD / < SET DELETE GEOMETRY BOARD - DELETE > : ", 0, "Proceeding ::: " );
+        String[] docIdArr = paginationDto.getDocIdArr().split(",");
+        String intCurrentPage = paginationDto.getCurrentPage();
+        String strDocIdArrLast = docIdArr[docIdArr.length-1].trim();
+        String NextDocId = "";
+        
+        System.out.println(" -------------------------------------------------------> NextDoc = " + strDocIdArrLast);
+
+        try {
+            firebaseConfiguration.initializeFCM();
+            Firestore db = FirestoreClient.getFirestore();
+            ApiFuture<DocumentSnapshot> future = db.collection("geometry_board").document(strDocIdArrLast).get();
+            DocumentSnapshot snapshot = future.get(30, TimeUnit.SECONDS);
+                
+            //스냅샷 호출 후 리스트 생성(JSON)
+            ApiFuture<QuerySnapshot> query = db.collection("geometry_board").orderBy("reg_dt", Direction.ASCENDING).startAfter(snapshot).limit(1).get();
+
+            // future.get() blocks on document retrieval
+            List<QueryDocumentSnapshot> documents = query.get().getDocuments();
+
+            for (QueryDocumentSnapshot document : documents) {
+                
+                NextDocId = document.getId();
+            }
+
+            Util.durationTime ("end", "CLOUD / < SET DELETE GEOMETRY BOARD - DELETE > : ", reqTime, "Complete ::: " );
+        }
+        catch (Exception e) {
+			Util.durationTime ("end", "CLOUD / < SET DELETE GEOMETRY BOARD - DELETE > : ", reqTime, "Fail ::: " );
+            e.printStackTrace();
+        }
+
+        return NextDocId;
+    }
 
 
     /**
