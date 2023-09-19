@@ -110,11 +110,11 @@ public class PaginationAsyncCloud {
 		}
 		else{//호출 페이지가 마지막 페이지를 넘어갈때(마지막 페이지로 이동)
 			LOG.info("다음2 - intPageGroupEnd * intCountPerPage): " +  (intPageGroupEnd * intCountPerPage) + " / intTotalCount: " + intTotalCount);
-			strPagingBuf.append(makeButtonLinkByParams(strNextDoc+"|"+String.valueOf(intPageGroupEnd-1)+"|NEXT" , "NEXT_TAG", strParams, strActionUrl, intCountPerPage, docIdArr));
+			strPagingBuf.append(makeButtonLinkByParams(strLastDoc+"|"+String.valueOf(intPageGroupEnd-1)+"|NEXT" , "NEXT_TAG", strParams, strActionUrl, intCountPerPage, docIdArr));
 		}
 
 		//5. 마지막 페이지
-		strPagingBuf.append(makeButtonLinkByParams(strLastDoc+"|"+String.valueOf(intPageTotal)+"|LAST", "END_TAG", strParams, strActionUrl, intCountPerPage, docIdArr));
+		strPagingBuf.append(makeButtonLinkByParams(strLastDoc+"|"+String.valueOf(intPageTotal-1)+"|LAST", "END_TAG", strParams, strActionUrl, intCountPerPage, docIdArr));
 
         strPagingBuf.append("</ul>\r\n");
 		strPagingBuf.append("</nav>\r\n");

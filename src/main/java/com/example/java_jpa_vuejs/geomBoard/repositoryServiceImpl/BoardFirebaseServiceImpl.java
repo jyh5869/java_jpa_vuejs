@@ -516,7 +516,9 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
         Integer intCurrentPage = Integer.valueOf(strCurrentPage);
         Integer callSize = (intCountPerPage * intPageGroupSize);// + intPageGroupSize;
 
-        
+        Integer intPageGroupStart = (((intCurrentPage ) / intPageGroupSize) * intPageGroupSize);// 보여질 페이지 시작점 EX> 3페이지 부터
+        Integer intPageGroupEnd = (intPageGroupStart + intPageGroupSize) ;// 보여질 페이지 끝점 EX> 5페이지 까지
+
         //String[] docIdList = new String[intCountPerPage];
         List<String> docIdList = new ArrayList<String>();
         String strDocIdList = "";
@@ -526,7 +528,9 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
 
             if(strCallType.equals("LAST")){
 
-                Integer intPageGroupStart = (((intCurrentPage ) / intPageGroupSize) * intPageGroupSize);// 보여질 페이지 시작점 EX> 3페이지 부터
+                
+                
+                Integer LastDocCnt = intTotalCount - (intPageGroupStart * intCountPerPage);
                 /*
                  * 
                  * 마지막페이지를 계산해라  totalCOunt - intPageGroupStart * intCountPerPage 
@@ -539,7 +543,7 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
                 DocumentSnapshot snapshot = future.get(30, TimeUnit.SECONDS);
                 
                 //스냅샷 호출 후 리스트 생성(JSON)
-                ApiFuture<QuerySnapshot> query = db.collection("geometry_board").orderBy("reg_dt", Direction.ASCENDING).startAt(snapshot).limit(callSize).get();
+                ApiFuture<QuerySnapshot> query = db.collection("geometry_board").orderBy("reg_dt", Direction.ASCENDING).limitToLast(LastDocCnt).get();
                 
                 // future.get() blocks on document retrieval
                 List<QueryDocumentSnapshot> documents = query.get().getDocuments();
@@ -555,36 +559,47 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
                 }
 
                 strDocIdList = Arrays.toString(docIdList.toArray()).replaceAll("\\[","").replaceAll("\\]","");;
+                
+                return strDocIdList;
             }
             else if(!strCallType.equals("EACH")){
-                
-
-                ApiFuture<DocumentSnapshot> future = db.collection("geometry_board").document(strCurrentDocId).get();
-                DocumentSnapshot snapshot = future.get(30, TimeUnit.SECONDS);
-                
-                //스냅샷 호출 후 리스트 생성(JSON)
-                ApiFuture<QuerySnapshot> query = db.collection("geometry_board").orderBy("reg_dt", Direction.ASCENDING).startAt(snapshot).limit(callSize).get();
-
-                // future.get() blocks on document retrieval
-                List<QueryDocumentSnapshot> documents = query.get().getDocuments();
-
-                for (QueryDocumentSnapshot document : documents) {
-                    
-                    Map<String, Object> data = document.getData();
-
-                    String boardSq =  (String) data.get("board_sq");
-                    String docId = document.getId();
-
-                    docIdList.add(docId);
+                if((intPageGroupEnd * intCountPerPage) >= intTotalCount){//마지막 페이지 일때
+                    strDocIdList = paginationDto.getDocIdArr();
                 }
+                else{
+                    ApiFuture<DocumentSnapshot> future = db.collection("geometry_board").document(strCurrentDocId).get();
+                    DocumentSnapshot snapshot = future.get(30, TimeUnit.SECONDS);
+                    
+                    //스냅샷 호출 후 리스트 생성(JSON)
+                    ApiFuture<QuerySnapshot> query = db.collection("geometry_board").orderBy("reg_dt", Direction.ASCENDING).startAt(snapshot).limit(callSize).get();
 
-                strDocIdList = Arrays.toString(docIdList.toArray()).replaceAll("\\[","").replaceAll("\\]","");;
+                    // future.get() blocks on document retrieval
+                    List<QueryDocumentSnapshot> documents = query.get().getDocuments();
+
+                    for (QueryDocumentSnapshot document : documents) {
+                        
+                        Map<String, Object> data = document.getData();
+
+                        String boardSq =  (String) data.get("board_sq");
+                        String docId = document.getId();
+
+                        docIdList.add(docId);
+                    }
+
+                    strDocIdList = Arrays.toString(docIdList.toArray()).replaceAll("\\[","").replaceAll("\\]","");;
+                    
+                    
+                }
+                return strDocIdList;
+                
             }
             else{
                 strDocIdList = paginationDto.getDocIdArr();
+
+                return strDocIdList;
             }
            
-            Util.durationTime ("end", "CLOUD / < SET DELETE GEOMETRY BOARD - DELETE > : ", reqTime, "Complete ::: " );
+            //Util.durationTime ("end", "CLOUD / < SET DELETE GEOMETRY BOARD - DELETE > : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
 			Util.durationTime ("end", "CLOUD / < SET DELETE GEOMETRY BOARD - DELETE > : ", reqTime, "Fail ::: " );
