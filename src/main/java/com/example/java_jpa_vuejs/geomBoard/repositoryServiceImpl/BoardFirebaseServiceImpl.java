@@ -516,6 +516,7 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
         Integer intCurrentPage = Integer.valueOf(strCurrentPage);
         Integer callSize = (intCountPerPage * intPageGroupSize);// + intPageGroupSize;
 
+        Integer intPageTotal = (intTotalCount/ intCountPerPage);// 총 페이지 수
         Integer intPageGroupStart = (((intCurrentPage ) / intPageGroupSize) * intPageGroupSize);// 보여질 페이지 시작점 EX> 3페이지 부터
         Integer intPageGroupEnd = (intPageGroupStart + intPageGroupSize) ;// 보여질 페이지 끝점 EX> 5페이지 까지
 
@@ -562,7 +563,99 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
                 
                 return strDocIdList;
             }
+            else if(strCallType.equals("NEXT")){
+                
+                /*                  
+                 * 1. 마지막 페이지가 아닐때 
+                 *      -> DocList를 업데이트 해야함 
+                 * 
+                 * 2. 마지막 페이지 일때.
+                 *      -> 기존의 DocList를 사용
+                 *   
+                 * 몫: Math.floorDiv(26,10) = 2
+                 * 나머지: Math.floorMod(26,10) = 6    
+                 */
+               
+                //1. 마지막 페이지그룹의 시작점과 끝점을 구해 포함될 경우 마지막페이지로 간주, DocList를 갱신하지 않는다.
+                Integer intLastPagingStart = ((Math.floorDiv(intTotalCount, intCountPerPage) / intPageGroupSize) * intPageGroupSize)+1;;
+                Integer intLastPagingEnd   = intPageTotal;
+                
+                //System.out.println("☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ NEXT -> intLastPagingStart : " + intLastPagingStart + "   /// intLastPagingEnd : " + intPageTotal + "       ///  Math.floorMod(intTotalCount, intCountPerPage)  : "+ Math.floorMod(intTotalCount, intCountPerPage)+"        ///   "+Math.floorMod(intTotalCount, intCountPerPage) / intCountPerPage);
+                
+                if(intLastPagingStart <= intCurrentPage && intLastPagingEnd >= intCurrentPage){//마지막 페이지그룹일때 문서리스트 갱신 하지않음
+                    strDocIdList = paginationDto.getDocIdArr();
+                }
+                else {
+                    ApiFuture<DocumentSnapshot> future = db.collection("geometry_board").document(strCurrentDocId).get();
+                    DocumentSnapshot snapshot = future.get(30, TimeUnit.SECONDS);
+                    
+                    //스냅샷 호출 후 리스트 생성(JSON)
+                    ApiFuture<QuerySnapshot> query = db.collection("geometry_board").orderBy("reg_dt", Direction.ASCENDING).startAt(snapshot).limit(callSize).get();
+
+                    // future.get() blocks on document retrieval
+                    List<QueryDocumentSnapshot> documents = query.get().getDocuments();
+
+                    for (QueryDocumentSnapshot document : documents) {
+                        
+                        Map<String, Object> data = document.getData();
+
+                        String boardSq =  (String) data.get("board_sq");
+                        String docId = document.getId();
+
+                        docIdList.add(docId);
+                    }
+
+                    strDocIdList = Arrays.toString(docIdList.toArray()).replaceAll("\\[","").replaceAll("\\]","");;
+                    
+                    
+                }
+                return strDocIdList;
+                
+            }
+            else if(strCallType.equals("PREV")){
+                
+                Integer intLastPagingStart = ((Math.floorDiv(intTotalCount, intCountPerPage) / intPageGroupSize) * intPageGroupSize)+1;;
+                Integer intLastPagingEnd   = intPageTotal;
+                
+
+                if(intPageGroupStart < 0){//첫 페이지 일때
+                    System.out.println("☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ RPEV  111 -> intLastPagingStart : " + intPageGroupStart);
+                    strDocIdList = paginationDto.getDocIdArr();
+                }
+                else if(intLastPagingStart <= intCurrentPage && intLastPagingEnd >= intCurrentPage){//마지막 페이지 일때
+                    System.out.println("☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ RPEV  222 -> intLastPagingStart : " + intPageGroupStart);
+                    strDocIdList = paginationDto.getDocIdArr();
+                }
+                else{
+                    System.out.println("☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ RPEV  333 -> intLastPagingStart : " + intPageGroupStart);
+                    ApiFuture<DocumentSnapshot> future = db.collection("geometry_board").document(strCurrentDocId).get();
+                    DocumentSnapshot snapshot = future.get(30, TimeUnit.SECONDS);
+                    
+                    //스냅샷 호출 후 리스트 생성(JSON)
+                    ApiFuture<QuerySnapshot> query = db.collection("geometry_board").orderBy("reg_dt", Direction.ASCENDING).startAt(snapshot).limit(callSize).get();
+
+                    // future.get() blocks on document retrieval
+                    List<QueryDocumentSnapshot> documents = query.get().getDocuments();
+
+                    for (QueryDocumentSnapshot document : documents) {
+                        
+                        Map<String, Object> data = document.getData();
+
+                        String boardSq =  (String) data.get("board_sq");
+                        String docId = document.getId();
+
+                        docIdList.add(docId);
+                    }
+
+                    strDocIdList = Arrays.toString(docIdList.toArray()).replaceAll("\\[","").replaceAll("\\]","");;
+                    
+                    
+                }
+                return strDocIdList;
+                
+            }
             else if(!strCallType.equals("EACH")){
+
                 if((intPageGroupEnd * intCountPerPage) >= intTotalCount){//마지막 페이지 일때
                     strDocIdList = paginationDto.getDocIdArr();
                 }
@@ -754,41 +847,23 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
     * @throws Exception
     */
     @Override
-    public String getPageGroupFirst(PaginationDto paginationDto) throws Exception {
-        long reqTime = Util.durationTime ("start", "CLOUD / < SET DELETE GEOMETRY BOARD - DELETE > : ", 0, "Proceeding ::: " );
+    public String getPrevDoc(PaginationDto paginationDto) throws Exception {
+        String prevDoc;
 
-        String strCurrentPage = paginationDto.getCurrentPage();
+        Integer intCurrentPage = Integer.valueOf(paginationDto.getCurrentPage().split("\\|")[1].trim());
+		Integer intPageGroupSize = paginationDto.getBlockPage();// 패아장을 제공할 페이지 블록 수
+        Integer intPageGroupStart = (((intCurrentPage ) / intPageGroupSize) * intPageGroupSize);
 
-        Integer countPerPage = paginationDto.getCountPerPage();
-        Integer intTotalCount = paginationDto.getTotalCount();
-        Integer intPageGroupSize = paginationDto.getBlockPage();
+        System.out.println("-----------------pREVpREVpREVpREV ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ pREV -> intLastPagingStart : " + intPageGroupStart);
 
-        String strCurrentDocId = paginationDto.getCurrentPage().split("\\|")[0]; 
 
-        String pageGroupfirstDoc = "";
-
-        try {
-            firebaseConfiguration.initializeFCM();
-            Firestore db = FirestoreClient.getFirestore();
-
-            //스냅샷 호출 후 리스트 생성(JSON)
-            ApiFuture<QuerySnapshot> query = db.collection("geometry_board").orderBy("reg_dt", Direction.ASCENDING).limit(1).get();
-
-            // future.get() blocks on document retrieval
-            List<QueryDocumentSnapshot> documents = query.get().getDocuments();
-
-            for (QueryDocumentSnapshot document : documents) {
-                
-                //pageGroupfirstDoc = document.getId() + "|0|FIRST";
-            }
-
-            Util.durationTime ("end", "CLOUD / < SET DELETE GEOMETRY BOARD - DELETE > : ", reqTime, "Complete ::: " );
+        if(intPageGroupStart <= intCurrentPage){//첫페이지일때
+            prevDoc = paginationDto.getFirstDoc().split("\\|")[0];
         }
-        catch (Exception e) {
-			Util.durationTime ("end", "CLOUD / < SET DELETE GEOMETRY BOARD - DELETE > : ", reqTime, "Fail ::: " );
-            e.printStackTrace();
+        else{
+            prevDoc = paginationDto.getDocIdArr().split(",")[0];
         }
 
-        return pageGroupfirstDoc;
+        return prevDoc;
     }
 }

@@ -24,6 +24,7 @@ public class PaginationAsyncCloud {
 
         String strTargetDoc = paginationDto.getCurrentPage().split("\\|")[0].trim();// 보여줄 현재 페이지
 		String strFirstDoc = paginationDto.getFirstDoc().split("\\|")[0].trim();
+		String strPrevDoc  = paginationDto.getPrevDoc();
 		String strNextDoc = paginationDto.getNextDoc();
 
 		String strLastDoc = paginationDto.getLastDoc();
@@ -67,17 +68,17 @@ public class PaginationAsyncCloud {
 
 		// 1.처음 페이지
 		strPagingBuf.append(makeButtonLinkByParams(strFirstDoc+"|0|FIRST", "BEGIN_TAG", strParams, strActionUrl, intCountPerPage, docIdArr));
-/* 		
+ 		
 		// 2.이전 페이지
 		if(intPageGroupStart >= intCountPerPage ){// 첫페이지가 아닐때
 			LOG.info("이전1 - intPageGroupStart: " + intPageGroupStart + " / intCountPerPage: " + intCountPerPage);
-			strPagingBuf.append(makeButtonLinkByParams((intPageGroupStart-intPageGroupSize), "PREV_TAG", strParams, strActionUrl, intCountPerPage));
+			strPagingBuf.append(makeButtonLinkByParams(strPrevDoc+"|"+String.valueOf(intPageGroupStart-intPageGroupSize)+"|PREV", "PREV_TAG", strParams, strActionUrl, intCountPerPage, docIdArr));
 		}
 		else if(intPageGroupStart < intCountPerPage ){// 첫페이지 일때
 			LOG.info("이전2 - intPageGroupStart: " + intPageGroupStart + " / intCountPerPage: " + intCountPerPage);
-			strPagingBuf.append(makeButtonLinkByParams(0, "PREV_TAG", strParams, strActionUrl, intCountPerPage));
+			strPagingBuf.append(makeButtonLinkByParams(strPrevDoc+"|0|PREV", "PREV_TAG", strParams, strActionUrl, intCountPerPage, docIdArr));
 		}
-*/		
+		
 		// 3.개별 페이징
 		System.out.println("@@@@@@@@@@@@@@@@ @ @ @ @ @ @ @ @ @ @ @ @@ @ ");
 		System.out.println(docIdArr);

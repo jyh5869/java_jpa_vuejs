@@ -22,7 +22,7 @@ public class PaginationDto {
     //private Integer blockPage =3;
     //private Integer countPerPage = 2;
 
-    private Integer blockPage = 3;// 한번에 제공할 페이징 이미지 수  ex> 1,2,3,4,5,6,7,8,9,10 페이지
+    private Integer blockPage = 2;// 한번에 제공할 페이징 이미지 수  ex> 1,2,3,4,5,6,7,8,9,10 페이지
 
     private Integer countPerPage = 2;// 한페이지당 보여줄 게시물 수  ex> 10개
 
@@ -51,6 +51,7 @@ public class PaginationDto {
 
     private String pageGroupFirst;
 
+    private String prevDoc;
 
     public String getDocIdArr(){
         return URLDecoder.decode(docIdArr);
