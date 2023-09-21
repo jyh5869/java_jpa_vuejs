@@ -272,7 +272,7 @@ export default {
         } else if (callType == 'Write') {
             actionType = 'insert';
         }
-
+        console.log(document);
         return {
             data: 'HELLO OPENLAYERS', // [데이터 정의]
             actionType: actionType, //동작타입: 1.insert, 2.update
@@ -292,6 +292,7 @@ export default {
             state: document.state, //게시글 상태
             zipCd: document.zip_cd, //게시글 우편번호
             useYn: document.use_yn, //게시글 사용여부
+            reg_dt: document.reg_dt, //게시글 작성일자
         };
     },
     mounted() {
@@ -500,6 +501,7 @@ export default {
                     state: this.state,
                     zipCd: this.zipCd,
                     useYn: this.useYn,
+                    createdDate: this.reg_dt,
                 },
                 headers: {
                     'Content-Type': 'multipart/form-data',

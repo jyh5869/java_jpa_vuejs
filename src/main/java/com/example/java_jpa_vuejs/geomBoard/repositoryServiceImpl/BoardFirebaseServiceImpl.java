@@ -144,15 +144,15 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
             docData.put("state", boardDTO.getState());
             docData.put("use_yn", boardDTO.getUseYn());
             docData.put("zip_cd", boardDTO.getZipCd());
-            docData.put("reg_dt", regDt);
             
             String state = boardDTO.getActionType();
 
             if(state.equals("insert")){//인서트
+                docData.put("reg_dt", regDt);
                 ApiFuture<WriteResult> future = db.collection("geometry_board").document().set(docData);
             }
             else if(state.equals("update")){//업데이트
-
+                docData.put("reg_dt", boardDTO.getCreatedDate());
                 ApiFuture<WriteResult> future = db.collection("geometry_board").document(updateId).set(docData);
             }
             
