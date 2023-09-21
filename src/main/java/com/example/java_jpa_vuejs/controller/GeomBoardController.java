@@ -3,18 +3,19 @@ package com.example.java_jpa_vuejs.controller;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.modelmapper.ModelMapper;
+import java.net.URLDecoder;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.java_jpa_vuejs.common.PaginationDto;
+import com.example.java_jpa_vuejs.common.repositoryService.PaginationFirebaseService;
 import com.example.java_jpa_vuejs.geomBoard.BoardDto;
 import com.example.java_jpa_vuejs.geomBoard.entity.GeometryBoard;
 import com.example.java_jpa_vuejs.geomBoard.repositoryService.BoardFirebaseService;
@@ -41,6 +42,7 @@ public class GeomBoardController {
 
     private final BoardService boardService;
     private final BoardFirebaseService boardFirebaseService;
+    private final PaginationFirebaseService paginationFirebaseService;
 
 
     /**
@@ -115,7 +117,7 @@ public class GeomBoardController {
     
     /**
     * @method 지오메트릭 글 리스트 가져오기
-    * @param  null
+    * @param  paginationDto 페이징 정보 Object
     * @throws Exception
     */
     @PostMapping(value = {"/getGeomBoardList"})//Pageable pageable
@@ -126,20 +128,17 @@ public class GeomBoardController {
         String pagination = "";
 
         try {
-            // 1] - MYSQL에서 정보조회 실패시 FIREBASE로 조회
+            // 1] - MYSQL에서 정보조회
             LOG.info(" DB AUTH ERROR - CLOUD AUTH START!");
 
             paginationDto.setCurrentPage(URLDecoder.decode(paginationDto.getCurrentPage().trim(), "UTF-8"));
 
             paginationDto.setTotalCount(boardFirebaseService.getTotalCount(paginationDto));
-            paginationDto.setFirstDoc(boardFirebaseService.getFirstDoc(paginationDto));
-            paginationDto.setPrevDoc(boardFirebaseService.getPrevDoc(paginationDto));
-            paginationDto.setLastDoc(boardFirebaseService.getLastDoc(paginationDto));
-            paginationDto.setDocIdArr(boardFirebaseService.getDocIdList(paginationDto));
-            paginationDto.setNextDoc(boardFirebaseService.getNextDoc(paginationDto));
-            
-
-            System.out.println(String.valueOf(paginationDto.getDocIdArr()));
+            paginationDto.setFirstDoc(paginationFirebaseService.getFirstDoc(paginationDto));
+            paginationDto.setPrevDoc(paginationFirebaseService.getPrevDoc(paginationDto));
+            paginationDto.setLastDoc(paginationFirebaseService.getLastDoc(paginationDto));
+            paginationDto.setDocIdArr(paginationFirebaseService.getDocIdList(paginationDto));
+            paginationDto.setNextDoc(paginationFirebaseService.getNextDoc(paginationDto));
 
             pagination = PaginationAsyncCloud.getDividePageFormByParams(paginationDto);
             
@@ -148,8 +147,8 @@ public class GeomBoardController {
             retList = boardFirebaseService.getGeomBoardList2(paginationDto); 
         } 
         catch (Exception e) {
-            /* 
-            // 2] - MYSQL에서 정보조회
+            
+            // 2] - MYSQL에서 정보조회 실패시 FIREBASE로 조회
             paginationDto.setTotalCount(boardService.getTotalCount());
             Iterable<GeometryBoard> list = boardService.getGeomBoardList(paginationDto);
             Iterator<GeometryBoard> itr = list.iterator();
@@ -166,7 +165,7 @@ public class GeomBoardController {
             }
 
             pagination = PaginationAsyncPageable.getDividePageFormByParams(paginationDto);
-            */
+            
             e.printStackTrace();
         }
 

@@ -30,16 +30,4 @@ public interface BoardFirebaseService {
 
 	List<Map<String, Object>> getGeomBoardList2(PaginationDto paginationDto) throws Exception;
 
-
-
-	
-	String getDocIdList(PaginationDto paginationDto) throws Exception;
-
-	String getFirstDoc(PaginationDto paginationDto) throws Exception;
-
-	String getNextDoc(PaginationDto paginationDto) throws Exception;
-
-    String getLastDoc(PaginationDto paginationDto) throws Exception;
-
-	String getPrevDoc(PaginationDto paginationDto) throws Exception;
 }
