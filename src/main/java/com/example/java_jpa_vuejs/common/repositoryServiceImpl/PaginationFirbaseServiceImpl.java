@@ -276,17 +276,38 @@ public class PaginationFirbaseServiceImpl implements PaginationFirebaseService{
         String strPrevDoc;
 
         Integer intCurrentPage = Integer.valueOf(paginationDto.getCurrentPage().split("\\|")[1].trim());//현재 문서 페이지
+        Integer intCountPerPage = paginationDto.getCountPerPage();// 페이지에서 제공할 게시물의 수
 		Integer intPageGroupSize = paginationDto.getBlockPage();// 패아장을 제공할 페이지 그룹의 수
+        Integer intTotalCount = paginationDto.getTotalCount();// 총 게시물 갯수
+
+        Integer intPageTotal = (intTotalCount/ intCountPerPage);// 총 페이지 수
         Integer intPageGroupStart = (((intCurrentPage ) / intPageGroupSize) * intPageGroupSize);//다음 페이지 그룹의 시작점
+        Integer intPageGroupEnd = (intPageGroupStart + intPageGroupSize) ;// 보여질 페이지 끝점 EX> 5페이지 까지
 
         /*
-         * 1. if   - 첫페이지일 때: 첫번째 도큐먼트iD로 세팅
-         * 2. else - 첫페이지가 아닐 때: 현재 도큐멘트 배열의 첫번째 값으로 세팅
+         * 1. if      - 첫페이지일 때: 첫번째 도큐먼트iD로 세팅
+         * 2. else if - 마지막 페이지 일때 : 한블럭의 게시물수 + 마지막 블럭의 게시물수를 합쳐 이전 도큐먼트ID 세팅  
+         * 3. else    - 첫페이지가 아닐 때: 현재 도큐멘트 배열의 첫번째 값으로 세팅
          */
-        if(intPageGroupStart <= intCurrentPage){
+        if(intPageGroupStart <= intPageGroupSize){
+            
             strPrevDoc = paginationDto.getFirstDoc().split("\\|")[0];
         }
+        else if(intPageGroupEnd > intPageTotal){//마지막일때 별도로 독리스트 셋
+            
+            Integer LastDocCnt = intTotalCount - (intPageGroupStart * intCountPerPage);//마지막 페이지그룹의 게시물 겟수
+            Integer preveDocCnt = LastDocCnt + (intCountPerPage * intPageGroupSize);
+            firebaseConfiguration.initializeFCM();
+            Firestore db = FirestoreClient.getFirestore();
+
+            ApiFuture<QuerySnapshot> query = db.collection("geometry_board").orderBy("reg_dt", Direction.ASCENDING).limitToLast(preveDocCnt).get();
+            List<QueryDocumentSnapshot> documents = query.get().getDocuments();
+            QueryDocumentSnapshot lastDoc = documents.get(0);
+
+            strPrevDoc = lastDoc.getId();
+        }
         else{
+            
             strPrevDoc = paginationDto.getDocIdArr().split(",")[0];
         }
 
