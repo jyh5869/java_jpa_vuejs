@@ -164,7 +164,7 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
             e.printStackTrace();
         }
 	}
-
+    
 
     /**
     * @method 지오메트릭 게시글 리스트 가져오기
@@ -175,58 +175,12 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
 	public List<Map<String, Object>> getGeomBoardList(PaginationDto paginationDto) throws Exception{
 
 		long reqTime = Util.durationTime ("start", "CLOUD / < GET GEOMETRY BOARD LIST - SELECT > : ", 0, "Proceeding ::: " );
-        List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
-
-		Integer currentPage = Integer.valueOf(paginationDto.getCurrentPage());
-        Integer countPerPage = Integer.valueOf(paginationDto.getCountPerPage());
-
-        String startAt = String.valueOf((currentPage * countPerPage)-1) ;
-
-		try {     
-            //파이어 베이스 초기화
-            firebaseConfiguration.initializeFCM();
-            Firestore db = FirestoreClient.getFirestore();
-
-            //스냅샷 호출 후 리스트 생성(JSON)
-            ApiFuture<QuerySnapshot> query = db.collection("geometry_board").orderBy("board_sq", Direction.ASCENDING).whereGreaterThan("board_sq",  startAt).limit(countPerPage).get();
-            QuerySnapshot querySnapshot = query.get();
-
-            List<QueryDocumentSnapshot> documents = querySnapshot.getDocuments();
-            
-            for (QueryDocumentSnapshot document : documents) {
-
-                Map<String, Object> data = document.getData();
-                data.put("docId", document.getId());
-                data.put("createdDate", data.get("reg_dt"));
-                data.put("userAdress", data.get("user_adress"));
-                data.put("userEmail", data.get("user_email"));
-                data.put("userNm", data.get("user_name"));
-            
-                result.add(data);
-            }
-            Util.durationTime ("end", "CLOUD / < GET GEOMETRY BOARD LIST - SELECT > : ", reqTime, "Complete ::: " );
-        }
-        catch (Exception e) {
-			Util.durationTime ("end", "CLOUD / < GET GEOMETRY BOARD LIST - SELECT > : ", reqTime, "Fail ::: " );
-            e.printStackTrace();
-        }
-		
-		return result;
-	}
-    
-
-    /**
-    * @method 지오메트릭 게시글 리스트 가져오기
-    * @param  paginationDto
-    * @throws Exception
-    */
-    @Override
-	public List<Map<String, Object>> getGeomBoardList2(PaginationDto paginationDto) throws Exception{
-
-		long reqTime = Util.durationTime ("start", "CLOUD / < GET GEOMETRY BOARD LIST - SELECT > : ", 0, "Proceeding ::: " );
 
 		String currentDocId = String.valueOf(paginationDto.getCurrentPage().split("\\|")[0]);// 현재 도큐멘트ID
-        Integer countPerPage = Integer.valueOf(paginationDto.getCountPerPage());// 페이지마다 보여줄 게시물 수
+        String strCollectionNm = paginationDto.getCollectionNm();//도큐먼트를 가져올 컬렉션 명
+        String strOrderbyCol = paginationDto.getOrderbyCol();//도큐먼트를 가져올 컬렉션의 정렬 컬럼
+
+        Integer intCountPerPage = Integer.valueOf(paginationDto.getCountPerPage());// 페이지마다 보여줄 게시물 수
 
         List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
 		try {     
@@ -236,11 +190,11 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
 
             ApiFuture<DocumentSnapshot> future;
           
-            future = db.collection("geometry_board").document(currentDocId).get();
+            future = db.collection(strCollectionNm).document(currentDocId).get();
             DocumentSnapshot snapshot = future.get(30, TimeUnit.SECONDS);
 
             //스냅샷 호출 후 리스트 생성(JSON)
-            ApiFuture<QuerySnapshot> query = db.collection("geometry_board").orderBy("reg_dt", Direction.ASCENDING).startAt(snapshot).limit(countPerPage).get();
+            ApiFuture<QuerySnapshot> query = db.collection(strCollectionNm).orderBy(strOrderbyCol, Direction.ASCENDING).startAt(snapshot).limit(intCountPerPage).get();
             QuerySnapshot querySnapshot = query.get();
 
             List<QueryDocumentSnapshot> documents = querySnapshot.getDocuments();

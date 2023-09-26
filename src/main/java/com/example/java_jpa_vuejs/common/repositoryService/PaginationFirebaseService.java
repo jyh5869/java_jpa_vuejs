@@ -13,4 +13,6 @@ public interface PaginationFirebaseService {
 	String getNextDoc(PaginationDto paginationDto) throws Exception;
 
     String getLastDoc(PaginationDto paginationDto) throws Exception;
+
+	Integer getTotalCount(PaginationDto paginationDto) throws Exception;
 }

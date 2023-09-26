@@ -132,6 +132,8 @@ public class GeomBoardController {
             LOG.info(" DB AUTH ERROR - CLOUD AUTH START!");
 
             paginationDto.setCurrentPage(URLDecoder.decode(paginationDto.getCurrentPage().trim(), "UTF-8"));
+            paginationDto.setCollectionNm("geometry_board");
+            paginationDto.setOrderbyCol("reg_dt");
 
             paginationDto.setTotalCount(boardFirebaseService.getTotalCount(paginationDto));
             paginationDto.setFirstDoc(paginationFirebaseService.getFirstDoc(paginationDto));
@@ -144,7 +146,7 @@ public class GeomBoardController {
             
             retMap.put("dorIdArr", String.valueOf(paginationDto.getDocIdArr()));
 
-            retList = boardFirebaseService.getGeomBoardList2(paginationDto); 
+            retList = boardFirebaseService.getGeomBoardList(paginationDto); 
         } 
         catch (Exception e) {
             

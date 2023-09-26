@@ -1,6 +1,9 @@
 package com.example.java_jpa_vuejs.controller;
 
+import java.net.URLDecoder;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -21,12 +24,15 @@ import com.example.java_jpa_vuejs.auth.AuthenticationDto;
 import com.example.java_jpa_vuejs.auth.JoinDto;
 import com.example.java_jpa_vuejs.auth.LoginDto;
 import com.example.java_jpa_vuejs.auth.entity.Members;
+import com.example.java_jpa_vuejs.common.PaginationDto;
 import com.example.java_jpa_vuejs.common.repositoryService.EmailService;
+import com.example.java_jpa_vuejs.common.repositoryService.PaginationFirebaseService;
 import com.example.java_jpa_vuejs.auth.repositoryService.SignFirebaseService;
 import com.example.java_jpa_vuejs.auth.repositoryService.SignService;
 import com.example.java_jpa_vuejs.auth2.repositoryService.RepositoryService;
 import com.example.java_jpa_vuejs.config.FirebaseConfiguration;
 import com.example.java_jpa_vuejs.util.ForbiddenException;
+import com.example.java_jpa_vuejs.util.PaginationAsyncCloud;
 import com.google.gson.JsonObject;
 
 import jakarta.validation.Valid;
@@ -54,11 +60,12 @@ public class VueProxyTestController {
 
     private final SignService signService;
     private final SignFirebaseService signFirebaseService;
+    private final PaginationFirebaseService paginationFirebaseService;
 
     private final EmailService emailService;
 
     private final FirebaseConfiguration firebaseConfiguration;
-
+    
     private final AuthProvider authProvider;
     //private final FirebaseAuthSignUtil firebaseAuthSignUtil;
 
@@ -68,11 +75,30 @@ public class VueProxyTestController {
     * @throws Exception
     */
     @GetMapping("/getList")
-    public List<Map<String, Object>> index() throws Exception {
+    public Map<String, Object> index(@Valid PaginationDto paginationDto) throws Exception {
 
-        List<Map<String, Object>> result = signFirebaseService.getList();
+        Map<String, Object> retMap = new HashMap<String, Object>();
+        List<Map<String, Object>> retList = new ArrayList<Map<String, Object>>();
 
-        return result;
+        paginationDto.setCurrentPage(URLDecoder.decode(paginationDto.getCurrentPage().trim(), "UTF-8"));
+        paginationDto.setCollectionNm("board");
+        paginationDto.setOrderbyCol("brdtitle");
+
+        paginationDto.setTotalCount(paginationFirebaseService.getTotalCount(paginationDto));
+        paginationDto.setFirstDoc(paginationFirebaseService.getFirstDoc(paginationDto));
+        paginationDto.setPrevDoc(paginationFirebaseService.getPrevDoc(paginationDto));
+        paginationDto.setLastDoc(paginationFirebaseService.getLastDoc(paginationDto));
+        paginationDto.setDocIdArr(paginationFirebaseService.getDocIdList(paginationDto));
+        paginationDto.setNextDoc(paginationFirebaseService.getNextDoc(paginationDto));
+
+        String pagination = PaginationAsyncCloud.getDividePageFormByParams(paginationDto);
+
+        retList = signFirebaseService.getList(paginationDto);   
+
+        retMap.put("list", retList);
+        retMap.put("pagination", pagination);
+
+        return retMap;
     }
 
     /**

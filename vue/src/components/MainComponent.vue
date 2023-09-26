@@ -45,6 +45,8 @@
             <template #cell(brddate)="date"> {{ date.value }} </template>
             <template #table-caption>Data List</template>
         </b-table>
+
+        <div v-html="pagination"></div>
     </div>
 </template>
 
@@ -90,7 +92,11 @@ export default {
                 },
             ],
             dataList: [],
+            pagination: null,
         };
+    },
+    created() {
+        window.getList = this.getList;
     },
     mounted() {
         this.getList();
@@ -102,8 +108,6 @@ export default {
             return 'testData';
         },
         viewDetail: function (index, event) {
-            const targetId = event.currentTarget.id;
-            console.log(targetId);
             event.preventDefault(); //이벤트 전파를 차단하여 컴포넌트 이동에 지장이 없도록 하기 위함.
 
             this.$router.push({
@@ -114,21 +118,31 @@ export default {
         toggleBusy() {
             this.isBusy = !this.isBusy;
         },
-        getList: async function () {
-            let res = await this.$axios({
+        getList: async function (currentPage, countPerPage, params, docIdArr) {
+            this.isBusy = true;
+
+            let result = await this.$axios({
                 method: 'get',
                 url: '/api/getList',
                 params: {
-                    // callType: useParams.callType,
-                    // targetId: useParams.targetId,
+                    currentPage: currentPage,
+                    countPerPage: countPerPage,
+                    actionTarget: 'getList',
+                    docIdArr: encodeURI(docIdArr),
+                    params: params,
                 },
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     accesstoken: this.$store.state.token,
                 },
             });
-            this.dataList = res.data; //데이터 세팅
-            this.toggleBusy(); //로딩 스피너 토글
+
+            if (result.status === 200) {
+                this.dataList = result.data.list; //데이터 세팅
+                this.pagination = result.data.pagination; //페이징 세팅
+
+                this.toggleBusy(); //로딩 스피너 토글
+            }
         },
     },
 };

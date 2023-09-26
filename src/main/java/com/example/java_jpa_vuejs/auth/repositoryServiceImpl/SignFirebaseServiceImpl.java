@@ -6,6 +6,7 @@ import com.example.java_jpa_vuejs.auth.JoinDto;
 import com.example.java_jpa_vuejs.auth.LoginDto;
 import com.example.java_jpa_vuejs.auth.entity.Members;
 import com.example.java_jpa_vuejs.auth.repositoryService.SignFirebaseService;
+import com.example.java_jpa_vuejs.common.PaginationDto;
 import com.example.java_jpa_vuejs.config.FirebaseConfiguration;
 
 
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import org.modelmapper.ModelMapper;
@@ -136,18 +138,29 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
 	}
 
 	@Override
-	public List<Map<String, Object>> getList() throws Exception{
+	public List<Map<String, Object>> getList(PaginationDto paginationDto) throws Exception{
 
 		long reqTime = Util.durationTime ("start", "CLOUD / GET LIST : ", 0, "Proceeding ::: " );
         List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
 		
+        String currentDocId = String.valueOf(paginationDto.getCurrentPage().split("\\|")[0]);// 현재 도큐멘트ID
+        String strCollectionNm = paginationDto.getCollectionNm();//도큐먼트를 가져올 컬렉션 명
+        String strOrderbyCol = paginationDto.getOrderbyCol();//도큐먼트를 가져올 컬렉션의 정렬 컬럼
+        
+        Integer intCountPerPage = paginationDto.getCountPerPage();//한페이지당 가져올 도큐먼트의 수
+        
 		try {     
             //파이어 베이스 초기화
             firebaseConfiguration.initializeFCM();
             Firestore db = FirestoreClient.getFirestore();
 
+            ApiFuture<DocumentSnapshot> future;
+          
+            future = db.collection(strCollectionNm).document(currentDocId).get();
+            DocumentSnapshot snapshot = future.get(30, TimeUnit.SECONDS);
+
             //스냅샷 호출 후 리스트 생성(JSON)
-            ApiFuture<QuerySnapshot> query = db.collection("board").orderBy("brddate", Direction.DESCENDING).limit(10).get();
+            ApiFuture<QuerySnapshot> query = db.collection(strCollectionNm).orderBy(strOrderbyCol, Direction.ASCENDING).startAt(snapshot).limit(intCountPerPage).get();
             QuerySnapshot querySnapshot = query.get();
 
             List<QueryDocumentSnapshot> documents = querySnapshot.getDocuments();

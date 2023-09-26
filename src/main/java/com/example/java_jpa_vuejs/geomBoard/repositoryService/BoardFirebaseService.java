@@ -27,7 +27,4 @@ public interface BoardFirebaseService {
 	List<Map<String, Object>> getGeomData(long id) throws Exception;
 
 	List<Map<String, Object>> getGeomBoardList(PaginationDto paginationDto) throws Exception;
-
-	List<Map<String, Object>> getGeomBoardList2(PaginationDto paginationDto) throws Exception;
-
 }

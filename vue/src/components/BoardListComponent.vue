@@ -139,7 +139,7 @@ export default {
         },
         getList: async function (currentPage, countPerPage, params, docIdArr) {
             this.isBusy = true;
-            let res = await this.$axios({
+            let result = await this.$axios({
                 method: 'post',
                 url: '/api/getGeomBoardList',
                 params: {
@@ -155,13 +155,12 @@ export default {
                 },
             });
 
-            this.dataList = res.data.list; //데이터 세팅
-            this.pagination = res.data.pagination; //페이징 세팅
-            console.log('---------- 리스트 호출 응답 객체 ----------');
-            console.log(res.data.dorIdArr);
-            console.log(res);
+            if (result.status === 200) {
+                this.dataList = result.data.list; //데이터 세팅
+                this.pagination = result.data.pagination; //페이징 세팅
 
-            this.toggleBusy(); //로딩 스피너 토글
+                this.toggleBusy(); //로딩 스피너 토글
+            }
         },
     },
 };

@@ -14,9 +14,9 @@ import lombok.ToString;
 public class PaginationDto {
     
     /* 공통 페이지 처리 변수 */
-    private Integer blockPage = 2;    // 한번에 제공할 페이징 이미지 수  ex> 1,2,3,4,5,6,7,8,9,10 페이지
+    private Integer blockPage = 5;    // 한번에 제공할 페이징 이미지 수  ex> 1,2,3,4,5,6,7,8,9,10 페이지
 
-    private Integer countPerPage = 2; // 한페이지당 보여줄 게시물 수  ex> 10개
+    private Integer countPerPage = 5; // 한페이지당 보여줄 게시물 수  ex> 10개
 
     private Integer totalCount = 0;   // 불러올 리스트의 총 갯수
 
