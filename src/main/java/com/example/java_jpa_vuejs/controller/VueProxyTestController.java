@@ -83,7 +83,7 @@ public class VueProxyTestController {
         paginationDto.setCurrentPage(URLDecoder.decode(paginationDto.getCurrentPage().trim(), "UTF-8"));
         paginationDto.setCollectionNm("board");
         paginationDto.setOrderbyCol("brdtitle");
-
+ 
         paginationDto.setTotalCount(paginationFirebaseService.getTotalCount(paginationDto));
         paginationDto.setFirstDoc(paginationFirebaseService.getFirstDoc(paginationDto));
         paginationDto.setPrevDoc(paginationFirebaseService.getPrevDoc(paginationDto));
