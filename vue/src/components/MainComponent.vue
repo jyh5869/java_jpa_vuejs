@@ -28,7 +28,8 @@
                     <strong>Loading...</strong>
                 </div>
             </template>
-            <template #cell(brdno)="brdno"> {{ brdno.index + 1 }} </template>
+            <!-- <template #cell(brdno)="brdno"> {{ brdno.index + 1 }} </template> -->
+            <template #cell(brdno)="brdno"> {{ brdno.value }} </template>
             <template #cell(brdtitle)="title">
                 <!-- <a href="#" v-on:click="viewDetail(title.index, $event)" class="text-primary text-decoration-none">{{ title.value == null ? 'No Title' : title.value }}</a> -->
                 <router-link
@@ -141,6 +142,8 @@ export default {
                 this.dataList = result.data.list; //데이터 세팅
                 this.pagination = result.data.pagination; //페이징 세팅
 
+                //console.log(result.data.list);
+                console.log(result.data.setDocIdArr);
                 this.toggleBusy(); //로딩 스피너 토글
             }
         },

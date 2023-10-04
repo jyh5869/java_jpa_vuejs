@@ -37,17 +37,18 @@ public class PaginationAsyncCloud {
 
 		/* 예외조건 처리 - 1. 1페이지 이하 호출 , 2.총 페이지 이상 호출 시 처리 */
 		if(intPageGroupStart < 0){intPageGroupStart = 0; };//이전페이지의 동작으로 인해 음수의 페이지를 호출할 경우 1페이지로 이동
-		if(intPageGroupEnd > intPageTotal){intPageGroupEnd = intPageTotal; }//보여질 페이지의 끝점이 토탈페이지 보다 클경우 마지막페이지로 이동
-
-		LOG.info("------------------페이지 HTML 생성 시작--------------------");
-		LOG.info("strCurrentPage    : " + strCurrentPage);
-		LOG.info("intPageTotal      : " + intTotalCount);
-		LOG.info("intPageGroupStart : " + intPageGroupStart);
-		LOG.info("intPageGroupEnd   : " + intPageGroupEnd);
-		LOG.info("intTotalCount     : " + intTotalCount);
+		if(intPageGroupEnd >= intPageTotal){intPageGroupEnd = intPageTotal; }//보여질 페이지의 끝점이 토탈페이지 보다 클경우 마지막페이지로 이동
 
 		String[] docIdArr = strDocIdArr.split(",");
 
+		LOG.info("------------------페이지 HTML 생성 시작--------------------");
+		LOG.info("strCurrentPage    : " + strCurrentPage);
+		LOG.info("intPageTotal      : " + intPageTotal);
+		LOG.info("intPageGroupStart : " + intPageGroupStart);
+		LOG.info("intPageGroupEnd   : " + intPageGroupEnd);
+		LOG.info("intTotalCount     : " + intTotalCount);
+		LOG.info("docIdArrLength    : " + String.valueOf(docIdArr.length));
+		
 		/* 페이징 HTML 생성 START */
 		StringBuffer strPagingBuf = new StringBuffer();
 

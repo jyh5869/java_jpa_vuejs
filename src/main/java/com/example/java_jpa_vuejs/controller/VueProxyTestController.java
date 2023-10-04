@@ -67,7 +67,7 @@ public class VueProxyTestController {
     private final FirebaseConfiguration firebaseConfiguration;
     
     private final AuthProvider authProvider;
-    //private final FirebaseAuthSignUtil firebaseAuthSignUtil;
+
 
     /**
     * @method 클라우드를 통한 리스트 호출
@@ -97,6 +97,7 @@ public class VueProxyTestController {
 
         retMap.put("list", retList);
         retMap.put("pagination", pagination);
+        retMap.put("setDocIdArr", paginationDto.getDocIdArr());
 
         return retMap;
     }

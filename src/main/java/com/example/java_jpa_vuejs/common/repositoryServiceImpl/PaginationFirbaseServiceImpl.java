@@ -108,10 +108,13 @@ public class PaginationFirbaseServiceImpl implements PaginationFirebaseService{
                  */
                
                 // 1. 마지막 페이지그룹의 시작점과 끝점을 구해 포함될 경우 마지막페이지로 간주, 도큐먼트 리스트를 갱신하지 않는다.
+                /*
+                 * ★ ★★★★★★
+                 */
                 Integer intLastPagingStart = ((Math.floorDiv(intTotalCount, intCountPerPage) / intPageGroupSize) * intPageGroupSize)+1;
-                Integer intLastPagingEnd   = intPageTotal;
-                
-                if(intLastPagingStart <= intCurrentPage && intLastPagingEnd >= intCurrentPage){//마지막 페이지그룹일 때 도큐먼트 갱신 하지않음
+                Integer intLastPagingEnd   = (int) Math.ceil(intTotalCount / intCountPerPage);
+                LOG.info(String.valueOf(intLastPagingStart) + "      /      "+ intCurrentPage+ "     /     " + String.valueOf(intLastPagingEnd));
+                if(intLastPagingStart <= intCurrentPage && intLastPagingEnd >= intCurrentPage ){//마지막 페이지그룹일 때 도큐먼트 갱신 하지않음
                     LOG.info("다음 도큐먼트 리스트 호출 NEXT1");
                     strDocIdList = paginationDto.getDocIdArr();
                 }
