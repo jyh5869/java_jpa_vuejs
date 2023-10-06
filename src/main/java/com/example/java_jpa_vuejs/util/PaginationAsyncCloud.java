@@ -31,9 +31,10 @@ public class PaginationAsyncCloud {
 		Integer intPageGroupSize = paginationDto.getBlockPage();// 패아장을 제공할 페이지 블록 수
 		Integer intTotalCount = paginationDto.getTotalCount();// 총 게시물 갯수
 
-		Integer intPageTotal = (intTotalCount/ intCountPerPage);// 총 페이지 수
-		Integer intPageGroupStart = (((intCurrentPage ) / intPageGroupSize) * intPageGroupSize);// 보여질 페이지 시작점 EX> 3페이지 부터
-		Integer intPageGroupEnd = (intPageGroupStart + intPageGroupSize) ;// 보여질 페이지 끝점 EX> 5페이지 까지
+		//Integer intPageTotal = (intTotalCount/ intCountPerPage);// 총 페이지 수
+		Integer intPageTotal = (int) Math.ceil(intTotalCount / (double) intCountPerPage);
+		Integer intPageGroupStart = (((intCurrentPage -1) / intPageGroupSize) * intPageGroupSize) +1;// 보여질 페이지 시작점 EX> 3페이지 부터
+		Integer intPageGroupEnd = (intPageGroupStart + intPageGroupSize)-1 ;// 보여질 페이지 끝점 EX> 5페이지 까지
 
 		/* 예외조건 처리 - 1. 1페이지 이하 호출 , 2.총 페이지 이상 호출 시 처리 */
 		if(intPageGroupStart < 0){intPageGroupStart = 0; };//이전페이지의 동작으로 인해 음수의 페이지를 호출할 경우 1페이지로 이동
@@ -56,19 +57,19 @@ public class PaginationAsyncCloud {
         strPagingBuf.append("<ul class='pagination justify-content-center'>\r\n");
 
 		// 1.처음 페이지
-		strPagingBuf.append(makeButtonLinkByParams(strFirstDoc+"|0|FIRST", "BEGIN_TAG", strParams, strActionUrl, intCountPerPage, strDocIdArr));
+		strPagingBuf.append(makeButtonLinkByParams(strFirstDoc+"|1|FIRST", "BEGIN_TAG", strParams, strActionUrl, intCountPerPage, strDocIdArr));
  		
 		// 2.이전 페이지
 		if(intPageGroupStart >= intCountPerPage ){// 첫페이지가 아닐때
 			strPagingBuf.append(makeButtonLinkByParams(strPrevDoc+"|"+String.valueOf(intPageGroupStart-intPageGroupSize)+"|PREV", "PREV_TAG", strParams, strActionUrl, intCountPerPage, strDocIdArr));
 		}
 		else if(intPageGroupStart < intCountPerPage ){// 첫페이지 일때
-			strPagingBuf.append(makeButtonLinkByParams(strPrevDoc+"|0|PREV", "PREV_TAG", strParams, strActionUrl, intCountPerPage, strDocIdArr));
+			strPagingBuf.append(makeButtonLinkByParams(strPrevDoc+"|1|PREV", "PREV_TAG", strParams, strActionUrl, intCountPerPage, strDocIdArr));
 		}
 		
 		// 3.개별 페이징
 		Integer docIndex = 0;
-		for(int i = intPageGroupStart; i < intPageGroupEnd; i++){
+		for(int i = intPageGroupStart; i <= intPageGroupEnd; i++){
 
 			String strDocId = String.valueOf(docIdArr[docIndex*intCountPerPage]);
 			String strPageNum = String.valueOf(i);
@@ -79,10 +80,10 @@ public class PaginationAsyncCloud {
 			LOG.info("개별페이징 생성 페이지 번호 : " + i + " 반복 도큐먼트ID : " + strDocId + " 현재 도큐먼트 ID" + strTargetDoc);
 
 			if(intPageNum == intCurrentPage){// 1.선택된 페이지일 경우
-				strPagingBuf.append("<strong class='page-link success' title='").append("" + String.valueOf((pageLinkNm+1)) + "").append("페이지(선택됨)'>").append(String.valueOf((pageLinkNm+1))).append("</strong>\r\n");
+				strPagingBuf.append("<strong class='page-link success' title='").append("" + String.valueOf((pageLinkNm)) + "").append("페이지(선택됨)'>").append(String.valueOf((pageLinkNm))).append("</strong>\r\n");
 			}
 			else{// 2. 나머지 개별 페이지의 경우
-				strPagingBuf.append(makeLinkByParams(strDocId+"|"+strPageNum+"|EACH", "" + String.valueOf((pageLinkNm+1)) + "",  strParams, strActionUrl, intCountPerPage, strDocIdArr));
+				strPagingBuf.append(makeLinkByParams(strDocId+"|"+strPageNum+"|EACH", "" + String.valueOf((pageLinkNm)) + "",  strParams, strActionUrl, intCountPerPage, strDocIdArr));
 			}
 
 			docIndex++;
@@ -91,15 +92,15 @@ public class PaginationAsyncCloud {
 		//4. 다음 페이지
 		if((intPageGroupEnd * intCountPerPage) < intTotalCount){// 호출 페이지가 마지막 페이지를 넘어가지 않을때(일반적인 다음페이지 호출)
 
-			strPagingBuf.append(makeButtonLinkByParams(strNextDoc+"|"+String.valueOf(intPageGroupEnd)+"|NEXT"  , "NEXT_TAG", strParams, strActionUrl, intCountPerPage, strDocIdArr));
+			strPagingBuf.append(makeButtonLinkByParams(strNextDoc+"|"+String.valueOf(intPageGroupEnd+1)+"|NEXT"  , "NEXT_TAG", strParams, strActionUrl, intCountPerPage, strDocIdArr));
 		}
 		else{// 호출 페이지가 마지막 페이지를 넘어갈때(마지막 페이지로 이동)
 			
-			strPagingBuf.append(makeButtonLinkByParams(strLastDoc+"|"+String.valueOf(intPageGroupEnd-1)+"|NEXT" , "NEXT_TAG", strParams, strActionUrl, intCountPerPage, strDocIdArr));
+			strPagingBuf.append(makeButtonLinkByParams(strLastDoc+"|"+String.valueOf(intPageGroupEnd)+"|NEXT" , "NEXT_TAG", strParams, strActionUrl, intCountPerPage, strDocIdArr));
 		}
 
 		//5. 마지막 페이지
-		strPagingBuf.append(makeButtonLinkByParams(strLastDoc+"|"+String.valueOf(intPageTotal-1)+"|LAST", "END_TAG", strParams, strActionUrl, intCountPerPage, strDocIdArr));
+		strPagingBuf.append(makeButtonLinkByParams(strLastDoc+"|"+String.valueOf(intPageTotal)+"|LAST", "END_TAG", strParams, strActionUrl, intCountPerPage, strDocIdArr));
 
         strPagingBuf.append("</ul>\r\n");
 		strPagingBuf.append("</nav>\r\n");

@@ -104,7 +104,9 @@ public class PaginationFirbaseServiceImpl implements PaginationFirebaseService{
                  *   
                  * ※ 참고 ※ 
                  * 1. 몫 구하는 함수    : Math.floorDiv(26,10) = 2
-                 * 2. 나머지 구하는 함수 : Math.floorMod(26,10) = 6    
+                 * 2. 나머지 구하는 함수 : Math.floorMod(26,10) = 6   
+                 * 3. 소수점 올림 : (int) Math.ceil(100 / (double) 3);
+                 * 4. 소수점 내림 : (int) Math.floor(100 / (double) 3);
                  */
                
                 // 1. 마지막 페이지그룹의 시작점과 끝점을 구해 포함될 경우 마지막페이지로 간주, 도큐먼트 리스트를 갱신하지 않는다.
@@ -112,9 +114,12 @@ public class PaginationFirbaseServiceImpl implements PaginationFirebaseService{
                  * ★ ★★★★★★
                  */
                 Integer intLastPagingStart = ((Math.floorDiv(intTotalCount, intCountPerPage) / intPageGroupSize) * intPageGroupSize)+1;
-                Integer intLastPagingEnd   = (int) Math.ceil(intTotalCount / intCountPerPage);
-                LOG.info(String.valueOf(intLastPagingStart) + "      /      "+ intCurrentPage+ "     /     " + String.valueOf(intLastPagingEnd));
-                if(intLastPagingStart <= intCurrentPage && intLastPagingEnd >= intCurrentPage ){//마지막 페이지그룹일 때 도큐먼트 갱신 하지않음
+                Integer intLastPagingEnd1   = (int) Math.ceil(intTotalCount / intCountPerPage);
+                Integer intLastPagingEnd   = (int) Math.ceil(intTotalCount / (double)intCountPerPage);
+                
+                LOG.info(String.valueOf(intLastPagingStart) + "      /      "+ intCurrentPage+ "     /     " + String.valueOf(intLastPagingEnd) + "   /   " + String.valueOf(intLastPagingEnd1));
+                
+                if(intLastPagingStart <= intCurrentPage-1 && intLastPagingEnd >= intCurrentPage-1){//마지막 페이지그룹일 때 도큐먼트 갱신 하지않음
                     LOG.info("다음 도큐먼트 리스트 호출 NEXT1");
                     strDocIdList = paginationDto.getDocIdArr();
                 }
@@ -182,12 +187,33 @@ public class PaginationFirbaseServiceImpl implements PaginationFirebaseService{
 
                 return strDocIdList;
             }
-            else if(!strCallType.equals("EACH")){
+            else if(strCallType.equals("FIRST")){
+                ApiFuture<DocumentSnapshot> future = db.collection(strCollectionNm).document(strCurrentDocId).get();
+                DocumentSnapshot snapshot = future.get(30, TimeUnit.SECONDS);
+                
+                // 기준 도큐먼트ID 이후 필요 만큼 도큐먼트호출 
+                ApiFuture<QuerySnapshot> query = db.collection(strCollectionNm).orderBy(strOrderbyCol, Direction.ASCENDING).startAt(snapshot).limit(callSize).get();
+                List<QueryDocumentSnapshot> documents = query.get().getDocuments();
 
+                // 도큐먼트ID 배열을 생성하여 중괄호를 제거한 문자열 형식으로 세팅
+                for (QueryDocumentSnapshot document : documents) {
+
+                    String docId = document.getId();
+
+                    docIdList.add(docId);
+                }
+
+                strDocIdList = Arrays.toString(docIdList.toArray()).replaceAll("\\[","").replaceAll("\\]","");; 
+                return strDocIdList;
+            }
+            else if(!strCallType.equals("EACH")){
+                
                 if((intPageGroupEnd * intCountPerPage) >= intTotalCount){//마지막 페이지 일때
+                    //System.out.println("☆  11  1                ------------------------------------------------------  ☆  = " + intTotalCount);
                     strDocIdList = paginationDto.getDocIdArr();
                 }
                 else{
+                    //System.out.println("☆   222                 ------------------------------------------------------  ☆  = " + intTotalCount);
                     //햔제 도큐먼트ID를 기준으로 스냅샷 생성
                     ApiFuture<DocumentSnapshot> future = db.collection(strCollectionNm).document(strCurrentDocId).get();
                     DocumentSnapshot snapshot = future.get(30, TimeUnit.SECONDS);
@@ -204,7 +230,7 @@ public class PaginationFirbaseServiceImpl implements PaginationFirebaseService{
                         docIdList.add(docId);
                     }
 
-                    strDocIdList = Arrays.toString(docIdList.toArray()).replaceAll("\\[","").replaceAll("\\]","");; 
+                    strDocIdList = Arrays.toString(docIdList.toArray()).replaceAll("\\[","").replaceAll("\\]","");
                 }
 
                 return strDocIdList;
@@ -252,11 +278,11 @@ public class PaginationFirbaseServiceImpl implements PaginationFirebaseService{
 
             for (QueryDocumentSnapshot document : documents) {
                 
-                strFirstDoc = document.getId() + "|0|FIRST";
+                strFirstDoc = document.getId() + "|1|FIRST";
             }
 
             // 현재 페이지 정보가 없을 경우 위에서 호출 한 첫번째 도큐멘트ID로 현재페이지를 세팅
-            if(intCurrentPage.equals("0")){
+            if(intCurrentPage.equals("1")){
                 paginationDto.setCurrentPage(strFirstDoc);
             }
             
@@ -283,6 +309,7 @@ public class PaginationFirbaseServiceImpl implements PaginationFirebaseService{
         String strPrevDoc;
         String strCollectionNm = paginationDto.getCollectionNm();//도큐먼트를 가져올 컬렉션 명
         String strOrderbyCol = paginationDto.getOrderbyCol();//도큐먼트를 가져올 컬렉션의 정렬 컬럼
+        String strCallType = paginationDto.getCurrentPage().split("\\|")[2].trim();//페이징 도큐먼트 호출 타입
 
         Integer intCurrentPage = Integer.valueOf(paginationDto.getCurrentPage().split("\\|")[1].trim());//현재 문서 페이지
         Integer intCountPerPage = paginationDto.getCountPerPage();// 페이지에서 제공할 게시물의 수
@@ -299,11 +326,11 @@ public class PaginationFirbaseServiceImpl implements PaginationFirebaseService{
          * 3. else    - 첫페이지가 아닐 때: 현재 도큐멘트 배열의 첫번째 값으로 세팅
          */
         if(intPageGroupStart <= intPageGroupSize){//첫페이지일때 이전버튼 도큐멘트ID
-            
+            System.out.println("☆ 1111111111111111               ------------------------------------------------------  ☆  = " + intTotalCount);
             strPrevDoc = paginationDto.getFirstDoc().split("\\|")[0];
         }
         else if(intPageGroupEnd > intPageTotal){//마지막일때 이전버튼 도큐멘트ID
-            
+            System.out.println("☆ 22222222222222222               ------------------------------------------------------  ☆  = " + intTotalCount);
             Integer LastDocCnt = intTotalCount - (intPageGroupStart * intCountPerPage);//마지막 페이지그룹의 게시물 갯수
             Integer preveDocCnt = LastDocCnt + (intCountPerPage * intPageGroupSize); //한블럭당 보여질 게시물 갯수
             firebaseConfiguration.initializeFCM();
@@ -316,8 +343,44 @@ public class PaginationFirbaseServiceImpl implements PaginationFirebaseService{
             strPrevDoc = lastDoc.getId();
         }
         else{//기본 이전버튼 도큐멘트iD
+            
+            
+            if(strCallType.equals("EACH")){//개별페이징일 경우
+                strPrevDoc = paginationDto.getDocIdArr().split(",")[0];
+                System.out.println("☆  333333333333333            ------------------------------------------------------  ☆  = " + strPrevDoc);
+                firebaseConfiguration.initializeFCM();
+                Firestore db = FirestoreClient.getFirestore();
 
-            strPrevDoc = paginationDto.getDocIdArr().split(",")[0];
+                Integer callSize = intPageGroupSize*intCountPerPage;
+
+                ApiFuture<DocumentSnapshot> future = db.collection(strCollectionNm).document(strPrevDoc).get();
+                DocumentSnapshot snapshot = future.get(30, TimeUnit.SECONDS);
+                //.limit(callSize)
+                /*
+                *                
+
+                                ddddddddddddddddddddddddddddddddddddddd이것만 처리하자... 띵킹!
+
+                */
+                ApiFuture<QuerySnapshot> query = db.collection(strCollectionNm).orderBy(strOrderbyCol, Direction.ASCENDING).endBefore(snapshot).get();
+                List<QueryDocumentSnapshot> documents = query.get().getDocuments();
+
+                for (QueryDocumentSnapshot document : documents) {
+
+                    String docId = document.getId();
+                    System.out.println(docId);
+                    //docIdList.add(docId);
+                }
+
+
+                //QueryDocumentSnapshot lastDoc = documents.get(documents.size()-1);
+                QueryDocumentSnapshot lastDoc = documents.get(0);
+
+                strPrevDoc = lastDoc.getId();
+            }
+            else{//이전 버튼을 눌렸을 경우
+                strPrevDoc = paginationDto.getDocIdArr().split(",")[0];
+            }
         }
 
         return strPrevDoc;
@@ -341,7 +404,8 @@ public class PaginationFirbaseServiceImpl implements PaginationFirebaseService{
         String strDocIdArrLast = docIdArr[docIdArr.length-1].trim();//배열의 자미가 도큐먼트ID를 다음페이지의 기준으로 사용
         String strCollectionNm = paginationDto.getCollectionNm();//도큐먼트를 가져올 컬렉션 명
         String strOrderbyCol = paginationDto.getOrderbyCol();//도큐먼트를 가져올 컬렉션의 정렬 컬럼
-
+        System.out.println("★★★★★★★★★★★★★★★★★★★");
+        System.out.println(paginationDto.getDocIdArr());
         LOG.info("다음 게시물 아이디 세팅 : NextDoc -> " + strDocIdArrLast);
 
         try {
@@ -424,13 +488,14 @@ public class PaginationFirbaseServiceImpl implements PaginationFirebaseService{
         long reqTime = Util.durationTime ("start", "CLOUD / < GET BOARD TOTALCOUNT - SELECT > : ", 0, "Proceeding ::: " );
         
         String strCollectionNm = paginationDto.getCollectionNm();//도큐먼트를 가져올 컬렉션 명
+        String strOrderbyCol = paginationDto.getOrderbyCol();//도큐먼트를 가져올 컬렉션의 정렬 컬럼
 
         Integer totalCount = 0;
         try {
             firebaseConfiguration.initializeFCM();
             Firestore db = FirestoreClient.getFirestore();
 
-            AggregateQuerySnapshot snapshot = db.collection(strCollectionNm).count().get().get();
+            AggregateQuerySnapshot snapshot = db.collection(strCollectionNm).orderBy(strOrderbyCol).count().get().get();
             LOG.info("Get ToalCount - " + snapshot.getCount());
 
             Util.durationTime ("end", "CLOUD / < GET BOARD TOTALCOUNT - SELECT > : ", reqTime, "Complete ::: " );

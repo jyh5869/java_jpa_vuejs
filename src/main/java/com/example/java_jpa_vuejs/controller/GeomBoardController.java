@@ -135,7 +135,8 @@ public class GeomBoardController {
             paginationDto.setCollectionNm("geometry_board");
             paginationDto.setOrderbyCol("reg_dt");
 
-            paginationDto.setTotalCount(boardFirebaseService.getTotalCount(paginationDto));
+            //paginationDto.setTotalCount(boardFirebaseService.getTotalCount(paginationDto));
+            paginationDto.setTotalCount(paginationFirebaseService.getTotalCount(paginationDto));
             paginationDto.setFirstDoc(paginationFirebaseService.getFirstDoc(paginationDto));
             paginationDto.setPrevDoc(paginationFirebaseService.getPrevDoc(paginationDto));
             paginationDto.setLastDoc(paginationFirebaseService.getLastDoc(paginationDto));
@@ -149,6 +150,7 @@ public class GeomBoardController {
             retList = boardFirebaseService.getGeomBoardList(paginationDto); 
         } 
         catch (Exception e) {
+            /* mYSQL과 FIREBASE의 순환어떻게 시킬까??
             
             // 2] - MYSQL에서 정보조회 실패시 FIREBASE로 조회
             paginationDto.setTotalCount(boardService.getTotalCount());
@@ -169,6 +171,7 @@ public class GeomBoardController {
             pagination = PaginationAsyncPageable.getDividePageFormByParams(paginationDto);
             
             e.printStackTrace();
+            */
         }
 
         retMap.put("list", retList);

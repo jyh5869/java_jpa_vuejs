@@ -20,7 +20,7 @@ public class PaginationDto {
 
     private Integer totalCount = 0;   // 불러올 리스트의 총 갯수
 
-    private String currentPage = "0"; // 호출된 현재 페이지
+    private String currentPage = "1"; // 호출된 현재 페이지
 
     private String params;            // 조건 파라메터
 
