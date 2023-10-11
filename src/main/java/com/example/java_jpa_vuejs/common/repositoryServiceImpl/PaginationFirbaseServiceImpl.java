@@ -343,10 +343,10 @@ public class PaginationFirbaseServiceImpl implements PaginationFirebaseService{
             strPrevDoc = lastDoc.getId();
         }
         else{//기본 이전버튼 도큐멘트iD
-            
+            strPrevDoc = paginationDto.getDocIdArr().split(",")[0];
             
             if(strCallType.equals("EACH")){//개별페이징일 경우
-                strPrevDoc = paginationDto.getDocIdArr().split(",")[0];
+                
                 System.out.println("☆  333333333333333            ------------------------------------------------------  ☆  = " + strPrevDoc);
                 firebaseConfiguration.initializeFCM();
                 Firestore db = FirestoreClient.getFirestore();
@@ -355,14 +355,8 @@ public class PaginationFirbaseServiceImpl implements PaginationFirebaseService{
 
                 ApiFuture<DocumentSnapshot> future = db.collection(strCollectionNm).document(strPrevDoc).get();
                 DocumentSnapshot snapshot = future.get(30, TimeUnit.SECONDS);
-                //.limit(callSize)
-                /*
-                *                
 
-                                ddddddddddddddddddddddddddddddddddddddd이것만 처리하자... 띵킹!
-
-                */
-                ApiFuture<QuerySnapshot> query = db.collection(strCollectionNm).orderBy(strOrderbyCol, Direction.ASCENDING).endBefore(snapshot).get();
+                ApiFuture<QuerySnapshot> query = db.collection(strCollectionNm).orderBy(strOrderbyCol, Direction.ASCENDING).endBefore(snapshot).limitToLast(callSize).get();
                 List<QueryDocumentSnapshot> documents = query.get().getDocuments();
 
                 for (QueryDocumentSnapshot document : documents) {
@@ -379,6 +373,8 @@ public class PaginationFirbaseServiceImpl implements PaginationFirebaseService{
                 strPrevDoc = lastDoc.getId();
             }
             else{//이전 버튼을 눌렸을 경우
+
+                System.out.println("☆  333333333333333            ------------------------------------------------------  ☆  = " + strPrevDoc);
                 strPrevDoc = paginationDto.getDocIdArr().split(",")[0];
             }
         }
