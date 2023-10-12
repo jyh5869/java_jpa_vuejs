@@ -329,7 +329,7 @@ public class PaginationFirbaseServiceImpl implements PaginationFirebaseService{
             System.out.println("☆ 1111111111111111               ------------------------------------------------------  ☆  = " + intTotalCount);
             strPrevDoc = paginationDto.getFirstDoc().split("\\|")[0];
         }
-        else if(intPageGroupEnd > intPageTotal){//마지막일때 이전버튼 도큐멘트ID
+        else if((intPageGroupEnd * intCountPerPage) >= intTotalCount){//마지막일때 이전버튼 도큐멘트ID
             System.out.println("☆ 22222222222222222               ------------------------------------------------------  ☆  = " + intTotalCount);
             Integer LastDocCnt = intTotalCount - (intPageGroupStart * intCountPerPage);//마지막 페이지그룹의 게시물 갯수
             Integer preveDocCnt = LastDocCnt + (intCountPerPage * intPageGroupSize); //한블럭당 보여질 게시물 갯수
@@ -373,8 +373,12 @@ public class PaginationFirbaseServiceImpl implements PaginationFirebaseService{
                 strPrevDoc = lastDoc.getId();
             }
             else{//이전 버튼을 눌렸을 경우
-
-                System.out.println("☆  333333333333333            ------------------------------------------------------  ☆  = " + strPrevDoc);
+                /*
+                 * 원래() - 기존독 리스트의 첫 번째가 이전페이지
+                 * 마지막 페이지에서 이전 페이지를 눌렸을 경우 이전 페이지는 마지막 페이지의 이전페이지가 된다. (16페이지였을때의 이전페이지)
+                 * 거기서 이전페이
+                 */
+                System.out.println("☆  444444444444444444            ------------------------------------------------------  ☆  = " + strPrevDoc);
                 strPrevDoc = paginationDto.getDocIdArr().split(",")[0];
             }
         }
