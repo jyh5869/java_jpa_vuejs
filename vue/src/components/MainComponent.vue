@@ -28,8 +28,8 @@
                     <strong>Loading...</strong>
                 </div>
             </template>
-            <!-- <template #cell(brdno)="brdno"> {{ brdno.index + 1 }} </template> -->
-            <template #cell(brdno)="brdno"> {{ brdno.value }} </template>
+            <template #cell(brdno)="brdno"> {{ brdno.index + 1 }} </template>
+            <!-- <template #cell(brdno)="brdno"> {{ brdno.value }} </template> -->
             <template #cell(brdtitle)="title">
                 <!-- <a href="#" v-on:click="viewDetail(title.index, $event)" class="text-primary text-decoration-none">{{ title.value == null ? 'No Title' : title.value }}</a> -->
                 <router-link

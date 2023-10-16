@@ -16,11 +16,13 @@
             <button @click="drawEnabled = !drawEnabled">Draw</button>
             <span>{{ '  ' + drawEnabled + '  ' }}</span>
 
-            <select id="type" v-model="drawType" @change="drawEnabled = true">
+            <!-- <select id="type" v-model="drawType"  @change="drawEnabled = true"> -->
+            <select id="type" @change="chgDrawType">
                 <option value="Point">Point</option>
                 <option value="LineString">LineString</option>
                 <option value="Polygon">Polygon</option>
                 <option value="Circle">Circle</option>
+                <option value="PolygonCircle">PolygonCircle</option>
             </select>
         </div>
 
@@ -100,6 +102,34 @@
                     <ol-interaction-snap v-if="modifyEnabled" />
 
                     <ol-overlay :ref="'lineString_ovl_' + item.getId()" class="overlay-wrap" :id="'circle_ovl_' + item.getId()" v-for="(item, index) in zonesCircle" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
+                        <template v-slot="position">
+                            <div class="overlay-content" @click="geomEvent(item, position)"></div>
+                        </template>
+                    </ol-overlay>
+                </ol-source-vector>
+
+                <ol-style>
+                    <ol-style-stroke color="green" :width="2"></ol-style-stroke>
+                    <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
+                    <ol-style-circle :radius="5">
+                        <ol-style-stroke color="green" :width="2"></ol-style-stroke>
+                        <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
+                    </ol-style-circle>
+                </ol-style>
+            </ol-vector-layer>
+
+            <ol-vector-layer>
+                <ol-source-vector :features="zonesPolygonCircle">
+                    <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
+                    <!-- <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend">
+                        <ol-style>
+                            <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
+                            <ol-style-fill color="rgba(255, 255, 0, 0.4)"></ol-style-fill>
+                        </ol-style>
+                    </ol-interaction-draw> -->
+                    <ol-interaction-snap v-if="modifyEnabled" />
+
+                    <ol-overlay :ref="'lineString_ovl_' + item.getId()" class="overlay-wrap" :id="'polygon_ovl_' + item.getId()" v-for="(item, index) in zonesPolygonCircle" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
                         <template v-slot="position">
                             <div class="overlay-content" @click="geomEvent(item, position)"></div>
                         </template>
@@ -246,6 +276,7 @@ const zonesLineString = ref([]);
 const zonesCircle = ref([]);
 const zonesPoint = ref([]);
 const zonesPolygon = ref([]);
+const zonesPolygonCircle = ref([]);
 const zonesDelete = ref([]);
 
 const selectedFeatures = ref(new Collection());
@@ -745,6 +776,15 @@ window.onload = function () {
 <script setup>
 /* 현재 지도 정보를 표출해주기 위한 함수 */
 
+const chgDrawType = (event) => {
+    alert('타입 변경');
+    drawType.value = 'Circle';
+    alert('타입 변경');
+    drawEnabled.value = true;
+
+    alert('타입 변경');
+};
+
 /* 형상 그리기에를 위한 함수 (그리기시작 및 그리기종료) */
 const drawstart = (event) => {
     console.log(event);
@@ -757,6 +797,7 @@ const drawend = (event) => {
 
     const feature = event.feature;
     let geomType = feature.getGeometry().getType();
+    let drawType = drawType.value;
 
     if (geomType == 'Polygon') {
         zonesPolygon.value.push(feature);
@@ -766,6 +807,8 @@ const drawend = (event) => {
         zonesPoint.value.push(feature);
     } else if (geomType == 'Circle') {
         zonesCircle.value.push(feature);
+    } else if (drawType == 'PolygonCircle') {
+        zonesPolygonCircle.value.push(feature);
     }
 
     selectedFeatures.value.push(feature);
