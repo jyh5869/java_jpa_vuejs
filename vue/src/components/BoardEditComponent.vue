@@ -17,7 +17,7 @@
             <span>{{ '  ' + drawEnabled + '  ' }}</span>
 
             <!-- <select id="type" v-model="drawType"  @change="drawEnabled = true"> -->
-            <select id="type" @change="chgDrawType">
+            <select id="type" @change="chgDrawType($event)">
                 <option value="Point">Point</option>
                 <option value="LineString">LineString</option>
                 <option value="Polygon">Polygon</option>
@@ -27,7 +27,7 @@
         </div>
 
         <!-- □ 지도 생성 □ -->
-        <ol-map :loadTilesWhileAnimating="true" :loadTilesWhileInteracting="true" style="height: 400px" ref="map">
+        <ol-map :loadTilesWhileAnimating="true" :loadTilesWhileInteracting="true" id="map" ref="map">
             <ol-view ref="view" :center="center" :rotation="rotation" :zoom="zoom" :projection="projection" @zoomChanged="zoomChanged" @centerChanged="centerChanged" @resolutionChanged="resolutionChanged" @rotationChanged="rotationChanged" />
 
             <ol-tile-layer>
@@ -120,7 +120,7 @@
 
             <ol-vector-layer>
                 <ol-source-vector :features="zonesPolygonCircle">
-                    <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
+                    <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures" :insertVertexCondition="chgPolygonCircle($event)"></ol-interaction-modify>
                     <!-- <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend">
                         <ol-style>
                             <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
@@ -258,6 +258,8 @@ import { Point } from 'ol/geom';
 import { Circle } from 'ol/geom';
 import { LineString } from 'ol/geom';
 
+import { fromCircle } from 'ol/geom/Polygon';
+
 const center = ref([40, 40]);
 
 const projection = ref('EPSG:4326');
@@ -271,6 +273,7 @@ const modifyEnabled = ref(false);
 const drawEnabled = ref(false);
 
 const drawType = ref('Polygon');
+const drawTypeReal = ref('Polygon');
 
 const zonesLineString = ref([]);
 const zonesCircle = ref([]);
@@ -760,6 +763,9 @@ export default {
                 name: 'boardList',
             });
         },
+        chgPolygonCircle: async function () {
+            console.log('이벤트발생1111111111111111111111111111');
+        },
     },
 };
 
@@ -777,37 +783,46 @@ window.onload = function () {
 /* 현재 지도 정보를 표출해주기 위한 함수 */
 
 const chgDrawType = (event) => {
-    alert('타입 변경');
-    drawType.value = 'Circle';
-    alert('타입 변경');
-    drawEnabled.value = true;
+    let eventValue = event.target.value;
 
-    alert('타입 변경');
+    if (eventValue == 'PolygonCircle') {
+        drawType.value = 'Circle';
+        drawTypeReal.value = 'PolygonCircle';
+    } else {
+        drawType.value = eventValue;
+        drawTypeReal.value = eventValue;
+    }
+
+    drawEnabled.value = true;
 };
 
 /* 형상 그리기에를 위한 함수 (그리기시작 및 그리기종료) */
 const drawstart = (event) => {
-    console.log(event);
+    //console.log(event);
     console.log('형상 그리기 시작');
 };
 
 const drawend = (event) => {
     console.log('형상 그리기 완료!!');
-    console.log(event.feature);
+    //console.log(event.feature);
 
-    const feature = event.feature;
-    let geomType = feature.getGeometry().getType();
-    let drawType = drawType.value;
+    let feature = event.feature;
 
-    if (geomType == 'Polygon') {
+    //let geomType = feature.getGeometry().getType();
+    let selectDrawType = drawTypeReal.value;
+
+    if (selectDrawType == 'Polygon') {
         zonesPolygon.value.push(feature);
-    } else if (geomType == 'LineString') {
+    } else if (selectDrawType == 'LineString') {
         zonesLineString.value.push(feature);
-    } else if (geomType == 'Point') {
+    } else if (selectDrawType == 'Point') {
         zonesPoint.value.push(feature);
-    } else if (geomType == 'Circle') {
+    } else if (selectDrawType == 'Circle') {
         zonesCircle.value.push(feature);
-    } else if (drawType == 'PolygonCircle') {
+    } else if (selectDrawType == 'PolygonCircle') {
+        //Circle 객체를 Polygon객체로 전환 후 저장
+        feature.setGeometry(fromCircle(feature.getGeometry(), 64));
+
         zonesPolygonCircle.value.push(feature);
     }
 
@@ -832,7 +847,9 @@ function vectorStyle() {
     ];
     return style;
 }
+
 console.log(vectorStyle());
+
 /* 형상 클릭시 이벤트발생을 위한 함수 */
 </script>
 
@@ -858,6 +875,10 @@ li {
 }
 a {
     color: #42b983;
+}
+
+#map {
+    height: 400px;
 }
 
 .overlay-content {
