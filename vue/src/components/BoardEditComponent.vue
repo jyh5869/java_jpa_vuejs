@@ -120,11 +120,11 @@
 
             <ol-vector-layer>
                 <ol-source-vector :features="zonesPolygonCircle">
-                    <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures" :insertVertexCondition="chgPolygonCircle($event)"></ol-interaction-modify>
+                    <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures" :insertVertexCondition="chgPolygonCircle()"></ol-interaction-modify>
                     <!-- <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend">
                         <ol-style>
                             <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
-                            <ol-style-fill color="rgba(255, 255, 0, 0.4)"></ol-style-fill>
+                            <ol-style-fill color="rgba(255, 255, 0, 0.4)"></ol-style-fill>                                                                                                                                                                      
                         </ol-style>
                     </ol-interaction-draw> -->
                     <ol-interaction-snap v-if="modifyEnabled" />
@@ -259,6 +259,12 @@ import { Circle } from 'ol/geom';
 import { LineString } from 'ol/geom';
 
 import { fromCircle } from 'ol/geom/Polygon';
+
+import { getCenter } from 'ol/extent';
+import { getWidth } from 'ol/extent';
+
+//import { getDistance } from 'ol/sphere';
+//import { transform } from 'ol/proj';
 
 const center = ref([40, 40]);
 
@@ -764,7 +770,16 @@ export default {
             });
         },
         chgPolygonCircle: async function () {
-            console.log('이벤트발생1111111111111111111111111111');
+            selectedFeatures.value.forEach(function (feature) {
+                let center = getCenter(feature.getGeometry().getExtent());
+                let radius = getWidth(feature.getGeometry().getExtent()) / 2;
+
+                const modifyPoint = feature.getGeometry().getCoordinates();
+
+                console.log(modifyPoint);
+                console.log(center);
+                console.log(radius);
+            });
         },
     },
 };
