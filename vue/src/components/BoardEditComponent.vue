@@ -38,8 +38,8 @@
             <!-- <ol-vector-layer :styles="vectorStyle()"> -->
             <ol-vector-layer>
                 <ol-source-cluster :distance="1">
-                    <ol-source-vector :features="zonesPoint">
-                        <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
+                    <ol-source-vector :features="zonesPoint" ref="source">
+                        <!-- <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify> -->
                         <ol-interaction-snap v-if="modifyEnabled" />
 
                         <ol-overlay :ref="'lineString_ovl_' + item.getId()" :class="'overlay-wrap point ' + item.getId()" :id="'point_ovl_' + item.getId()" v-for="(item, index) in zonesPoint" :key="index" :position="[item.getGeometry().getExtent()[0] + 3, item.getGeometry().getExtent()[1] + 5]">
@@ -64,8 +64,8 @@
             </ol-vector-layer>
 
             <ol-vector-layer>
-                <ol-source-vector :features="zonesPolygon">
-                    <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
+                <ol-source-vector :features="zonesPolygon" ref="source">
+                    <!-- <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify> -->
                     <!-- <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend">
                     <ol-style>
                         <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
@@ -91,8 +91,8 @@
             </ol-vector-layer>
 
             <ol-vector-layer>
-                <ol-source-vector :features="zonesCircle">
-                    <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
+                <ol-source-vector :features="zonesCircle" ref="source">
+                    <!-- <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify> -->
                     <!-- <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend">
                         <ol-style>
                             <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
@@ -119,12 +119,13 @@
             </ol-vector-layer>
 
             <ol-vector-layer>
-                <ol-source-vector :features="zonesPolygonCircle">
-                    <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures" :insertVertexCondition="chgPolygonCircle()"></ol-interaction-modify>
+                <ol-source-vector :features="zonesPolygonCircle" ref="source">
+                    <!-- <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures" @modifystart="insertVertexCondition"></ol-interaction-modify> -->
+                    <!-- <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures" :insertVertexCondition="insertVertexCondition()" :condition="chgPolygonCircle" :deleteCondition  @modifystart="modifystart" @modifyend="modifyend"></ol-interaction-modify> -->
                     <!-- <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend">
                         <ol-style>
                             <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
-                            <ol-style-fill color="rgba(255, 255, 0, 0.4)"></ol-style-fill>                                                                                                                                                                      
+                            <ol-style-fill color="rgba(255, 255, 0, 0.4)"></ol-style-fill>
                         </ol-style>
                     </ol-interaction-draw> -->
                     <ol-interaction-snap v-if="modifyEnabled" />
@@ -147,8 +148,8 @@
             </ol-vector-layer>
 
             <ol-vector-layer>
-                <ol-source-vector :features="zonesLineString">
-                    <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify>
+                <ol-source-vector :features="zonesLineString" ref="source">
+                    <!-- <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify> -->
                     <ol-interaction-snap v-if="modifyEnabled" />
 
                     <ol-overlay :ref="'lineString_ovl_' + item.getId()" :class="'overlay-wrap' + item.getId()" :id="'lineString_ovl_' + item.getId()" v-for="(item, index) in zonesLineString" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
@@ -181,12 +182,14 @@
                     </ol-style-text>
                 </ol-style>
             </ol-interaction-select>
+            <!-- -->
             <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend">
                 <ol-style>
                     <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
                     <ol-style-fill color="rgba(255, 255, 0, 0.4)"></ol-style-fill>
                 </ol-style>
             </ol-interaction-draw>
+            <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures" @modifystart="modifystart" @modifyend="modifyend"></ol-interaction-modify>
         </ol-map>
 
         <div class="col-md-6">
@@ -251,20 +254,25 @@ import { Collection } from 'ol';
 import { GeoJSON } from 'ol/format';
 //import { Vector } from 'ol/source/Vector.js';
 import { Feature } from 'ol';
+import { Modify } from 'ol/interaction';
 //import { Select } from 'ol/interaction';
+
+//import { Vector as VectorSource } from 'ol/source';
 
 import { Polygon } from 'ol/geom';
 import { Point } from 'ol/geom';
 import { Circle } from 'ol/geom';
 import { LineString } from 'ol/geom';
+import { GeometryCollection } from 'ol/geom';
 
 import { fromCircle } from 'ol/geom/Polygon';
 
 import { getCenter } from 'ol/extent';
 import { getWidth } from 'ol/extent';
 
-//import { getDistance } from 'ol/sphere';
-//import { transform } from 'ol/proj';
+import { getDistance } from 'ol/sphere';
+import { transform } from 'ol/proj';
+import { circular } from 'ol/geom/Polygon';
 
 const center = ref([40, 40]);
 
@@ -274,6 +282,7 @@ const currentZoom = ref();
 const rotation = ref(0);
 const view = ref(null);
 const map = ref(null);
+const source = ref(null);
 
 const modifyEnabled = ref(false);
 const drawEnabled = ref(false);
@@ -300,9 +309,6 @@ export default {
         let document = {};
 
         let callType = JSON.parse(this.$route.params.document).callType;
-
-        //지도 초기화
-        this.initMap();
 
         if (callType == 'Detail') {
             document = JSON.parse(this.$route.params.document).boardData;
@@ -337,9 +343,13 @@ export default {
     },
     mounted() {
         //DOM 렌더링 완료 후 실행
+        this.initMap();
     },
     updated() {
         //DOM 상태 및 데이터 변경 완료 후 실행
+    },
+    create() {
+        //window.map = this.map;
     },
     methods: {
         testMain: function () {
@@ -706,6 +716,7 @@ export default {
                 }
             });
         },
+
         /* Point Geometry Clustering Function */
         overrideStyleFunction: function (feature, style) {
             //console.log({ feature, style, resolution });
@@ -769,13 +780,13 @@ export default {
                 name: 'boardList',
             });
         },
-        chgPolygonCircle: async function () {
+        insertVertexCondition: async function () {
             selectedFeatures.value.forEach(function (feature) {
                 let center = getCenter(feature.getGeometry().getExtent());
                 let radius = getWidth(feature.getGeometry().getExtent()) / 2;
 
                 const modifyPoint = feature.getGeometry().getCoordinates();
-
+                console.log('시자쿠');
                 console.log(modifyPoint);
                 console.log(center);
                 console.log(radius);
@@ -784,13 +795,26 @@ export default {
     },
 };
 
+let modify = null;
 // HTML 최초 로드시 이벤트
 window.onload = function () {
-    /*
-    console.log('');
-    console.log('[HelloWorld] : [window onload] : [start]');
-    console.log('');
-    */
+    //지도 초기화
+    //console.log(map.value.map);
+    //console.log(map.value.map.getLayers());
+    //console.log(source.value.source);
+
+    modify = new Modify({
+        source: source.value.source,
+        style: function (feature) {
+            console.log('수정~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+            feature.get('features').forEach(function (modifyFeature) {
+                console.log('수정~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+                console.log(modifyFeature);
+            });
+        },
+    });
+
+    map.value.map.addInteraction(modify);
 };
 </script>
 
@@ -823,7 +847,7 @@ const drawend = (event) => {
 
     let feature = event.feature;
 
-    //let geomType = feature.getGeometry().getType();
+    let geomType = feature.getGeometry().getType();
     let selectDrawType = drawTypeReal.value;
 
     if (selectDrawType == 'Polygon') {
@@ -833,11 +857,56 @@ const drawend = (event) => {
     } else if (selectDrawType == 'Point') {
         zonesPoint.value.push(feature);
     } else if (selectDrawType == 'Circle') {
-        zonesCircle.value.push(feature);
+        console.log(feature.getGeometry());
     } else if (selectDrawType == 'PolygonCircle') {
         //Circle 객체를 Polygon객체로 전환 후 저장
-        feature.setGeometry(fromCircle(feature.getGeometry(), 64));
+        let center = feature.getGeometry().getCenter();
+        let radius = feature.getGeometry().getRadius();
 
+        feature.setGeometry(fromCircle(feature.getGeometry(), 64));
+        //console.log(feature);
+        //console.log(feature.getGeometry().getCoordinates());
+
+        /*
+        let geometry = new GeometryCollection(
+            new Polygon(feature.getGeometry().getCoordinates()), //하위
+            new Point(center), //히위
+        );
+        */
+
+        let coordinates = feature.getGeometry().getCoordinates();
+        let projection = map.value.map.getView().getProjection();
+
+        let geometry = new GeometryCollection([new Polygon([]), new Point(coordinates[0])]);
+
+        const geometries = geometry.getGeometries();
+        /*
+        const center = transform(coordinates[0], projection, 'EPSG:4326');
+        const last = transform(coordinates[1], projection, 'EPSG:4326');
+        const radius = getDistance(center, last);
+        */
+
+        const circle = circular(center, 1000000, 64);
+        circle.transform('EPSG:4326', projection);
+
+        geometries[0].setCoordinates(circle.getCoordinates()); //측지선
+        //geometries[0].setCoordinates(feature.getGeometry().getCoordinates()); //일반 원
+
+        geometry.setGeometries(geometries);
+
+        /*
+        feature = new Feature({
+            geometry: geometry.getGeometries(),
+            labelPoint: center,
+            name: 'My Polygon',
+        });
+        */
+        feature.setGeometry(geometry);
+
+        feature.setProperties({ type: geomType, selectDrawType: selectDrawType, state: 'update' });
+        /*
+        console.log(feature);
+        */
         zonesPolygonCircle.value.push(feature);
     }
 
@@ -845,6 +914,62 @@ const drawend = (event) => {
 
     modifyEnabled.value = true;
     drawEnabled.value = false;
+};
+
+/* 형상 수정 위한 함수 (수정시작 및 수정종료) */
+const modifystart = (event) => {
+    event.features.forEach(function (feature) {
+        const geometry = feature.getGeometry();
+        console.log('수정 시작 = ' + geometry.getType());
+        if (geometry.getType() === 'GeometryCollection') {
+            feature.set('modifyGeometry', geometry.clone(), true);
+        }
+    });
+};
+
+const modifyend = (event) => {
+    console.log('수정 종료');
+    //event.features.forEach(function (feature)
+    selectedFeatures.value.forEach(function (feature) {
+        /*
+        const modifyGeometry = feature.get('modifyGeometry');
+        if (modifyGeometry) {
+            feature.setGeometry(modifyGeometry);
+            feature.unset('modifyGeometry', true);
+        }
+        */
+
+        //let center = getCenter(feature.getGeometry().getExtent());
+        let radius = getWidth(feature.getGeometry().getExtent()) / 2;
+
+        //const modifyPoint = feature.getGeometry().getCoordinates();
+        const geometries = feature.getGeometry().getGeometries();
+        const polygon = geometries[0].getCoordinates()[0];
+        const projection = map.value.map.getView().getProjection();
+        const center = geometries[1].getCoordinates(); // 이거 폴리곤이라 정확한 센터갑 가져올 수 없음...???
+        console.log(geometries);
+        let first, last;
+
+        first = transform(polygon[0], projection, 'EPSG:4326');
+        last = transform(polygon[(polygon.length - 1) / 2], projection, 'EPSG:4326');
+        radius = getDistance(first, last) / 2;
+
+        console.log('first' + first);
+        console.log('last' + last);
+
+        const circle = circular(transform(center, projection, 'EPSG:4326'), radius, 64);
+        circle.transform('EPSG:4326', projection);
+        console.log(circle.getCoordinates());
+
+        let geometry = new GeometryCollection([new Polygon([]), new Point(center)]);
+        let geometries1 = geometry.getGeometries();
+        geometries1[0].setCoordinates(circle.getCoordinates());
+
+        // save changes to be applied at the end of the interaction
+        //modifyGeometry.setGeometries(geometries);
+        geometry.setGeometries(geometries1);
+        feature.setGeometry(geometry);
+    });
 };
 
 /* 레이어 STYLE 리턴을 위한 함수 */
