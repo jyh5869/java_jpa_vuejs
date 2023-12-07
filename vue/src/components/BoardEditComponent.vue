@@ -841,8 +841,15 @@ const drawstart = (event) => {
     console.log('형상 그리기 시작');
 };
 
+/**
+ *
+ *
+ * 일반원으로 그리기 각각 테스트 필요
+ * 지오 시드 로 그리기
+ *
+ */
 const drawend = (event) => {
-    console.log('형상 그리기 완료!!');
+    console.log('형상 그리기 완료!!     :    ' + drawTypeReal.value);
     //console.log(event.feature);
 
     let feature = event.feature;
@@ -857,60 +864,52 @@ const drawend = (event) => {
     } else if (selectDrawType == 'Point') {
         zonesPoint.value.push(feature);
     } else if (selectDrawType == 'Circle') {
-        console.log(feature.getGeometry());
+        zonesCircle.value.push(feature);
+        //console.log(feature.getGeometry());
     } else if (selectDrawType == 'PolygonCircle') {
         //Circle 객체를 Polygon객체로 전환 후 저장
-        let center = feature.getGeometry().getCenter();
-        let radius = feature.getGeometry().getRadius();
 
-        feature.setGeometry(fromCircle(feature.getGeometry(), 64));
-        //console.log(feature);
-        //console.log(feature.getGeometry().getCoordinates());
+        let center = feature.getGeometry().getCenter(); //중심값 세팅
+        let radius = feature.getGeometry().getRadius(); //반지름 세팅
 
-        /*
-        let geometry = new GeometryCollection(
-            new Polygon(feature.getGeometry().getCoordinates()), //하위
-            new Point(center), //히위
-        );
-        */
+        feature.setGeometry(fromCircle(feature.getGeometry(), 64)); //Circle 피쳐를 64개 점의 폴리곤 으로 변환
+
+        console.log(center);
+        console.log(radius);
 
         let coordinates = feature.getGeometry().getCoordinates();
         let projection = map.value.map.getView().getProjection();
 
-        let geometry = new GeometryCollection([new Polygon([]), new Point(coordinates[0])]);
-
-        const geometries = geometry.getGeometries();
-        /*
+        /* 
         const center = transform(coordinates[0], projection, 'EPSG:4326');
         const last = transform(coordinates[1], projection, 'EPSG:4326');
         const radius = getDistance(center, last);
         */
 
-        const circle = circular(center, 1000000, 64);
+        let geometry = new GeometryCollection([new Polygon(coordinates[0]), new Point(center)]);
+
+        const geometries = geometry.getGeometries();
+        console.log(geometries);
+
+        const circle = circular(center, radius, 64);
         circle.transform('EPSG:4326', projection);
 
         geometries[0].setCoordinates(circle.getCoordinates()); //측지선
         //geometries[0].setCoordinates(feature.getGeometry().getCoordinates()); //일반 원
+        console.log(geometries);
 
         geometry.setGeometries(geometries);
 
-        /*
-        feature = new Feature({
-            geometry: geometry.getGeometries(),
-            labelPoint: center,
-            name: 'My Polygon',
-        });
-        */
         feature.setGeometry(geometry);
 
         feature.setProperties({ type: geomType, selectDrawType: selectDrawType, state: 'update' });
-        /*
-        console.log(feature);
-        */
+        /* */
+        //console.log(feature);
+
         zonesPolygonCircle.value.push(feature);
     }
 
-    selectedFeatures.value.push(feature);
+    //selectedFeatures.value.push(feature);
 
     modifyEnabled.value = true;
     drawEnabled.value = false;
@@ -929,8 +928,8 @@ const modifystart = (event) => {
 
 const modifyend = (event) => {
     console.log('수정 종료');
-    //event.features.forEach(function (feature)
-    selectedFeatures.value.forEach(function (feature) {
+    event.features.forEach(function (feature) {
+        //selectedFeatures.value.forEach(function (feature) {
         /*
         const modifyGeometry = feature.get('modifyGeometry');
         if (modifyGeometry) {
@@ -947,15 +946,17 @@ const modifyend = (event) => {
         const polygon = geometries[0].getCoordinates()[0];
         const projection = map.value.map.getView().getProjection();
         const center = geometries[1].getCoordinates(); // 이거 폴리곤이라 정확한 센터갑 가져올 수 없음...???
-        console.log(geometries);
+        //console.log(polygon[0]);
         let first, last;
 
         first = transform(polygon[0], projection, 'EPSG:4326');
         last = transform(polygon[(polygon.length - 1) / 2], projection, 'EPSG:4326');
         radius = getDistance(first, last) / 2;
 
-        console.log('first' + first);
-        console.log('last' + last);
+        //console.log('first   = ' + first);
+        //console.log('last    = ' + last);
+        console.log('radius  = ' + radius);
+        console.log('center  = ' + center);
 
         const circle = circular(transform(center, projection, 'EPSG:4326'), radius, 64);
         circle.transform('EPSG:4326', projection);
@@ -967,6 +968,7 @@ const modifyend = (event) => {
 
         // save changes to be applied at the end of the interaction
         //modifyGeometry.setGeometries(geometries);
+        /* */
         geometry.setGeometries(geometries1);
         feature.setGeometry(geometry);
     });
