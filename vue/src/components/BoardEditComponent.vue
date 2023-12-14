@@ -867,45 +867,47 @@ const drawend = (event) => {
         zonesCircle.value.push(feature);
         //console.log(feature.getGeometry());
     } else if (selectDrawType == 'PolygonCircle') {
-        //Circle 객체를 Polygon객체로 전환 후 저장
+        let projection = map.value.map.getView().getProjection();
 
+        //Circle 객체를 Polygon객체로 전환 후 저장
+        console.log(feature);
         let center = feature.getGeometry().getCenter(); //중심값 세팅
         let radius = feature.getGeometry().getRadius(); //반지름 세팅
 
         feature.setGeometry(fromCircle(feature.getGeometry(), 64)); //Circle 피쳐를 64개 점의 폴리곤 으로 변환
-
-        console.log(center);
-        console.log(radius);
+        //feature.transform('EPSG:4326', projection);
+        //console.log(center);
+        //console.log(radius);
 
         let coordinates = feature.getGeometry().getCoordinates();
-        let projection = map.value.map.getView().getProjection();
 
-        /* 
-        const center = transform(coordinates[0], projection, 'EPSG:4326');
-        const last = transform(coordinates[1], projection, 'EPSG:4326');
-        const radius = getDistance(center, last);
-        */
+        console.log(coordinates);
 
-        let geometry = new GeometryCollection([new Polygon(coordinates[0]), new Point(center)]);
+        //center = transform(coordinates[0], projection, 'EPSG:4326');
+        //const last = coordinates[1];
+        //const radius = getDistance(center, last);
+
+        let geometry = new GeometryCollection([new Polygon(coordinates), new Point(center)]);
 
         const geometries = geometry.getGeometries();
-        console.log(geometries);
+        //console.log(geometries);
 
-        const circle = circular(center, radius, 64);
-        circle.transform('EPSG:4326', projection);
+        //const circle = circular(center, radius, 64);
+        const circle = circular(transform(center, projection, 'EPSG:4326'), radius, 64);
+        //circle.transform('EPSG:4326', projection);
 
         geometries[0].setCoordinates(circle.getCoordinates()); //측지선
+
         //geometries[0].setCoordinates(feature.getGeometry().getCoordinates()); //일반 원
-        console.log(geometries);
 
         geometry.setGeometries(geometries);
 
         feature.setGeometry(geometry);
 
         feature.setProperties({ type: geomType, selectDrawType: selectDrawType, state: 'update' });
-        /* */
+        /* 
         //console.log(feature);
-
+        */
         zonesPolygonCircle.value.push(feature);
     }
 
