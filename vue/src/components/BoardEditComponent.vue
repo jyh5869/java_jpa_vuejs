@@ -254,7 +254,7 @@ import { Collection } from 'ol';
 import { GeoJSON } from 'ol/format';
 //import { Vector } from 'ol/source/Vector.js';
 import { Feature } from 'ol';
-import { Modify } from 'ol/interaction';
+//import { Modify } from 'ol/interaction';
 //import { Select } from 'ol/interaction';
 
 //import { Vector as VectorSource } from 'ol/source';
@@ -795,14 +795,14 @@ export default {
     },
 };
 
-let modify = null;
+//let modify = null;
 // HTML 최초 로드시 이벤트
 window.onload = function () {
     //지도 초기화
     //console.log(map.value.map);
     //console.log(map.value.map.getLayers());
     //console.log(source.value.source);
-
+    /*
     modify = new Modify({
         source: source.value.source,
         style: function (feature) {
@@ -815,6 +815,7 @@ window.onload = function () {
     });
 
     map.value.map.addInteraction(modify);
+    */
 };
 </script>
 
@@ -931,10 +932,12 @@ const modifystart = (event) => {
 
 const modifyend = (event) => {
     console.log('수정 종료');
-    event.features.forEach(function (feature) {
+    event.features.forEach(async function (feature) {
         //selectedFeatures.value.forEach(function (feature) {
 
         const modifyGeometry = feature.get('modifyGeometry');
+
+        console.log(event.features);
         /*
         if (modifyGeometry) {
             feature.setGeometry(modifyGeometry);
@@ -951,21 +954,25 @@ const modifyend = (event) => {
             const polygon = geometries[0].getCoordinates()[0];
             const projection = map.value.map.getView().getProjection();
             const center = geometries[1].getCoordinates(); // 이거 폴리곤이라 정확한 센터갑 가져올 수 없음...???
-            //console.log(polygon[0]);
+
+            const coordinatesBF = modifyGeometry.getGeometries()[0].getCoordinates();
+            const coordinatesAF = geometries[0].getCoordinates();
+
             let first, last, radius;
 
             first = transform(polygon[0], projection, 'EPSG:4326');
-            last = transform(polygon[(polygon.length - 1) / 2], projection, 'EPSG:4326');
-            radius = getDistance(first, last) / 2;
+            last = await getModifyPoint(coordinatesBF, coordinatesAF);
+            radius = getDistance(first, last);
+            //last = transform(polygon[(polygon.length - 1) / 2], projection, 'EPSG:4326');
 
-            //console.log('first   = ' + first);
-            //console.log('last    = ' + last);
-            console.log('radius  = ' + radius);
+            console.log('first   = ' + first);
+            console.log('last    = ' + last);
             console.log('center  = ' + center);
+            console.log('radius  = ' + radius);
 
             const circle = circular(transform(center, projection, 'EPSG:4326'), radius, 64);
             circle.transform('EPSG:4326', projection);
-            console.log(circle.getCoordinates());
+            //console.log(circle.getCoordinates());
 
             let geometry = new GeometryCollection([new Polygon([]), new Point(center)]);
             let geometries1 = geometry.getGeometries();
@@ -982,6 +989,39 @@ const modifyend = (event) => {
     });
 };
 
+function getModifyPoint(coordinatesBF, coordinatesAF) {
+    let modifyPoint = [0, 0];
+
+    return new Promise((resolve, reject) => {
+        coordinatesAF[0].forEach(function (point, index) {
+            if (point.join() != coordinatesBF[0][index].join()) {
+                console.log('-------------------------- getModifyPoint ');
+                console.log(point);
+                //console.log(coordinatesBF[0][1]);
+                console.log('-------------------------- getModifyPoint ');
+                modifyPoint = point;
+                reject(point);
+            }
+        });
+
+        setTimeout(() => {
+            console.log('A');
+            resolve();
+        }, 1000);
+    });
+    /*
+    coordinatesAF[0].forEach(function (point, index) {
+        if (point.join() != coordinatesBF[0][index].join()) {
+            console.log('-------------------------- getModifyPoint ');
+            console.log(point);
+            //console.log(coordinatesBF[0][1]);
+            console.log('-------------------------- getModifyPoint ');
+            modifyPoint = point;
+            return modifyPoint;
+        }
+    });
+*/
+}
 /* 레이어 STYLE 리턴을 위한 함수 */
 function vectorStyle() {
     const style = [
