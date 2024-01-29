@@ -259,6 +259,7 @@ import { Feature } from 'ol';
 //import { Select } from 'ol/interaction';
 
 //import { Vector as VectorSource } from 'ol/source';
+//import {proj4} from 'proj4';
 
 import { Polygon } from 'ol/geom';
 import { Point } from 'ol/geom';
@@ -272,6 +273,7 @@ import { getCenter } from 'ol/extent';
 import { getWidth } from 'ol/extent';
 
 import { getDistance } from 'ol/sphere';
+import { sphere } from 'ol/';
 import { transform } from 'ol/proj';
 import { circular } from 'ol/geom/Polygon';
 
@@ -855,7 +857,6 @@ const drawstart = (event) => {
  */
 const drawend = (event) => {
     console.log('형상 그리기 완료!!     :    ' + drawTypeReal.value);
-    //console.log(event.feature);
 
     let feature = event.feature;
 
@@ -871,7 +872,6 @@ const drawend = (event) => {
         zonesPoint.value.push(feature);
     } else if (selectDrawType == 'Circle') {
         zonesCircle.value.push(feature);
-        //console.log(feature.getGeometry());
     } else if (selectDrawType == 'PolygonCircle') {
         //Circle 객체를 Polygon객체로 전환 후 저장
         let center = feature.getGeometry().getCenter(); //중심값 세팅
@@ -880,77 +880,27 @@ const drawend = (event) => {
         feature.setGeometry(fromCircle(feature.getGeometry(), 64)); //Circle 피쳐를 64개 점의 폴리곤 으로 변환
 
         let coordinates = feature.getGeometry().getCoordinates();
-
-        //console.log(coordinates[0][0]);
-
-        //center = transform(coordinates[0], projection, 'EPSG:4326');
-        //let last = coordinates[0][0];
-        //let radius = getDistance(center, last);
-        //console.log(' radisu   = ' + radius);
         let geometry = new GeometryCollection([new Polygon(coordinates), new Point(center)]);
 
-        const geometries = geometry.getGeometries();
-        //console.log(geometries);
+        feature.setGeometry(geometry); //지오 데이터 세팅
+        feature.setProperties({ type: geomType, selectDrawType: selectDrawType, state: 'update', radius: radius }); //프로퍼티스 세팅
 
-        //const circle = circular(center, radius, 64);
-        //circle.transform('EPSG:4326', projection);
-
-        //const circle = circular(transform(center, projection, 'EPSG:4326'), radius, 64);
-
-        //geometries[0].setCoordinates(circle.getCoordinates()); //측지선
-
-        //geometries[0].setCoordinates(feature.getGeometry().getCoordinates()); //일반 원
-
-        geometry.setGeometries(geometries);
-
-        feature.setGeometry(geometry);
-
-        feature.setProperties({ type: geomType, selectDrawType: selectDrawType, state: 'update', radius: radius });
-        /*
-        //console.log(feature);
-        */
         zonesPolygonCircle.value.push(feature);
     } else if (selectDrawType == 'PolygonGeodesic') {
-        //Circle 객체를 Polygon객체로 전환 후 저장
-        //console.log(feature);
         let center = feature.getGeometry().getCenter(); //중심값 세팅
-        //let radius = feature.getGeometry().getRadius(); //반지름 세팅
 
+        //Circle 객체를 Polygon객체로 전환 후 저장
         feature.setGeometry(fromCircle(feature.getGeometry(), 32)); //Circle 피쳐를 64개 점의 폴리곤 으로 변환
-        //feature.transform('EPSG:4326', projection);
-        //console.log(center);
-        //console.log(radius);
 
         let coordinates = feature.getGeometry().getCoordinates();
 
-        //console.log(coordinates[0][0]);
-
-        //center = transform(coordinates[0], projection, 'EPSG:4326');
         let last = coordinates[0][0];
-        let radius = getDistance(center, last);
-        console.log(' radisu   = ' + radius);
-        let geometry = new GeometryCollection([new Polygon(coordinates), new Point(center)]);
+        let radius = getDistance(center, last); //반지름 세팅
+        let geometry = new GeometryCollection([new Polygon(circular(center, radius, 64).getCoordinates()), new Point(center)]);
 
-        const geometries = geometry.getGeometries();
-        //console.log(geometries);
+        feature.setGeometry(geometry); //지오 데이터 세팅
+        feature.setProperties({ type: geomType, selectDrawType: selectDrawType, state: 'update', radius: radius }); //프로퍼티스 세팅
 
-        const circle = circular(center, radius, 64);
-        //circle.transform('EPSG:4326', projection);
-
-        //const circle = circular(transform(center, projection, 'EPSG:4326'), radius, 64);
-
-        geometries[0].setCoordinates(circle.getCoordinates()); //측지선
-
-        //geometries[0].setCoordinates(feature.getGeometry().getCoordinates()); //일반 원
-
-        geometry.setGeometries(geometries);
-
-        feature.setGeometry(geometry);
-
-        feature.setProperties({ type: geomType, selectDrawType: selectDrawType, state: 'update', radius: radius });
-        /*
-        //console.log(feature);
-        */
         zonesPolygonCircle.value.push(feature);
     }
 
@@ -962,7 +912,8 @@ const drawend = (event) => {
 const modifystart = (event) => {
     event.features.forEach(function (feature) {
         const geometry = feature.getGeometry();
-        console.log('수정 시작 = ' + geometry.getType());
+        console.log('수정 시작 - GeometryType:' + geometry.getType());
+
         if (geometry.getType() === 'GeometryCollection') {
             feature.set('modifyGeometry', geometry.clone(), true);
         }
@@ -970,131 +921,89 @@ const modifystart = (event) => {
 };
 
 const modifyend = (event) => {
-    console.log('수정 종료');
     event.features.forEach(async function (feature) {
-        //selectedFeatures.value.forEach(function (feature) {
-
+        const geometry = feature.getGeometry();
+        console.log('수정 종료 - GeometryType:' + geometry.getType());
         const modifyGeometry = feature.get('modifyGeometry');
 
         let featureType = feature.get('selectDrawType');
 
-        console.log(featureType);
-        console.log(event.features);
-
         if (modifyGeometry) {
+            // Circle Polygone Modify
             if (featureType == 'PolygonCircle') {
-                //let radius = getWidth(feature.getGeometry().getExtent()) / 2;
+                const geometries = feature.getGeometry().getGeometries(); //수정 후 지오데이터
+                const projection = map.value.map.getView().getProjection(); //좌표계
+                const center = geometries[1].getCoordinates(); //중심점(0. 폴리곤, 1. 중심점)
 
-                //const geometries = modifyGeometry.getGeometries();
-                const geometries = feature.getGeometry().getGeometries();
+                const coordinatesBF = modifyGeometry.getGeometries()[0].getCoordinates(); //변경 전 폴리곤 지오메트리
+                const coordinatesAF = geometries[0].getCoordinates(); //변경 후 폴리곤 지오메트리
 
-                const polygon = geometries[0].getCoordinates()[0];
-                const projection = map.value.map.getView().getProjection();
-                const center = geometries[1].getCoordinates(); // 이거 폴리곤이라 정확한 센터갑 가져올 수 없음...???
+                let last, radius;
 
-                const coordinatesBF = modifyGeometry.getGeometries()[0].getCoordinates();
-                const coordinatesAF = geometries[0].getCoordinates();
-
-                let first, last, radius, radiusBF;
-
-                first = transform(polygon[0], projection, 'EPSG:4326');
                 last = await getModifyPoint(coordinatesBF, coordinatesAF);
 
+                //if: 폴리곤 비교시 달라진 포인트 존재(새롭게 반지름 세팅), else: 폴리곤 전후 비교시 동일(중심점만이동 -> 이전 반지름 세팅)
                 if (last[0] != 0) {
-                    radius = getDistance(center, last);
-
+                    //반지름 세팅 (EPSG:3857(공식), EPSG:900913(통칭) -> EPSG:4326(WGS84))
+                    radius = getDistance(transform(center, 'EPSG:900913', 'EPSG:4326'), transform(last, 'EPSG:900913', 'EPSG:4326'));
                     feature.setProperties({ radius: radius });
                 } else {
                     radius = feature.get('radius');
-                    //console.log(feature);
                 }
 
-                console.log('first   = ' + first);
-                console.log('last   = ' + last);
-                console.log('center  = ' + center);
-                console.log('radius  = ' + radius);
+                let circle = fromCircle(new Circle(center, radius), 64); //원 지오메트리 세팅 후 폴리곤으로 전환
+                let geometry = new GeometryCollection([new Polygon(circle.getCoordinates()), new Point(center)]);
 
-                let circleTmp = new Circle(center, radius);
-                const circle = fromCircle(circleTmp, 32);
-
-                console.log(circle);
-                //circle.transform('EPSG:4326', projection);
-
-                let geometry = new GeometryCollection([new Polygon([]), new Point(center)]);
-                let geometries1 = geometry.getGeometries();
-
-                geometries1[0].setCoordinates(circle.getCoordinates());
-
-                geometry.setGeometries(geometries1);
                 feature.setGeometry(geometry);
             } else if (featureType == 'PolygonGeodesic') {
-                //let radius = getWidth(feature.getGeometry().getExtent()) / 2;
+                const geometries = feature.getGeometry().getGeometries(); //수정 후 지오데이터
+                const projection = map.value.map.getView().getProjection(); //좌표계
+                const center = geometries[1].getCoordinates(); //수정 후 중심점
 
-                //const geometries = modifyGeometry.getGeometries();
-                const geometries = feature.getGeometry().getGeometries();
+                const coordinatesBF = modifyGeometry.getGeometries()[0].getCoordinates(); //수정 전 지오메트리 데이터
+                const coordinatesAF = geometries[0].getCoordinates(); //수정 후 지오메트리 데이터
 
-                const polygon = geometries[0].getCoordinates()[0];
-                const projection = map.value.map.getView().getProjection();
-                const center = geometries[1].getCoordinates(); // 이거 폴리곤이라 정확한 센터갑 가져올 수 없음...???
+                let last, radius;
 
-                const coordinatesBF = modifyGeometry.getGeometries()[0].getCoordinates();
-                const coordinatesAF = geometries[0].getCoordinates();
-
-                let first, last, radius, radiusBF;
-
-                first = transform(polygon[0], projection, 'EPSG:4326');
                 last = await getModifyPoint(coordinatesBF, coordinatesAF);
 
+                //if: 폴리곤 비교시 달라진 포인트 존재(새롭게 반지름 세팅), else: 폴리곤 전후 비교시 동일(중심점만이동 -> 이전 반지름 세팅)
                 if (last[0] != 0) {
                     radius = getDistance(center, last);
                     feature.setProperties({ radius: radius });
                 } else {
                     radius = feature.get('radius');
-                    console.log(feature);
                 }
 
-                console.log('first   = ' + first);
-                console.log('last   = ' + last[0]);
-                console.log('center  = ' + center);
-                console.log('radius  = ' + radius);
+                //Geodsec 데이터를 폴리곤으로 전환하여 중심점과 함께 세팅
+                let circle = circular(transform(center, projection, 'EPSG:4326'), radius, 64);
+                let geometry = new GeometryCollection([new Polygon(circle.getCoordinates()), new Point(center)]);
 
-                const circle = circular(transform(center, projection, 'EPSG:4326'), radius, 64);
-                circle.transform('EPSG:4326', projection);
-
-                let geometry = new GeometryCollection([new Polygon([]), new Point(center)]);
-                let geometries1 = geometry.getGeometries();
-
-                geometries1[0].setCoordinates(circle.getCoordinates());
-
-                geometry.setGeometries(geometries1);
                 feature.setGeometry(geometry);
             }
 
-            feature.unset('modifyGeometry', true);
+            feature.unset('modifyGeometry', true); //수정된 지도데이터 제거
         }
     });
 };
 
+/* Feature 변경이 일어났을때 이전과 비교하여 변경된 포인트를 Return */
 function getModifyPoint(coordinatesBF, coordinatesAF) {
     return new Promise((resolve, reject) => {
         let modifyPoint = [0, 0];
 
         coordinatesAF[0].forEach(function (point, index) {
             if (point.join() != coordinatesBF[0][index].join()) {
-                console.log('-------------------------- getModifyPoint ');
-                console.log(point);
-                //console.log(coordinatesBF[0][1]);
-                console.log('-------------------------- getModifyPoint ');
                 modifyPoint = point;
-                //reject(point);
             }
         });
+
         resolve(modifyPoint);
-        /*
+
+        /* 일정 시간 후에도 연산 실패시 PROMISS REJECT(실패)
         setTimeout(() => {
-            console.log('A');
             reject('Fail');
-        }, 1000);
+        }, 3000);
         */
     });
 }
