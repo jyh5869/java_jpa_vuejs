@@ -139,10 +139,10 @@
                 </ol-source-vector>
 
                 <ol-style>
-                    <ol-style-stroke color="green" :width="2"></ol-style-stroke>
+                    <ol-style-stroke color="puple" :width="2"></ol-style-stroke>
                     <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
-                    <ol-style-circle :radius="5">
-                        <ol-style-stroke color="green" :width="2"></ol-style-stroke>
+                    <ol-style-circle :radius="2">
+                        <ol-style-stroke color="puple" :width="2"></ol-style-stroke>
                         <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
                     </ol-style-circle>
                 </ol-style>
@@ -488,8 +488,9 @@ export default {
                         featArray[i].setProperties({ type: geomType, state: 'update' });
                     }
 
+                    console.log(geomType);
+                    console.log(type);
                     if (geomType == type) {
-                        console.log(geomType);
                         if (geomType == 'Circle') {
                             /* 중심점과 radius 가 있으면 Circle geometry 를 관리할 수 있음. */
                             let radius = featArray[i].getGeometry().getRadius();
@@ -515,6 +516,28 @@ export default {
 
                             selectedFeatures.push(featArray[i]);
                         }
+                    } else {
+                        if (type == 'PolygonCircle') {
+                            console.log('PolygonCircle');
+
+                            let radius = featArray[i].getGeometry().getRadius();
+                            let center = featArray[i].getGeometry().getCenter();
+
+                            let feature = new Feature({
+                                type: geomType,
+                                geometry: new Point(center),
+                                radius: radius,
+                                //id: i,
+                            });
+                            feature.setId(featArray[i].getId());
+                            if (id == undefined) {
+                                feature.setProperties({ type: geomType, state: 'insert' });
+                            } else {
+                                feature.setProperties({ type: geomType, state: 'update' });
+                            }
+                        } else if (type == 'PolygonGeodesic') {
+                            console.log('PolygonGeodesic');
+                        }
                     }
                 }
                 return selectedFeatures;
@@ -524,6 +547,7 @@ export default {
             var polygonArray = await filterGeometry(zonesPolygon.value, 'Polygon');
             var pointArray = await filterGeometry(zonesPoint.value, 'Point');
             var circleArray = await filterGeometry(zonesCircle.value, 'Circle');
+            var polygonCircleArray = await filterGeometry(zonesPolygonCircle.value, 'PolygonCircle');
 
             var GeoJSONFormat = new GeoJSON();
 
@@ -531,8 +555,10 @@ export default {
             console.log(GeoJSONFormat.writeFeatures(lineStringArray));
             console.log(GeoJSONFormat.writeFeatures(pointArray));
             console.log(GeoJSONFormat.writeFeatures(circleArray));
+            console.log(GeoJSONFormat.writeFeatures(polygonCircleArray));
 
             console.log('checkYn------------------------------------>' + this.useYn);
+            /*
             const result = await this.$axios({
                 method: 'get',
                 url: '/api/setGeomBoard',
@@ -565,6 +591,7 @@ export default {
                 console.log(result.data);
                 this.getBoardList();
             }
+            */
         },
         geomEvent: async function (targetFeature, position) {
             let targetFeatureId = targetFeature.getId();
