@@ -50,7 +50,7 @@ public class GeomBoardController {
     * @param  null
     * @throws Exception
     */
-    @GetMapping(value = {"/setGeomBoard"})
+    @PostMapping(value = {"/setGeomBoard"})
     public String setGeomBoard(@Valid BoardDto boardDTO) throws Exception {
 
         System.out.println("---------SET GEOMETRY BOARD PARAMS-----------");
@@ -88,7 +88,8 @@ public class GeomBoardController {
         boardFirebaseService.setGeomdData(Integer.parseInt(boardDTO.getBoardSq()), boardDTO.getGeomPolygons() );
         boardFirebaseService.setGeomdData(Integer.parseInt(boardDTO.getBoardSq()), boardDTO.getGeomLineStrings());
         boardFirebaseService.setGeomdData(Integer.parseInt(boardDTO.getBoardSq()), boardDTO.getGeomPoints());
-        boardFirebaseService.setGeomdData(Integer.parseInt(boardDTO.getBoardSq()), boardDTO.getGeomCircles());
+        boardFirebaseService.setGeomdData(Integer.parseInt(boardDTO.getBoardSq()), boardDTO.getGeomCircles());     
+        boardFirebaseService.setGeomdData(Integer.parseInt(boardDTO.getBoardSq()), boardDTO.getGeomPolygonCircles());    
 
         boardFirebaseService.setBoardData(boardDTO.getId(), boardDTO);
 

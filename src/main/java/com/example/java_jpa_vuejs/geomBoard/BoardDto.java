@@ -41,6 +41,8 @@ public class BoardDto {
 
 	private String geomCircles;
 
+	private String geomPolygonCircles;
+
 	private String[] geomDeleteArr;
 
 	private String userEmail;

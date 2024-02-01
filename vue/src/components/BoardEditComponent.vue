@@ -131,7 +131,7 @@
                     </ol-interaction-draw> -->
                     <ol-interaction-snap v-if="modifyEnabled" />
 
-                    <ol-overlay :ref="'lineString_ovl_' + item.getId()" class="overlay-wrap" :id="'polygon_ovl_' + item.getId()" v-for="(item, index) in zonesPolygonCircle" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
+                    <ol-overlay :ref="'lineString_ovl_' + item.getId()" class="overlay-wrap" :id="'polygonCircle_ovl_' + item.getId()" v-for="(item, index) in zonesPolygonCircle" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
                         <template v-slot="position">
                             <div class="overlay-content" @click="geomEvent(item, position)"></div>
                         </template>
@@ -273,7 +273,7 @@ import { getCenter } from 'ol/extent';
 import { getWidth } from 'ol/extent';
 
 import { getDistance } from 'ol/sphere';
-import { sphere } from 'ol/';
+//import { sphere } from 'ol/';
 import { transform } from 'ol/proj';
 import { circular } from 'ol/geom/Polygon';
 
@@ -455,6 +455,23 @@ export default {
                         feature.setProperties({ type: geomType, state: 'update' });
 
                         zonesCircle.value.push(feature);
+                    } else if (geomType == 'GeometryCollection') {
+                        console.log('--- Set GeometryCollection ---');
+
+                        let polygon = geometry.geometries[0].coordinates;
+                        let center = geometry.geometries[1].coordinates;
+                        let radius = properties.radius;
+                        let selectDrawType = properties.selectDrawType;
+
+                        let feature = new Feature({
+                            type: 'Feature',
+                            geometry: new GeometryCollection([new Polygon(polygon), new Point(center)]),
+                        });
+
+                        feature.setId(geomId);
+                        feature.setProperties({ type: geomType, selectDrawType: selectDrawType, radius: radius, state: 'update', id: geomId });
+
+                        zonesPolygonCircle.value.push(feature);
                     }
                 });
 
@@ -475,7 +492,7 @@ export default {
             */
             function filterGeometry(collection, type) {
                 var selectedFeatures = [];
-                //var featArray = collection.getArray();
+
                 var featArray = collection;
 
                 for (var i = 0; i < featArray.length; i++) {
@@ -488,8 +505,6 @@ export default {
                         featArray[i].setProperties({ type: geomType, state: 'update' });
                     }
 
-                    console.log(geomType);
-                    console.log(type);
                     if (geomType == type) {
                         if (geomType == 'Circle') {
                             /* 중심점과 radius 가 있으면 Circle geometry 를 관리할 수 있음. */
@@ -511,32 +526,19 @@ export default {
 
                             selectedFeatures.push(feature);
                         } else {
-                            //featArray[i].setProperties({ type: geomType });
-                            //featArray[i].setId(i);
-
                             selectedFeatures.push(featArray[i]);
                         }
                     } else {
+                        if (id == undefined) {
+                            featArray[i].setProperties({ type: geomType, state: 'insert' });
+                        } else {
+                            featArray[i].setProperties({ type: geomType, state: 'update' });
+                        }
+
                         if (type == 'PolygonCircle') {
-                            console.log('PolygonCircle');
-
-                            let radius = featArray[i].getGeometry().getRadius();
-                            let center = featArray[i].getGeometry().getCenter();
-
-                            let feature = new Feature({
-                                type: geomType,
-                                geometry: new Point(center),
-                                radius: radius,
-                                //id: i,
-                            });
-                            feature.setId(featArray[i].getId());
-                            if (id == undefined) {
-                                feature.setProperties({ type: geomType, state: 'insert' });
-                            } else {
-                                feature.setProperties({ type: geomType, state: 'update' });
-                            }
+                            selectedFeatures.push(featArray[i]);
                         } else if (type == 'PolygonGeodesic') {
-                            console.log('PolygonGeodesic');
+                            selectedFeatures.push(featArray[i]);
                         }
                     }
                 }
@@ -557,10 +559,8 @@ export default {
             console.log(GeoJSONFormat.writeFeatures(circleArray));
             console.log(GeoJSONFormat.writeFeatures(polygonCircleArray));
 
-            console.log('checkYn------------------------------------>' + this.useYn);
-            /*
             const result = await this.$axios({
-                method: 'get',
+                method: 'post',
                 url: '/api/setGeomBoard',
                 params: {
                     actionType: this.actionType,
@@ -570,6 +570,7 @@ export default {
                     geomLineStrings: encodeURI(GeoJSONFormat.writeFeatures(lineStringArray)),
                     geomPoints: encodeURI(GeoJSONFormat.writeFeatures(pointArray)),
                     geomCircles: encodeURI(GeoJSONFormat.writeFeatures(circleArray)),
+                    geomPolygonCircles: encodeURI(GeoJSONFormat.writeFeatures(polygonCircleArray)),
                     geomDeleteArr: encodeURI(zonesDelete.value),
                     userEmail: this.userEmail,
                     userNm: this.userNm,
@@ -591,7 +592,6 @@ export default {
                 console.log(result.data);
                 this.getBoardList();
             }
-            */
         },
         geomEvent: async function (targetFeature, position) {
             let targetFeatureId = targetFeature.getId();
@@ -709,6 +709,14 @@ export default {
                         });
 
                         selectedFlag = true;
+                    }
+                } else {
+                    console.log('polygonCircle action');
+                    let circleDom = document.querySelector('#polygonCircle_ovl_' + geomId);
+
+                    if (!circleDom.classList.contains('active')) {
+                        circleDom.classList.add('active');
+                        circleDom.style.display = 'block';
                     }
                 }
             }
