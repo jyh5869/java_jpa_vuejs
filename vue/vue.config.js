@@ -3,14 +3,15 @@
 //   transpileDependencies: true
 // })
 module.exports = {
-  outputDir: "../src/main/resources/static",  // 빌드 타겟 디렉토리
-  devServer: {
-    proxy: {
-      '/api': {
-        // '/api' 로 들어오면 포트 8081(스프링 서버)로 보낸다
-        target: 'http://localhost:8000',
-        changeOrigin: true // cross origin 허용
-      }
-    }
-  }
+    outputDir: '../src/main/resources/static', // 빌드 타겟 디렉토리
+    devServer: {
+        proxy: {
+            '/api': {
+                // '/api' 로 들어오면 포트 8081(스프링 서버)로 보낸다
+                target: 'http://localhost:8000',
+                changeOrigin: true, // cross origin 허용
+                //webSocketURL: webpackArgv.nodeEnv === 'local' ? { hostname: undefined, pathname: undefined, port: '0' } : 'ws://192.168.0.8:443/ws',
+            },
+        },
+    },
 };

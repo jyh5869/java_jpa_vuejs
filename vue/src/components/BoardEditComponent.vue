@@ -11,7 +11,7 @@
         <!-- ※ 체크박스로 그리기 및 수정여부 선택 할수 있도록 하는 마크업
         <input type="checkbox" id="checkbox" v-model="drawEnable" />
         <label for="checkbox">Draw Enable</label>
-    -->
+        -->
         <div>
             <button @click="drawEnabled = !drawEnabled">Draw</button>
             <span>{{ '  ' + drawEnabled + '  ' }}</span>
@@ -68,11 +68,11 @@
                 <ol-source-vector :features="zonesPolygon" ref="source">
                     <!-- <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify> -->
                     <!-- <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend">
-                    <ol-style>
-                        <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
-                        <ol-style-fill color="rgba(255, 255, 0, 0.4)"></ol-style-fill>
-                    </ol-style>
-                </ol-interaction-draw> -->
+                        <ol-style>
+                            <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
+                            <ol-style-fill color="rgba(255, 255, 0, 0.4)"></ol-style-fill>
+                        </ol-style>
+                    </ol-interaction-draw> -->
                     <ol-interaction-snap v-if="modifyEnabled" />
                     <ol-overlay :ref="'lineString_ovl_' + item.getId()" class="overlay-wrap" :id="'polygon_ovl_' + item.getId()" v-for="(item, index) in zonesPolygon" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
                         <template v-slot="position">
@@ -121,14 +121,6 @@
 
             <ol-vector-layer>
                 <ol-source-vector :features="zonesPolygonCircle" ref="source">
-                    <!-- <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures" @modifystart="insertVertexCondition"></ol-interaction-modify> -->
-                    <!-- <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures" :insertVertexCondition="insertVertexCondition()" :condition="chgPolygonCircle" :deleteCondition  @modifystart="modifystart" @modifyend="modifyend"></ol-interaction-modify> -->
-                    <!-- <ol-interaction-draw v-if="drawEnabled" :stopClick="true" :type="drawType" @drawstart="drawstart" @drawend="drawend">
-                        <ol-style>
-                            <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
-                            <ol-style-fill color="rgba(255, 255, 0, 0.4)"></ol-style-fill>
-                        </ol-style>
-                    </ol-interaction-draw> -->
                     <ol-interaction-snap v-if="modifyEnabled" />
 
                     <ol-overlay :ref="'lineString_ovl_' + item.getId()" class="overlay-wrap" :id="'polygonCircle_ovl_' + item.getId()" v-for="(item, index) in zonesPolygonCircle" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
@@ -150,7 +142,6 @@
 
             <ol-vector-layer>
                 <ol-source-vector :features="zonesLineString" ref="source">
-                    <!-- <ol-interaction-modify v-if="modifyEnabled" :features="selectedFeatures"></ol-interaction-modify> -->
                     <ol-interaction-snap v-if="modifyEnabled" />
 
                     <ol-overlay :ref="'lineString_ovl_' + item.getId()" :class="'overlay-wrap' + item.getId()" :id="'lineString_ovl_' + item.getId()" v-for="(item, index) in zonesLineString" :key="index" :position="[item.getGeometry().getExtent()[2], item.getGeometry().getExtent()[3]]">
@@ -273,7 +264,6 @@ import { getCenter } from 'ol/extent';
 import { getWidth } from 'ol/extent';
 
 import { getDistance } from 'ol/sphere';
-//import { sphere } from 'ol/';
 import { transform } from 'ol/proj';
 import { circular } from 'ol/geom/Polygon';
 
@@ -368,7 +358,6 @@ export default {
             });
         },
         zoomChanged: await function (zoomLevel) {
-            //console.log('줌 레벨 변경 : ' + zoomLevel);
             currentZoom.value = zoomLevel;
         },
         initMap: await function () {
