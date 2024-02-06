@@ -789,7 +789,7 @@ export default {
             if (confirm('글을 삭제하시겠습니까?')) {
                 const result = await this.$axios({
                     method: 'get',
-                    url: '/api/setGeomBoard',
+                    url: '/api/setTensorFlow',
                     params: {
                         boardSq: this.boardSq,
                         actionType: 'delete',
@@ -968,7 +968,7 @@ const modifyend = (event) => {
 
                 //if: 폴리곤 비교시 달라진 포인트 존재(새롭게 반지름 세팅), else: 폴리곤 전후 비교시 동일(중심점만이동 -> 이전 반지름 세팅)
                 if (last[0] != 0) {
-                    //반지름 세팅 (EPSG:3857(공식), EPSG:900913(통칭) -> EPSG:4326(WGS84))
+                    // 반지름 세팅: EPSG:3857(공식)/EPSG:900913(통칭) -> EPSG:4326(WGS84)
                     radius = getDistance(transform(center, 'EPSG:900913', 'EPSG:4326'), transform(last, 'EPSG:900913', 'EPSG:4326'));
                     feature.setProperties({ radius: radius });
                 } else {
