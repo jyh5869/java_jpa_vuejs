@@ -32,8 +32,6 @@ public class HelloTensorFlow {
 
     final private static Logger LOG = Logger.getGlobal();
 
-
-
     /**
     * @method 클라우드를 통한 리스트 호출
     * @param  null
@@ -49,16 +47,16 @@ public class HelloTensorFlow {
         try (ConcreteFunction dbl = ConcreteFunction.create(HelloTensorFlow::dbl);
             Tensor<TInt32> x = TInt32.scalarOf(10);
             Tensor<TInt32> dblX = dbl.call(x).expect(TInt32.DTYPE)) {
-          System.out.println(x.data().getInt() + " doubled is " + dblX.data().getInt());
+            System.out.println(x.data().getInt() + " doubled is " + dblX.data().getInt());
         }
 
         return retMap;
     }
 
     private static Signature dbl(Ops tf) {
-      Placeholder<TInt32> x = tf.placeholder(TInt32.DTYPE);
-      Add<TInt32> dblX = tf.math.add(x, x);
-      return Signature.builder().input("x", x).output("dbl", dblX).build();
+        Placeholder<TInt32> x = tf.placeholder(TInt32.DTYPE);
+        Add<TInt32> dblX = tf.math.add(x, x);
+        return Signature.builder().input("x", x).output("dbl", dblX).build();
     }
 
 }
