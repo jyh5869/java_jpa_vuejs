@@ -789,7 +789,7 @@ export default {
             if (confirm('글을 삭제하시겠습니까?')) {
                 const result = await this.$axios({
                     method: 'get',
-                    url: '/api/setTensorFlow',
+                    url: '/api/setGeomBoard',
                     params: {
                         boardSq: this.boardSq,
                         actionType: 'delete',

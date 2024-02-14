@@ -12,7 +12,9 @@ import org.tensorflow.op.core.Placeholder;
 import org.tensorflow.op.math.Add;
 import org.tensorflow.types.TInt32;
 
+import com.example.java_jpa_vuejs.auth.repositoryService.SignService;
 import com.example.java_jpa_vuejs.common.PaginationDto;
+import com.example.java_jpa_vuejs.geomBoard.entity.GeometryBoard;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,8 @@ public class HelloTensorFlow {
 
     final private static Logger LOG = Logger.getGlobal();
 
+    private final TensorDataService tensorDataService;
+
     /**
     * @method 클라우드를 통한 리스트 호출
     * @param  null
@@ -39,6 +43,8 @@ public class HelloTensorFlow {
     */
     @GetMapping("/setTensorFlow")
     public Map<String, Object> index(@Valid PaginationDto paginationDto) throws Exception {
+
+        tensorDataService.getAddrData();
 
         Map<String, Object> retMap = new HashMap<String, Object>();
 
