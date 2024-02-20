@@ -24,6 +24,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "TN_SPRD_RDNM")
 public class Roads {
     
+	@Id
 	@Column(name="SIG_CD")
 	private int sigCd;
 
