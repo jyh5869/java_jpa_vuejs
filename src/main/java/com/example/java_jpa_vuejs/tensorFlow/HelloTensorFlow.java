@@ -41,7 +41,7 @@ public class HelloTensorFlow {
     * @param  null
     * @throws Exception
     */
-    @GetMapping("/setTensorFlow")
+    @GetMapping("/noAuth/getSearchAddr")
     public Map<String, Object> index(@Valid PaginationDto paginationDto) throws Exception {
 
         tensorDataService.getAddrData();

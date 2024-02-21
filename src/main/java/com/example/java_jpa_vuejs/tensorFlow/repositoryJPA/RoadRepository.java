@@ -20,7 +20,7 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.Optional;
 
 
-public interface RoadRepository extends CrudRepository<GeometryBoard, Long> {
+public interface RoadRepository extends CrudRepository<Roads, Long> {
 
     //Optional<Members> findByEmail(String email);
     //Optional<Members> findByEmailAndDeleteYn(String email, String deleteYn);

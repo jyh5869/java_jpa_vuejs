@@ -72,6 +72,7 @@
             <input type="button" class="fadeIn fourth" value="Information Change(Login)" v-if="accessPath == 'login'" @click="userManagement()" />
             <input type="button" class="fadeIn fourth" value="Information Change(EmailAuth)" v-if="accessPath == 'emailAuth'" @click="userManagementAuthEmail('MODIFY')" />
 
+            <input type="button" class="fadeIn fourth small" @click="callTensorFlow()" value="텐서플로우 호출" />
             <!-- Remind Passowrd -->
             <!-- <div id="formFooter"><a class="underlineHover" href="javascript:void(0);">Forgot Password?</a></div> -->
             <div id="formFooter" v-if="accessType == 'MODIFY'">
@@ -615,6 +616,20 @@ export default {
                 document.querySelector('#userId').disabled = false;
 
                 alert('인증 코드가 일치하지 않거나 유효기간이 지난 코드입니다.\n코드를 다시 발급받아 주세요.');
+            }
+        },
+        callTensorFlow: async function () {
+            const result = await this.$axios({
+                method: 'GET',
+                url: '/api/noAuth/getSearchAddr',
+                params: {},
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (result.status === 200) {
+                //this.id = result.data.id;
             }
         },
     },
