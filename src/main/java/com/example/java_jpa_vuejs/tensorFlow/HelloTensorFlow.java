@@ -15,6 +15,7 @@ import org.tensorflow.types.TInt32;
 import com.example.java_jpa_vuejs.auth.repositoryService.SignService;
 import com.example.java_jpa_vuejs.common.PaginationDto;
 import com.example.java_jpa_vuejs.geomBoard.entity.GeometryBoard;
+import com.example.java_jpa_vuejs.tensorFlow.entity.Roads;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +45,9 @@ public class HelloTensorFlow {
     @GetMapping("/noAuth/getSearchAddr")
     public Map<String, Object> index(@Valid PaginationDto paginationDto) throws Exception {
 
-        tensorDataService.getAddrData();
+        Iterable<Roads> list = tensorDataService.getAddrData();
+
+        
 
         Map<String, Object> retMap = new HashMap<String, Object>();
 

@@ -24,7 +24,7 @@ public class TensorDataServiceImpl implements TensorDataService {
 	/*
 	 * 회원 가입
 	 */
-	public void getAddrData() {
+	public Iterable<Roads> getAddrData() {
 
 		// 아이디 중복체크
 		//if (!Empty.validation(memberRepository.countByEmail(joinDto.getEmail())))
@@ -36,6 +36,11 @@ public class TensorDataServiceImpl implements TensorDataService {
 
 		Pageable pageable =  PageRequest.of(1, 10);//페이징 객체 선언
 		Page<Roads> list = roadsRepository.findAll(pageable);
+
+		for(int i = 0 ; i < list.getSize(); i ++){
+			System.out.println(list.getTotalElements());
+		}
+		return list;
 	}
     
 }

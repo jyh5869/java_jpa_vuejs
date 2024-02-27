@@ -26,37 +26,37 @@ public class Roads {
     
 	@Id
 	@Column(name="SIG_CD")
-	private int sigCd;
+	private String sigCd;
 
 	@Column(name="RN_CD")
 	private String rnCd;
 
     @Column(name="EMD_NO")
-	private int emdNo;
+	private String emdNo;
 
 	@Column(name="RN")
 	private String rn;
 
     @Column(name="ENG_NM")
-	private int engNm;
+	private String engNm;
 
 	@Column(name="SIDO_NM")
 	private String sidoNm;
 
     @Column(name="SGG_NM")
-	private int sggNm;
+	private String sggNm;
 
 	@Column(name="EMD_SE")
 	private String emdSe;
 
     @Column(name="EMD_CD")
-	private int emdCd;
+	private String emdCd;
 
 	@Column(name="EMD_NM")
 	private String emdNm;
 
     @Column(name="USE_YN")
-	private int useYn;
+	private String useYn;
 
 	@Column(name="ALWNC_RESN")
 	private String alwncResn;
@@ -68,19 +68,19 @@ public class Roads {
 	private String aftchInfo;
 
     @Column(name="CTP_ENG_NM")
-	private int ctpEngNm;
+	private String ctpEngNm;
 
 	@Column(name="SIG_ENG_NM")
 	private String sigEngNm;
 
     @Column(name="EMD_ENG_NM")
-	private int emdEngNm;
+	private String emdEngNm;
 
 	@Column(name="BEGIN_BSIS")
 	private String beginBsis;
 
     @Column(name="END_BSIS")
-	private int endBsis;
+	private String endBsis;
 
 	@Column(name="EFFECT_DE")
 	private String effectDe;
