@@ -22,25 +22,19 @@ public class TensorDataServiceImpl implements TensorDataService {
 	
 	private final RoadRepository roadsRepository;
 	/*
-	 * 회원 가입
+	 * 도로명 데이터 가져오기
 	 */
 	public Iterable<Roads> getAddrData() {
+		
 
-		// 아이디 중복체크
-		//if (!Empty.validation(memberRepository.countByEmail(joinDto.getEmail())))
-		//	throw new DuplicatedException("Duplicated ID");
+		//Pageable pageable =  PageRequest.of(0, 100);//페이징 객체 선언
+		//Page<Roads> list = roadsRepository.findAll(pageable);
 
-		// 데이터 등록(저장)
-		//memberRepository.save(joinDto.toEntity());
+		//Iterable<Roads> list = roadsRepository.findAll();
 
+		Iterable<Roads> list2 = roadsRepository.getAllRoads();
 
-		Pageable pageable =  PageRequest.of(1, 10);//페이징 객체 선언
-		Page<Roads> list = roadsRepository.findAll(pageable);
-
-		for(int i = 0 ; i < list.getSize(); i ++){
-			System.out.println(list.getTotalElements());
-		}
-		return list;
+		return list2;
 	}
     
 }

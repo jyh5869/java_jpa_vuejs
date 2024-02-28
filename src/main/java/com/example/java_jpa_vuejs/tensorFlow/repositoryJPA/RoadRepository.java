@@ -1,62 +1,35 @@
 package com.example.java_jpa_vuejs.tensorFlow.repositoryJPA;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
-import com.example.java_jpa_vuejs.auth.JoinDto;
 import com.example.java_jpa_vuejs.auth.entity.Members;
-import com.example.java_jpa_vuejs.controller.GeomBoardController;
-import com.example.java_jpa_vuejs.geomBoard.entity.GeometryBoard;
 import com.example.java_jpa_vuejs.tensorFlow.entity.Roads;
 
-import jakarta.transaction.Transactional;
 
-import org.springframework.data.repository.CrudRepository;
-
+import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 
 public interface RoadRepository extends CrudRepository<Roads, Long> {
 
-    //Optional<Members> findByEmail(String email);
-    //Optional<Members> findByEmailAndDeleteYn(String email, String deleteYn);
+    Optional<Roads> findByRn(String email);
 
-    //Optional<Members> findById(String id);    
-/* 
-    @Query(value =
-            "SELECT COUNT(*) " +
-            "FROM MEMBERS " +
-            "WHERE EMAIL = :email AND DELETE_YN = 'N'", nativeQuery = true)
-    Integer countByEmail(@Param("email") String email);
+    //Page<Roads> findAll(Pageable pageable);
+
+    //Iterable<Roads> findAll();
 
     @Query(value =
-            "SELECT COUNT(*) " +
-            "FROM MEMBERS " +
-            "WHERE MOBILE = :mobile ", nativeQuery = true)
-    Integer countByMobile(@Param("mobile") String mobile);
+            "SELECT * " +
+            "FROM TN_SPRD_RDNM " +
+            "limit 10", nativeQuery = true)
+    Iterable<Roads> getAllRoads();
 
-    
-    @Modifying
-    @Transactional
-    @Query(value =
-            "INSERT INTO MEMBERS " + 
-            "      (id ,email,  password,  name,  mobile,  nickname,  profile, delete_yn) " +
-            "VALUES( (select Max(id) + 1 from MEMBERS A), :#{#regInfo.email}, :#{#regInfo.password}, :#{#regInfo.name}, :#{#regInfo.mobile}, :#{#regInfo.nickname}, :#{#regInfo.profile}, 'N') ", nativeQuery = true)
-    void userRegistration(@Param(value = "regInfo") JoinDto joinDto);
-        
-    @Query(value = "SELECT IFNULL(MAX(ID)+1, 0) FROM MEMBERS", nativeQuery = true)
-    long getLastIdex();
-
-    @Modifying
-    @Transactional
-    @Query(value = "UPDATE MEMBERS SET DELETE_YN = 'Y' WHERE ID = :deleteId ", nativeQuery = true)
-    Integer setDeleteUser(@Param("deleteId") String deleteId);
-*/
-    Page<Roads> findAll(Pageable pageable);
+    //List<Roads> getAllRoads();
 }
 
 

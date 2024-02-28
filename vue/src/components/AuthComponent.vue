@@ -630,6 +630,7 @@ export default {
 
             if (result.status === 200) {
                 //this.id = result.data.id;
+                console.log(result);
             }
         },
     },

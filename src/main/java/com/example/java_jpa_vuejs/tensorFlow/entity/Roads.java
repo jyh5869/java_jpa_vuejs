@@ -1,8 +1,13 @@
 package com.example.java_jpa_vuejs.tensorFlow.entity;
 
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+
+import com.example.java_jpa_vuejs.geomBoard.entity.GeometryBoard;
+import com.example.java_jpa_vuejs.tensorFlow.model.RoadDTO;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,7 +29,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "TN_SPRD_RDNM")
 public class Roads {
     
-	@Id
+	@Id	
 	@Column(name="SIG_CD")
 	private String sigCd;
 
@@ -62,9 +67,10 @@ public class Roads {
 	private String alwncResn;
 
     @Column(name="CHGHY")
-	private int chghy;
+	@ColumnDefault("0")
+	private String chghy;
 
-	@Column(name="AFTCH_INFO")
+	@Column(name="AFTCH_INFO", length = 1000)
 	private String aftchInfo;
 
     @Column(name="CTP_ENG_NM")
@@ -86,5 +92,34 @@ public class Roads {
 	private String effectDe;
 
     @Column(name="ERSR_DE", length = 240)
-	private int ersrDe;
+	private String ersrDe;
+
+
+	public RoadDTO toDto(Roads roadEntity) {
+
+		RoadDTO roadDto = new RoadDTO();
+
+		roadDto.setSigCd( roadEntity.sigCd);
+		roadDto.setRnCd( roadEntity.rnCd);
+		roadDto.setEmdNo( roadEntity.emdNo);
+		roadDto.setRn( roadEntity.rn);
+		roadDto.setEngNm( roadEntity.engNm);
+		roadDto.setSidoNm( roadEntity.sidoNm);
+		roadDto.setSggNm( roadEntity.sggNm);
+		roadDto.setEmdSe( roadEntity.emdSe);
+		roadDto.setEmdCd( roadEntity.emdCd);
+		roadDto.setEmdNm( roadEntity.emdNm);
+		roadDto.setUseYn( roadEntity.useYn);
+		roadDto.setAlwncResn( roadEntity.alwncResn);
+		roadDto.setAftchInfo( roadEntity.aftchInfo);
+		roadDto.setCtpEngNm( roadEntity.ctpEngNm);
+		roadDto.setSigEngNm( roadEntity.sigEngNm);
+		roadDto.setEmdEngNm( roadEntity.emdEngNm);
+		roadDto.setBeginBsis( roadEntity.beginBsis);
+		roadDto.setEndBsis( roadEntity.endBsis);
+		roadDto.setEffectDe( roadEntity.effectDe);
+		roadDto.setErsrDe( roadEntity.ersrDe);
+		
+		return roadDto;
+	}
 }
