@@ -1,5 +1,7 @@
 package com.example.java_jpa_vuejs.tensorFlow;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,11 +32,11 @@ public class TensorDataServiceImpl implements TensorDataService {
 		//Pageable pageable =  PageRequest.of(0, 100);//페이징 객체 선언
 		//Page<Roads> list = roadsRepository.findAll(pageable);
 
-		//Iterable<Roads> list = roadsRepository.findAll();
+		Iterable<Roads> list = roadsRepository.findAll();
 
-		Iterable<Roads> list2 = roadsRepository.getAllRoads();
+		//Iterable<Roads> list2 = roadsRepository.getAllRoads();
 
-		return list2;
+		return list;
 	}
     
 }

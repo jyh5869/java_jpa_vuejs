@@ -62,11 +62,12 @@ public class HelloTensorFlow {
         Iterator<Roads> itr = list.iterator();
 
         //리턴 리스트에 담기위한 형식변경
+        int idx = 0;
         while(itr.hasNext()){ 
-        
+            idx++;
             Roads RoadEntity = itr.next();
             RoadDTO boardDto = RoadEntity.toDto(RoadEntity);
-            System.out.println(boardDto.getRn());
+            System.out.println(idx + "      - "+boardDto.getRn());
             Map<String, Object> map = objectMapper.convertValue(boardDto, new TypeReference<Map<String, Object>>() {});
 
             retList.add(map);

@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RoadRepository extends CrudRepository<Roads, Long> {
 
@@ -21,12 +22,12 @@ public interface RoadRepository extends CrudRepository<Roads, Long> {
 
     //Page<Roads> findAll(Pageable pageable);
 
-    //Iterable<Roads> findAll();
+    Iterable<Roads> findAll();
 
     @Query(value =
             "SELECT * " +
             "FROM TN_SPRD_RDNM " +
-            "limit 10", nativeQuery = true)
+            "limit 20", nativeQuery = true)
     Iterable<Roads> getAllRoads();
 
     //List<Roads> getAllRoads();
