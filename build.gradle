@@ -69,6 +69,7 @@ dependencies {
 	//implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
 	implementation group: 'org.tensorflow', name: 'tensorflow-core-platform', version: '0.2.0'
+	
 }
 
 tasks.named('test') {
