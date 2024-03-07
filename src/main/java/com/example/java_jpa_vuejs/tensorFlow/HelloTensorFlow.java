@@ -15,6 +15,9 @@ import org.tensorflow.types.TInt32;
 import org.tensorflow.SavedModelBundle;
 import org.tensorflow.Session;
 
+//import org.renjin.cran.keras.model.Sequential;
+//import org.tensorflow.keras.models.Sequential;
+
 import com.example.java_jpa_vuejs.auth.repositoryService.SignService;
 import com.example.java_jpa_vuejs.common.PaginationDto;
 import com.example.java_jpa_vuejs.geomBoard.BoardDto;
@@ -33,6 +36,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URLDecoder;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -43,6 +47,15 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.io.File;
+import java.io.FileInputStream;
+
+
+import au.com.bytecode.opencsv.CSVReader;
+import au.com.bytecode.opencsv.CSVWriter;
+import au.com.bytecode.opencsv.bean.ColumnPositionMappingStrategy;
+import au.com.bytecode.opencsv.bean.CsvToBean;
+
+//https://wiki.yowu.dev/ko/Knowledge-base/Spring-Boot/Learning/095-building-a-machine-learning-system-with-spring-boot-and-tensorflow 
 
 //https://github.com/tensorflow/tensorflow/tree/master/tensorflow/java/src
 
@@ -59,8 +72,12 @@ public class HelloTensorFlow {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     
+    static int ROW = 0;
+	static int FEATURE = 0;
+
+
     /**
-    * @method 클라우드를 통한 리스트 호출
+    * @method Tensor Flow Test( 텐서플로 정상 여부 체크 및 도로정보 테스트 데이터 10건 리턴)
     * @param  null
     * @throws Exception
     */
@@ -69,10 +86,7 @@ public class HelloTensorFlow {
         Map<String, Object> retMap = new HashMap<String, Object>();
         List<Map<String, Object>> retList = new ArrayList<Map<String, Object>>();
 
-
-        
         Iterable<Roads> list = tensorDataService.getAddrData();
-        
         Iterator<Roads> itr = list.iterator();
 
         //리턴 리스트에 담기위한 형식변경
@@ -95,8 +109,6 @@ public class HelloTensorFlow {
             System.out.println(x.data().getInt() + " doubled is " + dblX.data().getInt());
         }
 
-
-
         retMap.put("list", retList);
 
         return retMap;
@@ -108,8 +120,7 @@ public class HelloTensorFlow {
         return Signature.builder().input("x", x).output("dbl", dblX).build();
     }
 
-    static int ROW = 0;
-	static int FEATURE = 0;
+
 
 
 
@@ -121,28 +132,30 @@ public class HelloTensorFlow {
     */
     @GetMapping("/noAuth/getSearchAddr")
     public Map<String, Object> inde123242x(@Valid PaginationDto paginationDto) throws Exception {
-        System.out.println("TensorFlow version : "+TensorFlow.version());
 		
-		//String filePath = "./data/test.csv";
+		//학습 데이터 세팅을 위한 경로 
 		String filePath = "C:/Users/all4land/Desktop/TN_SPRD_RDNM.csv";
-        System.out.println("★ ★★★★★");
-        System.out.println(filePath);
 
-		//get shape of data
+		//학습 데이터의 현황(Col, Row) 파악
 		getDataSize(filePath);
-		System.out.print("[number of row] ==> "+ ROW);
-		System.out.println(" / [number of feature] ==> "+ FEATURE);
-		float[][] testInput = new float[ROW][FEATURE];
+		System.out.println("[number of row] ==> "+ ROW + " / [number of feature] ==> "+ FEATURE);
 		
 		//insert csv data to matrix
-		csvToRoadObj(filePath, testInput, ROW);
+		List<RoadDTO> list = csvToRoadObj(filePath);
         //csvToMtrx(filePath, testInput);
-		//printMatrix(testInput);
+		//float[][] testInput = new float[ROW][FEATURE];
+        //printMatrix(testInput);
 		
-		//load the model bundle
+        try {
+            Sequential model = new Sequential();
+            //model.add(new Dense(128, activation="relu", inputShape=(784,)));
+            //model.add(new Dense(10, activation="softmax"));
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+		//저장된 모델 확인
 		try(SavedModelBundle b = SavedModelBundle.load("/tmp/fromPython", "serve")){
 			
-            
             /* 
 			//create a session from the Bundle
 			Session sess = b.session();
@@ -165,67 +178,80 @@ public class HelloTensorFlow {
 
             */
 		}
+        catch (Exception e) {
+            // TODO: handle exception
+            System.out.println("Modle Not Found Error !");
+            //e.printStackTrace();
+        }
         return null;
     }
 
 
     /**
-	 * csv 파일 데이터를 행렬로 옮김
+	 * List<RoadDTO> 형식의 데이터 생성 및 검증
 	 * @param filePath
 	 * @param mtrx
 	 * @throws IOException
 	 */
-	public static void csvToRoadObj(String filePath, float[][] mtrx, int length) throws IOException {
-		try {
-			//read csv data file
-			File csv = new File(filePath);
-			BufferedReader reader = new BufferedReader(new FileReader(csv));
-			String line = "";
-			String[] field = null;
-			RoadDTO[] roadArr = new RoadDTO[length];
+	public static List<RoadDTO> csvToRoadObj(String filePath) throws IOException {
+		//cSV 파일을 Object 객체로 List에 적재
+        try {
+            int cnt = 0;
 
-            for(int i = 0; i < roadArr.length; i++) {
-                roadArr[i] = new RoadDTO();
-            }
-            
-            String[] joinDates = reader.readLine().split(",");
-            System.out.println(reader.readLine());
-            // i = 0 gives us the string 'joinDates' which is in the first column.
-            // so we have to skip it and start it from i = 1
-           
-            for(int i = 1; i < joinDates.length; i++) {
-                System.out.println(joinDates[i]);
-                // setting the objects data..
-                /* 
-                roadArr[i - 1].setSigCd(joinDates[0]);
-                roadArr[i - 1].setRnCd( joinDates[1]);
-                roadArr[i - 1].setEmdNo( joinDates[2]);
-                roadArr[i - 1].setRn( joinDates[3]);
-                roadArr[i - 1].setEngNm( joinDates[4]);
-                roadArr[i - 1].setSidoNm( joinDates[5]);
-                roadArr[i - 1].setSggNm( joinDates[6]);
-                roadArr[i - 1].setEmdSe( joinDates[7]);
-                roadArr[i - 1].setEmdCd( joinDates[8]);
-                roadArr[i - 1].setEmdNm( joinDates[9]);
-                roadArr[i - 1].setUseYn( joinDates[10]);
-                roadArr[i - 1].setAlwncResn( joinDates[11]);
-                roadArr[i - 1].setAftchInfo( joinDates[12]);
-                roadArr[i - 1].setCtpEngNm( joinDates[13]);
-                roadArr[i - 1].setSigEngNm( joinDates[14]);
-                roadArr[i - 1].setEmdEngNm( joinDates[15]);
-                roadArr[i - 1].setBeginBsis( joinDates[16]);
-                roadArr[i - 1].setEndBsis( joinDates[17]);
-                roadArr[i - 1].setEffectDe( joinDates[18]);
-                roadArr[i - 1].setErsrDe( joinDates[19]);
-                roadArr[i - 1].setErsrDe( joinDates[20]);
-                roadArr[i - 1].setErsrDe( joinDates[21]);
-                 */
-            }
-           
+            //데이터 검증
+            List<RoadDTO> data = readCsvToBean(filePath);
+            Iterator<RoadDTO> it = data.iterator();
+            while(it.hasNext()) {
+                RoadDTO vo = (RoadDTO)it.next();
+                System.out.println("num : "+ vo.getSigCd());
+                System.out.println("name : "+ vo.getRnCd());
+                System.out.println("mobile : "+ vo.getEmdNo());
+                System.out.println("num : "+ vo.getRn());
+                System.out.println("name : "+ vo.getSigEngNm());
+                System.out.println("mobile : "+ vo.getAlwncResn());
 
-		}catch (FileNotFoundException e) {
+                cnt++;
+                if(cnt == 10){break;};
+            }
+
+            return data;
+		}
+        catch (Exception e) {
 			e.printStackTrace();
 		}
+        return null;
+	}
+
+
+    /**
+	 * csv 파일 데이터를 List<RoadDTO> 형식으로 전환
+	 * @param filePath
+	 * @throws IOException
+	 */
+    public static List<RoadDTO> readCsvToBean(String filename){
+		
+		List<RoadDTO> data = null;
+		try {
+			//csv 파일 읽기
+			CSVReader reader = new CSVReader(new InputStreamReader(new FileInputStream(filename),"EUC-KR"),',','"',0);
+			
+			//CSV 를 VO에 매핑해주는 매퍼 역할을 할 클래스 객체 생성
+			ColumnPositionMappingStrategy<RoadDTO> mapper = new ColumnPositionMappingStrategy<RoadDTO>();
+			mapper.setType(RoadDTO.class);   //VO파일을 맵핑하겠다.
+			String[] columns = new String[] {"sigCd","rnCd","emdNo","rn","engNm","sidoNm","sggNm","emdSe","emdCd","emdNm","useYn","alwncResn","chghy","aftchInfo","ctpEngNm","sigEngNm","emdEngNm","beginBsis","endBsis","effectDe","ersrDe"}; // 각 컬럼을 정의할 배열
+			mapper.setColumnMapping(columns); //각 컬럼명을 매퍼에 설정
+			
+			//매핑하기!!
+			CsvToBean<RoadDTO> csv = new CsvToBean<RoadDTO>();
+			data = csv.parse(mapper, reader); //(매핑방법, csv파일)
+			
+			reader.close();
+		}
+        catch(Exception e) {
+			e.getStackTrace();
+		}
+		
+		return data;
 	}
 
 
@@ -253,6 +279,7 @@ public class HelloTensorFlow {
 		}
 	}
 	
+
 	/**
 	 * csv 파일 데이터를 행렬로 옮김
 	 * @param filePath
@@ -272,8 +299,7 @@ public class HelloTensorFlow {
 					field = line.split(",");
                     System.out.println(field.toString());
 					for(int j=0; j<field.length; j++) {
-						//mtrx[i][j] = Float.parseFloat(field[j]);
-                        mtrx[i][j] = field[j];
+						mtrx[i][j] = Float.parseFloat(field[j]);
 					}
                     System.out.println(mtrx);
 				}
@@ -282,6 +308,7 @@ public class HelloTensorFlow {
 			e.printStackTrace();
 		}
 	}
+
 
 	/**
 	 * 행렬 값 확인용 출력

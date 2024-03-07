@@ -68,8 +68,14 @@ dependencies {
 	//웹 소켓
 	//implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
-	implementation group: 'org.tensorflow', name: 'tensorflow-core-platform', version: '0.2.0'
-	
+	//텐서 플로우
+	implementation group: 'org.tensorflow', name: 'tensorflow-core-platform', version: '0.2.0'	
+	//implementation group: 'org.tensorflow', name: 'tensorflow-keras', version: '0.0.1'	
+	implementation group: 'org.tensorflow', name: 'tensorflow', version: '1.15.0'
+	//implementation group: 'org.renjin.cran', name: 'keras', version: '2.1'	
+
+	//Csv Control Rib
+	implementation group: 'net.sf.opencsv', name: 'opencsv', version: '2.0'
 }
 
 tasks.named('test') {
