@@ -11,6 +11,7 @@ import org.tensorflow.TensorFlow;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.Placeholder;
 import org.tensorflow.op.math.Add;
+import org.tensorflow.types.TFloat32;
 import org.tensorflow.types.TInt32;
 import org.tensorflow.SavedModelBundle;
 import org.tensorflow.Session;
@@ -102,7 +103,7 @@ public class HelloTensorFlow {
         }
 
         System.out.println("Hello TensorFlow " + TensorFlow.version());
-
+ 
         try (ConcreteFunction dbl = ConcreteFunction.create(HelloTensorFlow::dbl);
             Tensor<TInt32> x = TInt32.scalarOf(10);
             Tensor<TInt32> dblX = dbl.call(x).expect(TInt32.DTYPE)) {
@@ -113,13 +114,12 @@ public class HelloTensorFlow {
 
         return retMap;
     }
-
+ 
     private static Signature dbl(Ops tf) {
         Placeholder<TInt32> x = tf.placeholder(TInt32.DTYPE);
         Add<TInt32> dblX = tf.math.add(x, x);
         return Signature.builder().input("x", x).output("dbl", dblX).build();
     }
-
 
 
 
@@ -147,36 +147,17 @@ public class HelloTensorFlow {
         //printMatrix(testInput);
 		
         try {
-            Sequential model = new Sequential();
+            //Sequential model = new Sequential();
             //model.add(new Dense(128, activation="relu", inputShape=(784,)));
             //model.add(new Dense(10, activation="softmax"));
+
         } catch (Exception e) {
             // TODO: handle exception
         }
+
 		//저장된 모델 확인
 		try(SavedModelBundle b = SavedModelBundle.load("/tmp/fromPython", "serve")){
-			
-            /* 
-			//create a session from the Bundle
-			Session sess = b.session();
-			
-			//create an input Tensor
-			//Tensor x = Tensor.create(testInput);
-			Tensor x = Tensor.of(null, null)
-
-			//run the model and get the result
-			float[][] y = sess.runner()
-					.feed("x", x)
-					.fetch("h")
-					.run()
-					.get(0)
-					.copyTo(new float[ROW][1]);
-			
-			//print out the result
-			for(int i=0; i<y.length;i++)
-				System.out.println(y[i][0]);
-
-            */
+            
 		}
         catch (Exception e) {
             // TODO: handle exception
