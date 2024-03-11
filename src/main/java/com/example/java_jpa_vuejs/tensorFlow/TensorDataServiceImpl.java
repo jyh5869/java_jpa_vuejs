@@ -14,7 +14,7 @@ import com.example.java_jpa_vuejs.tensorFlow.TensorDataService;
 import com.example.java_jpa_vuejs.tensorFlow.entity.Roads;
 import com.example.java_jpa_vuejs.util.DuplicatedException;
 import com.example.java_jpa_vuejs.validation.Empty;
-import com.example.java_jpa_vuejs.tensorFlow.repositoryJPA.RoadRepository;
+import com.example.java_jpa_vuejs.tensorFlow.repositoryJPA.RoadsRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TensorDataServiceImpl implements TensorDataService {
 	
-	private final RoadRepository roadsRepository;
+	private final RoadsRepository roadsRepository;
 	/*
 	 * 도로명 데이터 가져오기
 	 */

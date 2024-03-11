@@ -70,9 +70,7 @@ dependencies {
 
 	//텐서 플로우  
 	implementation group: 'org.tensorflow', name: 'tensorflow-core-platform', version: '0.2.0'	
-	//implementation group: 'org.deeplearning4j', name: 'deeplearning4j-core', version: '1.0.0-M2.1'	
-	//implementation group: 'org.tensorflow', name: 'tensorflow', version: '2.4.0'	
-	//implementation group: 'org.renjin.cran', name: 'keras', version: '2.1'	
+	implementation group: 'org.deeplearning4j', name: 'deeplearning4j-core', version: '1.0.0-M2.1'	
 
 	//Csv Control Rib
 	implementation group: 'net.sf.opencsv', name: 'opencsv', version: '2.0'
