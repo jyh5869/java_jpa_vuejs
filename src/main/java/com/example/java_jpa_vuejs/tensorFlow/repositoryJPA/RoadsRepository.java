@@ -7,9 +7,9 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
-public interface RoadsRepository extends CrudRepository<Roads, Long> {
+public interface RoadsRepository extends CrudRepository<Roads, String> {
 
-    Optional<Roads> findByRn(String email);
+    //Optional<Roads> findByRn(String email);
 
     Iterable<Roads> findAll();
 

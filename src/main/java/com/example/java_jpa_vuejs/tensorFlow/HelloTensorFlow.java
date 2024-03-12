@@ -1,6 +1,8 @@
 package com.example.java_jpa_vuejs.tensorFlow;
 
-import org.hibernate.graph.Graph;
+
+import org.hibernate.id.enhanced.Optimizer;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -8,13 +10,33 @@ import org.tensorflow.ConcreteFunction;
 import org.tensorflow.Signature;
 import org.tensorflow.Tensor;
 import org.tensorflow.TensorFlow;
+import org.tensorflow.ndarray.FloatNdArray;
+import org.tensorflow.ndarray.NdArray;
+import org.tensorflow.ndarray.NdArrays;
+import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
-import org.tensorflow.op.core.Placeholder;
 import org.tensorflow.op.math.Add;
+import org.tensorflow.op.math.Mean;
+import org.tensorflow.op.math.Mul;
+import org.tensorflow.op.train.ApplyGradientDescent;
 import org.tensorflow.types.TFloat32;
 import org.tensorflow.types.TInt32;
 import org.tensorflow.SavedModelBundle;
 import org.tensorflow.Session;
+import org.tensorflow.Graph;
+import org.tensorflow.Operand;
+import org.tensorflow.Output;
+
+import org.tensorflow.Graph;
+import org.tensorflow.Session;
+import org.tensorflow.Tensor;
+//import org.tensorflow.Tensors;
+import org.tensorflow.op.Ops;
+import org.tensorflow.op.core.*;
+import org.tensorflow.types.TFloat32;
+
+import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.api.ndarray.INDArray;
 
 //import org.renjin.cran.keras.model.Sequential;
 //import org.tensorflow.keras.models.Sequential;
@@ -103,24 +125,26 @@ public class HelloTensorFlow {
         }
 
         System.out.println("Hello TensorFlow " + TensorFlow.version());
- 
+/* 
         try (ConcreteFunction dbl = ConcreteFunction.create(HelloTensorFlow::dbl);
             Tensor<TInt32> x = TInt32.scalarOf(10);
             Tensor<TInt32> dblX = dbl.call(x).expect(TInt32.DTYPE)) {
             System.out.println(x.data().getInt() + " doubled is " + dblX.data().getInt());
         }
-
+*/
         retMap.put("list", retList);
 
         return retMap;
     }
- 
+/* 
     private static Signature dbl(Ops tf) {
+
         Placeholder<TInt32> x = tf.placeholder(TInt32.DTYPE);
         Add<TInt32> dblX = tf.math.add(x, x);
         return Signature.builder().input("x", x).output("dbl", dblX).build();
-    }
 
+    }
+*/
 
 
 
@@ -155,6 +179,103 @@ public class HelloTensorFlow {
             // TODO: handle exception
         }
 
+		
+		float[] xTrain = {1, 2, 3, 4, 5};
+        float[] yTrain = {3, 5, 7, 9, 11};
+
+        // TensorFlow 그래프 및 세션 생성
+        try (Graph graph = new Graph()) {
+            Ops tf = Ops.create(graph);
+
+            // 플레이스홀더 정의
+			Placeholder<TFloat32> x = tf.placeholder(TFloat32.DTYPE);
+            Placeholder<TFloat32> y = tf.placeholder(TFloat32.DTYPE);
+            // 변수 정의
+            Variable<TFloat32> weight = tf.variable(tf.constant(0.0f));
+            Variable<TFloat32> bias = tf.variable(tf.constant(0.0f));
+
+            // 모델 정의: y_pred = weight * x + bias
+            Operand<TFloat32> yPred = tf.math.add(tf.math.mul(x, weight), bias);
+
+            // 손실 함수 정의: Mean Squared Error
+            Operand<TFloat32> loss = tf.math.mean(tf.math.squaredDifference(yPred, y), tf.constant(0));
+
+            // 옵티마이저 정의: Gradient Descent
+            float learningRate = 0.01f;
+            TrainableOptimizer<TFloat32> optimizer = new TrainableOptimizer(tf, learningRate);
+            //Operand<TFloat32> trainOp = optimizer.minimize(loss, tf.assign(weight, bias));
+			
+			// Gradient 계산
+            //Assign<TFloat32> gradWeight = tf.assign(weight, tf.math.tan(tf.math.mul(tf.math.sub(yPred, y), x)));
+            //Assign<TFloat32> gradBias = tf.assign(bias, tf.math.tan(tf.math.sub(yPred, y)));
+
+			Assign<TFloat32> gradWeight = tf.assign(weight, tf.reduceSum(tf.math.tan(tf.math.mul(tf.math.sub(yPred, y), x)), tf.constant(0)));
+			Assign<TFloat32> gradBias = tf.assign(bias, tf.reduceSum(tf.math.tan(tf.math.sub(yPred, y)), tf.constant(0)));
+
+            // 텐서플로우 세션 시작
+            try (Session session = new Session(graph)) {
+                // 변수 초기화
+                session.runner().addTarget(tf.init()).run();
+
+                // 훈련 루프
+                int numEpochs = 10;
+                for (int epoch = 0; epoch < numEpochs; epoch++) {
+                    for (int i = 0; i < xTrain.length; i++) {
+                        float[] feedDict = {xTrain[i], yTrain[i]};
+						// 학습 데이터
+						float[] inputData = {1.0f, 2.0f, 3.0f};
+						FloatNdArray inputndArray = NdArrays.vectorOf(1.0f, 2.0f, 3.0f);
+						float[] labelData = {2.0f, 4.0f, 6.0f};
+						FloatNdArray labelArray = NdArrays.vectorOf(2.0f, 4.0f, 6.0f);
+						//NdArray labelArray = (NdArray) fconvertToNdArray(labelData);
+						//Tensor<TFloat32> ttttt = Tensor.of(TFloat32.DTYPE, inputData);
+						System.out.println("★★★★★★★★★★★★★★★");
+						System.out.println(inputndArray);
+						System.out.println(gradWeight);
+						System.out.println("★★★★★★★★★★★★★★★");
+						
+						session.runner()
+                        .addTarget(gradWeight)
+                        .addTarget(gradBias)
+                        .feed(x.asOutput(), TFloat32.tensorOf(inputndArray))
+                        .feed(y.asOutput(), TFloat32.tensorOf(labelArray))
+                        .run();
+	 
+                    }
+                }
+
+                // 최종 모델 파라미터 출력
+                System.out.println("Final Weight: " + session.runner().fetch(gradWeight).run().get(0).expect(TFloat32.DTYPE));
+                System.out.println("Final Bias: " + session.runner().fetch(gradBias).run().get(0).data());
+
+
+				// 테스트 데이터
+				float[] xTest = {6, 7, 8};
+				float[] yTest = {13, 15, 17}; // 실제 정답 값
+
+				// 테스트 루프
+				for (int i = 0; i < xTest.length; i++) {
+					float[] feedDict = {xTest[i]}; // 테스트 데이터에 대해 y에 대한 값을 제거
+					FloatNdArray testInputArray = NdArrays.vectorOf(feedDict);
+
+					// 모델 예측
+					float predictedValue = session.runner()
+							.fetch(yPred)
+							.feed(x.asOutput(), TFloat32.tensorOf(testInputArray))
+							.run()
+							.get(0)
+							.expect(TFloat32.DTYPE)
+							.data()
+							.getFloat();
+
+					System.out.println("Test Input: " + xTest[i] + ", Actual Output: " + yTest[i] + ", Predicted Output: " + predictedValue);
+				}
+			}
+			catch (Exception e) {
+				// TODO: handle exception
+				e.printStackTrace();
+			}
+		}
 		//저장된 모델 확인
 		try(SavedModelBundle b = SavedModelBundle.load("/tmp/fromPython", "serve")){
             
@@ -164,6 +285,7 @@ public class HelloTensorFlow {
             System.out.println("Modle Not Found Error !");
             //e.printStackTrace();
         }
+
         return null;
     }
 
@@ -309,4 +431,8 @@ public class HelloTensorFlow {
 		System.out.println("]");
 	}
 
+
+	private static INDArray fconvertToNdArray(float[] array) {
+        return Nd4j.create(array);
+    }
 }
