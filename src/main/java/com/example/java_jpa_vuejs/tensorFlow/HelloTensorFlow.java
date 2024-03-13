@@ -201,7 +201,7 @@ public class HelloTensorFlow {
             Operand<TFloat32> loss = tf.math.mean(tf.math.squaredDifference(yPred, y), tf.constant(0));
 
             // 옵티마이저 정의: Gradient Descent
-            float learningRate = 0.01f;
+            float learningRate = 0.001f;
             TrainableOptimizer<TFloat32> optimizer = new TrainableOptimizer(tf, learningRate);
             //Operand<TFloat32> trainOp = optimizer.minimize(loss, tf.assign(weight, bias));
 			
@@ -223,17 +223,9 @@ public class HelloTensorFlow {
                     for (int i = 0; i < xTrain.length; i++) {
                         float[] feedDict = {xTrain[i], yTrain[i]};
 						// 학습 데이터
-						float[] inputData = {1.0f, 2.0f, 3.0f};
-						FloatNdArray inputndArray = NdArrays.vectorOf(1.0f, 2.0f, 3.0f);
-						float[] labelData = {2.0f, 4.0f, 6.0f};
-						FloatNdArray labelArray = NdArrays.vectorOf(2.0f, 4.0f, 6.0f);
-						//NdArray labelArray = (NdArray) fconvertToNdArray(labelData);
-						//Tensor<TFloat32> ttttt = Tensor.of(TFloat32.DTYPE, inputData);
-						System.out.println("★★★★★★★★★★★★★★★");
-						System.out.println(inputndArray);
-						System.out.println(gradWeight);
-						System.out.println("★★★★★★★★★★★★★★★");
-						
+						FloatNdArray inputndArray = NdArrays.vectorOf(feedDict[0]);
+						FloatNdArray labelArray = NdArrays.vectorOf(feedDict[1]);
+						System.out.println(feedDict[0] + "   /   " + feedDict[1]);
 						session.runner()
                         .addTarget(gradWeight)
                         .addTarget(gradBias)
@@ -245,8 +237,8 @@ public class HelloTensorFlow {
                 }
 
                 // 최종 모델 파라미터 출력
-                System.out.println("Final Weight: " + session.runner().fetch(gradWeight).run().get(0).expect(TFloat32.DTYPE));
-                System.out.println("Final Bias: " + session.runner().fetch(gradBias).run().get(0).data());
+                System.out.println("Final Weight: " + session.runner().fetch(weight).run().get(0).expect(TFloat32.DTYPE));
+                System.out.println("Final Bias: " + session.runner().fetch(bias).run().get(0).expect(TFloat32.DTYPE));
 
 
 				// 테스트 데이터
