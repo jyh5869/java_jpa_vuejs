@@ -3,6 +3,7 @@ package com.example.java_jpa_vuejs.tensorFlow;
 
 import org.hibernate.id.enhanced.Optimizer;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.ops.random.custom.RandomNormal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,17 +11,24 @@ import org.tensorflow.ConcreteFunction;
 import org.tensorflow.Signature;
 import org.tensorflow.Tensor;
 import org.tensorflow.TensorFlow;
+import org.tensorflow.internal.c_api.global.tensorflow;
 import org.tensorflow.ndarray.FloatNdArray;
 import org.tensorflow.ndarray.NdArray;
 import org.tensorflow.ndarray.NdArrays;
+import org.tensorflow.op.MathOps;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.math.Add;
 import org.tensorflow.op.math.Mean;
 import org.tensorflow.op.math.Mul;
+import org.tensorflow.op.math.SquaredDifference;
+import org.tensorflow.op.math.Sub;
+import org.tensorflow.op.nn.Softmax;
+import org.tensorflow.op.train.ApplyAdam;
 import org.tensorflow.op.train.ApplyGradientDescent;
 import org.tensorflow.types.TFloat32;
 import org.tensorflow.types.TInt32;
+import org.tensorflow.types.TInt64;
 import org.tensorflow.SavedModelBundle;
 import org.tensorflow.Session;
 import org.tensorflow.Graph;
@@ -32,7 +40,9 @@ import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 //import org.tensorflow.Tensors;
 import org.tensorflow.op.Ops;
+import org.tensorflow.op.MathOps;
 import org.tensorflow.op.core.*;
+import org.tensorflow.op.linalg.MatMul;
 import org.tensorflow.types.TFloat32;
 
 import org.nd4j.linalg.factory.Nd4j;
@@ -61,8 +71,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URLDecoder;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -97,6 +110,99 @@ public class HelloTensorFlow {
     
     static int ROW = 0;
 	static int FEATURE = 0;
+
+
+     /**
+    * @method Tensor Flow Test( 텐서플로 정상 여부 체크 및 도로정보 테스트 데이터 10건 리턴)
+    * @param  null
+    * @throws Exception
+    */
+    @GetMapping("/noAuth/getSearchAddr")
+    public Map<String, Object> index(@Valid PaginationDto paginationDto) throws Exception {
+
+        String filePath = "C:/Users/all4land/Desktop/TN_SPRD_RDNM.csv";
+
+		//학습 데이터의 현황(Col, Row) 파악
+		getDataSize(filePath);
+		System.out.println("[number of row] ==> "+ ROW + " / [number of feature] ==> "+ FEATURE);
+		
+		//insert csv data to matrix
+		List<RoadDTO> list = csvToRoadObj(filePath);
+
+
+        String testKeyword = "노윈로";
+
+        //String[] fruits = {"노원로", "중앙로", "노원로28길", "성암로"};
+        String[] fruits = {"노원로", "중앙로", "노원로28길", "성암로"};
+
+    
+        // 학습 데이터 생성
+        float[][] trainInputs = new float[][]{{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
+
+        try (Graph graph = new Graph(); Session session = new Session(graph)) {
+            Ops tf = Ops.create(graph);
+
+            // 입력 플레이스홀더
+            org.tensorflow.op.core.Placeholder<TFloat32> x = tf.placeholder(TFloat32.DTYPE);
+
+            // 가중치 및 편향 설정
+            org.tensorflow.op.core.Variable<TFloat32> weights = tf.variable(tf.zeros(tf.constant(new long[]{4}), TFloat32.DTYPE));
+            org.tensorflow.op.core.Variable<TFloat32> bias = tf.variable(tf.zeros(tf.constant(new long[]{4}), TFloat32.DTYPE));
+
+            // 모델 정의
+            Mul<TFloat32> matmul = tf.math.mul(x, weights);
+            Add<TFloat32> yPred = tf.math.add(matmul, bias);
+
+            // 텐서플로우 세션 시작
+            session.runner().addTarget(tf.init()).run();
+
+            // 모델 테스트
+            float[] testInput = new float[]{0, 0, 0, 0};
+            for (int i = 0; i < fruits.length; i++) {
+                if (fruits[i].equals(testKeyword)) {
+                    testInput[i] = 1.0f;
+                    break;
+                }
+            }
+            FloatNdArray testInputArray = NdArrays.vectorOf(testInput);
+            Tensor<TFloat32> testInputTensor = TFloat32.tensorOf(testInputArray);
+
+            // 모델 테스트
+            Tensor<TFloat32> predictionTensor = session.runner()
+                    .fetch(yPred)
+                    .feed(x.asOutput(), testInputTensor)
+                    .run()
+                    .get(0)
+                    .expect(TFloat32.DTYPE);
+
+            // 테스트 결과 출력
+            float[] predictionValues = new float[4];
+            FloatNdArray tensorData = predictionTensor.data();
+            for (int i = 0; i < predictionValues.length; i++) {
+                predictionValues[i] = tensorData.getFloat(i);
+            }
+            int predictedIndex = argmax(predictionValues);
+            System.out.println("입력 키워드 '" + testKeyword + "'의 예측된 도로명: " + fruits[predictedIndex]);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public static int argmax(float[] array) {
+        int maxIndex = 0;
+        float maxValue = array[0];
+        for (int i = 1; i < array.length; i++) {
+            if (array[i] > maxValue) {
+                maxIndex = i;
+                maxValue = array[i];
+            }
+        }
+        return maxIndex;
+    }
+
+
 
 
     /**
@@ -136,15 +242,170 @@ public class HelloTensorFlow {
 
         return retMap;
     }
+
+
+
+    /**
+    * @method 클라우드를 통한 리스트 호출
+    * @param  null
+    * @throws Exception
+    */
+    @GetMapping("/noAuth/getSearchAddr1133")
+    public Map<String, Object> inde123242x(@Valid PaginationDto paginationDto) throws Exception {
+        
+
+        // 오타가 있는 키워드★★★
+        String testKeyword = "사괴";
+
+        String[] fruits = {"사과", "바나나", "오렌지", "딸기"};
+
+        // TensorFlow 그래프 및 세션 생성
+        try (Graph graph = new Graph(); Session session = new Session(graph)) {
+            Ops tf = Ops.create(graph);
+
+            // 플레이스홀더 정의
+            Placeholder<TFloat32> x = tf.placeholder(TFloat32.DTYPE);
+
 /* 
-    private static Signature dbl(Ops tf) {
-
-        Placeholder<TInt32> x = tf.placeholder(TInt32.DTYPE);
-        Add<TInt32> dblX = tf.math.add(x, x);
-        return Signature.builder().input("x", x).output("dbl", dblX).build();
-
-    }
+            // 변수 정의
+            int numFruits = fruits.length;
+            Variable<TFloat32> embeddings = tf.variable(tf.random.randomStandardNormal(
+                    tf.constant(new long[]{numFruits, 3}),
+                    TFloat32.DTYPE
+            ));
 */
+            // 변수 정의
+            int numFruits = fruits.length;
+            Variable<TFloat32> embeddings = tf.variable(tf.random.randomStandardNormal(
+                    tf.constant(new long[]{numFruits}),
+                    TFloat32.DTYPE
+            ));
+
+            // 훈련 데이터셋을 텐서로 변환
+            float[][] trainInputs = new float[fruits.length][];
+            float[][] trainLabels = new float[fruits.length][];
+            for (int i = 0; i < fruits.length; i++) {
+                float[] oneHot = new float[numFruits];
+                oneHot[i] = 1.0f;
+                trainInputs[i] = oneHot;
+            }
+
+            // 모델 정의
+            Mul<TFloat32> mul = tf.math.mul(x, embeddings);
+            Add<TFloat32> yPred = tf.math.add(mul, tf.constant(0.0f));
+
+            // 손실 함수 정의: Mean Squared Error
+            //Sub<TFloat32> sub = tf.math.sub(yPred, tf.oneHot(tf.dtypes.cast(x, TInt32.DTYPE), tf.constant(numFruits), tf.constant(1.0f), tf.constant(0.0f), -1));
+            //Sub<TFloat32> sub = tf.math.sub(yPred, tf.oneHot(tf.math.argMax(x, tf.constant(0)), tf.constant(numFruits), tf.constant(1.0f), tf.constant(0.0f), OneHot.axis(-1)));
+            Sub<TFloat32> sub = tf.math.sub(yPred, tf.oneHot(tf.math.argMax(x, tf.constant(0)), tf.constant(numFruits), tf.constant(1.0f), tf.constant(0.0f), OneHot.axis(-1L)));
+            Mul<TFloat32> squaredDiff = tf.math.mul(sub, sub);
+            //Mean<TFloat32> loss = tf.math.mean(squaredDiff, tf.constant(0));
+            Mean<TFloat32> loss = tf.math.mean(squaredDiff, tf.constant(new int[] {}));
+
+            // 옵티마이저 정의: Gradient Descent Optimizer
+            float learningRate = 0.01f;
+            Assign<TFloat32> optimizer = tf.assign(
+                embeddings,
+                tf.math.sub(
+                    embeddings,
+                    tf.math.mul(
+                        tf.constant(learningRate),
+                        tf.math.mean(
+                            tf.math.mul(sub, x),
+                            tf.constant(new int[] {0})  // 축을 지정하여 mean을 계산합니다.
+                        )
+                    )
+                )
+            );
+            
+
+            // 텐서플로우 세션 시작
+            session.runner().addTarget(tf.init()).run();
+
+            // 훈련 루프
+            int numEpochs = 1000;
+            for (int epoch = 0; epoch < numEpochs; epoch++) {
+                for (int i = 0; i < trainInputs.length; i++) {
+                    float[] input = trainInputs[i];
+                    float[] label = trainLabels[i];
+
+                    FloatNdArray trainInput = NdArrays.vectorOf(input);
+
+                    session.runner()
+                            .addTarget(optimizer)
+                            .feed(x.asOutput(), TFloat32.tensorOf(trainInput))
+                            .run();
+                }
+            }
+
+            // 테스트
+            float[] testInput = new float[numFruits];
+            for (int i = 0; i < fruits.length; i++) {
+                if (fruits[i].equals(testKeyword)) {
+                    testInput[i] = 1.0f;
+                    break;
+                }
+            }
+
+            FloatNdArray testInputArray = NdArrays.vectorOf(testInput);
+            Tensor<TFloat32> testInputTensor = TFloat32.tensorOf(testInputArray);
+            Tensor<TFloat32> tensor = session.runner()
+                    .fetch(yPred)
+                    .feed(x.asOutput(), testInputTensor)
+                    .run()
+                    .get(0)
+                    .expect(TFloat32.DTYPE);
+
+
+            org.tensorflow.ndarray.Shape shape = tensor.shape();
+            long[] shapeArray = shape.asArray();
+            float[] predictedValue = new float[(int) shapeArray[0]]; // 예측값 배열 초기화
+ 
+/*             
+            ByteBuffer byteBuffer = (ByteBuffer) tensor.rawData(); // ByteBuffer로 변환
+
+            FloatBuffer floatBuffer = byteBuffer.asFloatBuffer(); // FloatBuffer로 변환
+
+            floatBuffer.get(predictedValue); // FloatBuffer에서 값 읽어와서 배열에 할당
+            System.out.println(floatBuffer);
+
+*/
+            tensor.close(); // Tensor를 닫아줍니다.
+
+            FloatNdArray tensorData = tensor.data();
+            for (int i = 0; i < predictedValue.length; i++) {
+                System.out.println("tensorData------------>"+ tensorData.toString());
+                System.out.println("tensorData.getFloat(i) -------------->" +tensorData.getFloat(i));
+                predictedValue[i] = tensorData.getFloat(i); // 텐서의 값을 배열에 복사
+            }
+
+            
+
+            int predictedIndex = -1;
+            float maxProb = Float.MIN_VALUE;
+            System.out.println("maxProb -------------->" +maxProb);
+            for (int i = 0; i < predictedValue.length; i++) {
+                System.out.println("predictedValue[i] -------------->" +predictedValue[i]);
+                if (predictedValue[i] > maxProb) {
+                    predictedIndex = i;
+                    maxProb = predictedValue[i];
+                }
+            }
+
+            if(predictedIndex == -1){
+                System.out.println("테스트 키워드 '" + testKeyword + "'의 예측 결과를 도출 할 수없습니다'");
+            }
+            else{
+                System.out.println("테스트 키워드 '" + testKeyword + "'의 예측된 과일: " + fruits[predictedIndex]);
+            }
+            
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 
 
 
@@ -154,8 +415,8 @@ public class HelloTensorFlow {
     * @param  null
     * @throws Exception
     */
-    @GetMapping("/noAuth/getSearchAddr")
-    public Map<String, Object> inde123242x(@Valid PaginationDto paginationDto) throws Exception {
+    @GetMapping("/noAuth/getSearchAddrNumber")
+    public Map<String, Object> inde123242xNumber(@Valid PaginationDto paginationDto) throws Exception {
 		
 		//학습 데이터 세팅을 위한 경로 
 		String filePath = "C:/Users/all4land/Desktop/TN_SPRD_RDNM.csv";
@@ -169,105 +430,89 @@ public class HelloTensorFlow {
         //csvToMtrx(filePath, testInput);
 		//float[][] testInput = new float[ROW][FEATURE];
         //printMatrix(testInput);
-		
-        try {
-            //Sequential model = new Sequential();
-            //model.add(new Dense(128, activation="relu", inputShape=(784,)));
-            //model.add(new Dense(10, activation="softmax"));
-
-        } catch (Exception e) {
-            // TODO: handle exception
-        }
 
 		
 		float[] xTrain = {1, 2, 3, 4, 5};
         float[] yTrain = {3, 5, 7, 9, 11};
 
         // TensorFlow 그래프 및 세션 생성
-        try (Graph graph = new Graph()) {
+        try (Graph graph = new Graph(); Session session = new Session(graph)) {
+
             Ops tf = Ops.create(graph);
 
             // 플레이스홀더 정의
-			Placeholder<TFloat32> x = tf.placeholder(TFloat32.DTYPE);
+            Placeholder<TFloat32> x = tf.placeholder(TFloat32.DTYPE);
             Placeholder<TFloat32> y = tf.placeholder(TFloat32.DTYPE);
+
             // 변수 정의
-            Variable<TFloat32> weight = tf.variable(tf.constant(0.0f));
-            Variable<TFloat32> bias = tf.variable(tf.constant(0.0f));
+            Operand<TFloat32> weight = tf.variable(tf.constant(0.0f));
+            Operand<TFloat32> bias = tf.variable(tf.constant(0.0f));
 
             // 모델 정의: y_pred = weight * x + bias
             Operand<TFloat32> yPred = tf.math.add(tf.math.mul(x, weight), bias);
 
             // 손실 함수 정의: Mean Squared Error
-            Operand<TFloat32> loss = tf.math.mean(tf.math.squaredDifference(yPred, y), tf.constant(0));
+            Operand<TFloat32> loss = tf.math.mean(tf.math.square(tf.math.sub(yPred, y)), tf.constant(0));
 
-            // 옵티마이저 정의: Gradient Descent
-            float learningRate = 0.001f;
-            TrainableOptimizer<TFloat32> optimizer = new TrainableOptimizer(tf, learningRate);
-            //Operand<TFloat32> trainOp = optimizer.minimize(loss, tf.assign(weight, bias));
-			
-			// Gradient 계산
-            //Assign<TFloat32> gradWeight = tf.assign(weight, tf.math.tan(tf.math.mul(tf.math.sub(yPred, y), x)));
-            //Assign<TFloat32> gradBias = tf.assign(bias, tf.math.tan(tf.math.sub(yPred, y)));
-
-			Assign<TFloat32> gradWeight = tf.assign(weight, tf.reduceSum(tf.math.tan(tf.math.mul(tf.math.sub(yPred, y), x)), tf.constant(0)));
-			Assign<TFloat32> gradBias = tf.assign(bias, tf.reduceSum(tf.math.tan(tf.math.sub(yPred, y)), tf.constant(0)));
-
+            // 옵티마이저 정의: Gradient Descent Optimizer
+            float learningRate = 0.01f;
+            Assign<TFloat32> optimizerWeight = tf.assign(
+                    weight,
+                    tf.math.sub(weight, tf.math.mul(tf.constant(learningRate), tf.math.mean(tf.math.mul(tf.math.sub(yPred, y), x), tf.constant(0))))
+            );
+            Assign<TFloat32> optimizerBias = tf.assign(
+                    bias,
+                    tf.math.sub(bias, tf.math.mul(tf.constant(learningRate), tf.math.mean(tf.math.sub(yPred, y), tf.constant(0))))
+            );
+            
             // 텐서플로우 세션 시작
-            try (Session session = new Session(graph)) {
-                // 변수 초기화
-                session.runner().addTarget(tf.init()).run();
+            session.runner().addTarget(tf.init()).run();
 
-                // 훈련 루프
-                int numEpochs = 10;
-                for (int epoch = 0; epoch < numEpochs; epoch++) {
-                    for (int i = 0; i < xTrain.length; i++) {
-                        float[] feedDict = {xTrain[i], yTrain[i]};
-						// 학습 데이터
-						FloatNdArray inputndArray = NdArrays.vectorOf(feedDict[0]);
-						FloatNdArray labelArray = NdArrays.vectorOf(feedDict[1]);
-						System.out.println(feedDict[0] + "   /   " + feedDict[1]);
-						session.runner()
-                        .addTarget(gradWeight)
-                        .addTarget(gradBias)
-                        .feed(x.asOutput(), TFloat32.tensorOf(inputndArray))
-                        .feed(y.asOutput(), TFloat32.tensorOf(labelArray))
-                        .run();
-	 
-                    }
+            // 훈련 루프
+            int numEpochs = 1000;
+            for (int epoch = 0; epoch < numEpochs; epoch++) {
+                for (int i = 0; i < xTrain.length; i++) {
+                    float[] feedDict = {xTrain[i], yTrain[i]};
+                    FloatNdArray inputNdArray = NdArrays.vectorOf(feedDict[0]);
+                    FloatNdArray labelArray = NdArrays.vectorOf(feedDict[1]);
+
+                    session.runner()
+                            .addTarget(optimizerWeight)
+                            .addTarget(optimizerBias)
+                            .feed(x.asOutput(), TFloat32.tensorOf(inputNdArray))
+                            .feed(y.asOutput(), TFloat32.tensorOf(labelArray))
+                            .run();
                 }
+            }
 
-                // 최종 모델 파라미터 출력
-                System.out.println("Final Weight: " + session.runner().fetch(weight).run().get(0).expect(TFloat32.DTYPE));
-                System.out.println("Final Bias: " + session.runner().fetch(bias).run().get(0).expect(TFloat32.DTYPE));
+            // 최종 모델 파라미터 출력
+            float finalWeight = session.runner().fetch(weight).run().get(0).expect(TFloat32.DTYPE).data().getFloat();
+            float finalBias = session.runner().fetch(bias).run().get(0).expect(TFloat32.DTYPE).data().getFloat();
+            System.out.println("Final Weight: " + finalWeight);
+            System.out.println("Final Bias: " + finalBias);
 
+            // 테스트 데이터
+            float[] xTest = {6, 7, 8};
+            float[] yTest = {13, 15, 17}; // 실제 정답 값
 
-				// 테스트 데이터
-				float[] xTest = {6, 7, 8};
-				float[] yTest = {13, 15, 17}; // 실제 정답 값
+            // 테스트 루프
+            for (int i = 0; i < xTest.length; i++) {
+                float[] feedDict = {xTest[i]}; // 테스트 데이터에 대해 y에 대한 값을 제거
+				FloatNdArray testInputArray = NdArrays.vectorOf(feedDict);
 
-				// 테스트 루프
-				for (int i = 0; i < xTest.length; i++) {
-					float[] feedDict = {xTest[i]}; // 테스트 데이터에 대해 y에 대한 값을 제거
-					FloatNdArray testInputArray = NdArrays.vectorOf(feedDict);
-
-					// 모델 예측
-					float predictedValue = session.runner()
-							.fetch(yPred)
-							.feed(x.asOutput(), TFloat32.tensorOf(testInputArray))
-							.run()
-							.get(0)
-							.expect(TFloat32.DTYPE)
-							.data()
-							.getFloat();
-
-					System.out.println("Test Input: " + xTest[i] + ", Actual Output: " + yTest[i] + ", Predicted Output: " + predictedValue);
-				}
-			}
-			catch (Exception e) {
-				// TODO: handle exception
-				e.printStackTrace();
-			}
-		}
+                float predictedValue = session.runner()
+                        .fetch(yPred)
+                        .feed(x.asOutput(), TFloat32.tensorOf(testInputArray))
+                        .run()
+                        .get(0)
+                        .expect(TFloat32.DTYPE)
+                        .data()
+                        .getFloat();
+                System.out.println("Test Input: " + xTest[i] + ", Actual Output: " + yTest[i] + ", Predicted Output: " + predictedValue);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 		//저장된 모델 확인
 		try(SavedModelBundle b = SavedModelBundle.load("/tmp/fromPython", "serve")){
             
@@ -280,6 +525,45 @@ public class HelloTensorFlow {
 
         return null;
     }
+
+
+    /**
+	 * List<RoadDTO> 형식의 데이터 생성 및 검증
+	 * @param filePath
+	 * @param mtrx
+	 * @throws IOException
+	 */
+	public static List<RoadDTO> csvToRoadObjReturnArr(String filePath) throws IOException {
+		//cSV 파일을 Object 객체로 List에 적재
+        try {
+            int cnt = 0;
+
+            //데이터 검증
+            List<RoadDTO> data = readCsvToBean(filePath);
+            Iterator<RoadDTO> it = data.iterator();
+
+            String[] array_test3 = new String[366271];
+
+            while(it.hasNext()) {
+                RoadDTO vo = (RoadDTO)it.next();
+                System.out.println("num : "+ vo.getSigCd());
+                System.out.println("name : "+ vo.getRnCd());
+                System.out.println("mobile : "+ vo.getEmdNo());
+                System.out.println("num : "+ vo.getRn());
+                System.out.println("name : "+ vo.getSigEngNm());
+                System.out.println("mobile : "+ vo.getAlwncResn());
+                array_test3[0] = vo.getRn();
+                cnt++;
+                //if(cnt == 10){break;};
+            }
+
+            return data;
+		}
+        catch (Exception e) {
+			e.printStackTrace();
+		}
+        return null;
+	}
 
 
     /**
@@ -426,5 +710,439 @@ public class HelloTensorFlow {
 
 	private static INDArray fconvertToNdArray(float[] array) {
         return Nd4j.create(array);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+    * @method 클라우드를 통한 리스트 호출
+    * @param  null
+    * @throws Exception
+    */
+    @GetMapping("/noAuth/getSearchAddrsdfsdfsdf")
+    public Map<String, Object> inde123242xbak(@Valid PaginationDto paginationDto) throws Exception {
+		
+		//학습 데이터 세팅을 위한 경로 
+		String filePath = "C:/Users/all4land/Desktop/TN_SPRD_RDNM.csv";
+
+		//학습 데이터의 현황(Col, Row) 파악
+		getDataSize(filePath);
+		System.out.println("[number of row] ==> "+ ROW + " / [number of feature] ==> "+ FEATURE);
+		
+		//insert csv data to matrix
+		List<RoadDTO> list = csvToRoadObj(filePath);
+        //csvToMtrx(filePath, testInput);
+		//float[][] testInput = new float[ROW][FEATURE];
+        //printMatrix(testInput);
+		
+        try {
+            //Sequential model = new Sequential();
+            //model.add(new Dense(128, activation="relu", inputShape=(784,)));
+            //model.add(new Dense(10, activation="softmax"));
+
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+
+		
+		float[] xTrain = {1, 2, 3, 4, 5};
+        float[] yTrain = {3, 5, 7, 9, 11};
+
+        // TensorFlow 그래프 및 세션 생성
+        try (Graph graph = new Graph(); Session session = new Session(graph)) {
+
+            Ops tf = Ops.create(graph);
+
+            // 플레이스홀더 정의
+            Placeholder<TFloat32> x = tf.placeholder(TFloat32.DTYPE);
+            Placeholder<TFloat32> y = tf.placeholder(TFloat32.DTYPE);
+
+            // 변수 정의
+            Operand<TFloat32> weight = tf.variable(tf.constant(0.0f));
+            Operand<TFloat32> bias = tf.variable(tf.constant(0.0f));
+
+            // 모델 정의: y_pred = weight * x + bias
+            Mul<TFloat32> mul = tf.math.mul(x, weight);
+            Add<TFloat32> yPred = tf.math.add(mul, bias);
+
+            // 손실 함수 정의: Mean Squared Error
+            Sub<TFloat32> sub = tf.math.sub(yPred, y);
+            Mul<TFloat32> squaredDiff = tf.math.mul(sub, sub);
+            Mean<TFloat32> loss = tf.math.mean(squaredDiff, tf.constant(0));
+            
+            
+            float learningRate = 0.01f;
+            ApplyGradientDescent<TFloat32> optimizerWeight = tf.train.applyGradientDescent(weight, tf.constant(learningRate), loss);
+            ApplyGradientDescent<TFloat32> optimizerBias = tf.train.applyGradientDescent(bias, tf.constant(learningRate), loss);
+
+			//Assign<TFloat32> optimizerWeight = tf.assign(weight, tf.reduceSum(tf.math.tan(tf.math.mul(tf.math.sub(yPred, y), x)), tf.constant(0)));
+			//Assign<TFloat32> optimizerBias = tf.assign(bias, tf.reduceSum(tf.math.tan(tf.math.sub(yPred, y)), tf.constant(0)));
+/*
+
+             // 옵티마이저 정의: Adam Optimizer
+            Operand<TFloat32> learningRate = tf.constant(0.001f);
+            Operand <TFloat32> beta1 = tf.constant(0.9f);
+            Operand<TFloat32> beta2 = tf.constant(0.999f);
+            Operand <TFloat32> epsilon = tf.constant(1e-8f);
+
+            Operand<TFloat32> m = tf.variable(tf.fill(tf.shape(weight), tf.constant(0.0f)));
+            Operand<TFloat32> v = tf.variable(tf.fill(tf.shape(weight), tf.constant(0.0f)));
+            Operand<TFloat32> beta1Power = tf.variable(tf.constant(1.0f));
+            Operand<TFloat32> beta2Power = tf.variable(tf.constant(1.0f));
+
+
+            Gradients gradientsWeight = Gradients.create(tf.scope(), Arrays.asList(loss), Arrays.asList(weight));
+            ApplyAdam<TFloat32> optimizerWeight = tf.train.applyAdam(
+                weight,        // 가중치 변수
+                m,             // 첫 번째 모멘텀 지수
+                v,             // 두 번째 모멘텀 지수
+                beta1Power,    // 첫 번째 모멘텀의 지수의 승
+                beta2Power,    // 두 번째 모멘텀의 지수의 승
+                learningRate,  // 학습률
+                beta1,         // 첫 번째 모멘텀 계수
+                beta2,         // 두 번째 모멘텀 계수
+                epsilon,       // 엡실론
+                gradientsWeight.dy(0) // 그래디언트 (가중치 변수에 대한)
+            );
+            
+            Gradients gradientsBias = Gradients.create(tf.scope(), Arrays.asList(loss), Arrays.asList(bias));
+            ApplyAdam<TFloat32> optimizerBias = tf.train.applyAdam(
+                bias,
+                m,
+                v,
+                beta1Power,
+                beta2Power,
+                learningRate,
+                beta1,
+                beta2,
+                epsilon,
+                gradientsBias.dy(0)
+            );
+*/
+            // 텐서플로우 세션 시작
+            session.runner().addTarget(tf.init()).run();
+
+            // 훈련 루프
+            int numEpochs = 1;
+            for (int epoch = 0; epoch < numEpochs; epoch++) {
+                for (int i = 0; i < xTrain.length; i++) {
+                    float[] feedDict = {xTrain[i], yTrain[i]};
+                    FloatNdArray inputNdArray = NdArrays.vectorOf(feedDict[0]);
+                    FloatNdArray labelArray = NdArrays.vectorOf(feedDict[1]);
+
+                    session.runner()
+                            .addTarget(optimizerWeight)
+                            .addTarget(optimizerBias)
+                            .feed(x.asOutput(), TFloat32.tensorOf(inputNdArray))
+                            .feed(y.asOutput(), TFloat32.tensorOf(labelArray))
+                            .run();
+                }
+            }
+
+            // 최종 모델 파라미터 출력
+            float finalWeight = session.runner().fetch(weight).run().get(0).expect(TFloat32.DTYPE).data().getFloat();
+            float finalBias = session.runner().fetch(bias).run().get(0).expect(TFloat32.DTYPE).data().getFloat();
+            System.out.println("Final Weight: " + finalWeight);
+            System.out.println("Final Bias: " + finalBias);
+
+            // 테스트 데이터
+            float[] xTest = {6, 7, 8};
+            float[] yTest = {13, 15, 17}; // 실제 정답 값
+
+            // 테스트 루프
+            for (int i = 0; i < xTest.length; i++) {
+                float[] feedDict = {xTest[i]}; // 테스트 데이터에 대해 y에 대한 값을 제거
+				FloatNdArray testInputArray = NdArrays.vectorOf(feedDict);
+
+                float predictedValue = session.runner()
+                        .fetch(yPred)
+                        .feed(x.asOutput(), TFloat32.tensorOf(testInputArray))
+                        .run()
+                        .get(0)
+                        .expect(TFloat32.DTYPE)
+                        .data()
+                        .getFloat();
+                System.out.println("Test Input: " + xTest[i] + ", Actual Output: " + yTest[i] + ", Predicted Output: " + predictedValue);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+		//저장된 모델 확인
+		try(SavedModelBundle b = SavedModelBundle.load("/tmp/fromPython", "serve")){
+            
+		}
+        catch (Exception e) {
+            // TODO: handle exception
+            System.out.println("Modle Not Found Error !");
+            //e.printStackTrace();
+        }
+
+        return null;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+    * @method 클라우드를 통한 리스트 호출
+    * @param  null
+    * @throws Exception
+    */
+    @GetMapping("/noAuth/getSearchAddreeee")
+    public Map<String, Object> inde123242wwwx(@Valid PaginationDto paginationDto) throws Exception {
+        
+
+        // 오타가 있는 키워드★★★
+        String testKeyword = "사괴";
+
+        String[] fruits = {"사과", "바나나", "오렌지", "딸기"};
+
+        // TensorFlow 그래프 및 세션 생성
+        try (Graph graph = new Graph(); Session session = new Session(graph)) {
+            Ops tf = Ops.create(graph);
+
+            // 플레이스홀더 정의
+            Placeholder<TFloat32> x = tf.placeholder(TFloat32.DTYPE);
+
+/* 
+            // 변수 정의
+            int numFruits = fruits.length;
+            Variable<TFloat32> embeddings = tf.variable(tf.random.randomStandardNormal(
+                    tf.constant(new long[]{numFruits, 3}),
+                    TFloat32.DTYPE
+            ));
+*/
+            // 변수 정의
+            int numFruits = fruits.length;
+            Variable<TFloat32> embeddings = tf.variable(tf.random.randomStandardNormal(
+                    tf.constant(new long[]{numFruits}),
+                    TFloat32.DTYPE
+            ));
+
+            // 훈련 데이터셋을 텐서로 변환
+            float[][] trainInputs = new float[fruits.length][];
+            float[][] trainLabels = new float[fruits.length][];
+            for (int i = 0; i < fruits.length; i++) {
+                float[] oneHot = new float[numFruits];
+                oneHot[i] = 1.0f;
+                trainInputs[i] = oneHot;
+            }
+
+            // 모델 정의
+            Mul<TFloat32> mul = tf.math.mul(x, embeddings);
+            Add<TFloat32> yPred = tf.math.add(mul, tf.constant(0.0f));
+
+            // 손실 함수 정의: Mean Squared Error
+            //Sub<TFloat32> sub = tf.math.sub(yPred, tf.oneHot(tf.dtypes.cast(x, TInt32.DTYPE), tf.constant(numFruits), tf.constant(1.0f), tf.constant(0.0f), -1));
+            //Sub<TFloat32> sub = tf.math.sub(yPred, tf.oneHot(tf.math.argMax(x, tf.constant(0)), tf.constant(numFruits), tf.constant(1.0f), tf.constant(0.0f), OneHot.axis(-1)));
+            Sub<TFloat32> sub = tf.math.sub(yPred, tf.oneHot(tf.math.argMax(x, tf.constant(0)), tf.constant(numFruits), tf.constant(1.0f), tf.constant(0.0f), OneHot.axis(-1L)));
+            Mul<TFloat32> squaredDiff = tf.math.mul(sub, sub);
+            //Mean<TFloat32> loss = tf.math.mean(squaredDiff, tf.constant(0));
+            Mean<TFloat32> loss = tf.math.mean(squaredDiff, tf.constant(new int[] {}));
+
+            // 옵티마이저 정의: Gradient Descent Optimizer
+            float learningRate = 0.01f;
+            Assign<TFloat32> optimizer = tf.assign(
+                embeddings,
+                tf.math.sub(
+                    embeddings,
+                    tf.math.mul(
+                        tf.constant(learningRate),
+                        tf.math.mean(
+                            tf.math.mul(sub, x),
+                            tf.constant(new int[] {0})  // 축을 지정하여 mean을 계산합니다.
+                        )
+                    )
+                )
+            );
+            
+
+            // 텐서플로우 세션 시작
+            session.runner().addTarget(tf.init()).run();
+
+            // 훈련 루프
+            int numEpochs = 1000;
+            for (int epoch = 0; epoch < numEpochs; epoch++) {
+                for (int i = 0; i < trainInputs.length; i++) {
+                    float[] input = trainInputs[i];
+                    float[] label = trainLabels[i];
+
+                    FloatNdArray trainInput = NdArrays.vectorOf(input);
+
+                    session.runner()
+                            .addTarget(optimizer)
+                            .feed(x.asOutput(), TFloat32.tensorOf(trainInput))
+                            .run();
+                }
+            }
+
+            // 테스트
+            float[] testInput = new float[numFruits];
+            for (int i = 0; i < fruits.length; i++) {
+                if (fruits[i].equals(testKeyword)) {
+                    testInput[i] = 1.0f;
+                    break;
+                }
+            }
+
+            FloatNdArray testInputArray = NdArrays.vectorOf(testInput);
+            Tensor<TFloat32> testInputTensor = TFloat32.tensorOf(testInputArray);
+            Tensor<TFloat32> tensor = session.runner()
+                    .fetch(yPred)
+                    .feed(x.asOutput(), testInputTensor)
+                    .run()
+                    .get(0)
+                    .expect(TFloat32.DTYPE);
+
+
+            org.tensorflow.ndarray.Shape shape = tensor.shape();
+            long[] shapeArray = shape.asArray();
+            float[] predictedValue = new float[(int) shapeArray[0]]; // 예측값 배열 초기화
+ 
+/*             
+            ByteBuffer byteBuffer = (ByteBuffer) tensor.rawData(); // ByteBuffer로 변환
+
+            FloatBuffer floatBuffer = byteBuffer.asFloatBuffer(); // FloatBuffer로 변환
+
+            floatBuffer.get(predictedValue); // FloatBuffer에서 값 읽어와서 배열에 할당
+            System.out.println(floatBuffer);
+
+*/
+            tensor.close(); // Tensor를 닫아줍니다.
+
+            FloatNdArray tensorData = tensor.data();
+            for (int i = 0; i < predictedValue.length; i++) {
+                System.out.println("tensorData------------>"+ tensorData.toString());
+                System.out.println("tensorData.getFloat(i) -------------->" +tensorData.getFloat(i));
+                predictedValue[i] = tensorData.getFloat(i); // 텐서의 값을 배열에 복사
+            }
+
+            
+
+            int predictedIndex = -1;
+            float maxProb = Float.MIN_VALUE;
+            System.out.println("maxProb -------------->" +maxProb);
+            for (int i = 0; i < predictedValue.length; i++) {
+                System.out.println("predictedValue[i] -------------->" +predictedValue[i]);
+                if (predictedValue[i] > maxProb) {
+                    predictedIndex = i;
+                    maxProb = predictedValue[i];
+                }
+            }
+
+            if(predictedIndex == -1){
+                System.out.println("테스트 키워드 '" + testKeyword + "'의 예측 결과를 도출 할 수없습니다'");
+            }
+            else{
+                System.out.println("테스트 키워드 '" + testKeyword + "'의 예측된 과일: " + fruits[predictedIndex]);
+            }
+            
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }
