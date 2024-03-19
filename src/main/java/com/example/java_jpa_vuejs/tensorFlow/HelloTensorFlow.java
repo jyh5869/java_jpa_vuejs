@@ -2,6 +2,7 @@ package com.example.java_jpa_vuejs.tensorFlow;
 
 
 import org.hibernate.id.enhanced.Optimizer;
+import org.hibernate.validator.internal.util.logging.LoggerFactory;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.random.custom.RandomNormal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +22,7 @@ import org.tensorflow.op.Ops;
 import org.tensorflow.op.math.Add;
 import org.tensorflow.op.math.Mean;
 import org.tensorflow.op.math.Mul;
+import org.tensorflow.op.math.Square;
 import org.tensorflow.op.math.SquaredDifference;
 import org.tensorflow.op.math.Sub;
 import org.tensorflow.op.nn.Softmax;
@@ -73,6 +75,7 @@ import java.io.InputStreamReader;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -91,6 +94,30 @@ import au.com.bytecode.opencsv.CSVWriter;
 import au.com.bytecode.opencsv.bean.ColumnPositionMappingStrategy;
 import au.com.bytecode.opencsv.bean.CsvToBean;
 
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
+import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
+import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
+import org.deeplearning4j.models.word2vec.VocabWord;
+import org.deeplearning4j.models.word2vec.Word2Vec;
+import org.deeplearning4j.models.word2vec.wordstore.VocabCache;
+import org.deeplearning4j.models.word2vec.wordstore.inmemory.AbstractCache;
+import org.deeplearning4j.models.word2vec.wordstore.inmemory.InMemoryLookupCache;
+import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
+import org.deeplearning4j.text.sentenceiterator.CollectionSentenceIterator;
+import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
+import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
+import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
+import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
+
+import org.openkoreantext.processor.OpenKoreanTextProcessorJava;
+import org.openkoreantext.processor.tokenizer.KoreanTokenizer;
+import scala.collection.Seq;
+
+
+import java.util.Collection;
+
 //https://wiki.yowu.dev/ko/Knowledge-base/Spring-Boot/Learning/095-building-a-machine-learning-system-with-spring-boot-and-tensorflow 
 
 //https://github.com/tensorflow/tensorflow/tree/master/tensorflow/java/src
@@ -108,7 +135,7 @@ public class HelloTensorFlow {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     
-    static int ROW = 0;
+    static int ROW = 1000;
 	static int FEATURE = 0;
 
 
@@ -117,24 +144,24 @@ public class HelloTensorFlow {
     * @param  null
     * @throws Exception
     */
-    @GetMapping("/noAuth/getSearchAddr")
+    @GetMapping("/noAuth/getSearchAddr12345")
     public Map<String, Object> index(@Valid PaginationDto paginationDto) throws Exception {
 
         String filePath = "C:/Users/all4land/Desktop/TN_SPRD_RDNM.csv";
 
 		//학습 데이터의 현황(Col, Row) 파악
-		getDataSize(filePath);
-		System.out.println("[number of row] ==> "+ ROW + " / [number of feature] ==> "+ FEATURE);
+		//getDataSize(filePath);
+		
 		
 		//insert csv data to matrix
-		List<RoadDTO> list = csvToRoadObj(filePath);
+		//List<RoadDTO> list = csvToRoadObj(filePath);
 
 
-        String testKeyword = "노윈로";
+        String testKeyword = "양숭1길";
 
         //String[] fruits = {"노원로", "중앙로", "노원로28길", "성암로"};
-        String[] fruits = {"노원로", "중앙로", "노원로28길", "성암로"};
-
+        String[] fruits = csvToRoadObjReturnArr(filePath);
+        System.out.println("[number of row] ==> "+ ROW + " / [number of feature] ==> "+ FEATURE + " / [FRUITS LENGTH ]  ==>" + fruits.length );
     
         // 학습 데이터 생성
         float[][] trainInputs = new float[][]{{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
@@ -146,8 +173,8 @@ public class HelloTensorFlow {
             org.tensorflow.op.core.Placeholder<TFloat32> x = tf.placeholder(TFloat32.DTYPE);
 
             // 가중치 및 편향 설정
-            org.tensorflow.op.core.Variable<TFloat32> weights = tf.variable(tf.zeros(tf.constant(new long[]{4}), TFloat32.DTYPE));
-            org.tensorflow.op.core.Variable<TFloat32> bias = tf.variable(tf.zeros(tf.constant(new long[]{4}), TFloat32.DTYPE));
+            org.tensorflow.op.core.Variable<TFloat32> weights = tf.variable(tf.zeros(tf.constant(new long[]{ROW}), TFloat32.DTYPE));
+            org.tensorflow.op.core.Variable<TFloat32> bias = tf.variable(tf.zeros(tf.constant(new long[]{ROW}), TFloat32.DTYPE));
 
             // 모델 정의
             Mul<TFloat32> matmul = tf.math.mul(x, weights);
@@ -157,8 +184,10 @@ public class HelloTensorFlow {
             session.runner().addTarget(tf.init()).run();
 
             // 모델 테스트
-            float[] testInput = new float[]{0, 0, 0, 0};
+
+            float[] testInput = new float[ROW];//{0, 0, 0, 0};
             for (int i = 0; i < fruits.length; i++) {
+                System.out.println("하위하위" + fruits[i] + "   /   " + i );
                 if (fruits[i].equals(testKeyword)) {
                     testInput[i] = 1.0f;
                     break;
@@ -166,7 +195,7 @@ public class HelloTensorFlow {
             }
             FloatNdArray testInputArray = NdArrays.vectorOf(testInput);
             Tensor<TFloat32> testInputTensor = TFloat32.tensorOf(testInputArray);
-
+            System.out.println("학습 시작");
             // 모델 테스트
             Tensor<TFloat32> predictionTensor = session.runner()
                     .fetch(yPred)
@@ -176,7 +205,7 @@ public class HelloTensorFlow {
                     .expect(TFloat32.DTYPE);
 
             // 테스트 결과 출력
-            float[] predictionValues = new float[4];
+            float[] predictionValues = new float[ROW];
             FloatNdArray tensorData = predictionTensor.data();
             for (int i = 0; i < predictionValues.length; i++) {
                 predictionValues[i] = tensorData.getFloat(i);
@@ -533,7 +562,7 @@ public class HelloTensorFlow {
 	 * @param mtrx
 	 * @throws IOException
 	 */
-	public static List<RoadDTO> csvToRoadObjReturnArr(String filePath) throws IOException {
+	public static String[] csvToRoadObjReturnArr(String filePath) throws IOException {
 		//cSV 파일을 Object 객체로 List에 적재
         try {
             int cnt = 0;
@@ -542,22 +571,16 @@ public class HelloTensorFlow {
             List<RoadDTO> data = readCsvToBean(filePath);
             Iterator<RoadDTO> it = data.iterator();
 
-            String[] array_test3 = new String[366271];
+            String[] array_test3 = new String[ROW];
 
             while(it.hasNext()) {
                 RoadDTO vo = (RoadDTO)it.next();
-                System.out.println("num : "+ vo.getSigCd());
-                System.out.println("name : "+ vo.getRnCd());
-                System.out.println("mobile : "+ vo.getEmdNo());
-                System.out.println("num : "+ vo.getRn());
-                System.out.println("name : "+ vo.getSigEngNm());
-                System.out.println("mobile : "+ vo.getAlwncResn());
-                array_test3[0] = vo.getRn();
+                array_test3[cnt] = vo.getRn();
                 cnt++;
-                //if(cnt == 10){break;};
+                if(cnt == ROW){break;};
             }
 
-            return data;
+            return array_test3;
 		}
         catch (Exception e) {
 			e.printStackTrace();
@@ -994,7 +1017,7 @@ public class HelloTensorFlow {
         
 
         // 오타가 있는 키워드★★★
-        String testKeyword = "사괴";
+        String testKeyword = "오린지";
 
         String[] fruits = {"사과", "바나나", "오렌지", "딸기"};
 
@@ -1145,4 +1168,214 @@ public class HelloTensorFlow {
 
         return null;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  /**
+    * @method Tensor Flow Test( 텍스트 분석 모델 정상동작 샘플 코드 )
+    * @param  null
+    * @throws Exception
+    */
+    @GetMapping("/noAuth/getSearchAddr")
+    public Map<String, Object> index123123123(@Valid PaginationDto paginationDto) throws Exception {
+        String filePathTxt = "C:/Users/all4land/Desktop/test.txt";
+        String filePathCsv = "C:/Users/all4land/Desktop/TN_SPRD_RDNM.csv";
+        String charsetName = "EUC-KR"; // 파일의 인코딩에 맞게 수정
+        // 엑셀 파일에서 과일 리스트 읽어오기
+        //List<RoadDTO> fruitList = csvToRoadToList(filePathCsv);
+        
+        // 문장 이터레이터 생성
+        SentenceIterator iter = new BasicLineIterator(new File(filePathTxt));
+
+        
+        // 문장 출력
+        while (iter.hasNext()) {
+            String sentence = iter.nextSentence();
+            
+            System.out.println(sentence);
+        }
+    
+        TokenizerFactory tokenizerFactory = new DefaultTokenizerFactory();
+        tokenizerFactory.setTokenPreProcessor(new CommonPreprocessor());
+        
+        // Word2Vec 모델을 훈련시킵니다.
+        WordVectors word2VecModel = trainWord2VecModel(iter, tokenizerFactory);
+    
+        // 훈련된 모델을 사용하여 유사한 단어를 찾습니다.
+        findSimilarWords(word2VecModel, "동부대로번길", 10);
+    
+        return null;
+    }
+    
+    // Word2Vec 모델을 훈련시키는 메서드
+    @SuppressWarnings("deprecation")
+    private static WordVectors trainWord2VecModel(SentenceIterator iter, TokenizerFactory tokenizerFactory) {
+        System.out.println("Load & Vectorize Sentences....");
+        
+        Word2Vec word2Vec = new Word2Vec.Builder()
+                .minWordFrequency(5)
+                .iterations(5)
+                .layerSize(100)
+                .seed(42)
+                .windowSize(5)
+                .iterate(iter)
+                .tokenizerFactory(tokenizerFactory)
+                .build();
+    
+        // 모델 학습
+        word2Vec.fit();
+    
+        // 훈련된 Word2Vec 모델을 저장할 수 있습니다.
+        try {
+            WordVectorSerializer.writeWordVectors(word2Vec, "C:/Users/all4land/Desktop/korean_word2vec_model.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        return word2Vec;
+    }
+    
+    // 주어진 단어와 유사한 단어 찾기
+    public static void findSimilarWords(WordVectors wordVectors, String targetWord, int n) {
+        Collection<String> similarWords = wordVectors.wordsNearest(targetWord, n);
+        System.out.println("주어진 단어 '" + targetWord + "'와 유사한 단어:");
+        for (String word : similarWords) {
+            System.out.println(word);
+        }
+    }
+
+
+
+    /**
+	 * List<RoadDTO> 형식의 데이터 생성 및 검증
+	 * @param filePath
+	 * @param mtrx
+	 * @throws IOException
+	 */
+	public static List<RoadDTO> csvToRoadToList(String filePath) throws IOException {
+		//cSV 파일을 Object 객체로 List에 적재
+        try {
+            int cnt = 0;
+            
+            //데이터 검증
+            List<RoadDTO> data = readCsvToBean(filePath);
+            Iterator<RoadDTO> it = data.iterator();
+            while(it.hasNext()) {
+                RoadDTO vo = (RoadDTO)it.next();
+
+                System.out.println("num : "+ vo.getRn());
+
+
+                cnt++;
+                if(cnt == 100){break;};
+            }
+
+            return data;
+		}
+        catch (Exception e) {
+			e.printStackTrace();
+		}
+        return null;
+	}
+
+
+    // 엑셀 파일에서 과일 리스트를 읽어오는 메서드
+    private static List<String> readExcel(String filename) throws Exception {
+        List<String> fruitList = new ArrayList<>();
+        FileInputStream file = new FileInputStream(filename);
+        Workbook workbook = new XSSFWorkbook(file);
+        Sheet sheet = workbook.getSheetAt(0); // 첫 번째 시트 선택
+        Iterator<Row> rowIterator = sheet.iterator();
+
+        int cnt = 0;
+        while (rowIterator.hasNext()) {
+            Row row = rowIterator.next();
+            Cell cell = row.getCell(4); // 첫 번째 열의 셀 선택
+            fruitList.add(cell.getStringCellValue());
+
+            System.out.println(cell.getStringCellValue());
+
+            cnt++;
+            if(cnt == 1000){break;}
+        }
+        workbook.close();
+        file.close();
+        return fruitList;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
