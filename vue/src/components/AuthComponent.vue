@@ -73,6 +73,8 @@
             <input type="button" class="fadeIn fourth" value="Information Change(EmailAuth)" v-if="accessPath == 'emailAuth'" @click="userManagementAuthEmail('MODIFY')" />
 
             <input type="button" class="fadeIn fourth small" @click="callTensorFlow()" value="텐서플로우 호출" />
+            <input type="button" class="fadeIn fourth small" @click="callTensorFlowAction()" value="텐서플로우 엑션" />
+            <input type="button" class="fadeIn fourth small" @click="callGetLeven()" value="유사어 도출" />
             <!-- Remind Passowrd -->
             <!-- <div id="formFooter"><a class="underlineHover" href="javascript:void(0);">Forgot Password?</a></div> -->
             <div id="formFooter" v-if="accessType == 'MODIFY'">
@@ -622,6 +624,36 @@ export default {
             const result = await this.$axios({
                 method: 'GET',
                 url: '/api/noAuth/getSearchAddr',
+                params: {},
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (result.status === 200) {
+                //this.id = result.data.id;
+                console.log(result);
+            }
+        },
+        callTensorFlowAction: async function () {
+            const result = await this.$axios({
+                method: 'GET',
+                url: '/api/noAuth/getSearchAddrAction',
+                params: {},
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (result.status === 200) {
+                //this.id = result.data.id;
+                console.log(result);
+            }
+        },
+        callGetLeven: async function () {
+            const result = await this.$axios({
+                method: 'GET',
+                url: '/api/noAuth/getLeven',
                 params: {},
                 headers: {
                     'Content-Type': 'multipart/form-data',

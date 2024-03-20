@@ -4,6 +4,7 @@ package com.example.java_jpa_vuejs.tensorFlow;
 import org.hibernate.id.enhanced.Optimizer;
 import org.hibernate.validator.internal.util.logging.LoggerFactory;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.ops.impl.reduce3.CosineDistance;
 import org.nd4j.linalg.api.ops.random.custom.RandomNormal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +32,7 @@ import org.tensorflow.op.train.ApplyGradientDescent;
 import org.tensorflow.types.TFloat32;
 import org.tensorflow.types.TInt32;
 import org.tensorflow.types.TInt64;
+import org.tensorflow.types.TString;
 import org.tensorflow.SavedModelBundle;
 import org.tensorflow.Session;
 import org.tensorflow.Graph;
@@ -48,6 +50,7 @@ import org.tensorflow.op.linalg.MatMul;
 import org.tensorflow.types.TFloat32;
 
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.ops.transforms.Transforms;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 //import org.renjin.cran.keras.model.Sequential;
@@ -66,6 +69,7 @@ import com.google.firebase.database.core.operation.Operation;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -76,24 +80,26 @@ import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
 import java.util.logging.Logger;
 import java.io.File;
 import java.io.FileInputStream;
-
+import java.util.*;
+import java.util.Map.Entry;
 
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 import au.com.bytecode.opencsv.bean.ColumnPositionMappingStrategy;
 import au.com.bytecode.opencsv.bean.CsvToBean;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.LineIterator;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.linear.RealVector;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
@@ -110,13 +116,11 @@ import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
 import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
+import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.StringCleaning.*;
 
 import org.openkoreantext.processor.OpenKoreanTextProcessorJava;
 import org.openkoreantext.processor.tokenizer.KoreanTokenizer;
 import scala.collection.Seq;
-
-
-import java.util.Collection;
 
 //https://wiki.yowu.dev/ko/Knowledge-base/Spring-Boot/Learning/095-building-a-machine-learning-system-with-spring-boot-and-tensorflow 
 
@@ -135,7 +139,7 @@ public class HelloTensorFlow {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     
-    static int ROW = 1000;
+    static int ROW = 10000;
 	static int FEATURE = 0;
 
 
@@ -1211,7 +1215,7 @@ public class HelloTensorFlow {
     */
     @GetMapping("/noAuth/getSearchAddr")
     public Map<String, Object> index123123123(@Valid PaginationDto paginationDto) throws Exception {
-        String filePathTxt = "C:/Users/all4land/Desktop/test.txt";
+        String filePathTxt = "C:/Users/all4land/Desktop/testeng.txt";
         String filePathCsv = "C:/Users/all4land/Desktop/TN_SPRD_RDNM.csv";
         String charsetName = "EUC-KR"; // 파일의 인코딩에 맞게 수정
         // 엑셀 파일에서 과일 리스트 읽어오기
@@ -1220,29 +1224,55 @@ public class HelloTensorFlow {
         // 문장 이터레이터 생성
         SentenceIterator iter = new BasicLineIterator(new File(filePathTxt));
 
-        
-        // 문장 출력
-        while (iter.hasNext()) {
-            String sentence = iter.nextSentence();
-            
-            System.out.println(sentence);
+        List<String> tokens = new ArrayList<>();
+        try {
+
+            while (iter.hasNext()) {
+                String line = iter.nextSentence();
+                System.out.println("원본 문장: " + line);
+                List<String> morphemes = analyzeKoreanText(line);
+                
+                System.out.println("형태소 분석 결과: " + StringUtils.join(morphemes, ", "));
+                System.out.println();
+                tokens.add(StringUtils.join(morphemes, " "));
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+            iter.finish();
         }
-    
+        
+        CollectionSentenceIterator iterToken = new CollectionSentenceIterator(tokens);
+
+
         TokenizerFactory tokenizerFactory = new DefaultTokenizerFactory();
         tokenizerFactory.setTokenPreProcessor(new CommonPreprocessor());
-        
+
         // Word2Vec 모델을 훈련시킵니다.
-        WordVectors word2VecModel = trainWord2VecModel(iter, tokenizerFactory);
+        WordVectors word2VecModel = trainWord2VecModel(iter, iterToken, tokenizerFactory);
     
         // 훈련된 모델을 사용하여 유사한 단어를 찾습니다.
-        findSimilarWords(word2VecModel, "동부대로번길", 10);
+        findSimilarWords(word2VecModel, "경기도 파주시 육창로길", 10);
     
         return null;
     }
     
+    // 한글 텍스트의 형태소 분석을 수행하는 메서드
+    public List<String> analyzeKoreanText(String text) {
+        // 한글 텍스트를 형태소로 분석
+        Seq<KoreanTokenizer.KoreanToken> tokens = OpenKoreanTextProcessorJava.tokenize(text);
+        
+        // 형태소를 추출하여 리스트로 반환
+        List<String> morphemes = new ArrayList<>();
+        for (KoreanTokenizer.KoreanToken token : scala.collection.JavaConversions.seqAsJavaList(tokens)) {
+            morphemes.add(token.text());
+        }
+        
+        return morphemes;
+    }
+
     // Word2Vec 모델을 훈련시키는 메서드
     @SuppressWarnings("deprecation")
-    private static WordVectors trainWord2VecModel(SentenceIterator iter, TokenizerFactory tokenizerFactory) {
+    private static WordVectors trainWord2VecModel(SentenceIterator iter, CollectionSentenceIterator token, TokenizerFactory tokenizerFactory) {
         System.out.println("Load & Vectorize Sentences....");
         
         Word2Vec word2Vec = new Word2Vec.Builder()
@@ -1376,6 +1406,313 @@ public class HelloTensorFlow {
 
 
 
+    /**
+    * @method Tensor Flow Test( 텍스트 분석 모델 정상동작 샘플 코드 )
+    * @param  null
+    * @throws Exception
+    */
+    @GetMapping("/noAuth/getSearchAddrAction")
+    public Map<String, Object> index1231231dfwe23(@Valid PaginationDto paginationDto) throws Exception {
+        
+        // 입력 키워드
+        String inputWord = "경기도";
+        String MODEL_PATH = "C:/Users/all4land/Desktop/korean_word2vec_model.txt";
+
+        Map<String, Float[]> wordVectors = loadWordVectors(MODEL_PATH);
+        // 학습된 단어와 해당 단어의 벡터 매핑을 생성합니다.
+
+        // 입력 단어의 벡터를 가져옵니다.
+        Float[] inputVector = wordVectors.get(inputWord);
+
+        if (inputVector == null) {
+            // 모델에 해당 단어의 벡터가 없는 경우에 대한 예외 처리
+            System.out.println("입력한 단어에 대한 벡터가 모델에 존재하지 않습니다.");
+            // 또는 예외를 던지거나 다른 처리를 수행할 수 있습니다.
+            // 예를 들어, 디폴트 벡터 값을 사용하거나, 사용자에게 다른 입력을 요청할 수 있습니다.
+        } else {
+            // 입력 단어의 벡터가 존재하는 경우에는 정상적으로 계속 진행합니다.
+            // 가장 유사한 단어를 찾습니다.
+            //String mostSimilarWord = findMostSimilarWord(inputVector, wordVectors);
+            //System.out.println("입력 단어와 가장 유사한 단어: " + mostSimilarWord);
+
+            List<String> mostSimilarWord = findMostSimilarWordsTen(inputVector, wordVectors, 10);
+            
+            System.out.println("입력 단어와 가장 유사한 단어: ");
+            for (String word : mostSimilarWord) {
+                System.out.println(word);
+            }
+        }
+        
+        return null;
+    }
+
+    private static Map<String, Float[]> loadWordVectors(String filePath) throws IOException {
+        Map<String, Float[]> wordVectors = new HashMap<>();
+        int vectorSize = 100; // 벡터의 크기를 적절하게 설정하세요.
+    
+        // Word2Vec 모델 파일을 읽어와서 단어와 벡터 매핑을 생성합니다.
+        List<String> lines = Files.readAllLines(Paths.get(filePath));
+        for (String line : lines) {
+            String[] parts = line.split(" ");
+            String word = parts[0];
+            Float[] vector = new Float[vectorSize]; // 벡터의 길이를 적절하게 설정하세요.
+    
+            // 벡터의 길이를 맞추기 위해 zero-padding을 적용합니다.
+            for (int i = 1; i < Math.min(parts.length, vectorSize + 1); i++) {
+                try {
+                    vector[i - 1] = Float.parseFloat(parts[i]); // 각 부분을 Float로 변환합니다.
+                } catch (NumberFormatException e) {
+                    // 변환할 수 없는 경우에는 0으로 채웁니다.
+                    vector[i - 1] = 0.0f;
+                }
+            }
+            // 여기서부터 ***********
+            if (vector.length < vectorSize) {
+                Float[] paddedVector = new Float[vectorSize];
+                System.arraycopy(vector, 0, paddedVector, 0, vector.length);
+                wordVectors.put(word, paddedVector);
+            } else {
+                wordVectors.put(word, vector);
+            }
+            // 여기까지 ***********
+        }
+    
+        return wordVectors;
+    }
 
 
+    private static List<String> findMostSimilarWordsTen(Float[] inputVector, Map<String, Float[]> wordVectors, int numSimilarWords) {
+        // 유사도를 저장할 Map
+        Map<String, Double> similarityMap = new HashMap<>();
+
+        // 입력 단어와 모든 학습된 단어들 간의 코사인 유사도를 계산합니다.
+        for (Map.Entry<String, Float[]> entry : wordVectors.entrySet()) {
+            String word = entry.getKey();
+            Float[] vector = entry.getValue();
+
+            // 입력값과 모델에 있는 단어들 간의 유사도를 계산합니다.
+            double similarity = cosineSimilarity(inputVector, vector);
+
+            // 유사도를 Map에 저장합니다.
+            similarityMap.put(word, similarity);
+        }
+
+        // 유사도를 기준으로 내림차순으로 정렬합니다.
+        List<Entry<String, Double>> sortedSimilarityList = new ArrayList<>(similarityMap.entrySet());
+        sortedSimilarityList.sort(Entry.comparingByValue(Comparator.reverseOrder()));
+
+        // 상위 numSimilarWords 개의 단어를 선택합니다.
+        List<String> mostSimilarWords = new ArrayList<>();
+        for (int i = 0; i < Math.min(numSimilarWords, sortedSimilarityList.size()); i++) {
+            mostSimilarWords.add(sortedSimilarityList.get(i).getKey());
+        }
+
+        return mostSimilarWords;
+    }
+
+
+    private static String findMostSimilarWordOne(Float[] inputVector, Map<String, Float[]> wordVectors) {
+        if (inputVector != null) {
+            return "읍따"; // 입력된 단어가 모델에 있는 경우 해당 벡터 값을 반환합니다.
+        }
+        
+        double maxSimilarity = Double.MIN_VALUE;
+        String mostSimilarWord = null;
+    
+        // 입력 단어와 모든 학습된 단어들 간의 코사인 유사도를 계산합니다.
+        for (Map.Entry<String, Float[]> entry : wordVectors.entrySet()) {
+            String word = entry.getKey();
+            Float[] vector = entry.getValue();
+    
+            // 입력값과 모델에 있는 단어들 간의 유사도를 계산합니다.
+            double similarity = cosineSimilarity(inputVector, vector);
+    
+            // 가장 유사도가 높은 단어를 업데이트합니다.
+            if (similarity > maxSimilarity) {
+                maxSimilarity = similarity;
+                mostSimilarWord = word;
+            }
+        }
+
+        return mostSimilarWord;
+    }
+
+    private static double cosineSimilarity(Float[] vectorA, Float[] vectorB) {
+        double dotProduct = 0.0;
+        double normA = 0.0;
+        double normB = 0.0;
+    
+        // 두 벡터의 길이가 같은지 확인합니다.
+        if (vectorA.length != vectorB.length) {
+            throw new IllegalArgumentException("Vector lengths must be equal");
+        }
+    
+        for (int i = 0; i < vectorA.length; i++) {
+            if (vectorA[i] != null && vectorB[i] != null) {
+                dotProduct += vectorA[i] * vectorB[i];
+                normA += Math.pow(vectorA[i], 2);
+                normB += Math.pow(vectorB[i], 2);
+            } else {
+                // 두 벡터의 해당 원소 중 하나가 null인 경우를 처리합니다.
+                // 여기에서는 0으로 처리하도록 했습니다.
+                dotProduct += 0;
+                normA += 0;
+                normB += 0;
+            }
+        }
+    
+        // 벡터의 크기가 0인 경우에는 코사인 유사도를 계산할 수 없습니다.
+        if (normA == 0 || normB == 0) {
+            return 0.0; // 혹은 다른 처리를 원하시면 수정 가능합니다.
+        }
+    
+        return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+    }
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // 입력한 단어와 가장 유사한 단어를 찾는 메서드
+    public String findMostSimilarWord(String inputWord, List<String> wordList) {
+        int minDistance = Integer.MAX_VALUE;
+        String mostSimilarWord = "";
+
+        // 입력한 단어와 학습된 데이터의 각 단어를 비교하여 레벤슈타인 거리를 계산
+        for (String word : wordList) {
+            int distance = levenshteinDistance(inputWord, word);
+            if (distance < minDistance) {
+                minDistance = distance;
+                mostSimilarWord = word;
+            }
+        }
+
+        return mostSimilarWord;
+    }
+
+    // 레벤슈타인 거리 계산 메서드
+    public int levenshteinDistance(String word1, String word2) {
+        int[][] dp = new int[word1.length() + 1][word2.length() + 1];
+
+        for (int i = 0; i <= word1.length(); i++) {
+            for (int j = 0; j <= word2.length(); j++) {
+                if (i == 0) {
+                    dp[i][j] = j;
+                } else if (j == 0) {
+                    dp[i][j] = i;
+                } else {
+                    dp[i][j] = min(
+                            dp[i - 1][j - 1] + (word1.charAt(i - 1) == word2.charAt(j - 1) ? 0 : 1),
+                            dp[i - 1][j] + 1,
+                            dp[i][j - 1] + 1
+                    );
+                }
+            }
+        }
+
+        return dp[word1.length()][word2.length()];
+    }
+
+    // 최솟값 계산 메서드
+    public int min(int a, int b, int c) {
+        return Math.min(a, Math.min(b, c));
+    }
+
+    // 입력한 단어와 유사한 상위 n개의 단어를 찾는 메서드
+    public List<String> findTopSimilarWords(String inputWord, List<String> wordList, int n) {
+        Map<String, Integer> wordDistances = new HashMap<>();
+
+        // 각 단어의 레벤슈타인 거리를 계산하여 저장
+        for (String word : wordList) {
+            int distance = levenshteinDistance(inputWord, word);
+            wordDistances.put(word, distance);
+        }
+
+        // 거리가 가장 짧은 상위 n개의 단어를 추출하여 반환
+        List<Map.Entry<String, Integer>> sortedEntries = new ArrayList<>(wordDistances.entrySet());
+        sortedEntries.sort(Map.Entry.comparingByValue());
+
+        List<String> topWords = new ArrayList<>();
+        for (int i = 0; i < Math.min(n, sortedEntries.size()); i++) {
+            topWords.add(sortedEntries.get(i).getKey());
+        }
+
+        return topWords;
+    }
+
+
+    /**
+    * @method Tensor Flow Test( 텍스트 분석 모델 정상동작 샘플 코드 )
+    * @param  null
+    * @throws Exception
+    */
+    @GetMapping("/noAuth/getLeven")
+    public Map<String, Object> index123123123cvvf(@Valid PaginationDto paginationDto) throws Exception {
+        String filePathTxt = "C:/Users/all4land/Desktop/test.txt";
+
+        List<String> wordList = Arrays.asList("키위", "오렌지", "딸기");
+
+        SentenceIterator iter = new BasicLineIterator(new File(filePathTxt));
+
+        List<String> tokens = new ArrayList<>();
+        try {
+
+            while (iter.hasNext()) {
+                String line = iter.nextSentence();
+
+                tokens.add(line);
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+            iter.finish();
+        }
+
+        String inputWord = "범어길";
+        String mostSimilarWord = findMostSimilarWord(inputWord, tokens);
+        List<String> topSimilarWords = findTopSimilarWords(inputWord, tokens, 10);
+
+        System.out.println("입력한 단어: " + inputWord);
+        System.out.println("가장 유사한 단어: " + mostSimilarWord);
+
+        System.out.println("상위 유사한 단어 10개:");
+        for (String word : topSimilarWords) {
+            System.out.println(word);
+        }
+        return null;
+    }
 }
