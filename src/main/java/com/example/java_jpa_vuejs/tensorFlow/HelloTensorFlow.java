@@ -1215,18 +1215,19 @@ public class HelloTensorFlow {
     */
     @GetMapping("/noAuth/getSearchAddr")
     public Map<String, Object> index123123123(@Valid PaginationDto paginationDto) throws Exception {
-        String filePathTxt = "C:/Users/all4land/Desktop/testeng.txt";
+        String filePathTxt = "C:/Users/all4land/Desktop/test.txt";
         String filePathCsv = "C:/Users/all4land/Desktop/TN_SPRD_RDNM.csv";
         String charsetName = "EUC-KR"; // 파일의 인코딩에 맞게 수정
         // 엑셀 파일에서 과일 리스트 읽어오기
         //List<RoadDTO> fruitList = csvToRoadToList(filePathCsv);
-        
+ 
         // 문장 이터레이터 생성
         SentenceIterator iter = new BasicLineIterator(new File(filePathTxt));
 
         List<String> tokens = new ArrayList<>();
+        /* 
         try {
-
+             
             while (iter.hasNext()) {
                 String line = iter.nextSentence();
                 System.out.println("원본 문장: " + line);
@@ -1240,18 +1241,20 @@ public class HelloTensorFlow {
             e.printStackTrace();
             iter.finish();
         }
-        
+        */
         CollectionSentenceIterator iterToken = new CollectionSentenceIterator(tokens);
 
 
         TokenizerFactory tokenizerFactory = new DefaultTokenizerFactory();
-        tokenizerFactory.setTokenPreProcessor(new CommonPreprocessor());
+        
+        //tokenizerFactory.setTokenPreProcessor(null);// 단어를 토큰화할 때 빈도수가 낮은 단어를 필터링하지 않고 그대로 포함시킴
+        tokenizerFactory.setTokenPreProcessor(new CommonPreprocessor());// 단어를 토큰화할 때 빈도수가 낮은 단어를 필터링
 
         // Word2Vec 모델을 훈련시킵니다.
         WordVectors word2VecModel = trainWord2VecModel(iter, iterToken, tokenizerFactory);
-    
+
         // 훈련된 모델을 사용하여 유사한 단어를 찾습니다.
-        findSimilarWords(word2VecModel, "경기도 파주시 육창로길", 10);
+        findSimilarWords(word2VecModel, "노원로", 10);
     
         return null;
     }
@@ -1276,7 +1279,7 @@ public class HelloTensorFlow {
         System.out.println("Load & Vectorize Sentences....");
         
         Word2Vec word2Vec = new Word2Vec.Builder()
-                .minWordFrequency(5)
+                .minWordFrequency(1)
                 .iterations(5)
                 .layerSize(100)
                 .seed(42)
@@ -1291,6 +1294,7 @@ public class HelloTensorFlow {
         // 훈련된 Word2Vec 모델을 저장할 수 있습니다.
         try {
             WordVectorSerializer.writeWordVectors(word2Vec, "C:/Users/all4land/Desktop/korean_word2vec_model.txt");
+            System.out.println("모델저장 완료");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -1301,6 +1305,12 @@ public class HelloTensorFlow {
     // 주어진 단어와 유사한 단어 찾기
     public static void findSimilarWords(WordVectors wordVectors, String targetWord, int n) {
         Collection<String> similarWords = wordVectors.wordsNearest(targetWord, n);
+        // 학습된 모델을 로드
+        //Word2Vec loadedVec = WordVectorSerializer.readWord2VecModel("path/to/save/model.txt");
+        //Collection<String> similarWords = loadedVec.wordsNearest("word with space", 10);
+        // 유사한 단어 찾기 예시
+        
+
         System.out.println("주어진 단어 '" + targetWord + "'와 유사한 단어:");
         for (String word : similarWords) {
             System.out.println(word);
@@ -1415,11 +1425,11 @@ public class HelloTensorFlow {
     public Map<String, Object> index1231231dfwe23(@Valid PaginationDto paginationDto) throws Exception {
         
         // 입력 키워드
-        String inputWord = "경기도";
+        String inputWord = "노원로";
         String MODEL_PATH = "C:/Users/all4land/Desktop/korean_word2vec_model.txt";
-
-        Map<String, Float[]> wordVectors = loadWordVectors(MODEL_PATH);
-        // 학습된 단어와 해당 단어의 벡터 매핑을 생성합니다.
+        
+        //Word2Vec word2VecModel = WordVectorSerializer.readWord2VecModel(MODEL_PATH);//모델 호출
+        Map<String, Float[]> wordVectors = loadWordVectors(MODEL_PATH);//모델의 데이터셋 호출
 
         // 입력 단어의 벡터를 가져옵니다.
         Float[] inputVector = wordVectors.get(inputWord);
@@ -1434,13 +1444,18 @@ public class HelloTensorFlow {
             // 가장 유사한 단어를 찾습니다.
             //String mostSimilarWord = findMostSimilarWord(inputVector, wordVectors);
             //System.out.println("입력 단어와 가장 유사한 단어: " + mostSimilarWord);
-
-            List<String> mostSimilarWord = findMostSimilarWordsTen(inputVector, wordVectors, 10);
+            System.out.println("입력 단어와 가장 유사한 단어: START ");
+            List<String> mostSimilarWord = findMostSimilarWordsTen(inputVector, wordVectors, 5);
             
-            System.out.println("입력 단어와 가장 유사한 단어: ");
+            System.out.println("입력 단어와 가장 유사한 단어: END  ");
             for (String word : mostSimilarWord) {
                 System.out.println(word);
             }
+
+
+
+            //double[] vector = word2VecModel.getWordVector(inputWord);
+            //System.out.println("Word '"+ inputWord +"' Vector: " + vector);
         }
         
         return null;
@@ -1685,7 +1700,7 @@ public class HelloTensorFlow {
     public Map<String, Object> index123123123cvvf(@Valid PaginationDto paginationDto) throws Exception {
         String filePathTxt = "C:/Users/all4land/Desktop/test.txt";
 
-        List<String> wordList = Arrays.asList("키위", "오렌지", "딸기");
+        //List<String> wordList = Arrays.asList("키위", "오렌지", "딸기");
 
         SentenceIterator iter = new BasicLineIterator(new File(filePathTxt));
 
@@ -1702,7 +1717,7 @@ public class HelloTensorFlow {
             iter.finish();
         }
 
-        String inputWord = "범어길";
+        String inputWord = "인천광역시 계양구 붕우대루743";
         String mostSimilarWord = findMostSimilarWord(inputWord, tokens);
         List<String> topSimilarWords = findTopSimilarWords(inputWord, tokens, 10);
 
