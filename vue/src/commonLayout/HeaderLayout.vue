@@ -27,10 +27,10 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" v-if="this.$store.getters.authType == 'admin'"> Admin </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li><router-link class="nav-link active nav-link" to="/mapTest" aria-current="page">View Map</router-link></li>
+                            <li><router-link class="dropdown-item active" to="/mapTest" aria-current="page">View Map</router-link></li>
                             <li>
                                 <router-link
-                                    class="nav-link active nav-link"
+                                    class="dropdown-item"
                                     :to="{
                                         name: 'boardEdit',
                                         params: {
@@ -43,6 +43,7 @@
                                     >Geometry Board Write
                                 </router-link>
                             </li>
+                            <li><a class="dropdown-item" href="/machineLearning">word2Vec</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">
@@ -51,17 +52,18 @@
                     <li class="nav-item">
                         <router-link class="nav-link" to="/boardList">Geometry Board List</router-link>
                     </li>
-                    <!-- 
+                    <!--
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Dropdown </a>
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"> MachineLearning </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="#">Action</a></li>
+                            <li><a class="dropdown-item" href="/machineLearning">word2Vec</a></li>
+                             
                             <li><a class="dropdown-item" href="#">Another action</a></li>
                             <li><hr class="dropdown-divider" /></li>
-                            <li><a class="dropdown-item" href="#">Something else here</a></li>
-                        </ul>
-                    </li> 
-                    
+                            <li><a class="dropdown-item" href="#">Something else here</a></li> 
+                       </ul>
+                    </li>
+                     
                     <li class="nav-item">
                         <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
                     </li>

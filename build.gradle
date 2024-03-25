@@ -79,10 +79,9 @@ dependencies {
 
 	//한글 형태소분석기 및 오타교정 라이브러리(hunspell)
 	implementation group: 'org.openkoreantext', name: 'open-korean-text', version: '2.1.0'
-	implementation group: 'org.languagetool', name: 'hunspell-native-libs', version: '2.9'
-	//implementation group: 'com.gitlab.dumonts', name: 'hunspell', version: '2.1.2'
-	implementation group: 'org.languagetool', name: 'language-tool-core', version: '5.4' // 또는 최신 버전
-	
+	//implementation group: 'org.languagetool', name: 'hunspell-native-libs', version: '2.9'
+	implementation group: 'com.gitlab.dumonts', name: 'hunspell', version: '2.1.2'
+	//implementation group: 'org.languagetool', name: 'language-tool-core', version: '5.4' // 또는 최신 버전
 	//implementation 'com.atlascopco:hunspell-native-lib-binaries:1.2.0'
 	//implementation 'net.java.dev.jna:jna:5.9.0'
 	//implementation 'org.omegat.plugins:hunspell-java:2.4.0'

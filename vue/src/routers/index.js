@@ -55,6 +55,13 @@ const routes = [
         meta: { authRequired: true },
         props: true, // [파라메터 Y/N]
     },
+    {
+        path: '/machineLearning', // [경로]
+        name: 'machineLearning', // [이름]
+        component: () => import('@/components/MachineLearning.vue'), // [로드 파일]]
+        meta: { authRequired: true },
+        props: true, // [파라메터 Y/N]
+    },
 ];
 
 // 라우터 설정 실시
