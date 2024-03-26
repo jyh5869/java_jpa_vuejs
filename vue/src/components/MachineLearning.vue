@@ -2,7 +2,7 @@
     <div class="hello">
         <h1>{{ msg }}</h1>
         <p>Word2Ve과 Tensorflow를 이용한 도로명주소 머신러닝 테스트 페이지 입니다.</p>
-        <h3>1. Word2Vec</h3>
+        <h3>1. Word2Vec(deeplearning4j)</h3>
         <ul>
             <li>
                 <input type="button" class="fadeIn fourth small" @click="callTensorFlow()" value="워드투백 훈련 호출" />
@@ -12,6 +12,12 @@
             </li>
             <li>
                 <input type="button" class="fadeIn fourth small" @click="callGetAnalyzeKeywordLeven()" value="레벤슈타인 단어 거리 분석" />
+            </li>
+        </ul>
+        <h3>1. Word2Vec(linkedin)</h3>
+        <ul>
+            <li>
+                <input type="button" class="fadeIn fourth small" @click="callTensorFlowLinkedIn()" value="워드투백 훈련 호출" />
             </li>
         </ul>
         <h3>2. TensorFlow</h3>
@@ -66,6 +72,25 @@ export default {
                 url: '/api/noAuth/getAnalyzeKeywordLeven',
                 params: {
                     inputKeyword: '노원로',
+                    analyzeType: 'model',
+                    correctionYN: 'N',
+                },
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (result.status === 200) {
+                //this.id = result.data.id;
+                console.log(result);
+            }
+        },
+        callTensorFlowLinkedIn: async function () {
+            const result = await this.$axios({
+                method: 'GET',
+                url: '/api/noAuth/getAnalyzeKeywordLinkedin',
+                params: {
+                    inputKeyword: '경상남도 김해시 김해대로2431번길',
                     analyzeType: 'model',
                     correctionYN: 'N',
                 },

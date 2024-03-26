@@ -1,20 +1,18 @@
 package com.example.java_jpa_vuejs.tensorFlow.controller;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.PrintWriter;
 
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.commons.lang3.StringUtils;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
+import org.deeplearning4j.models.fasttext.FastText;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
 import org.deeplearning4j.text.sentenceiterator.CollectionSentenceIterator;
@@ -22,6 +20,10 @@ import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
 import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
+import org.deeplearning4j.text.tokenization.tokenizer.TokenPreProcess;
+import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.LowCasePreProcessor;
+import org.deeplearning4j.text.tokenization.tokenizer.Tokenizer;
+import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.BertWordPiecePreProcessor;
 import org.openkoreantext.processor.OpenKoreanTextProcessorJava;
 import org.openkoreantext.processor.tokenizer.KoreanTokenizer;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +36,14 @@ import com.example.java_jpa_vuejs.tensorFlow.common.levenUtil;
 import com.example.java_jpa_vuejs.tensorFlow.common.word2VecUtil;
 import com.example.java_jpa_vuejs.tensorFlow.model.AnalyzeDTO;
 import com.example.java_jpa_vuejs.tensorFlow.model.RoadDTO;
+import com.github.jfasttext.JFastText;
+import com.linkedin.dagli.math.vector.DenseFloatArrayVector;
+import com.linkedin.dagli.math.vector.DenseVector;
+
+import com.linkedin.dagli.math.vector.Vector;
+
+import com.linkedin.dagli.objectio.ObjectReader;
+
 
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.bean.ColumnPositionMappingStrategy;
@@ -47,6 +57,7 @@ import scala.collection.Seq;
 
 import org.apache.poi.ss.usermodel.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -58,6 +69,7 @@ public class word2VecController {
     private final int FEATURE = 0;
     private final int RETURN_COUNT = 5;
     private final String MODEL_PATH = "C:/Users/all4land/Desktop/korean_word2vec_model.txt";
+    private final static String MODEL_PATH_FASTTEXT = "C:/Users/all4land/Desktop/korean_fastText_model.txt";
     private final String FILE_PATH_KOR = "documents/leaningData/addrkor.txt";
     private final String FILE_PATH_ENG = "documents/leaningData/addrEng.txt";
 
@@ -363,5 +375,183 @@ public class word2VecController {
 		
 		return data;
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+    * @method 레벤슈타인 기법으로 텍스트간의 거리를 측정해서 유사한 단어 추출
+    * @param  null
+    * @throws Exception
+    */
+    @GetMapping("/noAuth/getAnalyzeKeywordLinkedin")
+    public Map<String, Object> getAnalyzeKeywordLinkedin(@Valid AnalyzeDTO analyzeDTO) throws Exception {
+        
+        Map<String, Object> retMap = new HashMap<String, Object>();
+        List<String> addrList = new ArrayList<>();
+
+        String inputWord = analyzeDTO.getInputKeyword();
+        String analyzeType = analyzeDTO.getAnalyzeType();
+        String correctionYN = analyzeDTO.getCorrectionYN();
+        System.out.println("모델 학습 시작");
+        try{
+            // 데이터 수집
+            SentenceIterator iter = new BasicLineIterator(new File(FILE_PATH_KOR));
+
+            try {
+                while (iter.hasNext()) {
+                    String line = iter.nextSentence();
+                    addrList.add(line);
+                }
+            } 
+            catch(Exception e) {
+                e.printStackTrace();
+                iter.finish();
+            }
+            
+            // 전처리 및 토큰화
+            List<List<String>> tokenizedAddresses = preprocessAndTokenize(addrList);
+            
+            // Word2Vec 모델 훈련
+            JFastText model = trainWord2VecModel(tokenizedAddresses, MODEL_PATH_FASTTEXT);
+            System.out.println("모델 훈련 완료");
+            // 모델 로드
+            //JFastText model = JFastText.loadFromFile(MODEL_PATH_FASTTEXT);
+            //JFastText model = JFastText.loadFromFile(MODEL_PATH_FASTTEXT);
+            
+
+            // 입력 주소
+            String inputAddress = "서울특별시 강남구 역삼동 123-456";
+            
+            // 입력 주소에 대한 유사한 주소 검색
+            List<String> mostSimilarWordOne = findSimilarAddresses(model, inputAddress, addrList);
+            System.out.println("모델 예측검증완료");
+            /* 
+            System.out.println("입력 주소: " + inputAddress);
+            System.out.println("가장 유사한 주소 목록:");
+            for (String address : similarAddresses) {
+                System.out.println(address);
+            }
+            */
+
+            retMap.put("code", "SUCESS01");
+            //retMap.put("resuleMany", mostSimilarWordOne);
+        } 
+        catch(Exception e) {
+            e.printStackTrace();
+            retMap.put("code", "ERROR01");
+        }
+        finally{
+            retMap.put("analyzeType", analyzeType);
+            retMap.put("correctionYN", correctionYN);
+        };
+
+        return retMap;
+    }
+
+
+    private static List<List<String>> preprocessAndTokenize(List<String> addresses) {
+        List<List<String>> tokenizedAddresses = new ArrayList<>();
+        for (String address : addresses) {
+            String cleanedAddress = cleanText(address);
+            List<String> tokens = tokenize(cleanedAddress);
+            tokenizedAddresses.add(tokens);
+        }
+        return tokenizedAddresses;
+    }
+
+    private static String cleanText(String text) {
+        // 필요한 전처리 수행 (예: 특수 문자 제거, 공백 정리 등)
+        // 이 예제에서는 단순히 공백을 기준으로 토큰화할 것이므로 특별한 전처리는 수행하지 않음
+        return text;
+    }
+
+    private static List<String> tokenize(String text) {
+        // 형태소 분석기를 사용하여 토큰화
+        // 이 예제에서는 형태소 분석기를 사용하지 않으므로 단순히 공백을 기준으로 토큰화함
+        return Arrays.asList(text.split("\\s+"));
+    }
+
+    private static JFastText trainWord2VecModel(List<List<String>> tokenizedData, String modelPath) {
+        // 토큰화된 데이터를 파일에 저장
+        try (PrintWriter writer = new PrintWriter("C:/Users/all4land/Desktop/tokenized_data.txt", "UTF-8")) {
+            for (List<String> tokens : tokenizedData) {
+                writer.println(StringUtils.join(tokens, " "));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // FastText 모델을 사용하여 Word2Vec 모델 훈련
+        JFastText model = new JFastText();
+        model.runCmd(new String[]{"skipgram", "-input", "C:/Users/all4land/Desktop/tokenized_data.txt", "-output", modelPath});
+
+        return model;
+    }
+/* */
+    private static List<String> findSimilarAddresses(JFastText model, String inputAddress, List<String> addresses) {
+        // 입력 주소에 대한 토큰화
+        List<String> inputTokens = tokenize(cleanText(inputAddress));
+
+        // 입력 주소에 가장 유사한 주소 목록 검색
+        List<String> similarAddresses = new ArrayList<>();
+        System.out.println("1111111111111111111111111111");
+        //List<String> mostSimilarWords = model.predict(StringUtils.join(inputTokens, " "), 5);
+        List<String> mostSimilarWords = model.predict(StringUtils.join(inputTokens, " "), 5);
+        System.out.println("222222222222222222222222222222");
+        // 유사한 단어를 포함하는 주소 찾기
+        for (String word : mostSimilarWords) {
+            for (String address : addresses) {
+                System.out.println(address);
+                if (address.contains(word)) {
+                    similarAddresses.add(address);
+                }
+            }
+        }
+
+        Word2Vec models = WordVectorSerializer.readWord2VecModel(new File(MODEL_PATH_FASTTEXT));
+
+        // 유사한 단어 검색 예시
+        System.out.println("Most similar words to 'apple': " + model.wordsNearest("apple", 5));
+        System.out.println("Most similar words to 'banana': " + model.wordsNearest("banana", 5));
+
+        return similarAddresses;
+    }
 
 }

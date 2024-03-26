@@ -62,37 +62,36 @@ dependencies {
 	//json-lib
 	implementation  'net.sf.json-lib:json-lib:2.4:jdk15'
 
-	//이메일 전송 RIB
+	//이메일 전송 라이브러리
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
-
 
 	//웹 소켓
 	//implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
-	//텐서 플로우  
+	//텐서 플로우 라이브러리
 	implementation group: 'org.tensorflow', name: 'tensorflow-core-platform', version: '0.2.0'
+	
+	//머신러닝 라이브러리 Deeplearning4j 사용을 위한 라이브러리
 	implementation group: 'org.nd4j', name: 'nd4j-native-platform', version: '1.0.0-beta7'	
-	//implementation 'org.tensorflow:tensorflow:2.10.0'
 	implementation group: 'org.deeplearning4j', name: 'deeplearning4j-core', version: '1.0.0-beta7'	
 	implementation group: 'org.deeplearning4j', name: 'deeplearning4j-ui', version: '1.0.0-beta7'	
 	implementation group: 'org.deeplearning4j', name: 'deeplearning4j-nlp', version: '1.0.0-beta7'
 
-	//한글 형태소분석기 및 오타교정 라이브러리(hunspell)
-	implementation group: 'org.openkoreantext', name: 'open-korean-text', version: '2.1.0'
-	//implementation group: 'org.languagetool', name: 'hunspell-native-libs', version: '2.9'
-	implementation group: 'com.gitlab.dumonts', name: 'hunspell', version: '2.1.2'
-	//implementation group: 'org.languagetool', name: 'language-tool-core', version: '5.4' // 또는 최신 버전
-	//implementation 'com.atlascopco:hunspell-native-lib-binaries:1.2.0'
-	//implementation 'net.java.dev.jna:jna:5.9.0'
-	//implementation 'org.omegat.plugins:hunspell-java:2.4.0'
+	//Word2Vec 사용을 위한 라이브러리
+	implementation group: 'com.linkedin.dagli', name: 'word2vec', version:'15.0.0-beta3'
 
-	//implementation 'org.tensorflow:tensorflow:0.3.1'
-	//Csv Control Rib
+	//한글 형태소분석기 라이브러리 
+	implementation group: 'org.openkoreantext', name: 'open-korean-text', version: '2.1.0'
+
+	//Hunspell 오타교정 라이브러리
+	implementation group: 'com.gitlab.dumonts', name: 'hunspell', version: '2.1.2'
+
+	//Csv 파일 컨트롤을 위한 라이브러리 1
 	implementation group: 'net.sf.opencsv', name: 'opencsv', version: '2.0'
 
+	//Csv 파일 컨트롤을 위한 라이브러리 2
 	implementation group: 'org.apache.poi', name: 'poi', version: '4.1.2'
 	implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '4.1.2'
-
 }
 
 tasks.named('test') {
