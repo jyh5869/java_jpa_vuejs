@@ -17,7 +17,10 @@
         <h3>1. Word2Vec(linkedin)</h3>
         <ul>
             <li>
-                <input type="button" class="fadeIn fourth small" @click="callTensorFlowLinkedIn()" value="워드투백 훈련 호출" />
+                <input type="button" class="fadeIn fourth small" @click="callTensorFlowLinkedInTrain()" value="워드투백 훈련 호출" />
+            </li>
+            <li>
+                <input type="button" class="fadeIn fourth small" @click="callTensorFlowLinkedInTest()" value="워드투백 테스트 호출" />
             </li>
         </ul>
         <h3>2. TensorFlow</h3>
@@ -85,12 +88,31 @@ export default {
                 console.log(result);
             }
         },
-        callTensorFlowLinkedIn: async function () {
+        callTensorFlowLinkedInTrain: async function () {
             const result = await this.$axios({
                 method: 'GET',
-                url: '/api/noAuth/getAnalyzeKeywordLinkedin',
+                url: '/api/noAuth/getAnalyzeKeywordLinkedinTrain',
                 params: {
                     inputKeyword: '경상남도 김해시 김해대로2431번길',
+                    analyzeType: 'model',
+                    correctionYN: 'N',
+                },
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (result.status === 200) {
+                //this.id = result.data.id;
+                console.log(result);
+            }
+        },
+        callTensorFlowLinkedInTest: async function () {
+            const result = await this.$axios({
+                method: 'GET',
+                url: '/api/noAuth/getAnalyzeKeywordLinkedinTest',
+                params: {
+                    inputKeyword: '김해대로2325번길',
                     analyzeType: 'model',
                     correctionYN: 'N',
                 },
