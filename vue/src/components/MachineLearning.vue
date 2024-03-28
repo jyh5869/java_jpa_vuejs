@@ -5,22 +5,22 @@
         <h3>1. Word2Vec(deeplearning4j)</h3>
         <ul>
             <li>
-                <input type="button" class="fadeIn fourth small" @click="callTensorFlow()" value="워드투백 훈련 호출" />
+                <input type="button" class="fadeIn fourth small" @click="callTensorFlow()" value="Word2Vec 훈련 호출" />
             </li>
             <li>
-                <input type="button" class="fadeIn fourth small" @click="callgetAnalyzeKeyword()" value="훈련모델 호출하여 분석" />
+                <input type="button" class="fadeIn fourth small" @click="callgetAnalyzeKeyword()" value="Word2Vec 테스트 호출" />
             </li>
             <li>
-                <input type="button" class="fadeIn fourth small" @click="callGetAnalyzeKeywordLeven()" value="레벤슈타인 단어 거리 분석" />
+                <input type="button" class="fadeIn fourth small" @click="callGetAnalyzeKeywordLeven()" value="레벤슈타인 단어 거리 분석 테스트 호출" />
             </li>
         </ul>
-        <h3>1. Word2Vec(linkedin)</h3>
+        <h3>1. FastText(deeplearning4j)</h3>
         <ul>
             <li>
-                <input type="button" class="fadeIn fourth small" @click="callTensorFlowLinkedInTrain()" value="워드투백 훈련 호출" />
+                <input type="button" class="fadeIn fourth small" @click="callTensorFlowFastTextTrain()" value="FastText 훈련 호출" />
             </li>
             <li>
-                <input type="button" class="fadeIn fourth small" @click="callTensorFlowLinkedInTest()" value="워드투백 테스트 호출" />
+                <input type="button" class="fadeIn fourth small" @click="callTensorFlowFastTextTest()" value="FastText 테스트 호출" />
             </li>
         </ul>
         <h3>2. TensorFlow</h3>
@@ -88,12 +88,12 @@ export default {
                 console.log(result);
             }
         },
-        callTensorFlowLinkedInTrain: async function () {
+        callTensorFlowFastTextTrain: async function () {
             const result = await this.$axios({
                 method: 'GET',
-                url: '/api/noAuth/getAnalyzeKeywordLinkedinTrain',
+                url: '/api/noAuth/getAnalyzeKeywordFastTextTrain',
                 params: {
-                    inputKeyword: '경상남도 김해시 김해대로2431번길',
+                    inputKeyword: '김해대로2431번길',
                     analyzeType: 'model',
                     correctionYN: 'N',
                 },
@@ -107,10 +107,10 @@ export default {
                 console.log(result);
             }
         },
-        callTensorFlowLinkedInTest: async function () {
+        callTensorFlowFastTextTest: async function () {
             const result = await this.$axios({
                 method: 'GET',
-                url: '/api/noAuth/getAnalyzeKeywordLinkedinTest',
+                url: '/api/noAuth/getAnalyzeKeywordFastTextTest',
                 params: {
                     inputKeyword: '김해대로2325번길',
                     analyzeType: 'model',
