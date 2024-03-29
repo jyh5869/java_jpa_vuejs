@@ -31,7 +31,7 @@ const instance = axios.create({
 });
 // 요청 인터셉터 추가
 // Promise Chaining이란 무었인가????????????????????
-instance.defaults.timeout = 100000;
+instance.defaults.timeout = 10000000;
 instance.interceptors.request.use(
     function (config) {
         // 요청이 전달되기 전에 작업

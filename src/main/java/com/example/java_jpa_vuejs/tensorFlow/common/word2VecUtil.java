@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.deeplearning4j.models.word2vec.StaticWord2Vec;
+import org.deeplearning4j.models.word2vec.Word2Vec;
+
 public class word2VecUtil {
     
     public static List<String> findMostSimilarWordMany(Float[] inputVector, Map<String, Float[]> wordVectors, int numSimilarWords) {
@@ -43,8 +46,9 @@ public class word2VecUtil {
 
 
     public static String findMostSimilarWordOne(Float[] inputVector, Map<String, Float[]> wordVectors) {
-        if (inputVector != null) {
-            return "읍따"; // 입력된 단어가 모델에 있는 경우 해당 벡터 값을 반환합니다.
+        
+        if (inputVector == null) {
+            return "해당 단어에 대한 백터 값이 없습니다."; // 입력된 단어가 모델에 있는 경우 해당 벡터 값을 반환합니다.
         }
         
         double maxSimilarity = Double.MIN_VALUE;
@@ -133,4 +137,6 @@ public class word2VecUtil {
     
         return wordVectors;
     }
+
+
 }

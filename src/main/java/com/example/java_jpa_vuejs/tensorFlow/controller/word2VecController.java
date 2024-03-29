@@ -3,6 +3,7 @@ package com.example.java_jpa_vuejs.tensorFlow.controller;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -11,11 +12,15 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.deeplearning4j.models.embeddings.learning.impl.elements.SkipGram;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
 import org.deeplearning4j.models.fasttext.FastText;
 import org.deeplearning4j.models.fasttext.FastText.FastTextBuilder;
+import org.deeplearning4j.models.word2vec.VocabWord;
 import org.deeplearning4j.models.word2vec.Word2Vec;
+import org.deeplearning4j.models.word2vec.wordstore.inmemory.AbstractCache;
+import org.deeplearning4j.models.word2vec.wordstore.inmemory.InMemoryLookupCache;
 import org.deeplearning4j.models.fasttext.FTModels;
 import org.deeplearning4j.text.documentiterator.LabelAwareIterator;
 import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
@@ -79,14 +84,15 @@ public class word2VecController {
     static final  int ROW = 10000;
 	
     private final int FEATURE = 0;
-    private final int RETURN_COUNT = 5;
-    private final String MODEL_PATH = "C:/Users/all4land/Desktop/korean_word2vec_model";
-    private final static String MODEL_PATH_FASTTEXT = "C:/Users/all4land/Desktop/korean_fastText_model";
-    private final static String MODEL_PATH_FASTTEXT_VEC = "C:/Users/all4land/Desktop/korean_fastText_model.vec";
+    private final int RETURN_COUNT = 10;
+    private final static String VEC_PATH_WORD2VEC_BIN = "C:/Users/all4land/Desktop/korean_word2Vec_vec_bin.bin";
+    private final static String VEC_PATH_WORD2VEC_VEC = "C:/Users/all4land/Desktop/korean_word2Vec_vec_vec.vec";
+    private final static String MODEL_PATH_WORD2VEC_BIN = "C:/Users/all4land/Desktop/korean_word2Vec_model_bin";
+    private final static String MODEL_PATH_WORD2VEC_VEC = "C:/Users/all4land/Desktop/korean_word2Vec_model_vec";
     private final static String FILE_PATH_KOR = "documents/leaningData/addrkor.txt";
     private final static String FILE_PATH_KOR_TEST = "documents/leaningData/addrKorTest.txt";
     private final String FILE_PATH_ENG = "documents/leaningData/addrEng.txt";
-
+    private final String FILE_PATH_KOR_CSV = "C:/Users/all4land/Desktop/TN_SPRD_RDNM.csv";
     /**
     * @method 텍스트를 입력받아 벡터모델에서 코사인 유사도로 측정한 유사 도로명 추출
     * @param  null
@@ -102,6 +108,7 @@ public class word2VecController {
         String analyzeType = analyzeDTO.getAnalyzeType();
         String correctionYN = analyzeDTO.getCorrectionYN();
 
+        System.out.println("Wor2Vec 모델로 텍스트 분석을 시작 합니다.");
         if(correctionYN.equals("Y")){
             inputWord = hunspell.spellingCorrection(inputWord);//맞춤법 및 문법 교정
         }
@@ -109,7 +116,13 @@ public class word2VecController {
         //1. 생성되어있는 모델 호출하여 분석 , 2.모델의 리스트를 호출하여 코사인 유사도를 측정하여 분석
         if(analyzeType.equals("model")){
 
-            Word2Vec word2VecModel = WordVectorSerializer.readWord2VecModel(MODEL_PATH);//모델 호출
+            //WordVectors word2VecModel = WordVectorSerializer.loadStaticModel(new File(VEC_PATH_WORD2VEC_VEC));
+            //WordVectors word2VecModel = WordVectorSerializer.loadStaticModel(new File(VEC_PATH_WORD2VEC_BIN));
+            WordVectors word2VecModel = WordVectorSerializer.readWord2VecModel(new File(MODEL_PATH_WORD2VEC_BIN));
+            //WordVectors word2VecModel = WordVectorSerializer.readWord2VecModel(new File(MODEL_PATH_WORD2VEC_VEC));
+            double[] appleVector = word2VecModel.getWordVector("노원로");
+
+            System.out.println("모델 로드 완료" + appleVector[3]);
 
             Collection<String> mostSimilarWordMany = word2VecModel.wordsNearest(inputWord, RETURN_COUNT);
 
@@ -123,7 +136,7 @@ public class word2VecController {
         }
         else{
             
-            Map<String, Float[]> wordVectors = word2VecUtil.loadWordVectorsToList(MODEL_PATH);//모델의 데이터셋 호출
+            Map<String, Float[]> wordVectors = word2VecUtil.loadWordVectorsToList(MODEL_PATH_WORD2VEC_BIN);//모델의 데이터셋 호출
             Float[] inputVector = wordVectors.get(inputWord);//입력키워드 백터화
 
             if (inputVector == null) {
@@ -134,12 +147,12 @@ public class word2VecController {
             } 
             else {
                 //입력 단어의 벡터가 존재하는 경우에는 가장 유사한 10개의 단어를 찾는다.
-                List<String> mostSimilarWordMany = word2VecUtil.findMostSimilarWordMany(inputVector, wordVectors, 5);
+                List<String> mostSimilarWordMany = word2VecUtil.findMostSimilarWordMany(inputVector, wordVectors, RETURN_COUNT);
                 String mostSimilarWordOne = word2VecUtil.findMostSimilarWordOne(inputVector, wordVectors);
     
                 System.out.println("입력 단어 분석 - START");
-                System.out.println("입력된 단어와 가장 유사한 단어 : " + mostSimilarWordOne);
-                System.out.println("입력된 단어와 가장 유사한 " + RETURN_COUNT + "개의 리스트 : " + mostSimilarWordOne);
+                System.out.println("입력된 단어'" + inputWord + "'와 가장 유사한 단어 : " + mostSimilarWordOne);
+                System.out.println("입력된 단어'" + inputWord + "'와 가장 유사한 " + RETURN_COUNT + "개의 리스트 : " + mostSimilarWordMany.toString());
                 for (String word : mostSimilarWordMany) {
                     System.out.println(word);
                 }
@@ -220,59 +233,54 @@ public class word2VecController {
     * @param  null
     * @throws Exception
     */
-    @GetMapping("/noAuth/getSearchAddr")
-    public Map<String, Object> index123123123(@Valid AnalyzeDTO analyzeDTO) throws Exception {
+    @GetMapping("/noAuth/getAnalyzeKeywordWord2VecTrain")
+    public Map<String, Object> getAnalyzeKeywordWord2VecTrain(@Valid AnalyzeDTO analyzeDTO) throws Exception {
 
         Map<String, Object> retMap = new HashMap<String, Object>();
         List<String> addrList = new ArrayList<>();
 
         String inputWord = analyzeDTO.getInputKeyword();
-        String analyzeType = analyzeDTO.getAnalyzeType();
-        String correctionYN = analyzeDTO.getCorrectionYN();
+        String morphologicalYN = analyzeDTO.getMorphologicalYN();
+    
+        System.out.println("모델 학습 과정을 시작합니다.");
 
-        String filePathTxt = "C:/Users/all4land/Desktop/test.txt";
-        String filePathCsv = "C:/Users/all4land/Desktop/TN_SPRD_RDNM.csv";
-        String charsetName = "EUC-KR"; // 파일의 인코딩에 맞게 수정
-
-        // 엑셀 파일에서 과일 리스트 읽어오기
-        //List<RoadDTO> fruitList = csvToRoadToList(filePathCsv);
- 
         // 문장 이터레이터 생성
-        SentenceIterator iter = new BasicLineIterator(new File(filePathTxt));
+        SentenceIterator iter = new BasicLineIterator(new File(FILE_PATH_KOR));
 
-        List<String> tokens = new ArrayList<>();
-        
-        try {
-             
-            while (iter.hasNext()) {
-                String line = iter.nextSentence();
-                System.out.println("원본 문장: " + line);
-                List<String> morphemes = analyzeKoreanText(line);
-                
-                System.out.println("형태소 분석 결과: " + StringUtils.join(morphemes, ", "));
-                System.out.println();
-                tokens.add(StringUtils.join(morphemes, " "));
+        List<String> morphoResult = new ArrayList<>();//형태소 분석이 필요할 경우 형태소 분석후 데이터를 저장
+        if(morphologicalYN.equals("Y")){
+            try {
+                while (iter.hasNext()) {
+                    String line = iter.nextSentence();
+                    List<String> morphemes = analyzeKoreanText(line);
+                    
+                    //System.out.println("원본 문장: " + line + "   형태소 분석 결과: " + StringUtils.join(morphemes, ", "));
+                    morphoResult.add(StringUtils.join(morphemes, " "));
+                }
+            } catch(Exception e) {
+                e.printStackTrace();
+                iter.finish();
             }
-        } catch(Exception e) {
-            e.printStackTrace();
-            iter.finish();
         }
         
-        CollectionSentenceIterator iterToken = new CollectionSentenceIterator(tokens);
-
+        CollectionSentenceIterator morphoResultIter = new CollectionSentenceIterator(morphoResult);
 
         TokenizerFactory tokenizerFactory = new DefaultTokenizerFactory();
-        
-        //tokenizerFactory.setTokenPreProcessor(null);// 단어를 토큰화할 때 빈도수가 낮은 단어를 필터링하지 않고 그대로 포함시킴
-        tokenizerFactory.setTokenPreProcessor(new CommonPreprocessor());// 단어를 토큰화할 때 빈도수가 낮은 단어를 필터링
+        //tokenizerFactory.setTokenPreProcessor(new CommonPreprocessor());//1.중요하지 않은 데이터를 압축 노원로28길 -> 노원로길
+        tokenizerFactory.setTokenPreProcessor(null);//2.데이터 그대로를 학습 노원로28길 -> 노원로28길길
+
+        @SuppressWarnings("deprecation")
+        InMemoryLookupCache cache = new InMemoryLookupCache();//메모리 기반의 구체적인 단어 조회 캐시: 램이 충분하고 작은데이터에 유리
+        //AbstractCache<VocabWord> cache = new AbstractCache<>();//추상화된 캐시 클래스로 사용자가 캐시를 커스텀: 램이 부족하고 데이터가 방대할때 유리
 
         // Word2Vec 모델을 훈련시킵니다.
-        WordVectors word2VecModel = trainWord2VecModel(iter, iterToken, tokenizerFactory);
+        WordVectors word2VecModel = trainWord2VecModel(iter, morphoResultIter, tokenizerFactory, cache);
 
         // 훈련된 모델을 사용하여 유사한 단어를 찾습니다.
-        Collection<String> mostSimilarWordMany = word2VecModel.wordsNearest("노원로", 10);
+        Collection<String> mostSimilarWordMany = word2VecModel.wordsNearest(inputWord, 10);
         
-        System.out.println("주어진 단어 '" + "노원로" + "'와 유사한 단어:");
+        System.out.println("모델 테스트 과정을 진행합니다.");
+        System.out.println("주어진 단어 '" + inputWord + "'와 유사한 단어:");
         for (String word : mostSimilarWordMany) {
             System.out.println(word);
         }
@@ -297,7 +305,7 @@ public class word2VecController {
 
     // Word2Vec 모델을 훈련시키는 메서드
     @SuppressWarnings("deprecation")
-    private static WordVectors trainWord2VecModel(SentenceIterator iter, CollectionSentenceIterator token, TokenizerFactory tokenizerFactory) {
+    private static WordVectors trainWord2VecModel(SentenceIterator iter, CollectionSentenceIterator token, TokenizerFactory tokenizerFactory, InMemoryLookupCache cache) {
         System.out.println("Load & Vectorize Sentences....");
         
         Word2Vec word2Vec = new Word2Vec.Builder()
@@ -308,14 +316,22 @@ public class word2VecController {
                 .windowSize(5)
                 .iterate(iter)
                 .tokenizerFactory(tokenizerFactory)
+                .vocabCache(cache)
+                .elementsLearningAlgorithm(new SkipGram<VocabWord>())
                 .build();
+        //SkipGram 비지도학습 백터 숫자를기반으로 예측 <--> Supervised지도학습  값과 정답을 매칭시켜 훈련 
     
         // 모델 학습
         word2Vec.fit();
     
         // 훈련된 Word2Vec 모델을 저장할 수 있습니다.
         try {
-            WordVectorSerializer.writeWordVectors(word2Vec, "C:/Users/all4land/Desktop/korean_word2vec_model.txt");
+            WordVectorSerializer.writeWordVectors(word2Vec, MODEL_PATH_WORD2VEC_BIN);
+            WordVectorSerializer.writeWord2VecModel(word2Vec, new File(VEC_PATH_WORD2VEC_BIN));
+
+            WordVectorSerializer.writeWordVectors(word2Vec, MODEL_PATH_WORD2VEC_VEC);
+            WordVectorSerializer.writeWord2VecModel(word2Vec, new File(VEC_PATH_WORD2VEC_VEC));
+
             System.out.println("모델저장 완료");
         } catch (IOException e) {
             e.printStackTrace();

@@ -5,7 +5,7 @@
         <h3>1. Word2Vec(deeplearning4j)</h3>
         <ul>
             <li>
-                <input type="button" class="fadeIn fourth small" @click="callTensorFlow()" value="Word2Vec 훈련 호출" />
+                <input type="button" class="fadeIn fourth small" @click="callGetAnalyzeKeywordWord2VecTrain()" value="Word2Vec 훈련 호출" />
             </li>
             <li>
                 <input type="button" class="fadeIn fourth small" @click="callgetAnalyzeKeyword()" value="Word2Vec 테스트 호출" />
@@ -35,11 +35,11 @@ export default {
         msg: String,
     },
     methods: {
-        callTensorFlow: async function () {
+        callGetAnalyzeKeywordWord2VecTrain: async function () {
             const result = await this.$axios({
                 method: 'GET',
-                url: '/api/noAuth/getSearchAddr',
-                params: {},
+                url: '/api/noAuth/getAnalyzeKeywordWord2VecTrain',
+                params: { inputKeyword: '노원로' },
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -55,8 +55,8 @@ export default {
                 method: 'GET',
                 url: '/api/noAuth/getAnalyzeKeyword',
                 params: {
-                    inputKeyword: '노원로',
-                    analyzeType: 'model1',
+                    inputKeyword: '노원로28길',
+                    analyzeType: 'model',
                     correctionYN: 'N',
                 },
                 headers: {

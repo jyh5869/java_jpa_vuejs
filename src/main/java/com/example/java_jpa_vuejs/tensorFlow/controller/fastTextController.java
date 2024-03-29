@@ -218,6 +218,8 @@ public class fastTextController {
     }
 
 
+    
+
     /**
     * @method JFastText를 이용하여 모델을 훈련하는 컨트롤러
     * @param  null
