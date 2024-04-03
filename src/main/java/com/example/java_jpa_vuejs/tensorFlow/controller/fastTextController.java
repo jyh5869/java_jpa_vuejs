@@ -37,13 +37,19 @@ public class fastTextController {
     static final  int ROW = 10000;
 	
     private final int FEATURE = 0;
-    private final int RETURN_COUNT = 5;
-    private final String MODEL_PATH = "C:/Users/all4land/Desktop/korean_word2vec_model";
-    private final static String MODEL_PATH_FASTTEXT = "C:/Users/all4land/Desktop/korean_fastText_model";
-    private final static String MODEL_PATH_FASTTEXT_VEC = "C:/Users/all4land/Desktop/korean_fastText_model.vec";
-    private final static String FILE_PATH_KOR = "documents/leaningData/addrkor.txt";
+    private final int RETURN_COUNT = 50;
+    private final static String MODEL_PATH_WORD2VEC_BIN_FULL = "C:/Users/all4land/Desktop/adress_fastText_bin_full.bin";
+    private final static String MODEL_PATH_WORD2VEC_VEC_FULL = "C:/Users/all4land/Desktop/adress_fastText_vec_full";
+
+    private final static String MODEL_PATH_WORD2VEC_BIN_ROAD = "C:/Users/all4land/Desktop/adress_fastText_bin_road.bin";
+    private final static String MODEL_PATH_WORD2VEC_VEC_ROAD = "C:/Users/all4land/Desktop/adress_fastText_vec_road.vec";
+
+    private final static String FILE_PATH_KOR_FULL = "documents/leaningData/addrkor_full.txt";
+    private final static String FILE_PATH_KOR_ROAD = "documents/leaningData/addrkor_road.txt";
+
     private final static String FILE_PATH_KOR_TEST = "documents/leaningData/addrKorTest.txt";
     private final String FILE_PATH_ENG = "documents/leaningData/addrEng.txt";
+    private final String FILE_PATH_KOR_CSV = "C:/Users/all4land/Desktop/TN_SPRD_RDNM.csv";
 
 
     /**
@@ -65,7 +71,7 @@ public class fastTextController {
 
             // SentenceIterator 초기화 (데이터를 가져와 훈련하지않고 파일경로로 훈련)
             System.out.println("데이터를 가져오겠습니다.");
-            SentenceIterator iterator = new BasicLineIterator(FILE_PATH_KOR);
+            SentenceIterator iterator = new BasicLineIterator(FILE_PATH_KOR_FULL);
 
             // 토크나이저 설정 (토크나이저를 설정 하나 사용하지 않고 훈련)
             DefaultTokenizerFactory tokenizerFactory = new DefaultTokenizerFactory();
@@ -73,8 +79,8 @@ public class fastTextController {
             
             System.out.println("모델 학습을 시작하였습니다.");
             FastText fastText = FastText.builder()
-                    .inputFile(FILE_PATH_KOR)//훈련데이터 경로
-                    .outputFile(MODEL_PATH_FASTTEXT)//모델 저장 경로 설정
+                    .inputFile(FILE_PATH_KOR_FULL)//훈련데이터 경로
+                    .outputFile(MODEL_PATH_WORD2VEC_VEC_FULL)//모델 저장 경로 설정
                     .supervised(true) //supervised 모드로 설정
                     .build();
 
@@ -110,12 +116,12 @@ public class fastTextController {
         String inputWord = analyzeDTO.getInputKeyword();
         String analyzeType = analyzeDTO.getAnalyzeType();
         String correctionYN = analyzeDTO.getCorrectionYN();
-        String type = "bin";
+
         System.out.println("모델 학습 시작");
         try{
-            if(type.equals("bin")){
+            if(analyzeType.equals("bin")){
                 // FastText 모델 파일 경로
-                String modelFilePath = "C:/Users/all4land/Desktop/korean_fastText_model.bin"; // 모델 파일 경로로 수정
+                String modelFilePath = MODEL_PATH_WORD2VEC_VEC_FULL; // 모델 파일 경로로 수정
 
                 System.out.println("모델 로드 시작 bin");
                 FastText fastText = new FastText();
@@ -127,9 +133,9 @@ public class fastTextController {
                 // 검색된 유사한 주소 출력
                 System.out.println("입력 주소: " + inputWord + " 가장 유사한 주소 " + similarAddresses);
             }
-            else if(type.equals("vec")){
+            else if(analyzeType.equals("vec")){
                 // Word2Vec 모델 파일 경로
-                String modelFilePath = "C:/Users/all4land/Desktop/korean_fastText_model.vec";
+                String modelFilePath = MODEL_PATH_WORD2VEC_VEC_FULL;
 
                 // Word2Vec 모델 로드
                 System.out.println("모델 로드 시작 vec");
@@ -178,12 +184,12 @@ public class fastTextController {
 
         try{
 
-            SentenceIterator iter = new BasicLineIterator(new File(FILE_PATH_KOR));
+            SentenceIterator iter = new BasicLineIterator(new File(FILE_PATH_KOR_FULL));
 
             // FastText 모델 설정
             FastText fastText = FastText.builder()
-                    .inputFile(FILE_PATH_KOR)//훈련 데이터 - iterator와 동일기능으로 생략가능
-                    .outputFile(MODEL_PATH_FASTTEXT)//모델 저장 경로 설정
+                    .inputFile(FILE_PATH_KOR_FULL)//훈련 데이터 - iterator와 동일기능으로 생략가능
+                    .outputFile(MODEL_PATH_WORD2VEC_VEC_FULL)//모델 저장 경로 설정
                     //.iterator(iter)//훈련 데이터 - inputFile과 동일기능 으로 생략 가능 
                     .bucket(2000000) //버킷 크기 설정
                     .minCount(1) //최소 단어 빈도 설정
@@ -239,7 +245,7 @@ public class fastTextController {
         try{
             // 데이터 수집
             System.out.println("학습 데이터를 로드 합니다 JFastText");
-            SentenceIterator iter = new BasicLineIterator(new File(FILE_PATH_KOR));
+            SentenceIterator iter = new BasicLineIterator(new File(FILE_PATH_KOR_FULL));
 
             try {
                 while (iter.hasNext()) {
@@ -257,7 +263,7 @@ public class fastTextController {
             
             // Word2Vec 모델 훈련
             System.out.println("모델 훈련을 시작합니다. JFastText");
-            trainWord2VecModel(tokenizedAddresses, MODEL_PATH_FASTTEXT);
+            trainWord2VecModel(tokenizedAddresses, MODEL_PATH_WORD2VEC_VEC_FULL);
             
             System.out.println("모델 훈련을 완료했습니다. JFastText");
 
@@ -298,7 +304,7 @@ public class fastTextController {
             System.out.println("모델 로드를 시작합니다 JFastText");
             //JFastText model = JFastText.loadFromFile(MODEL_PATH_FASTTEXT);
             JFastText model = new JFastText();
-            model.loadModel(MODEL_PATH_FASTTEXT);
+            model.loadModel(MODEL_PATH_WORD2VEC_VEC_FULL);
 
             //입력 주소
             String inputAddress = "서울특별시 강남구 역삼동 123-456";
@@ -372,7 +378,7 @@ public class fastTextController {
         // FastText 모델을 사용하여 Word2Vec 모델 훈련
         JFastText model = new JFastText();
         //model.runCmd(new String[]{"skipgram", "-input", "C:/Users/all4land/Desktop/tokenized_data.txt", "-output", modelPath, "-epoch", "25"});
-        model.runCmd(new String[]{"supervised","-input", FILE_PATH_KOR, "-output", modelPath, "-minCount", "1", "-epoch", "5", "-thread", "4", "-dim", "100", "-ws", "5", "-neg", "5", "-loss", "ns"});
+        model.runCmd(new String[]{"supervised","-input", FILE_PATH_KOR_FULL, "-output", modelPath, "-minCount", "1", "-epoch", "5", "-thread", "4", "-dim", "100", "-ws", "5", "-neg", "5", "-loss", "ns"});
     }
 
 

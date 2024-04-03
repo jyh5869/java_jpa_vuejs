@@ -18,4 +18,6 @@ public class AnalyzeDTO {
 	private String correctionYN;//맞춤법 교정여부
 
 	private String morphologicalYN = "N";//형태소분석 여부
+
+	private String leaningDataType = "FULL";
 }

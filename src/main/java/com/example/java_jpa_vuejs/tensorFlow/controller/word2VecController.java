@@ -47,11 +47,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.example.java_jpa_vuejs.common.PaginationDto;
+import com.example.java_jpa_vuejs.geomBoard.repositoryService.BoardFirebaseService;
 import com.example.java_jpa_vuejs.tensorFlow.common.hunspell;
 import com.example.java_jpa_vuejs.tensorFlow.common.levenUtil;
 import com.example.java_jpa_vuejs.tensorFlow.common.word2VecUtil;
 import com.example.java_jpa_vuejs.tensorFlow.model.AnalyzeDTO;
 import com.example.java_jpa_vuejs.tensorFlow.model.RoadDTO;
+import com.example.java_jpa_vuejs.tensorFlow.service.W2VModelService;
 import com.github.jfasttext.JFastText;
 import com.github.jfasttext.JFastText.ProbLabel;
 import com.linkedin.dagli.math.vector.DenseFloatArrayVector;
@@ -65,7 +67,7 @@ import com.linkedin.dagli.objectio.ObjectReader;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.bean.ColumnPositionMappingStrategy;
 import au.com.bytecode.opencsv.bean.CsvToBean;
-
+import jakarta.el.ELException;
 import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
@@ -84,15 +86,22 @@ public class word2VecController {
     static final  int ROW = 10000;
 	
     private final int FEATURE = 0;
-    private final int RETURN_COUNT = 10;
-    private final static String VEC_PATH_WORD2VEC_BIN = "C:/Users/all4land/Desktop/korean_word2Vec_vec_bin.bin";
-    private final static String VEC_PATH_WORD2VEC_VEC = "C:/Users/all4land/Desktop/korean_word2Vec_vec_vec.vec";
-    private final static String MODEL_PATH_WORD2VEC_BIN = "C:/Users/all4land/Desktop/korean_word2Vec_model_bin";
-    private final static String MODEL_PATH_WORD2VEC_VEC = "C:/Users/all4land/Desktop/korean_word2Vec_model_vec";
-    private final static String FILE_PATH_KOR = "documents/leaningData/addrkor.txt";
+    private final int RETURN_COUNT = 50;
+    private final static String MODEL_PATH_WORD2VEC_BIN_FULL = "C:/Users/all4land/Desktop/adress_word2Vec_bin_full.bin";
+    private final static String MODEL_PATH_WORD2VEC_VEC_FULL = "C:/Users/all4land/Desktop/adress_word2Vec_vec_full.vec";
+
+    private final static String MODEL_PATH_WORD2VEC_BIN_ROAD = "C:/Users/all4land/Desktop/adress_word2Vec_bin_road.bin";
+    private final static String MODEL_PATH_WORD2VEC_VEC_ROAD = "C:/Users/all4land/Desktop/adress_word2Vec_vec_road.vec";
+
+    private final static String FILE_PATH_KOR_FULL = "documents/leaningData/addrkor_full.txt";
+    private final static String FILE_PATH_KOR_ROAD = "documents/leaningData/addrkor_road.txt";
+
     private final static String FILE_PATH_KOR_TEST = "documents/leaningData/addrKorTest.txt";
     private final String FILE_PATH_ENG = "documents/leaningData/addrEng.txt";
     private final String FILE_PATH_KOR_CSV = "C:/Users/all4land/Desktop/TN_SPRD_RDNM.csv";
+
+    private final W2VModelService w2VModelService;
+
     /**
     * @method 텍스트를 입력받아 벡터모델에서 코사인 유사도로 측정한 유사 도로명 추출
     * @param  null
@@ -107,7 +116,8 @@ public class word2VecController {
         String inputWord = analyzeDTO.getInputKeyword();
         String analyzeType = analyzeDTO.getAnalyzeType();
         String correctionYN = analyzeDTO.getCorrectionYN();
-
+        String leaningDataType = analyzeDTO.getLeaningDataType();
+        
         System.out.println("Wor2Vec 모델로 텍스트 분석을 시작 합니다.");
         if(correctionYN.equals("Y")){
             inputWord = hunspell.spellingCorrection(inputWord);//맞춤법 및 문법 교정
@@ -116,27 +126,24 @@ public class word2VecController {
         //1. 생성되어있는 모델 호출하여 분석 , 2.모델의 리스트를 호출하여 코사인 유사도를 측정하여 분석
         if(analyzeType.equals("model")){
 
-            //WordVectors word2VecModel = WordVectorSerializer.loadStaticModel(new File(VEC_PATH_WORD2VEC_VEC));
-            //WordVectors word2VecModel = WordVectorSerializer.loadStaticModel(new File(VEC_PATH_WORD2VEC_BIN));
-            WordVectors word2VecModel = WordVectorSerializer.readWord2VecModel(new File(MODEL_PATH_WORD2VEC_BIN));
-            //WordVectors word2VecModel = WordVectorSerializer.readWord2VecModel(new File(MODEL_PATH_WORD2VEC_VEC));
-            double[] appleVector = word2VecModel.getWordVector("노원로");
+            Collection<String> mostSimilarWordMany = w2VModelService.getSimillarWords(inputWord, RETURN_COUNT, leaningDataType );
 
-            System.out.println("모델 로드 완료" + appleVector[3]);
-
-            Collection<String> mostSimilarWordMany = word2VecModel.wordsNearest(inputWord, RETURN_COUNT);
-
-            System.out.println("주어진 단어 '" + inputWord + "'와 유사한 단어 " + RETURN_COUNT + "개 출럭");
-            for (String word : mostSimilarWordMany) {
-                System.out.println(word);
-            }
+            List<String> mostSimilarWordManyLev = w2VModelService.getCalculateDistance(inputWord, mostSimilarWordMany, RETURN_COUNT );
 
             retMap.put("code","SUCESS01");
             retMap.put("resuleMany", mostSimilarWordMany);
+            retMap.put("resuleManyLev", mostSimilarWordManyLev);
         }
         else{
+            Map<String, Float[]> wordVectors = null;
             
-            Map<String, Float[]> wordVectors = word2VecUtil.loadWordVectorsToList(MODEL_PATH_WORD2VEC_BIN);//모델의 데이터셋 호출
+            if(leaningDataType.equals("FULL")){
+                wordVectors = word2VecUtil.loadWordVectorsToList(MODEL_PATH_WORD2VEC_BIN_FULL);//모델의 데이터셋 호출
+            }
+            else{
+                wordVectors = word2VecUtil.loadWordVectorsToList(MODEL_PATH_WORD2VEC_BIN_ROAD);//모델의 데이터셋 호출
+            }
+
             Float[] inputVector = wordVectors.get(inputWord);//입력키워드 백터화
 
             if (inputVector == null) {
@@ -149,7 +156,7 @@ public class word2VecController {
                 //입력 단어의 벡터가 존재하는 경우에는 가장 유사한 10개의 단어를 찾는다.
                 List<String> mostSimilarWordMany = word2VecUtil.findMostSimilarWordMany(inputVector, wordVectors, RETURN_COUNT);
                 String mostSimilarWordOne = word2VecUtil.findMostSimilarWordOne(inputVector, wordVectors);
-    
+                
                 System.out.println("입력 단어 분석 - START");
                 System.out.println("입력된 단어'" + inputWord + "'와 가장 유사한 단어 : " + mostSimilarWordOne);
                 System.out.println("입력된 단어'" + inputWord + "'와 가장 유사한 " + RETURN_COUNT + "개의 리스트 : " + mostSimilarWordMany.toString());
@@ -185,7 +192,7 @@ public class word2VecController {
         String analyzeType = analyzeDTO.getAnalyzeType();
         String correctionYN = analyzeDTO.getCorrectionYN();
 
-        SentenceIterator iter = new BasicLineIterator(new File(FILE_PATH_KOR));
+        SentenceIterator iter = new BasicLineIterator(new File(FILE_PATH_KOR_ROAD));
 
         try {
             while (iter.hasNext()) {
@@ -241,11 +248,21 @@ public class word2VecController {
 
         String inputWord = analyzeDTO.getInputKeyword();
         String morphologicalYN = analyzeDTO.getMorphologicalYN();
-    
+        String leaningDataType = analyzeDTO.getLeaningDataType();
+
         System.out.println("모델 학습 과정을 시작합니다.");
 
         // 문장 이터레이터 생성
-        SentenceIterator iter = new BasicLineIterator(new File(FILE_PATH_KOR));
+        SentenceIterator iter = null;
+        
+        if(leaningDataType.equals("FULL")){
+            System.out.println("Set Full Adress Data");
+            iter = new BasicLineIterator(new File(FILE_PATH_KOR_FULL));
+        }
+        else if(leaningDataType.equals("ROAD")){
+            System.out.println("Set Road Adress Data");
+            iter = new BasicLineIterator(new File(FILE_PATH_KOR_ROAD));
+        }
 
         List<String> morphoResult = new ArrayList<>();//형태소 분석이 필요할 경우 형태소 분석후 데이터를 저장
         if(morphologicalYN.equals("Y")){
@@ -274,7 +291,7 @@ public class word2VecController {
         //AbstractCache<VocabWord> cache = new AbstractCache<>();//추상화된 캐시 클래스로 사용자가 캐시를 커스텀: 램이 부족하고 데이터가 방대할때 유리
 
         // Word2Vec 모델을 훈련시킵니다.
-        WordVectors word2VecModel = trainWord2VecModel(iter, morphoResultIter, tokenizerFactory, cache);
+        WordVectors word2VecModel = trainWord2VecModel(iter, morphoResultIter, tokenizerFactory, cache, leaningDataType);
 
         // 훈련된 모델을 사용하여 유사한 단어를 찾습니다.
         Collection<String> mostSimilarWordMany = word2VecModel.wordsNearest(inputWord, 10);
@@ -305,7 +322,7 @@ public class word2VecController {
 
     // Word2Vec 모델을 훈련시키는 메서드
     @SuppressWarnings("deprecation")
-    private static WordVectors trainWord2VecModel(SentenceIterator iter, CollectionSentenceIterator token, TokenizerFactory tokenizerFactory, InMemoryLookupCache cache) {
+    private static WordVectors trainWord2VecModel(SentenceIterator iter, CollectionSentenceIterator token, TokenizerFactory tokenizerFactory, InMemoryLookupCache cache, String leaningDataType) {
         System.out.println("Load & Vectorize Sentences....");
         
         Word2Vec word2Vec = new Word2Vec.Builder()
@@ -326,14 +343,19 @@ public class word2VecController {
     
         // 훈련된 Word2Vec 모델을 저장할 수 있습니다.
         try {
-            WordVectorSerializer.writeWordVectors(word2Vec, MODEL_PATH_WORD2VEC_BIN);
-            WordVectorSerializer.writeWord2VecModel(word2Vec, new File(VEC_PATH_WORD2VEC_BIN));
-
-            WordVectorSerializer.writeWordVectors(word2Vec, MODEL_PATH_WORD2VEC_VEC);
-            WordVectorSerializer.writeWord2VecModel(word2Vec, new File(VEC_PATH_WORD2VEC_VEC));
+            if(leaningDataType.equals("FULL")){
+                System.out.println("Make Full Adress Model");
+                WordVectorSerializer.writeWord2VecModel(word2Vec, new File(MODEL_PATH_WORD2VEC_BIN_FULL));
+                WordVectorSerializer.writeWord2VecModel(word2Vec, new File(MODEL_PATH_WORD2VEC_VEC_FULL));
+            }
+            else if(leaningDataType.equals("ROAD")){
+                System.out.println("Make ROAD Adress Model");
+                WordVectorSerializer.writeWord2VecModel(word2Vec, new File(MODEL_PATH_WORD2VEC_BIN_ROAD));
+                WordVectorSerializer.writeWord2VecModel(word2Vec, new File(MODEL_PATH_WORD2VEC_VEC_ROAD));
+            }
 
             System.out.println("모델저장 완료");
-        } catch (IOException e) {
+        } catch (ELException e) {
             e.printStackTrace();
         }
         
