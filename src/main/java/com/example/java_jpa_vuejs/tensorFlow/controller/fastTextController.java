@@ -10,24 +10,34 @@ import java.io.PrintWriter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
+import org.deeplearning4j.models.embeddings.reader.impl.BasicModelUtils.WordSimilarity;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
 import org.deeplearning4j.models.fasttext.FastText;
 import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
 import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
 import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.openkoreantext.processor.OpenKoreanTextProcessorJava;
+import org.openkoreantext.processor.tokenizer.KoreanTokenizer;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.java_jpa_vuejs.tensorFlow.common.word2VecUtil;
 import com.example.java_jpa_vuejs.tensorFlow.model.AnalyzeDTO;
+import com.example.java_jpa_vuejs.tensorFlow.service.W2VModelService;
 import com.github.jfasttext.JFastText;
+import com.github.jfasttext.FastTextWrapper;
+
 
 import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
+import scala.collection.Seq;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 @RestController
 @RequestMapping("/api")
@@ -51,7 +61,22 @@ public class fastTextController {
     private final String FILE_PATH_ENG = "documents/leaningData/addrEng.txt";
     private final String FILE_PATH_KOR_CSV = "C:/Users/all4land/Desktop/TN_SPRD_RDNM.csv";
 
+    private final W2VModelService w2VModelService;
+/**
+ * 
+supervised(true):
 
+이 옵션은 FastText를 지도 학습 모드로 설정합니다.
+즉, 문장 또는 문서와 그에 따른 레이블을 사용하여 모델을 학습시킬 때 사용됩니다.
+지도 학습 모드에서는 단어 임베딩을 생성하는 대신, 텍스트 분류 작업과 같은 지도 학습 작업을 수행할 수 있습니다.
+skipgram(true):
+
+이 옵션은 FastText 모델의 학습 알고리즘을 skip-gram으로 설정합니다.
+Skip-gram은 Word2Vec의 한 변형으로, 중심 단어 주변의 문맥 단어를 예측하는 방식으로 단어를 임베딩합니다.
+Skip-gram 모델은 많은 양의 텍스트 데이터에서 단어 간 의미적 관계를 학습하는 데 유용합니다.
+
+
+ */
     /**
     * @method FastText를 이용하여 모델을 훈련하는 컨트롤러
     * @param  null
@@ -81,7 +106,10 @@ public class fastTextController {
             FastText fastText = FastText.builder()
                     .inputFile(FILE_PATH_KOR_FULL)//훈련데이터 경로
                     .outputFile(MODEL_PATH_WORD2VEC_VEC_FULL)//모델 저장 경로 설정
-                    .supervised(true) //supervised 모드로 설정
+                    //.supervised(true) //supervised 모드로 설정
+                    .skipgram(true)
+                    .minCount(1) //최소 단어 빈도 설정
+                    .epochs(5)
                     .build();
 
             // 훈련 데이터로 모델 훈련
@@ -117,30 +145,33 @@ public class fastTextController {
         String analyzeType = analyzeDTO.getAnalyzeType();
         String correctionYN = analyzeDTO.getCorrectionYN();
 
-        System.out.println("모델 학습 시작");
+        System.out.println("학습된 모델로 분류 시작");
         try{
             if(analyzeType.equals("bin")){
                 // FastText 모델 파일 경로
-                String modelFilePath = MODEL_PATH_WORD2VEC_VEC_FULL; // 모델 파일 경로로 수정
+                String modelFilePath = MODEL_PATH_WORD2VEC_VEC_FULL+".bin"; // 모델 파일 경로로 수정
 
                 System.out.println("모델 로드 시작 bin");
                 FastText fastText = new FastText();
                 fastText.loadBinaryModel(modelFilePath);
-
-                System.out.println("단어분석 시작 bin");
-                String similarAddresses = fastText.predict(inputWord); // 5개의 유사한 주소 검색
-
+                
+                //String similarAddresses = fastText.predict(inputWord); // 5개의 유사한 주소 검색
+                //System.out.println(fastText.wordsNearest(inputWord, RETURN_COUNT));
+                // double[] inputVector = fastText.getWordVector(inputWord);
+                // fastText.getWordVectors(addrList);
+                
                 // 검색된 유사한 주소 출력
-                System.out.println("입력 주소: " + inputWord + " 가장 유사한 주소 " + similarAddresses);
+                //System.out.println("입력 주소: " + inputWord + " 가장 유사한 주소 " + similarAddresses);
             }
             else if(analyzeType.equals("vec")){
                 // Word2Vec 모델 파일 경로
-                String modelFilePath = MODEL_PATH_WORD2VEC_VEC_FULL;
+                String modelFilePath = MODEL_PATH_WORD2VEC_VEC_FULL+ ".vec";
 
                 // Word2Vec 모델 로드
                 System.out.println("모델 로드 시작 vec");
                 WordVectors wordVectors = WordVectorSerializer.readWord2VecModel(new File(modelFilePath));
-
+                //WordVectors wordVectors = WordVectorSerializer.readWordVectors(new File(modelFilePath));
+                
                 // 유사한 단어 검색
                 System.out.println("단어분석 시작 vec");
                 int numWords = 5; // 검색할 유사한 단어의 수
@@ -250,7 +281,11 @@ public class fastTextController {
             try {
                 while (iter.hasNext()) {
                     String line = iter.nextSentence();
-                    addrList.add(line);
+                    List<String> morphemes = analyzeKoreanText(line);
+                    
+                    System.out.println("원본 문장: " + line + "   형태소 분석 결과: " + StringUtils.join(morphemes, ", "));
+                    addrList.add(StringUtils.join(morphemes, " "));
+                    //addrList.add(line);
                 }
             } 
             catch(Exception e) {
@@ -258,6 +293,8 @@ public class fastTextController {
                 iter.finish();
             }
             
+
+
             // 전처리 및 토큰화
             List<List<String>> tokenizedAddresses = preprocessAndTokenize(addrList);
             
@@ -281,6 +318,19 @@ public class fastTextController {
         return retMap;
     }
 
+    // 한글 텍스트의 형태소 분석을 수행하는 메서드
+    public List<String> analyzeKoreanText(String text) {
+        // 한글 텍스트를 형태소로 분석
+        Seq<KoreanTokenizer.KoreanToken> tokens = OpenKoreanTextProcessorJava.tokenize(text);
+        
+        // 형태소를 추출하여 리스트로 반환
+        List<String> morphemes = new ArrayList<>();
+        for (KoreanTokenizer.KoreanToken token : scala.collection.JavaConversions.seqAsJavaList(tokens)) {
+            morphemes.add(token.text());
+        }
+        
+        return morphemes;
+    }
 
     /**
     * @method JFastText를 이용하여 모델을 테스트하는 컨트롤러
@@ -304,24 +354,55 @@ public class fastTextController {
             System.out.println("모델 로드를 시작합니다 JFastText");
             //JFastText model = JFastText.loadFromFile(MODEL_PATH_FASTTEXT);
             JFastText model = new JFastText();
-            model.loadModel(MODEL_PATH_WORD2VEC_VEC_FULL);
+            model.loadModel(MODEL_PATH_WORD2VEC_VEC_FULL+".bin");
 
             //입력 주소
-            String inputAddress = "서울특별시 강남구 역삼동 123-456";
+            String inputAddress = inputWord;
             
             //입력 주소에 대한 유사한 주소 검색
             System.out.println("모델 테스트를 시작합니다 JFastText");
-            List<String> mostSimilarWordMany = findSimilarAddresses(model, inputAddress, addrList);
-            System.out.println("모델 테스트가 완료되었습니다. JFastText\"");
 
-            System.out.println("입력 주소: " + inputAddress);
-            System.out.println("가장 유사한 주소 목록:");
-            for (String address : mostSimilarWordMany) {
-                System.out.println(address);
+            //List<String> mostSimilarWordMany = findSimilarAddresses(model, inputAddress, addrList);
+            System.out.println(model.getNWords());
+            System.out.println(model.getLabels().size());
+            //System.out.println(model.predict(inputAddress, 5));
+            System.out.println(model.getVector(inputAddress));
+
+
+            List<Float> targetVector = model.getVector(inputAddress);
+
+            // 모델의 단어 리스트 추출
+            List<String> words = model.getWords();
+            
+            Map<String, List<Float>> wordVectors = new HashMap<>();
+            for (String word : words) {
+                // 각 단어의 벡터 추출
+                List<Float> vector = model.getVector(word);
+                wordVectors.put(word, vector);
             }
 
+            // 유사한 단어 찾기
+            int numSimilarWords = 100; // 상위 유사한 단어의 개수
+            List<String> similarWords = findMostSimilarWordMany(targetVector, wordVectors, numSimilarWords);
+            // 결과 출력
+            System.out.println("단어 '" + inputAddress + "'와 유사한 단어:");
+            for (String word : similarWords) {
+                System.out.println(word);
+            }
+
+            List<String> mostSimilarWordManyLev = w2VModelService.getCalculateDistance(inputWord, similarWords, numSimilarWords );
+
+            System.out.println("단어 '" + inputAddress + "'와 유사한 단어:");
+            for (String word : mostSimilarWordManyLev) {
+                System.out.println(word);
+            }
+
+            System.out.println("모델 테스트가 완료되었습니다. JFastText\"");
+
             retMap.put("code", "SUCESS01");
-            retMap.put("resuleMany", mostSimilarWordMany);
+            retMap.put("resuleMany", similarWords);
+            retMap.put("resuleManyLev", mostSimilarWordManyLev);
+
         } 
         catch(Exception e) {
             e.printStackTrace();
@@ -334,6 +415,49 @@ public class fastTextController {
 
         return retMap;
     }
+
+    public static List<String> findMostSimilarWordMany(List<Float> inputVector, Map<String, List<Float>> wordVectors, int numSimilarWords) {
+        // 유사도를 저장할 Map
+        Map<String, Double> similarityMap = new HashMap<>();
+
+        // 입력 단어와 모든 학습된 단어들 간의 코사인 유사도를 계산합니다.
+        for (Map.Entry<String, List<Float>> entry : wordVectors.entrySet()) {
+            String word = entry.getKey();
+            List<Float> vector = entry.getValue();
+
+            // 입력값과 모델에 있는 단어들 간의 유사도를 계산합니다.
+            double similarity = cosineSimilarity(inputVector, vector);
+
+            // 유사도를 Map에 저장합니다.
+            similarityMap.put(word, similarity);
+        }
+
+        // 유사도를 기준으로 내림차순으로 정렬합니다.
+        List<Entry<String, Double>> sortedSimilarityList = new ArrayList<>(similarityMap.entrySet());
+        sortedSimilarityList.sort(Entry.comparingByValue(Comparator.reverseOrder()));
+
+        // 상위 numSimilarWords 개의 단어를 선택합니다.
+        List<String> mostSimilarWords = new ArrayList<>();
+        for (int i = 0; i < Math.min(numSimilarWords, sortedSimilarityList.size()); i++) {
+            mostSimilarWords.add(sortedSimilarityList.get(i).getKey());
+        }
+
+        return mostSimilarWords;
+    }
+
+    private static double cosineSimilarity(List<Float> vec1, List<Float> vec2) {
+        double dotProduct = 0.0;
+        double norm1 = 0.0;
+        double norm2 = 0.0;
+        for (int i = 0; i < vec1.size(); i++) {
+            dotProduct += vec1.get(i) * vec2.get(i);
+            norm1 += Math.pow(vec1.get(i), 2);
+            norm2 += Math.pow(vec2.get(i), 2);
+        }
+        return dotProduct / (Math.sqrt(norm1) * Math.sqrt(norm2));
+    }
+
+
 
 
     /* 데이터를 토큰화 하는 함수 */
@@ -375,10 +499,10 @@ public class fastTextController {
             e.printStackTrace();
         }
 
-        // FastText 모델을 사용하여 Word2Vec 모델 훈련
-        JFastText model = new JFastText();
-        //model.runCmd(new String[]{"skipgram", "-input", "C:/Users/all4land/Desktop/tokenized_data.txt", "-output", modelPath, "-epoch", "25"});
-        model.runCmd(new String[]{"supervised","-input", FILE_PATH_KOR_FULL, "-output", modelPath, "-minCount", "1", "-epoch", "5", "-thread", "4", "-dim", "100", "-ws", "5", "-neg", "5", "-loss", "ns"});
+        // FastText 모델을 사용하여 Word2Vec 모델 훈련 skipgram supervised
+        JFastText model = new JFastText(); 
+        //model.runCmd(new String[]{"skipgram", "-input", FILE_PATH_KOR_FULL, "-output", modelPath, "-epoch", "25"});
+        model.runCmd(new String[]{"skipgram","-input", FILE_PATH_KOR_FULL, "-output", modelPath, "-minCount", "1", "-epoch", "5", "-thread", "4", "-dim", "100", "-ws", "5", "-neg", "5", "-loss", "ns"});
     }
 
 
@@ -392,6 +516,7 @@ public class fastTextController {
         List<String> mostSimilarWords = model.predict(StringUtils.join(inputTokens, " "), 5);
 
         // 유사한 단어를 포함하는 주소 찾기
+        /* 
         for (String word : mostSimilarWords) {
             for (String address : addresses) {
                 System.out.println(address);
@@ -400,6 +525,7 @@ public class fastTextController {
                 }
             }
         }
+        */
         return similarAddresses;
     }
 }

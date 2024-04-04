@@ -53,6 +53,14 @@
                 <input type="button" class="fadeIn fourth small" @click="callTensorFlowFastTextTest()" value="FastText 테스트 호출" />
             </li>
         </ul>
+        <ul>
+            <li>
+                <input type="button" class="fadeIn fourth small" @click="callTensorFlowJFastTextTrain()" value="JFastText 훈련 호출" />
+            </li>
+            <li>
+                <input type="button" class="fadeIn fourth small" @click="callTensorFlowJFastTextTest()" value="JFastText 테스트 호출" />
+            </li>
+        </ul>
     </div>
 </template>
 
@@ -98,9 +106,16 @@ export default {
             }
         },
         callgetAnalyzeKeyword: async function () {
+            var url = '';
+            if (this.analyzerType == 'Word2Vec') {
+                url = '/api/noAuth/getAnalyzeKeyword';
+            } else {
+                url = '/api/noAuth/getAnalyzeKeywordJFastTest';
+            }
+
             const result = await this.$axios({
                 method: 'GET',
-                url: '/api/noAuth/getAnalyzeKeyword',
+                url: url,
                 params: {
                     inputKeyword: this.searchKeyword,
                     analyzeType: 'model',
@@ -165,7 +180,45 @@ export default {
                 url: '/api/noAuth/getAnalyzeKeywordFastTextTest',
                 params: {
                     inputKeyword: '김해대로2325번길',
-                    analyzeType: 'vec',
+                    analyzeType: 'bin',
+                    correctionYN: 'N',
+                },
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (result.status === 200) {
+                //this.id = result.data.id;
+                console.log(result);
+            }
+        },
+        callTensorFlowJFastTextTrain: async function () {
+            const result = await this.$axios({
+                method: 'GET',
+                url: '/api/noAuth/getAnalyzeKeywordJFastTrain',
+                params: {
+                    inputKeyword: '김해대로2431번길',
+                    analyzeType: 'model',
+                    correctionYN: 'N',
+                },
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (result.status === 200) {
+                //this.id = result.data.id;
+                console.log(result);
+            }
+        },
+        callTensorFlowJFastTextTest: async function () {
+            const result = await this.$axios({
+                method: 'GET',
+                url: '/api/noAuth/getAnalyzeKeywordJFastTest',
+                params: {
+                    inputKeyword: '김해대로2325번길',
+                    analyzeType: 'bin',
                     correctionYN: 'N',
                 },
                 headers: {

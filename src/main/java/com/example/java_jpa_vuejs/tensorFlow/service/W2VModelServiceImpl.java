@@ -30,16 +30,17 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class W2VModelServiceImpl implements W2VModelService {
 
-	private final WordVectors wordVectorsFull;
-    private final WordVectors wordVectorsRoad;
+	//private final WordVectors wordVectorsFull;
+    //private final WordVectors wordVectorsRoad;
 
 	// WordVectors 객체를 사용하는 메서드
     public double[] getWordVector(String word) {
-        return wordVectorsFull.getWordVector(word);
+        //return wordVectorsFull.getWordVector(word);
+        return null;
     }
 
     public Collection<String> getSimillarWords(String inputWord, int returnCnt, String leaningDataType){
-
+        /* 
         Collection<String> mostSimilarWordMany = null;
         INDArray array = null;
 
@@ -67,6 +68,8 @@ public class W2VModelServiceImpl implements W2VModelService {
         }
 
         return mostSimilarWordMany;
+        */
+        return null;
     }
 
     @Override
