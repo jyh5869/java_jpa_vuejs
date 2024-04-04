@@ -165,7 +165,7 @@ export default {
                 url: '/api/noAuth/getAnalyzeKeywordFastTextTest',
                 params: {
                     inputKeyword: '김해대로2325번길',
-                    analyzeType: 'bin',
+                    analyzeType: 'vec',
                     correctionYN: 'N',
                 },
                 headers: {
