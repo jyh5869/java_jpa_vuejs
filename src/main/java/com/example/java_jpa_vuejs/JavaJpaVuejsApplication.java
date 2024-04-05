@@ -9,6 +9,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
@@ -17,6 +20,7 @@ import org.slf4j.Logger;
 
 import com.common.Util;
 import com.example.java_jpa_vuejs.auth.repositoryJPA.MemberRepository;
+import com.github.jfasttext.JFastText;
 
 import jakarta.annotation.PostConstruct;
 
@@ -114,7 +118,107 @@ public class JavaJpaVuejsApplication {
         }
         return null;
     }
-*/   
+*/     
+
+
+    private final static String MODEL_PATH_WORD2VEC_BIN_FULL = "C:/Users/all4land/Desktop/adress_fastText_bin_full";
+    private final static String MODEL_PATH_WORD2VEC_BIN_ROAD = "C:/Users/all4land/Desktop/adress_fastText_bin_road";
+    
+    @Bean
+    public JFastText fastTextFullModel() {
+
+        try {
+
+            System.out.println("FastText Full Model - 모델 로드를 시작 합니다.");
+            JFastText fastTextFull = new JFastText();
+            fastTextFull.loadModel(MODEL_PATH_WORD2VEC_BIN_FULL+".bin");
+
+            System.out.println("FastText Full Model - 모델이 성공적으로 로드되었습니다.");
+            return fastTextFull;
+        } 
+        catch (Exception e) {
+            System.err.println("FastText Full Model - 모델을 로드하는 중 오류가 발생했습니다: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Bean
+    public Map<String, List<Float>> fastTextFullData() {
+
+        try {
+            System.out.println("FastText Full Data - 모델로부터 데이터 로드를 시작 합니다.");
+            JFastText fastTextFullModel = new JFastText();
+            fastTextFullModel.loadModel(MODEL_PATH_WORD2VEC_BIN_FULL+".bin");
+
+            // 모델의 단어 리스트 추출
+            List<String> words = fastTextFullModel.getWords();
+             
+            Map<String, List<Float>> fastTextFullData = new HashMap<>();
+            for (String word : words) {
+                // 각 단어의 벡터 추출
+                List<Float> vector = fastTextFullModel.getVector(word);
+                fastTextFullData.put(word, vector);
+            }
+
+            System.out.println("FastText Full Data - 모델로 부터 데이터가 성공적으로 로드되었습니다.");
+            return fastTextFullData;
+        } 
+        catch (Exception e) {
+            System.err.println("FastText Full Data - 모델로부터 데이터를 로드하는 중 오류가 발생했습니다: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    @Bean
+    public JFastText fastTextRoadModel() {
+
+        try {
+
+            System.out.println("FastText Road Model - 모델 로드를 시작 합니다.");
+            JFastText fastTextFull = new JFastText();
+            fastTextFull.loadModel(MODEL_PATH_WORD2VEC_BIN_ROAD+".bin");
+
+            System.out.println("FastText Road Model - 모델이 성공적으로 로드되었습니다.");
+            return fastTextFull;
+        } 
+        catch (Exception e) {
+            System.err.println("FastText Road Model - 모델을 로드하는 중 오류가 발생했습니다: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Bean
+    public Map<String, List<Float>> fastTextRoadData() {
+
+        try {
+            System.out.println("FastText Road Data - 모델로부터 데이터 로드를 시작 합니다.");
+            JFastText fastTextFullModel = new JFastText();
+            fastTextFullModel.loadModel(MODEL_PATH_WORD2VEC_BIN_ROAD+".bin");
+
+            // 모델의 단어 리스트 추출
+            List<String> words = fastTextFullModel.getWords();
+             
+            Map<String, List<Float>> fastTextFullData = new HashMap<>();
+            for (String word : words) {
+                // 각 단어의 벡터 추출
+                List<Float> vector = fastTextFullModel.getVector(word);
+                fastTextFullData.put(word, vector);
+            }
+
+            System.out.println("FastText Road Data - 모델로 부터 데이터가 성공적으로 로드되었습니다.");
+            return fastTextFullData;
+        } 
+        catch (Exception e) {
+            System.err.println("FastText Road Data - 모델로부터 데이터를 로드하는 중 오류가 발생했습니다: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     @PostConstruct
     public void setTimeZone() {
         TimeZone.setDefault(TimeZone.getTimeZone("Etc/UTC"));
