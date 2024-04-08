@@ -20,4 +20,6 @@ public class AnalyzeDTO {
 	private String morphologicalYN = "N";//형태소분석 여부
 
 	private String leaningDataType = "FULL";
+
+	private String refinementType = "All";
 }

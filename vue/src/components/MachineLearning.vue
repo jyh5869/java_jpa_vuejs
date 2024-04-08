@@ -10,6 +10,9 @@
             <select class="mx-1" v-model="analyzerType">
                 <option v-for="analyzerType in analyzerTypeArr" :key="analyzerType" :value="analyzerType">{{ analyzerType }}</option>
             </select>
+            <select class="mx-1" v-model="refinementType">
+                <option v-for="refinementType in refinementTypeArr" :key="refinementType" :value="refinementType[0]">{{ refinementType[1] }}</option>
+            </select>
             <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" v-model="searchKeyword" @keyup.enter="callgetAnalyzeKeyword()" />
             <button class="btn btn-outline-success" type="submit" @click="callgetAnalyzeKeyword()">Search</button>
         </div>
@@ -77,6 +80,11 @@ export default {
             leaningDataTypeArr: ['FULL', 'ROAD'],
             analyzerType: 'Word2Vec',
             analyzerTypeArr: ['Word2Vec', 'FastText'],
+            refinementType: 'All',
+            refinementTypeArr: [
+                ['All', '전체'],
+                ['Road', '도로명'],
+            ],
         };
     },
     props: {
@@ -121,6 +129,7 @@ export default {
                     analyzeType: 'model',
                     correctionYN: 'N',
                     leaningDataType: this.leaningDataType,
+                    refinementType: this.refinementType,
                 },
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -128,8 +137,6 @@ export default {
             });
 
             if (result.status === 200) {
-                //this.id = result.data.id;
-                console.log(result.data);
                 this.dataList = result.data.resuleMany; //데이터 세팅
                 this.dataListLev = result.data.resuleManyLev;
 

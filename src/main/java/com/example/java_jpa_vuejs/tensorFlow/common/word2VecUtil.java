@@ -13,9 +13,15 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.deeplearning4j.models.word2vec.StaticWord2Vec;
 import org.deeplearning4j.models.word2vec.Word2Vec;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.example.java_jpa_vuejs.auth.JwtExceptionFilter;
 
 public class word2VecUtil {
     
+    private static final Logger LOG = LoggerFactory.getLogger(word2VecUtil.class);
+
     public static List<String> findMostSimilarWordMany(Float[] inputVector, Map<String, Float[]> wordVectors, int numSimilarWords) {
         // 유사도를 저장할 Map
         Map<String, Double> similarityMap = new HashMap<>();
@@ -140,21 +146,26 @@ public class word2VecUtil {
     }
 
 
-    public static List<String> dataMiningFromResult(List<String> similarWords) {
-        
-        List<String> resultToList = new ArrayList<>();//형태소 분석이 필요할 경우 형태소 분석후 데이터를 저장
+    public static List<String> dataMiningFromResult(List<String> similarWords, String refinementType) {
+        LOG.info("데이터 마이닝 타입 : " + refinementType);
+        if(refinementType.equals("Road")){
+            List<String> resultToList = new ArrayList<>();//형태소 분석이 필요할 경우 형태소 분석후 데이터를 저장
 
-        String[] endings = {"로", "번길", "대로", "길"};
+            String[] endings = {"로", "번길", "대로", "길"};
 
-        for (String word : similarWords) {
-            for (String ending : endings) {
-                if (word.endsWith(ending)) {
-                    resultToList.add(word);
-                    break;
+            for (String word : similarWords) {
+                for (String ending : endings) {
+                    if (word.endsWith(ending)) {
+                        resultToList.add(word);
+                        break;
+                    }
                 }
             }
-        }
 
-        return resultToList;
+            return resultToList;
+        }
+        else{
+            return similarWords;
+        }
     }
 }

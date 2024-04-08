@@ -354,6 +354,7 @@ Skip-gram 모델은 많은 양의 텍스트 데이터에서 단어 간 의미적
         String inputWord = analyzeDTO.getInputKeyword();
         String analyzeType = analyzeDTO.getAnalyzeType();
         String correctionYN = analyzeDTO.getCorrectionYN();
+        String refinementType = analyzeDTO.getRefinementType();
 
         System.out.println("모델 테스트를 시작합니다 JFastText");
         try{
@@ -361,12 +362,6 @@ Skip-gram 모델은 많은 양의 텍스트 데이터에서 단어 간 의미적
             //모델 로드
             System.out.println("모델 로드를 시작합니다 JFastText");
 
-            /*
-             * 
-             * 여기서부터 테스트
-             * 
-             * 
-             */
             //입력 주소
             String inputAddress = inputWord;
             
@@ -385,8 +380,10 @@ Skip-gram 모델은 많은 양의 텍스트 데이터에서 단어 간 의미적
             for (String word : similarWords) {
                 System.out.println(word);
             }
-            List<String> dataMiningResultMany = word2VecUtil.dataMiningFromResult(similarWords);
-            List<String> mostSimilarWordManyLev = w2VModelService.getCalculateDistance(inputWord, dataMiningResultMany, numSimilarWords );
+
+            //결과 데이터 정제(1: All, 2: Road) 및 단어 거리계산(형태가 유사한 단어 순 정렬)
+            List<String> dataMiningResultMany = word2VecUtil.dataMiningFromResult(similarWords, refinementType);
+            List<String> mostSimilarWordManyLev = w2VModelService.getCalculateDistance(inputWord, dataMiningResultMany, numSimilarWords);
 
             System.out.println("단어 '" + inputAddress + "'와 유사한 단어:");
             for (String word : mostSimilarWordManyLev) {
