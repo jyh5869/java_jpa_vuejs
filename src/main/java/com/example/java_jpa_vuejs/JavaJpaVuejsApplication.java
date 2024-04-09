@@ -24,7 +24,6 @@ import com.github.jfasttext.JFastText;
 
 import jakarta.annotation.PostConstruct;
 
-
 @EnableJpaAuditing // Main method가 있는 클래스에 적용하여 JPA Auditing(감시, 감사) 기능을 활성화(@LastModifiedDate, @CreatedDate등을 사용하기 위함) 
 @SpringBootApplication // (exclude = DataSourceAutoConfiguration.class) -> 데이터소스 자동 생성 제외 (Bean생성 안됨)
 public class JavaJpaVuejsApplication {
