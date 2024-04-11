@@ -63,7 +63,6 @@ public class fastTextController {
 
     private final W2VModelService w2VModelService;
 
-
     private final JFastText fastTextFullModel;
     private final Map<String, List<Float>> fastTextFullData;
 
