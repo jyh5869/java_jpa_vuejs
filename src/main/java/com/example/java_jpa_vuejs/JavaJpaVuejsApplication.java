@@ -55,7 +55,7 @@ public class JavaJpaVuejsApplication {
             }
         };
     }
-/* 
+/*    
     private final static String MODEL_PATH_WORD2VEC_BIN_FULL = "C:/Users/all4land/Desktop/adress_word2Vec_bin_full.bin";
     private final static String MODEL_PATH_WORD2VEC_VEC_FULL = "C:/Users/all4land/Desktop/adress_word2Vec_vec_full.vec";
     
