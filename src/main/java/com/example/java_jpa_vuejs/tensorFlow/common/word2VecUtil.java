@@ -1,5 +1,6 @@
 package com.example.java_jpa_vuejs.tensorFlow.common;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -17,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.example.java_jpa_vuejs.auth.JwtExceptionFilter;
+import com.github.jfasttext.JFastText;
 
 public class word2VecUtil {
     
@@ -168,4 +170,5 @@ public class word2VecUtil {
             return similarWords;
         }
     }
+
 }

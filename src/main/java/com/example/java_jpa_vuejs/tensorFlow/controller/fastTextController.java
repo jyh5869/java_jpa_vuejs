@@ -20,6 +20,7 @@ import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFac
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.openkoreantext.processor.OpenKoreanTextProcessorJava;
 import org.openkoreantext.processor.tokenizer.KoreanTokenizer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -69,6 +70,8 @@ public class fastTextController {
     private final JFastText fastTextRoadModel;
     private final Map<String, List<Float>> fastTextRoadData;
 
+    @Value("${model.fastText.analyzeYn}")
+    private String ANALYZE_YN;
 /**
  * 
 supervised(true):
@@ -357,44 +360,48 @@ Skip-gram 모델은 많은 양의 텍스트 데이터에서 단어 간 의미적
 
         System.out.println("모델 테스트를 시작합니다 JFastText");
         try{
-            
-            //모델 로드
-            System.out.println("모델 로드를 시작합니다 JFastText");
+            if(ANALYZE_YN.equals("Y")){
+                //모델 로드
+                System.out.println("모델 로드를 시작합니다 JFastText");
 
-            //입력 주소
-            String inputAddress = inputWord;
-            
-            //입력 주소에 대한 유사한 주소 검색
-            System.out.println("모델 테스트를 시작합니다 JFastText");
+                //입력 주소
+                String inputAddress = inputWord;
 
-            List<Float> targetVector = fastTextFullModel.getVector(inputAddress);
-            
-            // 유사한 단어 찾기
-            int numSimilarWords = 300; // 상위 유사한 단어의 개수
+                List<Float> targetVector = fastTextFullModel.getVector(inputAddress);
+                
+                // 유사한 단어 찾기
+                int numSimilarWords = 300; // 상위 유사한 단어의 개수
 
 
-            List<String> similarWords = findMostSimilarWordMany(targetVector, fastTextFullData, numSimilarWords);
-            // 결과 출력
-            System.out.println("단어 '" + inputAddress + "'와 유사한 단어:");
-            for (String word : similarWords) {
-                System.out.println(word);
+                List<String> similarWords = findMostSimilarWordMany(targetVector, fastTextFullData, numSimilarWords);
+                // 결과 출력
+                System.out.println("단어 '" + inputAddress + "'와 유사한 단어:");
+                for (String word : similarWords) {
+                    System.out.println(word);
+                }
+
+                //결과 데이터 정제(1: All, 2: Road) 및 단어 거리계산(형태가 유사한 단어 순 정렬)
+                List<String> dataMiningResultMany = word2VecUtil.dataMiningFromResult(similarWords, refinementType);
+                List<String> mostSimilarWordManyLev = w2VModelService.getCalculateDistance(inputWord, dataMiningResultMany, numSimilarWords);
+
+                System.out.println("단어 '" + inputAddress + "'와 유사한 단어:");
+                for (String word : mostSimilarWordManyLev) {
+                    System.out.println(word);
+                }
+
+                System.out.println("모델 테스트가 완료되었습니다. JFastText");
+
+                retMap.put("code", "SUCESS01");
+                retMap.put("resuleMany", dataMiningResultMany);
+                retMap.put("resuleManyLev", mostSimilarWordManyLev);
             }
+            else{
+                System.out.println("모델을 테스트 할 수 없는 환경에서 서버가 구동되었습니다.");
 
-            //결과 데이터 정제(1: All, 2: Road) 및 단어 거리계산(형태가 유사한 단어 순 정렬)
-            List<String> dataMiningResultMany = word2VecUtil.dataMiningFromResult(similarWords, refinementType);
-            List<String> mostSimilarWordManyLev = w2VModelService.getCalculateDistance(inputWord, dataMiningResultMany, numSimilarWords);
-
-            System.out.println("단어 '" + inputAddress + "'와 유사한 단어:");
-            for (String word : mostSimilarWordManyLev) {
-                System.out.println(word);
+                retMap.put("code", "SUCESS02");
+                retMap.put("resuleMany", null);
+                retMap.put("resuleManyLev", null);
             }
-
-            System.out.println("모델 테스트가 완료되었습니다. JFastText\"");
-
-            retMap.put("code", "SUCESS01");
-            retMap.put("resuleMany", dataMiningResultMany);
-            retMap.put("resuleManyLev", mostSimilarWordManyLev);
-
         } 
         catch(Exception e) {
             e.printStackTrace();

@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,8 +31,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class W2VModelServiceImpl implements W2VModelService {
 
-	//private final WordVectors wordVectorsFull;
-    //private final WordVectors wordVectorsRoad;
+    @Value("${model.word2Vec.analyzeYn}")
+    private String WV_ANALYZE_YN;
+
+	private final WordVectors wordVectorsFull;
+    private final WordVectors wordVectorsRoad;
 
 	// WordVectors 객체를 사용하는 메서드
     public double[] getWordVector(String word) {
@@ -40,36 +44,38 @@ public class W2VModelServiceImpl implements W2VModelService {
     }
 
     public Collection<String> getSimillarWords(String inputWord, int returnCnt, String leaningDataType){
-        /* 
-        Collection<String> mostSimilarWordMany = null;
-        INDArray array = null;
-
-        if(leaningDataType.equals("FULL")){
-            
-            mostSimilarWordMany = wordVectorsFull.wordsNearest(inputWord, returnCnt);
-            array = wordVectorsFull.getWordVectorsMean(mostSimilarWordMany);
-        }
-        else if(leaningDataType.equals("ROAD")){
-
-            mostSimilarWordMany = wordVectorsRoad.wordsNearest(inputWord, returnCnt);
-            wordVectorsRoad.getWordVectorsMean(mostSimilarWordMany);
-        }
         
-        System.out.println(array);
+        if(WV_ANALYZE_YN.equals("Y")){
+            Collection<String> mostSimilarWordMany = null;
+            INDArray array = null;
 
-        if(mostSimilarWordMany != null){
-            System.out.println("주어진 단어 '" + inputWord + "'와 유사한 단어 " + returnCnt + "개 출럭");
-            for (String word : mostSimilarWordMany) {
-                System.out.println(word);
+            if(leaningDataType.equals("FULL")){
+                
+                mostSimilarWordMany = wordVectorsFull.wordsNearest(inputWord, returnCnt);
+                array = wordVectorsFull.getWordVectorsMean(mostSimilarWordMany);
             }
+            else if(leaningDataType.equals("ROAD")){
+
+                mostSimilarWordMany = wordVectorsRoad.wordsNearest(inputWord, returnCnt);
+                wordVectorsRoad.getWordVectorsMean(mostSimilarWordMany);
+            }
+            
+            System.out.println(array);
+
+            if(mostSimilarWordMany != null){
+                System.out.println("주어진 단어 '" + inputWord + "'와 유사한 단어 " + returnCnt + "개 출럭");
+                for (String word : mostSimilarWordMany) {
+                    System.out.println(word);
+                }
+            }
+            else{
+                System.out.println("주어진 단어와 유사한 단어 추출이 실패하였습니다.");
+            }
+            return mostSimilarWordMany;
         }
         else{
-            System.out.println("주어진 단어와 유사한 단어 추출이 실패하였습니다.");
+            return null;
         }
-
-        return mostSimilarWordMany;
-        */
-        return null;
     }
 
     @Override

@@ -140,6 +140,10 @@ export default {
                 this.dataList = result.data.resuleMany; //데이터 세팅
                 this.dataListLev = result.data.resuleManyLev;
 
+                if (result.data.code == 'SUCESS02') {
+                    alert('모델을 테스트 할 수 없는 환경에서 서버가 구동되었습니다');
+                }
+
                 this.toggleBusy(); //로딩 스피너 토글
             }
         },
