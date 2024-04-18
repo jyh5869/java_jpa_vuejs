@@ -17,6 +17,7 @@ import java.util.TimeZone;
 
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
+import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.slf4j.Logger;
 
 import com.common.Util;
@@ -67,6 +68,7 @@ public class JavaJpaVuejsApplication {
     @Bean
     public WordVectors wordVectorsFull() {
         WordVectors word2VecModel = null;
+
         /*
          * 
          * 생성자에 null 리턴되서 서버가 안올라간당.. 어떻게 하면 좋을지 내일 생각 하자
@@ -104,7 +106,7 @@ public class JavaJpaVuejsApplication {
             System.err.println("모델을 로드하는 중 오류가 발생했습니다: " + e.getMessage());
             e.printStackTrace();
         }
-        return word2VecModel;
+        return new Word2Vec();
     }
 
     private final static String MODEL_PATH_WORD2VEC_BIN_ROAD = "C:/Users/all4land/Desktop/adress_word2Vec_bin_road.bin";
@@ -137,7 +139,7 @@ public class JavaJpaVuejsApplication {
             System.err.println("모델을 로드하는 중 오류가 발생했습니다: " + e.getMessage());
             e.printStackTrace();
         }
-        return word2VecModel;
+        return new Word2Vec();
     }
   
 
@@ -151,7 +153,7 @@ public class JavaJpaVuejsApplication {
     public JFastText fastTextFullModel() {
 
         JFastText fastTextFull = new JFastText();
-
+ 
         try {
             if(FT_ANALYZE_YN.equals("Y")){
 

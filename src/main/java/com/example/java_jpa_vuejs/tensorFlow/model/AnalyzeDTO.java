@@ -21,5 +21,5 @@ public class AnalyzeDTO {
 
 	private String leaningDataType = "FULL";
 
-	private String refinementType = "All";
+	private String refinementType = "All";//분석모델 타입
 }

@@ -140,7 +140,7 @@ export default {
                 this.dataList = result.data.resuleMany; //데이터 세팅
                 this.dataListLev = result.data.resuleManyLev;
 
-                if (result.data.code == 'SUCESS02') {
+                if (result.data.code == 'SUCESS03') {
                     alert('모델을 테스트 할 수 없는 환경에서 서버가 구동되었습니다');
                 }
 
@@ -162,8 +162,12 @@ export default {
             });
 
             if (result.status === 200) {
-                //this.id = result.data.id;
-                console.log(result);
+                //console.log(result);
+                if (result.data.code == 'SUCESS02') {
+                    alert('분석 결과가 없습니다.');
+                } else if (result.data.code == 'SUCESS03') {
+                    alert('모델을 테스트 할 수 없는 환경에서 서버가 구동되었습니다');
+                }
             }
         },
         callTensorFlowFastTextTrain: async function () {

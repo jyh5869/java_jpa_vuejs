@@ -1,6 +1,5 @@
 package com.example.java_jpa_vuejs.tensorFlow.common;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -11,14 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang3.StringUtils;
-import org.deeplearning4j.models.word2vec.StaticWord2Vec;
-import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.example.java_jpa_vuejs.auth.JwtExceptionFilter;
-import com.github.jfasttext.JFastText;
 
 public class word2VecUtil {
     
@@ -169,6 +162,19 @@ public class word2VecUtil {
         else{
             return similarWords;
         }
+    }
+
+
+    public static double cosineSimilarity(List<Float> vec1, List<Float> vec2) {
+        double dotProduct = 0.0;
+        double norm1 = 0.0;
+        double norm2 = 0.0;
+        for (int i = 0; i < vec1.size(); i++) {
+            dotProduct += vec1.get(i) * vec2.get(i);
+            norm1 += Math.pow(vec1.get(i), 2);
+            norm2 += Math.pow(vec2.get(i), 2);
+        }
+        return dotProduct / (Math.sqrt(norm1) * Math.sqrt(norm2));
     }
 
 }

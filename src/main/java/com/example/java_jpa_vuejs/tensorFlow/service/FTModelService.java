@@ -4,12 +4,12 @@ import java.util.Collection;
 import java.util.List;
 
 
-public interface W2VModelService {
+public interface FTModelService {
 
-    Collection<String> getSimillarWords(String inputWord, int returnCnt, String leaningDataType);
+    List<String> getSimillarWords(String inputWord, int returnCnt, String leaningDataType);
 
     List<String> getCalculateDistance(String inputWord, Collection<String> result, int returnCnt);
 
-    String getResultCode(Collection<String> mostSimilarWordMany);
+    String getResultCode(List<String> similarWords);
 }
 

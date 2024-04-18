@@ -42,6 +42,7 @@ import org.deeplearning4j.models.fasttext.*;
 
 import org.openkoreantext.processor.OpenKoreanTextProcessorJava;
 import org.openkoreantext.processor.tokenizer.KoreanTokenizer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -102,6 +103,9 @@ public class word2VecController {
 
     private final W2VModelService w2VModelService;
 
+    @Value("${model.word2Vec.analyzeYn}")
+    private String ANALYZE_YN;//분석이 가능한 환경인지 아닌지
+
     /**
     * @method 텍스트를 입력받아 벡터모델에서 코사인 유사도로 측정한 유사 도로명 추출
     * @param  null
@@ -125,12 +129,14 @@ public class word2VecController {
         
         //1. 생성되어있는 모델 호출하여 분석 , 2.모델의 리스트를 호출하여 코사인 유사도를 측정하여 분석
         if(analyzeType.equals("model")){
-
+            
             Collection<String> mostSimilarWordMany = w2VModelService.getSimillarWords(inputWord, RETURN_COUNT, leaningDataType );
-
+            
             List<String> mostSimilarWordManyLev = w2VModelService.getCalculateDistance(inputWord, mostSimilarWordMany, RETURN_COUNT );
 
-            retMap.put("code","SUCESS01");
+            String resultCode = w2VModelService.getResultCode(mostSimilarWordMany);
+
+            retMap.put("code", resultCode);
             retMap.put("resuleMany", mostSimilarWordMany);
             retMap.put("resuleManyLev", mostSimilarWordManyLev);
         }
@@ -170,6 +176,8 @@ public class word2VecController {
                 retMap.put("resuleMany", mostSimilarWordMany);
             }
         }
+        System.out.println("Wor2Vec 모델로 텍스트 분석이 완료 되었습니다.");
+        
         retMap.put("analyzeType", analyzeType);
         retMap.put("correctionYN", correctionYN);
 
