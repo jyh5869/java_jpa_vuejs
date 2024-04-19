@@ -8,10 +8,10 @@ import com.example.java_jpa_vuejs.auth.entity.Phones;
 import com.example.java_jpa_vuejs.auth.repositoryJPA.MemberRepository;
 import com.example.java_jpa_vuejs.auth.repositoryJPA.PhonesRepository;
 import com.example.java_jpa_vuejs.auth.repositoryService.SignService;
-import com.example.java_jpa_vuejs.util.DuplicatedException;
-import com.example.java_jpa_vuejs.util.ForbiddenException;
-import com.example.java_jpa_vuejs.util.UserNotFoundException;
-import com.example.java_jpa_vuejs.validation.Empty;
+import com.example.java_jpa_vuejs.common.utility.DuplicatedException;
+import com.example.java_jpa_vuejs.common.utility.ForbiddenException;
+import com.example.java_jpa_vuejs.common.utility.UserNotFoundException;
+import com.example.java_jpa_vuejs.common.validation.Empty;
 
 import org.springframework.stereotype.Service;
 

@@ -1,6 +1,6 @@
 package com.example.java_jpa_vuejs.geomBoard.repositoryService;
 
-import com.example.java_jpa_vuejs.common.PaginationDto;
+import com.example.java_jpa_vuejs.common.model.PaginationDto;
 import com.example.java_jpa_vuejs.geomBoard.entity.GeometryBoard;
 
 public interface BoardService {

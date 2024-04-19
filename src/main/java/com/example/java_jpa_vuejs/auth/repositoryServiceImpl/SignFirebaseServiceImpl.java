@@ -6,9 +6,8 @@ import com.example.java_jpa_vuejs.auth.JoinDto;
 import com.example.java_jpa_vuejs.auth.LoginDto;
 import com.example.java_jpa_vuejs.auth.entity.Members;
 import com.example.java_jpa_vuejs.auth.repositoryService.SignFirebaseService;
-import com.example.java_jpa_vuejs.common.PaginationDto;
-import com.example.java_jpa_vuejs.config.FirebaseConfiguration;
-
+import com.example.java_jpa_vuejs.common.configuration.FirebaseConfiguration;
+import com.example.java_jpa_vuejs.common.model.PaginationDto;
 
 import org.springframework.stereotype.Service;
 

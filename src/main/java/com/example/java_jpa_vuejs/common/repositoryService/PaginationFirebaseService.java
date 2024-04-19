@@ -1,6 +1,6 @@
 package com.example.java_jpa_vuejs.common.repositoryService;
 
-import com.example.java_jpa_vuejs.common.PaginationDto;
+import com.example.java_jpa_vuejs.common.model.PaginationDto;
 
 public interface PaginationFirebaseService {
     

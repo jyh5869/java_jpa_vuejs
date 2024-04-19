@@ -1,10 +1,9 @@
 package com.example.java_jpa_vuejs.geomBoard.repositoryServiceImpl;
 
 import com.common.Util;
-
-import com.example.java_jpa_vuejs.common.PaginationDto;
-import com.example.java_jpa_vuejs.config.FirebaseConfiguration;
-import com.example.java_jpa_vuejs.geomBoard.BoardDto;
+import com.example.java_jpa_vuejs.common.configuration.FirebaseConfiguration;
+import com.example.java_jpa_vuejs.common.model.PaginationDto;
+import com.example.java_jpa_vuejs.geomBoard.model.BoardDto;
 import com.example.java_jpa_vuejs.geomBoard.repositoryService.BoardFirebaseService;
 
 import org.springframework.boot.configurationprocessor.json.JSONArray;

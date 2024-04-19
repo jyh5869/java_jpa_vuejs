@@ -8,7 +8,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.example.java_jpa_vuejs.auth.JoinDto;
-import com.example.java_jpa_vuejs.geomBoard.BoardDto;
+import com.example.java_jpa_vuejs.geomBoard.model.BoardDto;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;

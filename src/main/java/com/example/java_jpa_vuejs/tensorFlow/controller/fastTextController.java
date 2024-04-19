@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.java_jpa_vuejs.tensorFlow.common.fastTextUtil;
 import com.example.java_jpa_vuejs.tensorFlow.common.word2VecUtil;
 import com.example.java_jpa_vuejs.tensorFlow.model.AnalyzeDTO;
-import com.example.java_jpa_vuejs.tensorFlow.service.FTModelService;
+import com.example.java_jpa_vuejs.tensorFlow.repositoryService.FTModelService;
 
 import jakarta.validation.Valid;
 

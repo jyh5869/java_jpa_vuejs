@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.example.java_jpa_vuejs.auth.JoinDto;
 import com.example.java_jpa_vuejs.auth.entity.Members;
-import com.example.java_jpa_vuejs.controller.GeomBoardController;
+import com.example.java_jpa_vuejs.geomBoard.controller.GeomBoardController;
 import com.example.java_jpa_vuejs.geomBoard.entity.GeometryBoard;
 
 import jakarta.transaction.Transactional;

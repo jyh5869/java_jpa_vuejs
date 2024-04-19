@@ -9,11 +9,9 @@ import java.util.logging.Logger;
 import org.springframework.stereotype.Service;
 
 import com.common.Util;
-
-import com.example.java_jpa_vuejs.common.PaginationDto;
+import com.example.java_jpa_vuejs.common.configuration.FirebaseConfiguration;
+import com.example.java_jpa_vuejs.common.model.PaginationDto;
 import com.example.java_jpa_vuejs.common.repositoryService.PaginationFirebaseService;
-import com.example.java_jpa_vuejs.config.FirebaseConfiguration;
-
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.AggregateQuerySnapshot;
 import com.google.cloud.firestore.DocumentSnapshot;

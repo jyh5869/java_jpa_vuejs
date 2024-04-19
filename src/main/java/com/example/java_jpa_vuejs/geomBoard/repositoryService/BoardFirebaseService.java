@@ -3,8 +3,8 @@ package com.example.java_jpa_vuejs.geomBoard.repositoryService;
 import java.util.List;
 import java.util.Map;
 
-import com.example.java_jpa_vuejs.common.PaginationDto;
-import com.example.java_jpa_vuejs.geomBoard.BoardDto;
+import com.example.java_jpa_vuejs.common.model.PaginationDto;
+import com.example.java_jpa_vuejs.geomBoard.model.BoardDto;
 
 import jakarta.validation.Valid;
 
