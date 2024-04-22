@@ -81,7 +81,7 @@
 // [Component 지정]
 import HeaderLayout from './commonLayout/HeaderLayout.vue';
 import FooterLayout from './commonLayout/FooterLayout.vue';
-import HomeComponent from './components/HomeComponent.vue';
+import MainComponent from './components/MainComponent.vue';
 
 // [export 설정 실시]
 export default {
@@ -99,7 +99,7 @@ export default {
         return {
             data: 'APP VUE', // [데이터 지정]
 
-            HomeComponent, // [초기 로드 컴포넌트 지정]
+            MainComponent, // [초기 로드 컴포넌트 지정]
         };
     },
     /*

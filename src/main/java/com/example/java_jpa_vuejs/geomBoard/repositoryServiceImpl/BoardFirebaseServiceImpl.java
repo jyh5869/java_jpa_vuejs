@@ -1,8 +1,8 @@
 package com.example.java_jpa_vuejs.geomBoard.repositoryServiceImpl;
 
-import com.common.Util;
 import com.example.java_jpa_vuejs.common.configuration.FirebaseConfiguration;
 import com.example.java_jpa_vuejs.common.model.PaginationDto;
+import com.example.java_jpa_vuejs.common.utility.DateUtil;
 import com.example.java_jpa_vuejs.geomBoard.model.BoardDto;
 import com.example.java_jpa_vuejs.geomBoard.repositoryService.BoardFirebaseService;
 
@@ -53,7 +53,7 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
 	@Override
 	public void setGeomdData(long id, String geomPolygons) throws Exception{
 
-		long reqTime = Util.durationTime ("start", "CLOUD / < SET GEOMETRY DATA - INSERT> : ", 0, "Proceeding ::: " );
+		long reqTime = DateUtil.durationTime ("start", "CLOUD / < SET GEOMETRY DATA - INSERT> : ", 0, "Proceeding ::: " );
 
         try {
             //파이어 베이스 초기화
@@ -101,11 +101,11 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
                 }
             }    
                 
-            Util.durationTime ("end", "CLOUD / < SET GEOMETRY DATA - INSERT > : ", reqTime, "Complete ::: " );
+            DateUtil.durationTime ("end", "CLOUD / < SET GEOMETRY DATA - INSERT > : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
             
-            Util.durationTime ("end", "CLOUD / < SET GEOMETRY DATA - INSERT > : ", reqTime, "Fail ::: " );
+            DateUtil.durationTime ("end", "CLOUD / < SET GEOMETRY DATA - INSERT > : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
 	}
@@ -120,7 +120,7 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
     @Override
 	public void setBoardData(long id, BoardDto boardDTO) throws Exception{
 
-		long reqTime = Util.durationTime ("start", "CLOUD / < SET GEOMETRY DATA - UPDATE > : ", 0, "Proceeding ::: " );
+		long reqTime = DateUtil.durationTime ("start", "CLOUD / < SET GEOMETRY DATA - UPDATE > : ", 0, "Proceeding ::: " );
 
         try {
             //파이어 베이스 초기화
@@ -155,11 +155,11 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
                 ApiFuture<WriteResult> future = db.collection("geometry_board").document(updateId).set(docData);
             }
             
-            Util.durationTime ("end", "CLOUD / < SET GEOMETRY DATA - UPDATE > : ", reqTime, "Complete ::: " );
+            DateUtil.durationTime ("end", "CLOUD / < SET GEOMETRY DATA - UPDATE > : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
             
-            Util.durationTime ("end", "CLOUD / < SET GEOMETRY DATA - UPDATE > : ", reqTime, "Fail ::: " );
+            DateUtil.durationTime ("end", "CLOUD / < SET GEOMETRY DATA - UPDATE > : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
 	}
@@ -173,7 +173,7 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
     @Override
 	public List<Map<String, Object>> getGeomBoardList(PaginationDto paginationDto) throws Exception{
 
-		long reqTime = Util.durationTime ("start", "CLOUD / < GET GEOMETRY BOARD LIST - SELECT > : ", 0, "Proceeding ::: " );
+		long reqTime = DateUtil.durationTime ("start", "CLOUD / < GET GEOMETRY BOARD LIST - SELECT > : ", 0, "Proceeding ::: " );
 
 		String currentDocId = String.valueOf(paginationDto.getCurrentPage().split("\\|")[0]);// 현재 도큐멘트ID
         String strCollectionNm = paginationDto.getCollectionNm();//도큐먼트를 가져올 컬렉션 명
@@ -209,10 +209,10 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
             
                 result.add(data);
             }
-            Util.durationTime ("end", "CLOUD / < GET GEOMETRY BOARD LIST - SELECT > : ", reqTime, "Complete ::: " );
+            DateUtil.durationTime ("end", "CLOUD / < GET GEOMETRY BOARD LIST - SELECT > : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
-			Util.durationTime ("end", "CLOUD / < GET GEOMETRY BOARD LIST - SELECT > : ", reqTime, "Fail ::: " );
+			DateUtil.durationTime ("end", "CLOUD / < GET GEOMETRY BOARD LIST - SELECT > : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
 		
@@ -228,7 +228,7 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
     @Override
 	public List<Map<String, Object>> getGeomData(long id) throws Exception{
 
-		long reqTime = Util.durationTime ("start", "CLOUD / < GET GEOMETRY DATA LIST - SELECT > : ", 0, "Proceeding ::: " );
+		long reqTime = DateUtil.durationTime ("start", "CLOUD / < GET GEOMETRY DATA LIST - SELECT > : ", 0, "Proceeding ::: " );
         
         List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
 		try {     
@@ -255,10 +255,10 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
                 data.put("docId", document.getId());
                 result.add(data);
             }
-            Util.durationTime ("end", "CLOUD / < GET GEOMETRY DATA LIST - SELECT > : ", reqTime, "Complete ::: " );
+            DateUtil.durationTime ("end", "CLOUD / < GET GEOMETRY DATA LIST - SELECT > : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
-			Util.durationTime ("end", "CLOUD / < GET GEOMETRY DATA LIST - SELECT > : ", reqTime, "Fail ::: " );
+			DateUtil.durationTime ("end", "CLOUD / < GET GEOMETRY DATA LIST - SELECT > : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
 		
@@ -274,7 +274,7 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
     @Override
 	public void deleteGeomdData(String[] geomDeleteArr) throws Exception{
 
-		long reqTime = Util.durationTime ("start", "CLOUD / < SET GEOMETRY DATA - DELETE > : ", 0, "Proceeding ::: " );
+		long reqTime = DateUtil.durationTime ("start", "CLOUD / < SET GEOMETRY DATA - DELETE > : ", 0, "Proceeding ::: " );
 		
 		try {     
             //파이어 베이스 초기화
@@ -288,10 +288,10 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
                 LOG.info("Delete Time : " + writeResult.get().getUpdateTime() + " - Delete Id : " + element);
             }
                         
-            Util.durationTime ("end", "CLOUD / < SET GEOMETRY DATA - DELETE > : ", reqTime, "Complete ::: " );
+            DateUtil.durationTime ("end", "CLOUD / < SET GEOMETRY DATA - DELETE > : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
-			Util.durationTime ("end", "CLOUD / < SET GEOMETRY DATA - DELETE > : ", reqTime, "Fail ::: " );
+			DateUtil.durationTime ("end", "CLOUD / < SET GEOMETRY DATA - DELETE > : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
 	}
@@ -305,7 +305,7 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
     @Override
 	public long getLastIndex() throws Exception{
 
-		long reqTime = Util.durationTime ("start", "CLOUD / < SET BOARD LAST INDEX - SELECT > : ", 0, "Proceeding ::: " );
+		long reqTime = DateUtil.durationTime ("start", "CLOUD / < SET BOARD LAST INDEX - SELECT > : ", 0, "Proceeding ::: " );
         
         long lastIdx = 0;
 		
@@ -334,10 +334,10 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
                 }
             }
 
-            Util.durationTime ("end", "CLOUD / < SET BOARD LAST INDEX - SELECT > : ", reqTime, "Complete ::: " );
+            DateUtil.durationTime ("end", "CLOUD / < SET BOARD LAST INDEX - SELECT > : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
-			Util.durationTime ("end", "CLOUD / < SET BOARD LAST INDEX - SELECT > : ", reqTime, "Fail ::: " );
+			DateUtil.durationTime ("end", "CLOUD / < SET BOARD LAST INDEX - SELECT > : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
 		
@@ -353,7 +353,7 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
     @Override
     public void setDeleteGeomData(String boardSq) throws Exception {
 
-        long reqTime = Util.durationTime ("start", "CLOUD / < SET DELETE GEOMETRY DATA - DELETE >  : ", 0, "Proceeding ::: " );
+        long reqTime = DateUtil.durationTime ("start", "CLOUD / < SET DELETE GEOMETRY DATA - DELETE >  : ", 0, "Proceeding ::: " );
         
         try {
             firebaseConfiguration.initializeFCM();
@@ -368,10 +368,10 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
                 ++deleted;
             }
 
-            Util.durationTime ("end", "CLOUD / < SET DELETE GEOMETRY DATA - DELETE > : ", reqTime, "Complete ::: " );
+            DateUtil.durationTime ("end", "CLOUD / < SET DELETE GEOMETRY DATA - DELETE > : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
-			Util.durationTime ("end", "CLOUD / < SET DELETE GEOMETRY DATA - DELETE > : ", reqTime, "Fail ::: " );
+			DateUtil.durationTime ("end", "CLOUD / < SET DELETE GEOMETRY DATA - DELETE > : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
     }
@@ -385,7 +385,7 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
     @Override
     public Integer getTotalCount(PaginationDto paginationDto) throws Exception {
         
-        long reqTime = Util.durationTime ("start", "CLOUD / < GET BOARD TOTALCOUNT - SELECT > : ", 0, "Proceeding ::: " );
+        long reqTime = DateUtil.durationTime ("start", "CLOUD / < GET BOARD TOTALCOUNT - SELECT > : ", 0, "Proceeding ::: " );
         
         Integer totalCount = 0;
         try {
@@ -395,12 +395,12 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
             AggregateQuerySnapshot snapshot = db.collection("geometry_board").count().get().get();
             LOG.info("Get ToalCount - " + snapshot.getCount());
 
-            Util.durationTime ("end", "CLOUD / < GET BOARD TOTALCOUNT - SELECT > : ", reqTime, "Complete ::: " );
+            DateUtil.durationTime ("end", "CLOUD / < GET BOARD TOTALCOUNT - SELECT > : ", reqTime, "Complete ::: " );
 
            totalCount =  (int) snapshot.getCount();
         }
         catch (Exception e) {
-			Util.durationTime ("end", "CLOUD / < GET BOARD TOTALCOUNT - SELECT > : ", reqTime, "Fail ::: " );
+			DateUtil.durationTime ("end", "CLOUD / < GET BOARD TOTALCOUNT - SELECT > : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
 
@@ -416,7 +416,7 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
     @Override
     public void setDeleteBoardData(String boardSq) throws Exception {
         
-        long reqTime = Util.durationTime ("start", "CLOUD / < SET DELETE GEOMETRY BOARD - DELETE > : ", 0, "Proceeding ::: " );
+        long reqTime = DateUtil.durationTime ("start", "CLOUD / < SET DELETE GEOMETRY BOARD - DELETE > : ", 0, "Proceeding ::: " );
 
         try {
             firebaseConfiguration.initializeFCM();
@@ -431,10 +431,10 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
                 ++deleted;
             }
 
-            Util.durationTime ("end", "CLOUD / < SET DELETE GEOMETRY BOARD - DELETE > : ", reqTime, "Complete ::: " );
+            DateUtil.durationTime ("end", "CLOUD / < SET DELETE GEOMETRY BOARD - DELETE > : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
-			Util.durationTime ("end", "CLOUD / < SET DELETE GEOMETRY BOARD - DELETE > : ", reqTime, "Fail ::: " );
+			DateUtil.durationTime ("end", "CLOUD / < SET DELETE GEOMETRY BOARD - DELETE > : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
     }

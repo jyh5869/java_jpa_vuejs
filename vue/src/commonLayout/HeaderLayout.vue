@@ -27,12 +27,12 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" v-if="this.$store.getters.authType == 'admin'"> Admin </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li><router-link class="dropdown-item active" to="/mapTest" aria-current="page">View Map</router-link></li>
+                            <li><router-link class="dropdown-item active" to="/OpenlayersMap" aria-current="page">OpenLayers Map View</router-link></li>
                             <li>
                                 <router-link
                                     class="dropdown-item"
                                     :to="{
-                                        name: 'boardEdit',
+                                        name: 'GeomBoardEdit',
                                         params: {
                                             document: JSON.stringify({
                                                 boardData: null,
@@ -43,14 +43,14 @@
                                     >Geometry Board Write
                                 </router-link>
                             </li>
-                            <li><a class="dropdown-item" href="/machineLearning">word2Vec</a></li>
+                            <li><a class="dropdown-item" href="/MachineLearning">Machine Learning Admin</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <router-link class="nav-link" to="/main">List</router-link>
+                        <router-link class="nav-link" to="/BoardList">Board List</router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link class="nav-link" to="/boardList">Geometry Board List</router-link>
+                        <router-link class="nav-link" to="/GeomBoardList">Geometry Board List</router-link>
                     </li>
                     <!--
                     <li class="nav-item dropdown">

@@ -12,23 +12,24 @@ import store from '../routers/store/index.js';
 const routes = [
     {
         path: '/', // [경로]
-        name: 'home', // [이름]
-        component: () => import('@/components/HomeComponent.vue'), // [로드 파일]
+        name: 'MainComponent', // [이름]
+        component: () => import('@/components/MainComponent.vue'), // [로드 파일]
         meta: { authRequired: true },
     },
     {
-        path: '/hello/:document', // [경로]
-        name: 'hello', // [이름]
-        component: () => import('@/components/HelloComponent.vue'), // [로드 파일]
+        path: '/BoardList', // [경로]
+        name: 'BoardList', // [이름]
+        component: () => import('@/components/BoardList.vue'), // [로드 파일]]
+        meta: { authRequired: true },
+    },
+    {
+        path: '/BoardDetail/:document', // [경로]
+        name: 'BoardDetail', // [이름]
+        component: () => import('@/components/BoardDetail.vue'), // [로드 파일]
         meta: { authRequired: true },
         props: true,
     },
-    {
-        path: '/main', // [경로]
-        name: 'main', // [이름]
-        component: () => import('@/components/MainComponent.vue'), // [로드 파일]]
-        meta: { authRequired: true },
-    },
+
     {
         path: '/auth', // [경로]
         name: 'auth', // [이름]
@@ -36,28 +37,28 @@ const routes = [
         props: true, // [파라메터 Y/N]
     },
     {
-        path: '/mapTest', // [경로]
-        name: 'mapTest', // [이름]
-        component: () => import('@/components/MapTest.vue'), // [로드 파일]]
+        path: '/OpenlayersMap', // [경로]
+        name: 'OpenlayersMap', // [이름]
+        component: () => import('@/components/OpenlayersMap.vue'), // [로드 파일]]
         props: true, // [파라메터 Y/N]
     },
     {
-        path: '/boardEdit/:document', // [경로]
-        name: 'boardEdit', // [이름]
-        component: () => import('@/components/BoardEditComponent.vue'), // [로드 파일]]
+        path: '/GeomBoardEdit/:document', // [경로]
+        name: 'GeomBoardEdit', // [이름]
+        component: () => import('@/components/GeomBoardEdit.vue'), // [로드 파일]]
         meta: { authRequired: true },
         props: true, // [파라메터 Y/N]
     },
     {
-        path: '/boardList', // [경로]
-        name: 'boardList', // [이름]
-        component: () => import('@/components/BoardListComponent.vue'), // [로드 파일]]
+        path: '/GeomBoardList', // [경로]
+        name: 'GeomBoardList', // [이름]
+        component: () => import('@/components/GeomBoardList.vue'), // [로드 파일]]
         meta: { authRequired: true },
         props: true, // [파라메터 Y/N]
     },
     {
-        path: '/machineLearning', // [경로]
-        name: 'machineLearning', // [이름]
+        path: '/MachineLearning', // [경로]
+        name: 'MachineLearning', // [이름]
         component: () => import('@/components/MachineLearning.vue'), // [로드 파일]]
         meta: { authRequired: true },
         props: true, // [파라메터 Y/N]

@@ -1,4 +1,4 @@
-package com.common;
+package com.example.java_jpa_vuejs.common.utility;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -6,9 +6,9 @@ import java.util.Date;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
-public class Util {
+public class DateUtil {
     
-    private static final Logger LOG = LoggerFactory.getLogger(Util.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DateUtil.class);
 
     /**
      * @method 날짜 변환

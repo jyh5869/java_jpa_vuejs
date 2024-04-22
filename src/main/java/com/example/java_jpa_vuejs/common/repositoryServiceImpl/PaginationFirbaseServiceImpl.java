@@ -8,10 +8,10 @@ import java.util.logging.Logger;
 
 import org.springframework.stereotype.Service;
 
-import com.common.Util;
 import com.example.java_jpa_vuejs.common.configuration.FirebaseConfiguration;
 import com.example.java_jpa_vuejs.common.model.PaginationDto;
 import com.example.java_jpa_vuejs.common.repositoryService.PaginationFirebaseService;
+import com.example.java_jpa_vuejs.common.utility.DateUtil;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.AggregateQuerySnapshot;
 import com.google.cloud.firestore.DocumentSnapshot;
@@ -41,7 +41,7 @@ public class PaginationFirbaseServiceImpl implements PaginationFirebaseService{
     @Override
     public String getDocIdList(PaginationDto paginationDto) throws Exception {
 
-        long reqTime = Util.durationTime ("start", "CLOUD / < GET PAGING DOC LIST - SELECT > : ", 0, "Proceeding ::: " );
+        long reqTime = DateUtil.durationTime ("start", "CLOUD / < GET PAGING DOC LIST - SELECT > : ", 0, "Proceeding ::: " );
 
         LOG.info("도큐먼트ID 리스트 호출 - 기준 CurrentPage : " + paginationDto.getCurrentPage());
 
@@ -241,7 +241,7 @@ public class PaginationFirbaseServiceImpl implements PaginationFirebaseService{
             }
         }
         catch (Exception e) {
-			Util.durationTime ("end", "CLOUD / < GET PAGING DOC LIST - SELECT > : ", reqTime, "Fail ::: " );
+			DateUtil.durationTime ("end", "CLOUD / < GET PAGING DOC LIST - SELECT > : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
 
@@ -258,7 +258,7 @@ public class PaginationFirbaseServiceImpl implements PaginationFirebaseService{
     @Override
     public String getFirstDoc(PaginationDto paginationDto) throws Exception {
 
-        long reqTime = Util.durationTime ("start", "CLOUD / < GET PAGING FIRST DOC - SELECT > : ", 0, "Proceeding ::: " );
+        long reqTime = DateUtil.durationTime ("start", "CLOUD / < GET PAGING FIRST DOC - SELECT > : ", 0, "Proceeding ::: " );
 
         String strFirstDoc = "";//첫번째 도큐먼트ID
         String intCurrentPage = paginationDto.getCurrentPage();//현재 페이지 정보
@@ -283,10 +283,10 @@ public class PaginationFirbaseServiceImpl implements PaginationFirebaseService{
                 paginationDto.setCurrentPage(strFirstDoc);
             }
             
-            Util.durationTime ("end", "CLOUD / < GET PAGING FIRST DOC - SELECT > : ", reqTime, "Complete ::: " );
+            DateUtil.durationTime ("end", "CLOUD / < GET PAGING FIRST DOC - SELECT > : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
-			Util.durationTime ("end", "CLOUD / < GET PAGING FIRST DOC - SELECT > : ", reqTime, "Fail ::: " );
+			DateUtil.durationTime ("end", "CLOUD / < GET PAGING FIRST DOC - SELECT > : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
 
@@ -390,7 +390,7 @@ public class PaginationFirbaseServiceImpl implements PaginationFirebaseService{
     @Override
     public String getNextDoc(PaginationDto paginationDto) throws Exception {
 
-        long reqTime = Util.durationTime ("start", "CLOUD / < GET PAGING NEXT DOC - SELECT > : ", 0, "Proceeding ::: " );
+        long reqTime = DateUtil.durationTime ("start", "CLOUD / < GET PAGING NEXT DOC - SELECT > : ", 0, "Proceeding ::: " );
         
         String strNextDocId = "";
         
@@ -418,10 +418,10 @@ public class PaginationFirbaseServiceImpl implements PaginationFirebaseService{
                 strNextDocId = document.getId();
             }
 
-            Util.durationTime ("end", "CLOUD / < GET PAGING NEXT DOC - SELECT > : ", reqTime, "Complete ::: " );
+            DateUtil.durationTime ("end", "CLOUD / < GET PAGING NEXT DOC - SELECT > : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
-			Util.durationTime ("end", "CLOUD / < GET PAGING NEXT DOC - SELECT > : ", reqTime, "Fail ::: " );
+			DateUtil.durationTime ("end", "CLOUD / < GET PAGING NEXT DOC - SELECT > : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
 
@@ -438,7 +438,7 @@ public class PaginationFirbaseServiceImpl implements PaginationFirebaseService{
     @Override
     public String getLastDoc(PaginationDto paginationDto) throws Exception {
 
-        long reqTime = Util.durationTime ("start", "CLOUD / < GET PAGING LAST DOC - SELECT > : ", 0, "Proceeding ::: " );
+        long reqTime = DateUtil.durationTime ("start", "CLOUD / < GET PAGING LAST DOC - SELECT > : ", 0, "Proceeding ::: " );
 
         String strLastDocId = "";//마지막 도큐먼트 ID
         String strCollectionNm = paginationDto.getCollectionNm();//도큐먼트를 가져올 컬렉션 명
@@ -459,10 +459,10 @@ public class PaginationFirbaseServiceImpl implements PaginationFirebaseService{
 
             strLastDocId = lastDoc.getId();
 
-            Util.durationTime ("end", "CLOUD / < GET PAGING LAST DOC - SELECT > : ", reqTime, "Complete ::: " );
+            DateUtil.durationTime ("end", "CLOUD / < GET PAGING LAST DOC - SELECT > : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
-			Util.durationTime ("end", "CLOUD / < GET PAGING LAST DOC - SELECT > : ", reqTime, "Fail ::: " );
+			DateUtil.durationTime ("end", "CLOUD / < GET PAGING LAST DOC - SELECT > : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
 
@@ -479,7 +479,7 @@ public class PaginationFirbaseServiceImpl implements PaginationFirebaseService{
     @Override
     public Integer getTotalCount(PaginationDto paginationDto) throws Exception {
         
-        long reqTime = Util.durationTime ("start", "CLOUD / < GET BOARD TOTALCOUNT - SELECT > : ", 0, "Proceeding ::: " );
+        long reqTime = DateUtil.durationTime ("start", "CLOUD / < GET BOARD TOTALCOUNT - SELECT > : ", 0, "Proceeding ::: " );
         
         String strCollectionNm = paginationDto.getCollectionNm();//도큐먼트를 가져올 컬렉션 명
         String strOrderbyCol = paginationDto.getOrderbyCol();//도큐먼트를 가져올 컬렉션의 정렬 컬럼
@@ -492,12 +492,12 @@ public class PaginationFirbaseServiceImpl implements PaginationFirebaseService{
             AggregateQuerySnapshot snapshot = db.collection(strCollectionNm).orderBy(strOrderbyCol).count().get().get();
             LOG.info("Get ToalCount - " + snapshot.getCount());
 
-            Util.durationTime ("end", "CLOUD / < GET BOARD TOTALCOUNT - SELECT > : ", reqTime, "Complete ::: " );
+            DateUtil.durationTime ("end", "CLOUD / < GET BOARD TOTALCOUNT - SELECT > : ", reqTime, "Complete ::: " );
 
            totalCount =  (int) snapshot.getCount();
         }
         catch (Exception e) {
-			Util.durationTime ("end", "CLOUD / < GET BOARD TOTALCOUNT - SELECT > : ", reqTime, "Fail ::: " );
+			DateUtil.durationTime ("end", "CLOUD / < GET BOARD TOTALCOUNT - SELECT > : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
 

@@ -20,8 +20,8 @@ import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.slf4j.Logger;
 
-import com.common.Util;
 import com.example.java_jpa_vuejs.auth.repositoryJPA.MemberRepository;
+import com.example.java_jpa_vuejs.common.utility.DateUtil;
 import com.github.jfasttext.JFastText;
 
 import jakarta.annotation.PostConstruct;
@@ -40,17 +40,17 @@ public class Main {
     @Bean
     public CommandLineRunner demo(MemberRepository repository) throws InterruptedException {
     
-        long reqTime = Util.durationTime ("start", "JPA 테스트", 0, "Proceeding" );
+        long reqTime = DateUtil.durationTime ("start", "JPA 테스트", 0, "Proceeding" );
         
         return (args) -> {
             try {             
 
                 repository.findByEmail("5869jyh@hanmail.net");
-                Util.durationTime ("end", "JPA 테스트", reqTime, "Complete" );
+                DateUtil.durationTime ("end", "JPA 테스트", reqTime, "Complete" );
             }
             catch (Exception e) {
                 
-                Util.durationTime ("end", "JPA 테스트", reqTime, "Fail" );
+                DateUtil.durationTime ("end", "JPA 테스트", reqTime, "Fail" );
                 e.printStackTrace();
             }
         };

@@ -1,6 +1,5 @@
 package com.example.java_jpa_vuejs.auth.repositoryServiceImpl;
 
-import com.common.Util;
 import com.example.java_jpa_vuejs.auth.AuthenticationDto;
 import com.example.java_jpa_vuejs.auth.JoinDto;
 import com.example.java_jpa_vuejs.auth.LoginDto;
@@ -8,6 +7,7 @@ import com.example.java_jpa_vuejs.auth.entity.Members;
 import com.example.java_jpa_vuejs.auth.repositoryService.SignFirebaseService;
 import com.example.java_jpa_vuejs.common.configuration.FirebaseConfiguration;
 import com.example.java_jpa_vuejs.common.model.PaginationDto;
+import com.example.java_jpa_vuejs.common.utility.DateUtil;
 
 import org.springframework.stereotype.Service;
 
@@ -48,7 +48,7 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
 	@Override
 	public void userRegistration(JoinDto joinDto) throws Exception{
 
-		long reqTime = Util.durationTime ("start", "CLOUD / USER REGISTRATION : ", 0, "Proceeding ::: " );
+		long reqTime = DateUtil.durationTime ("start", "CLOUD / USER REGISTRATION : ", 0, "Proceeding ::: " );
 
         try {     
             //파이어 베이스 초기화
@@ -72,11 +72,11 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
             
             ApiFuture<WriteResult> future = db.collection("user").document(lastIdx).set(docData);
 
-            Util.durationTime ("end", "CLOUD / USER REGISTRATION : ", reqTime, "Complete ::: " );
+            DateUtil.durationTime ("end", "CLOUD / USER REGISTRATION : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
             
-            Util.durationTime ("end", "CLOUD / USER REGISTRATION : ", reqTime, "Fail ::: " );
+            DateUtil.durationTime ("end", "CLOUD / USER REGISTRATION : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
 	}
@@ -84,7 +84,7 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
     @Override
 	public Members loginMember(LoginDto loginDto) throws Exception{
 
-		long reqTime = Util.durationTime ("start", "CLOUD / AUTH USER: ", 0, "Proceeding ::: " );
+		long reqTime = DateUtil.durationTime ("start", "CLOUD / AUTH USER: ", 0, "Proceeding ::: " );
         Members member = new Members();
         JoinDto joinDto = new JoinDto();
         try {     
@@ -125,11 +125,11 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
                 */
             }
 
-            Util.durationTime ("end", "CLOUD / AUTH USER: ", reqTime, "Complete ::: " );
+            DateUtil.durationTime ("end", "CLOUD / AUTH USER: ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
             
-            Util.durationTime ("end", "CLOUD / AUTH USER: ", reqTime,  "Fail ::: " );
+            DateUtil.durationTime ("end", "CLOUD / AUTH USER: ", reqTime,  "Fail ::: " );
             e.printStackTrace();
         }
                 
@@ -139,7 +139,7 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
 	@Override
 	public List<Map<String, Object>> getList(PaginationDto paginationDto) throws Exception{
 
-		long reqTime = Util.durationTime ("start", "CLOUD / GET LIST : ", 0, "Proceeding ::: " );
+		long reqTime = DateUtil.durationTime ("start", "CLOUD / GET LIST : ", 0, "Proceeding ::: " );
         List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
 		
         String currentDocId = String.valueOf(paginationDto.getCurrentPage().split("\\|")[0]);// 현재 도큐멘트ID
@@ -170,17 +170,17 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
                 	System.out.println("id        : " + document.getId());
                 */
 
-                String toDayFormat = Util.remakeDate(document.getLong("brddate"),1);
+                String toDayFormat = DateUtil.remakeDate(document.getLong("brddate"),1);
                 
                 Map<String, Object> data = document.getData();
                 data.put("brddate", toDayFormat);
 
                 result.add(data);
             }
-            Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Complete ::: " );
+            DateUtil.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
-			Util.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Fail ::: " );
+			DateUtil.durationTime ("end", "CLOUD / GET LIST : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
 		
@@ -189,7 +189,7 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
 
 	@Override
 	public void userModify(JoinDto joinDto) throws Exception  {
-		long reqTime = Util.durationTime ("start", "CLOUD / UPDATE USER INFO : ", 0, "Proceeding ::: " );
+		long reqTime = DateUtil.durationTime ("start", "CLOUD / UPDATE USER INFO : ", 0, "Proceeding ::: " );
 
         try {     
             //파이어 베이스 초기화
@@ -227,18 +227,18 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
 
             */
 
-            Util.durationTime ("end", "CLOUD / UPDATE USER INFO : ", reqTime, "Complete ::: " );
+            DateUtil.durationTime ("end", "CLOUD / UPDATE USER INFO : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
             
-            Util.durationTime ("end", "CLOUD / UPDATE USER INFO : ", reqTime, "Fail ::: " );
+            DateUtil.durationTime ("end", "CLOUD / UPDATE USER INFO : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
 	}
 	
     @Override
 	public Members getUserInfo(LoginDto loginDto) throws Exception  {
-		long reqTime = Util.durationTime ("start", "CLOUD / GET USER INFO : ", 0, "Proceeding ::: " );
+		long reqTime = DateUtil.durationTime ("start", "CLOUD / GET USER INFO : ", 0, "Proceeding ::: " );
         Members member = new Members();
         try {     
             //파이어 베이스 초기화
@@ -259,10 +259,10 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
                 LOG.info("CLOUD / GET USER INFO : NO DATA");
             }
 
-            Util.durationTime ("end", "CLOUD / GET USER INFO : ", reqTime, "Complete ::: " );
+            DateUtil.durationTime ("end", "CLOUD / GET USER INFO : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
-            Util.durationTime ("end", "CLOUD / GET USER INFO : ", reqTime, "Fail ::: " );
+            DateUtil.durationTime ("end", "CLOUD / GET USER INFO : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
        
@@ -271,7 +271,7 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
 
     @Override
 	public void userDelete(JoinDto joinDto) throws Exception  {
-		long reqTime = Util.durationTime ("start", "DELETE USER INFO", 0, "Proceeding ::: " );
+		long reqTime = DateUtil.durationTime ("start", "DELETE USER INFO", 0, "Proceeding ::: " );
 
         try {     
             //파이어 베이스 초기화
@@ -285,18 +285,18 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
             WriteResult result = future.get();
             System.out.println(result);
 
-            Util.durationTime ("end", "CLOUD / DELETE USER INFO : ", reqTime, "Complete ::: " );
+            DateUtil.durationTime ("end", "CLOUD / DELETE USER INFO : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
             
-            Util.durationTime ("end", "CLOUD / DELETE USER INFO : ", reqTime, "Fail ::: " );
+            DateUtil.durationTime ("end", "CLOUD / DELETE USER INFO : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
 	}
 
     @Override
 	public Integer idValidation(LoginDto loginDto) throws Exception  {
-		long reqTime = Util.durationTime ("start", "CLOUD / CHECK ID DUPLICATION : ", 0, "Proceeding ::: " );
+		long reqTime = DateUtil.durationTime ("start", "CLOUD / CHECK ID DUPLICATION : ", 0, "Proceeding ::: " );
 
         Integer emailCnt = 0;
         try {     
@@ -309,10 +309,10 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
 
             emailCnt = documents.size();
 
-            Util.durationTime ("end", "CLOUD / CHECK ID DUPLICATION : ", reqTime, "Complete ::: " );
+            DateUtil.durationTime ("end", "CLOUD / CHECK ID DUPLICATION : ", reqTime, "Complete ::: " );
         }
         catch (Exception e) {
-            Util.durationTime ("end", "CLOUD / CHECK ID DUPLICATION : ", reqTime, "Fail ::: " );
+            DateUtil.durationTime ("end", "CLOUD / CHECK ID DUPLICATION : ", reqTime, "Fail ::: " );
             e.printStackTrace();
         }
        

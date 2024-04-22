@@ -65,12 +65,18 @@
             <input type="text" id="password1" class="fadeIn third" name="password1" v-model="password" placeholder="Password1" @keyup="pwValidation()" />
             <input type="text" id="password2" class="fadeIn third" name="password2" v-model="password2" placeholder="Password2" @keyup="pwValidation()" />
             <p class="text sm" v-if="pwValidationMsg != ''">{{ pwValidationMsg }}</p>
+
+            <input type="text" id="address" class="fadeIn third" name="address" v-model="address" placeholder="Address" />
+            <input type="button" class="fadeIn fourth small" @click="searchAddress(address)" value="주소찾기" />
+
             <input type="text" id="name" class="fadeIn third" name="name" v-model="name" placeholder="name" />
             <input type="text" id="nickname" class="fadeIn third" name="nickname" v-model="nickname" placeholder="nickname" />
             <input type="text" id="mobile" class="fadeIn third" name="mobile" v-model="mobile" placeholder="mobile" />
 
-            <input type="button" class="fadeIn fourth" value="Information Change(Login)" v-if="accessPath == 'login'" @click="userManagement()" />
-            <input type="button" class="fadeIn fourth" value="Information Change(EmailAuth)" v-if="accessPath == 'emailAuth'" @click="userManagementAuthEmail('MODIFY')" />
+            <div class="btn-wrap navbar-nav mx-2">
+                <input type="button" class="fadeIn fourth" value="Information Change(Login)" v-if="accessPath == 'login'" @click="userManagement()" />
+                <input type="button" class="fadeIn fourth" value="Information Change(EmailAuth)" v-if="accessPath == 'emailAuth'" @click="userManagementAuthEmail('MODIFY')" />
+            </div>
 
             <!-- Remind Passowrd -->
             <!-- <div id="formFooter"><a class="underlineHover" href="javascript:void(0);">Forgot Password?</a></div> -->
@@ -78,6 +84,26 @@
                 <a class="underlineHover" href="javascript:void(0);" v-if="accessPath == 'login'" @click="userManagement('DELETE')">Delete account(Login)</a>
                 <a class="underlineHover" href="javascript:void(0);" v-if="accessPath == 'emailAuth'" @click="userManagementAuthEmail('DELETE')">Delete account(EmailAuth)</a>
             </div>
+        </div>
+
+        <!-- DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD-->
+        <div>
+            <h1>검색된 주소</h1>
+            <ul>
+                <li v-for="item in jsonData" :key="item.bdMgtSn" @click="callgetAnalyzeKeyword('Word2Vec', item.roadAddr, item.rn)">{{ item.roadAddr }} - {{ item.rn }}</li>
+            </ul>
+        </div>
+        <div id="app">
+            <p>☆분석 결과☆</p>
+            <ul>
+                <li v-for="(item, index) in dataList" :key="index">{{ item }}</li>
+            </ul>
+        </div>
+        <div id="app">
+            <p>☆결과에 계산 추가☆</p>
+            <ul>
+                <li v-for="(item, index) in dataListLev" :key="index">{{ item }}</li>
+            </ul>
         </div>
     </div>
 </template>
@@ -145,6 +171,9 @@ export default {
             emailSendYN: false,
             emailAuthCd: '',
             emailAuthYN: false,
+            jsonData: [],
+            dataList: [],
+            dataListLev: [],
         };
     },
     mounted() {},
@@ -314,7 +343,7 @@ export default {
 
                     //통신이 성공적이고 변경 건수가 0이 아닌 경우 메인으로 이동
                     this.$router.push({
-                        name: 'main',
+                        name: 'BoardList',
                     });
                 } else {
                     errorMsg = '업데이트(' + actionType + ') 실패  Communication Code = ' + result.status + '\n';
@@ -438,7 +467,7 @@ export default {
 
                         //통신이 성공적이고 변경 건수가 0이 아닌 경우 메인으로 이동
                         this.$router.push({
-                            name: 'main',
+                            name: 'BoardList',
                         });
                     } else {
                         errorMsg = '삭제(' + actionType + ') 실패! Communication Code = ' + result.status + '\n';
@@ -617,6 +646,65 @@ export default {
                 alert('인증 코드가 일치하지 않거나 유효기간이 지난 코드입니다.\n코드를 다시 발급받아 주세요.');
             }
         },
+        searchAddress: async function (address) {
+            let searchWord = address == null ? '노원로28길' : '중앙로';
+            console.log(searchWord);
+            const result = await this.$axios({
+                method: 'post',
+                url: 'https://www.juso.go.kr/addrlink/addrLinkApi.do?keyword=' + searchWord + '&confmKey=U01TX0FVVEgyMDE3MDIxNzA5MjEwODE5MDg2&resultType=json',
+                params: {
+                    email: '',
+                },
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (result.status === 200) {
+                //const parser = new DOMParser();
+                //const xmlDoc = parser.parseFromString(result.data, 'text/xml');
+                //console.log(xmlDoc);
+
+                console.log(result.data.results.juso);
+
+                this.jsonData = result.data.results.juso;
+            }
+        },
+        callgetAnalyzeKeyword: async function (analyzerType, fullAdress, rn) {
+            var url = '';
+            if (analyzerType == 'Word2Vec') {
+                url = '/api/noAuth/getAnalyzeKeyword';
+            } else {
+                url = '/api/noAuth/getAnalyzeKeywordJFastTest';
+            }
+
+            const result = await this.$axios({
+                method: 'GET',
+                url: url,
+                params: {
+                    inputKeyword: rn,
+                    analyzeType: 'model',
+                    correctionYN: 'N',
+                    leaningDataType: 'ROAD',
+                    refinementType: 'FULL',
+                },
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (result.status === 200) {
+                this.dataList = result.data.resuleMany; //데이터 세팅
+                this.dataListLev = result.data.resuleManyLev;
+
+                console.log(result.data.resuleMany);
+                if (result.data.code == 'SUCESS03') {
+                    alert('모델을 테스트 할 수 없는 환경에서 서버가 구동되었습니다');
+                }
+
+                //this.toggleBusy(); //로딩 스피너 토글
+            }
+        },
     },
 };
 </script>
@@ -705,7 +793,7 @@ input[type='reset'] {
     background-color: #364a5f;
     border: none;
     color: white;
-    padding: 15px 80px;
+    padding: 15px 0px;
     text-align: center;
     text-decoration: none;
     display: inline-block;

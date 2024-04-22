@@ -1,4 +1,4 @@
-package com.example.java_jpa_vuejs.common.controller;
+package com.example.java_jpa_vuejs.auth.controller;
 
 import java.net.URLDecoder;
 import java.time.Duration;
@@ -28,11 +28,9 @@ import com.example.java_jpa_vuejs.common.configuration.FirebaseConfiguration;
 import com.example.java_jpa_vuejs.common.model.PaginationDto;
 import com.example.java_jpa_vuejs.common.repositoryService.EmailService;
 import com.example.java_jpa_vuejs.common.repositoryService.PaginationFirebaseService;
-import com.example.java_jpa_vuejs.common.utility.ForbiddenException;
 import com.example.java_jpa_vuejs.common.utility.PaginationAsyncCloud;
 import com.example.java_jpa_vuejs.auth.repositoryService.SignFirebaseService;
 import com.example.java_jpa_vuejs.auth.repositoryService.SignService;
-import com.example.java_jpa_vuejs.auth2.repositoryService.RepositoryService;
 import com.google.gson.JsonObject;
 
 import jakarta.validation.Valid;
@@ -43,7 +41,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-public class VueProxyTestController {
+public class AuthController {
 
     final private static Logger LOG = Logger.getGlobal();
 
@@ -53,8 +51,6 @@ public class VueProxyTestController {
     @Autowired
     private FirebaseConfiguration firebaseConfiguration;
     */
-
-    private final RepositoryService rs;
 
     private final ModelMapper modelMapper;
 
@@ -70,7 +66,7 @@ public class VueProxyTestController {
 
 
     /**
-    * @method 클라우드를 통한 리스트 호출
+    * @method 클라우드를 통한 리스트 호출 테스트
     * @param  null
     * @throws Exception
     */
@@ -433,7 +429,6 @@ public class VueProxyTestController {
          * 3. URL을 이메일로 발송
          * 4. URL클릭시 유효기간 체크 후 유효할 경우 비밀번호 변경 페이지 이동
          */
-
         
         HttpHeaders responseHeaders = new HttpHeaders();//응답 헤더 생성
         try {
@@ -483,7 +478,6 @@ public class VueProxyTestController {
          * 3. URL을 이메일로 발송
          * 4. URL클릭시 유효기간 체크 후 유효할 경우 비밀번호 변경 페이지 이동
          */
-
         
         HttpHeaders responseHeaders = new HttpHeaders();//응답 헤더 생성
         try {

@@ -804,7 +804,7 @@ export default {
         },
         getBoardList: async function () {
             this.$router.push({
-                name: 'boardList',
+                name: 'GeomBoardList',
             });
         },
         insertVertexCondition: async function () {

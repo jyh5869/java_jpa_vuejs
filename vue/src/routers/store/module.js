@@ -76,7 +76,7 @@ const actions = {
                     console.log(res);
                     console.log('sotre------------Login Result-----------------');
 
-                    router.push('/main');
+                    router.push('/BoardList');
                 } else {
                     alert('아이디 및 비밀번호를 확인해 주세요.');
                 }

@@ -28,32 +28,26 @@
                     <strong>Loading...</strong>
                 </div>
             </template>
-            <template #cell(board_Sq)="board_Sq"> {{ board_Sq.index + 1 }} </template>
-            <template #cell(title)="title">
+            <template #cell(brdno)="brdno"> {{ brdno.index + 1 }} </template>
+            <!-- <template #cell(brdno)="brdno"> {{ brdno.value }} </template> -->
+            <template #cell(brdtitle)="title">
                 <!-- <a href="#" v-on:click="viewDetail(title.index, $event)" class="text-primary text-decoration-none">{{ title.value == null ? 'No Title' : title.value }}</a> -->
                 <router-link
                     class="text-secondary text-decoration-none"
                     :to="{
-                        name: 'boardEdit',
+                        name: 'BoardDetail',
                         params: {
-                            document: JSON.stringify({
-                                boardData: this.dataList[title.index],
-                                callType: 'Detail',
-                            }),
+                            document: JSON.stringify(this.dataList[title.index]),
                         },
                     }"
-                    >{{ title.value == null ? 'No Title' : title.value }}
-                </router-link>
+                    >{{ title.value == null ? 'No Title' : title.value }}</router-link
+                >
             </template>
-            <template #cell(reg_dt)="reg_dt"> {{ reg_dt.value }} </template>
+            <template #cell(brddate)="date"> {{ date.value }} </template>
             <template #table-caption>Data List</template>
         </b-table>
-    </div>
 
-    <div v-html="pagination"></div>
-
-    <div class="col-12">
-        <button type="button" class="btn float-right btn-success" @click="getBoardWrite">글쓰기</button>
+        <div v-html="pagination"></div>
     </div>
 </template>
 
@@ -74,25 +68,25 @@ export default {
             isBusy: true,
             dataFields: [
                 {
-                    key: 'board_Sq',
+                    key: 'brdno',
                     sortable: true,
                     label: '글번호',
                     variant: '',
                 },
                 {
-                    key: 'title',
+                    key: 'brdtitle',
                     label: '제목',
                     sortable: true,
                     variant: '',
                 },
                 {
-                    key: 'userNm',
+                    key: 'brdwriter',
                     label: '작성자',
                     sortable: false,
                     variant: '',
                 },
                 {
-                    key: 'createdDate',
+                    key: 'brddate',
                     label: '작성일',
                     sortable: true,
                     variant: '',
@@ -100,38 +94,26 @@ export default {
             ],
             dataList: [],
             pagination: null,
-            totalCount: 0, //총 개시물 갯수
-            currentPage: 0, //현재 페이지 정보
         };
-    },
-    mounted() {
-        this.getList();
     },
     created() {
         window.getList = this.getList;
     },
+    mounted() {
+        this.getList();
+    },
     // [메소드 정의 실시]
     methods: {
-        // 글쓰기 페이지로 이동
-        getBoardWrite: async function () {
-            this.$router.push({
-                name: 'boardEdit',
-                params: {
-                    document: JSON.stringify({
-                        boardData: null,
-                        callType: 'Write',
-                    }),
-                },
-            });
+        // [testMain 함수 정의 실시]
+        testMain: function () {
+            return 'testData';
         },
         viewDetail: function (index, event) {
-            const targetId = event.currentTarget.id;
-            console.log(targetId);
             event.preventDefault(); //이벤트 전파를 차단하여 컴포넌트 이동에 지장이 없도록 하기 위함.
 
             this.$router.push({
-                name: 'hello',
-                params: { callType: 'detail', document: JSON.stringify(this.dataList[index]) },
+                name: 'boardList',
+                params: { document: JSON.stringify(this.dataList[index]) },
             });
         },
         toggleBusy() {
@@ -139,9 +121,10 @@ export default {
         },
         getList: async function (currentPage, countPerPage, params, docIdArr) {
             this.isBusy = true;
+
             let result = await this.$axios({
-                method: 'post',
-                url: '/api/getGeomBoardList',
+                method: 'get',
+                url: '/api/getList',
                 params: {
                     currentPage: currentPage,
                     countPerPage: countPerPage,
@@ -159,6 +142,8 @@ export default {
                 this.dataList = result.data.list; //데이터 세팅
                 this.pagination = result.data.pagination; //페이징 세팅
 
+                //console.log(result.data.list);
+                console.log(result.data);
                 this.toggleBusy(); //로딩 스피너 토글
             }
         },
