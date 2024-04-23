@@ -73,7 +73,7 @@
             <input type="text" id="nickname" class="fadeIn third" name="nickname" v-model="nickname" placeholder="nickname" />
             <input type="text" id="mobile" class="fadeIn third" name="mobile" v-model="mobile" placeholder="mobile" />
 
-            <div class="btn-wrap navbar-nav mx-2">
+            <div class="mx-0">
                 <input type="button" class="fadeIn fourth" value="Information Change(Login)" v-if="accessPath == 'login'" @click="userManagement()" />
                 <input type="button" class="fadeIn fourth" value="Information Change(EmailAuth)" v-if="accessPath == 'emailAuth'" @click="userManagementAuthEmail('MODIFY')" />
             </div>
@@ -93,17 +93,19 @@
                 <li v-for="item in jsonData" :key="item.bdMgtSn" @click="callgetAnalyzeKeyword('Word2Vec', item.roadAddr, item.rn)">{{ item.roadAddr }} - {{ item.rn }}</li>
             </ul>
         </div>
-        <div id="app">
-            <p>☆분석 결과☆</p>
-            <ul>
-                <li v-for="(item, index) in dataList" :key="index">{{ item }}</li>
-            </ul>
-        </div>
-        <div id="app">
-            <p>☆결과에 계산 추가☆</p>
-            <ul>
-                <li v-for="(item, index) in dataListLev" :key="index">{{ item }}</li>
-            </ul>
+        <div style="display: flex">
+            <div id="app">
+                <p>☆분석 결과☆</p>
+                <ul>
+                    <li v-for="(item, index) in dataList" :key="index">{{ item }}</li>
+                </ul>
+            </div>
+            <div id="app">
+                <p>☆결과에 계산 추가☆</p>
+                <ul>
+                    <li v-for="(item, index) in dataListLev" :key="index">{{ item }}</li>
+                </ul>
+            </div>
         </div>
     </div>
 </template>
@@ -647,7 +649,7 @@ export default {
             }
         },
         searchAddress: async function (address) {
-            let searchWord = address == null ? '노원로28길' : '중앙로';
+            let searchWord = address == null ? '노원로28길' : address;
             console.log(searchWord);
             const result = await this.$axios({
                 method: 'post',
@@ -668,6 +670,8 @@ export default {
                 console.log(result.data.results.juso);
 
                 this.jsonData = result.data.results.juso;
+
+                this.callgetAnalyzeKeyword('Word2Vec', result.data.results.juso[0].roadAddr, result.data.results.juso[0].rn);
             }
         },
         callgetAnalyzeKeyword: async function (analyzerType, fullAdress, rn) {
@@ -677,7 +681,7 @@ export default {
             } else {
                 url = '/api/noAuth/getAnalyzeKeywordJFastTest';
             }
-
+            console.log(url + '       ----      ' + rn);
             const result = await this.$axios({
                 method: 'GET',
                 url: url,
@@ -685,7 +689,7 @@ export default {
                     inputKeyword: rn,
                     analyzeType: 'model',
                     correctionYN: 'N',
-                    leaningDataType: 'ROAD',
+                    leaningDataType: 'FULL',
                     refinementType: 'FULL',
                 },
                 headers: {
@@ -809,6 +813,7 @@ input[type='reset'] {
     -ms-transition: all 0.3s ease-in-out;
     -o-transition: all 0.3s ease-in-out;
     transition: all 0.3s ease-in-out;
+    width: 85%;
 }
 
 input[type='button'].small,
