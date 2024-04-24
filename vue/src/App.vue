@@ -67,9 +67,27 @@
     <!-- [고정 : 헤더 컴포넌트] -->
     <HeaderLayout />
     <b-row>
-        <b-col md="8" offset-md="2">
+        <b-col cols="2">
+            <SideLLayout />
+            <div>
+                <p>☆분석 결과☆</p>
+                <ul>
+                    <li v-for="(item, index) in dataRight" :key="index">{{ item }}</li>
+                </ul>
+            </div>
+        </b-col>
+        <b-col cols="8">
             <!-- [동적 : 라우터 뷰 컴포넌트] -->
-            <router-view :key="$route.fullPath" />
+            <router-view :key="$route.fullPath" @data-to-parent="receiveDataFromChild" />
+        </b-col>
+        <b-col cols="2">
+            <SideRLayout />
+            <div>
+                <p>☆분석 결과☆</p>
+                <ul>
+                    <li v-for="(item, index) in dataLeft" :key="index">{{ item }}</li>
+                </ul>
+            </div>
         </b-col>
     </b-row>
     <!-- [고정 : 푸터 컴포넌트] -->
@@ -82,6 +100,8 @@
 import HeaderLayout from './commonLayout/HeaderLayout.vue';
 import FooterLayout from './commonLayout/FooterLayout.vue';
 import MainComponent from './components/MainComponent.vue';
+import SideLLayout from './commonLayout/SideLLayout.vue';
+import SideRLayout from './commonLayout/SideRLayout.vue';
 
 // [export 설정 실시]
 export default {
@@ -92,13 +112,16 @@ export default {
     components: {
         HeaderLayout, // [HeaderLayout 컴포넌트]
         FooterLayout, // [FooterLayout 컴포넌트]
+        SideLLayout,
+        SideRLayout,
     },
 
     // [컴포넌트 생성 시 초기 데이터 설정 (리턴 값 지정)]
     data() {
         return {
             data: 'APP VUE', // [데이터 지정]
-
+            dataRight: [],
+            dataLeft: [],
             MainComponent, // [초기 로드 컴포넌트 지정]
         };
     },
@@ -154,7 +177,15 @@ export default {
     },
     */
     // [메소드 정의 실시]
-    methods: {},
+    methods: {
+        receiveDataFromChild(data) {
+            // 자식 컴포넌트에서 전달된 데이터 처리
+            console.log('Received data from ChildComponent:', data);
+
+            this.dataRight = data[0];
+            this.dataLeft = data[1];
+        },
+    },
 };
 </script>
 

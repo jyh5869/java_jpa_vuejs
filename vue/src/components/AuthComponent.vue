@@ -85,29 +85,31 @@
                 <a class="underlineHover" href="javascript:void(0);" v-if="accessPath == 'emailAuth'" @click="userManagementAuthEmail('DELETE')">Delete account(EmailAuth)</a>
             </div>
         </div>
-
-        <!-- DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD-->
-        <div>
+        <div class="addrSearchResult-wrap">
             <h1>검색된 주소</h1>
             <ul>
-                <li v-for="item in jsonData" :key="item.bdMgtSn" @click="callgetAnalyzeKeyword('Word2Vec', item.roadAddr, item.rn)">{{ item.roadAddr }} - {{ item.rn }}</li>
+                <li v-for="item in jsonData" :key="item.bdMgtSn" @click="callgetAnalyzeKeyword('Word2Vec', item.roadAddr, item.rn)">{{ item.roadAddr }}</li>
             </ul>
         </div>
-        <div style="display: flex">
-            <div id="app">
-                <p>☆분석 결과☆</p>
-                <ul>
-                    <li v-for="(item, index) in dataList" :key="index">{{ item }}</li>
-                </ul>
-            </div>
-            <div id="app">
-                <p>☆결과에 계산 추가☆</p>
-                <ul>
-                    <li v-for="(item, index) in dataListLev" :key="index">{{ item }}</li>
-                </ul>
-            </div>
+    </div>
+    <!-- DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD-->
+
+    <!--
+    <div class="addrAnalyResult-wrap" style="display: flex">
+        <div>
+            <p>☆분석 결과☆</p>
+            <ul>
+                <li v-for="(item, index) in dataList" :key="index">{{ item }}</li>
+            </ul>
+        </div>
+        <div>
+            <p>☆결과에 계산 추가☆</p>
+            <ul>
+                <li v-for="(item, index) in dataListLev" :key="index">{{ item }}</li>
+            </ul>
         </div>
     </div>
+    -->
 </template>
 
 <!-- [개별 스크립트 설정 실시] -->
@@ -698,8 +700,8 @@ export default {
             });
 
             if (result.status === 200) {
-                this.dataList = result.data.resuleMany; //데이터 세팅
-                this.dataListLev = result.data.resuleManyLev;
+                //this.dataList = result.data.resuleMany; //데이터 세팅
+                //this.dataListLev = result.data.resuleManyLev;
 
                 console.log(result.data.resuleMany);
                 if (result.data.code == 'SUCESS03') {
@@ -707,6 +709,8 @@ export default {
                 }
 
                 //this.toggleBusy(); //로딩 스피너 토글
+
+                this.$emit('data-to-parent', [result.data.resuleMany, result.data.resuleManyLev]);
             }
         },
     },
@@ -749,7 +753,7 @@ p.text.sm {
     display: flex;
     align-items: center;
     flex-direction: column;
-    justify-content: center;
+    /* justify-content: center; */
     width: 100%;
     min-height: 100%;
     padding: 20px;
@@ -1008,5 +1012,16 @@ input[type='text']:placeholder {
 
 #icon {
     width: 20%;
+}
+
+.addrSearchResult-wrap {
+    position: absolute;
+    top: 150px;
+}
+
+.addrAnalyResult-wrap {
+    /* display: flex; */
+    position: absolute;
+    top: 150px;
 }
 </style>
