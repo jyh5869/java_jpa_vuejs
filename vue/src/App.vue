@@ -68,26 +68,14 @@
     <HeaderLayout />
     <b-row>
         <b-col cols="2">
-            <SideLLayout />
-            <div>
-                <p>☆분석 결과☆</p>
-                <ul>
-                    <li v-for="(item, index) in dataRight" :key="index">{{ item }}</li>
-                </ul>
-            </div>
+            <SideLLayout :parsingList="dataRight" />
         </b-col>
         <b-col cols="8">
             <!-- [동적 : 라우터 뷰 컴포넌트] -->
             <router-view :key="$route.fullPath" @data-to-parent="receiveDataFromChild" />
         </b-col>
         <b-col cols="2">
-            <SideRLayout />
-            <div>
-                <p>☆분석 결과☆</p>
-                <ul>
-                    <li v-for="(item, index) in dataLeft" :key="index">{{ item }}</li>
-                </ul>
-            </div>
+            <SideRLayout :parsingList="dataLeft" />
         </b-col>
     </b-row>
     <!-- [고정 : 푸터 컴포넌트] -->

@@ -16,13 +16,21 @@
 
 <!-- [개별 템플릿 (뷰) 설정 실시] -->
 <template>
-    <br /><br />
-    <div class="footer">왼쪽 사이드바</div>
+    <div class="addrAnalyResult-wrap">
+        <div class="footer">리스트</div>
+        <div>
+            <ul>
+                <li v-for="(item, index) in parsingList" :key="index">{{ item }}</li>
+            </ul>
+        </div>
+    </div>
 </template>
 
 <!-- [개별 스크립트 설정 실시] -->
 <script>
-export default {};
+export default {
+    props: ['parsingList'], // myArray prop을 정의하여 받는다
+};
 </script>
 
 <!-- [개별 스타일 설정 실시] -->
@@ -38,5 +46,18 @@ export default {};
     padding: 0px;
     margin: 10px;
     text-decoration: none;
+}
+.addrAnalyResult-wrap {
+    padding: 0 0.5em 0 0.5em;
+}
+
+.addrAnalyResult-wrap ul {
+    list-style: none;
+    padding: 0 0.5em 0 0.5em;
+    text-align: left;
+}
+.addrAnalyResult-wrap ul > li {
+    padding: 2px 0px;
+    text-align: center;
 }
 </style>
