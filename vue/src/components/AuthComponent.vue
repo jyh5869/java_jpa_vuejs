@@ -85,31 +85,14 @@
                 <a class="underlineHover" href="javascript:void(0);" v-if="accessPath == 'emailAuth'" @click="userManagementAuthEmail('DELETE')">Delete account(EmailAuth)</a>
             </div>
         </div>
-        <div class="addrSearchResult-wrap">
+        <div class="addrSearchResult-wrap" v-if="addrSearchView == true">
             <h1>검색된 주소</h1>
+            <input type="text" class="fadeIn third" placeholder="Search Address" v-model="keyword" @keyup.enter="searchAddress(keyword)" />
             <ul>
-                <li v-for="item in jsonData" :key="item.bdMgtSn" @click="callgetAnalyzeKeyword('Word2Vec', item.roadAddr, item.rn)">{{ item.roadAddr }}</li>
+                <li v-for="item in jsonData" :key="item.bdMgtSn" @click="setSelectAddress(item.roadAddr)">{{ item.roadAddr }}</li>
             </ul>
         </div>
     </div>
-    <!-- DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD-->
-
-    <!--
-    <div class="addrAnalyResult-wrap" style="display: flex">
-        <div>
-            <p>☆분석 결과☆</p>
-            <ul>
-                <li v-for="(item, index) in dataList" :key="index">{{ item }}</li>
-            </ul>
-        </div>
-        <div>
-            <p>☆결과에 계산 추가☆</p>
-            <ul>
-                <li v-for="(item, index) in dataListLev" :key="index">{{ item }}</li>
-            </ul>
-        </div>
-    </div>
-    -->
 </template>
 
 <!-- [개별 스크립트 설정 실시] -->
@@ -178,6 +161,7 @@ export default {
             jsonData: [],
             dataList: [],
             dataListLev: [],
+            addrSearchView: false,
         };
     },
     mounted() {},
@@ -674,6 +658,7 @@ export default {
                 this.jsonData = result.data.results.juso;
 
                 this.callgetAnalyzeKeyword('Word2Vec', result.data.results.juso[0].roadAddr, result.data.results.juso[0].rn);
+                this.addrSearchView = true;
             }
         },
         callgetAnalyzeKeyword: async function (analyzerType, fullAdress, rn) {
@@ -710,8 +695,17 @@ export default {
 
                 //this.toggleBusy(); //로딩 스피너 토글
 
-                this.$emit('data-to-parent', [result.data.resuleMany, result.data.resuleManyLev]);
+                this.$emit('data-to-parent', [
+                    ['유사 도로', result.data.resuleMany],
+                    ['단어 거리계산', result.data.resuleManyLev],
+                ]);
             }
+        },
+        setSelectAddress: async function (selectAddress) {
+            this.addrSearchView = false;
+            this.address = selectAddress;
+
+            this.$emit('data-to-parent', [[], []]);
         },
     },
 };
@@ -744,6 +738,7 @@ h2 {
     margin: 40px 8px 10px 8px;
     color: #cccccc;
 }
+
 p.text.sm {
     margin: 0px;
 }
@@ -1017,6 +1012,15 @@ input[type='text']:placeholder {
 .addrSearchResult-wrap {
     position: absolute;
     top: 150px;
+    background-color: #444;
+    opacity: 0.8;
+    padding: 30px 15px;
+}
+
+.addrSearchResult-wrap ul {
+    list-style: none;
+    padding: 7px 0px;
+    border-radius: 5px;
 }
 
 .addrAnalyResult-wrap {

@@ -17,10 +17,10 @@
 <!-- [개별 템플릿 (뷰) 설정 실시] -->
 <template>
     <div class="addrAnalyResult-wrap">
-        <div class="footer">리스트</div>
+        <div class="title">{{ parsingList[0] }}</div>
         <div>
             <ul>
-                <li v-for="(item, index) in parsingList" :key="index">{{ item }}</li>
+                <li v-for="(item, index) in parsingList[1]" :key="index">{{ item }}</li>
             </ul>
         </div>
     </div>
@@ -35,10 +35,12 @@ export default {
 
 <!-- [개별 스타일 설정 실시] -->
 <style scoped>
-.footer {
+.title {
     background: #42b883;
     color: white;
-    margin: auto;
+    margin: 10px 0 10px 0;
+    padding: 5px 0px;
+    border-radius: 10px;
 }
 
 #nav .menu {
@@ -58,5 +60,6 @@ export default {
 }
 .addrAnalyResult-wrap ul > li {
     padding: 2px 0px;
+    text-align: center;
 }
 </style>

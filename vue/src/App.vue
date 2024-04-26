@@ -68,14 +68,14 @@
     <HeaderLayout />
     <b-row>
         <b-col cols="2">
-            <SideLLayout :parsingList="dataRight" />
+            <SideLLayout :parsingList="dataRight" v-if="dataRight.length != 0" />
         </b-col>
         <b-col cols="8">
             <!-- [동적 : 라우터 뷰 컴포넌트] -->
             <router-view :key="$route.fullPath" @data-to-parent="receiveDataFromChild" />
         </b-col>
         <b-col cols="2">
-            <SideRLayout :parsingList="dataLeft" />
+            <SideRLayout :parsingList="dataLeft" v-if="dataLeft.length != 0" />
         </b-col>
     </b-row>
     <!-- [고정 : 푸터 컴포넌트] -->
