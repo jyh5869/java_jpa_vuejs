@@ -2,7 +2,9 @@ package com.example.java_jpa_vuejs.tensorFlow.repositoryServiceImpl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
@@ -51,9 +53,18 @@ public class W2VModelServiceImpl implements W2VModelService {
             System.out.println(array);
 
             if(mostSimilarWordMany != null){
-                System.out.println("주어진 단어 '" + inputWord + "'와 유사한 단어 " + returnCnt + "개 출럭");
-                for (String word : mostSimilarWordMany) {
-                    System.out.println(word);
+                System.out.println("주어진 단어 '" + inputWord + "'와 유사한 단어 " + returnCnt + "개 출럭 [" + leaningDataType + "]");
+                if(leaningDataType.equals("FULL")){
+                    for (String word : mostSimilarWordMany) {
+                        double similarity = wordVectorsFull.similarity(inputWord, word);
+                        System.out.println("Similarity between \"" + inputWord + "\" and \"" + word + "\": " + similarity);
+                    }
+                }
+                else if(leaningDataType.equals("ROAD")){
+                    for (String word : mostSimilarWordMany) {
+                        double similarity = wordVectorsRoad.similarity(inputWord, word);
+                        System.out.println("Similarity between \"" + inputWord + "\" and \"" + word + "\": " + similarity);
+                    }
                 }
             }
             else{
@@ -76,17 +87,65 @@ public class W2VModelServiceImpl implements W2VModelService {
     public List<String> getCalculateDistance(String inputWord, Collection<String> result , int returnCnt) {
 
         List<String> resultToList = new ArrayList<>();//형태소 분석이 필요할 경우 형태소 분석후 데이터를 저장
+        List<Map<String, String>> machingToList = new ArrayList<Map<String, String>>();
+
+        String[] endings = {"로", "번길", "대로", "길"};
 
         if(result != null){
             for (String word : result) {
+                String resultString;
+
                 System.out.println(word);
 
-                resultToList.add(StringUtils.join(word, " "));
+                //단어에서 숫자 제외
+                resultString = word.replaceAll("\\d", "");
+                System.out.println(resultString);
+
+                //단어에서 대로 로 길 제외
+                for (String ending : endings) {
+
+                    int lastIndex = resultString.lastIndexOf(ending);
+
+                    if (lastIndex != -1) {
+                        resultString = resultString.substring(0, lastIndex);
+
+                        break;
+                    }
+                }
+                
+                Map<String, String> refineMap = new HashMap<String, String>();
+                
+                refineMap.put("origin", word);
+                refineMap.put("refine", resultString);
+
+                machingToList.add(refineMap);
+
+                resultToList.add(StringUtils.join(resultString, " "));
             }
             
             List<String> mostSimilarWordMany = levenUtil.findTopSimilarWords(inputWord, resultToList, returnCnt);
 
-            return mostSimilarWordMany;
+            
+            System.out.println("11111111111111111111111111");
+            List<String> lastRefineResult = new ArrayList<>();//형태소 분석이 필요할 경우 형태소 분석후 데이터를 저장
+            for (String similarWord : mostSimilarWordMany) {//정제 단어로 순위가 계산된 결고 리스트 순회
+                System.out.println("222222222222222222222222222222222 similarWord : " + similarWord);
+                for (Map<String, String> machingMap : machingToList) {//매칭 리스트에서 해당 단어와 동일한 원본 단어 확인
+                    System.out.println("3333333333333333333333333333333333  : " + machingMap + " /////" + similarWord+"   /////   "+machingMap.get("refine"));
+                    System.out.println(machingMap.get("refine"));
+
+                    String machingWord = machingMap.get("refine").trim();
+                    
+                    if(machingWord.equals(similarWord.trim())){
+                        lastRefineResult.add(machingMap.get("origin"));
+                        System.out.println("☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆  : " + machingMap.get("origin"));
+                        break;
+                    
+                    }
+                }
+            }
+
+            return lastRefineResult;
         }
         else{
             return resultToList;

@@ -86,7 +86,8 @@
             </div>
         </div>
         <div class="addrSearchResult-wrap" v-if="addrSearchView == true">
-            <h1>검색된 주소</h1>
+            <b-alert show>Default Alert</b-alert>
+            <h1 class="x-lg">주소검색</h1>
             <input type="text" class="fadeIn third" placeholder="Search Address" v-model="keyword" @keyup.enter="searchAddress(keyword)" />
             <ul>
                 <li v-for="item in jsonData" :key="item.bdMgtSn" @click="setSelectAddress(item.roadAddr)">{{ item.roadAddr }}</li>
