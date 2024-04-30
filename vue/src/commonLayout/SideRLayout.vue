@@ -51,6 +51,7 @@ export default {
 }
 .addrAnalyResult-wrap {
     padding: 0 0.5em 0 0.5em;
+    margin-top: 70px;
 }
 
 .addrAnalyResult-wrap ul {

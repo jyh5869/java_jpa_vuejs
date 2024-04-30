@@ -59,6 +59,7 @@
 
 <!-- [애플리케이션 공통 템플릿 (뷰) 지정] -->
 <template>
+    <div class="blackBackground" v-if="darKYN == 'Y'"></div>
     <!-- [App.vue 데이터 바인딩 지정] -->
     <div id="dataContainer">
         <h1><img src="./assets/logo.png" id="icon" alt="User Icon" />{{ data }}</h1>
@@ -110,6 +111,7 @@ export default {
             data: 'APP VUE', // [데이터 지정]
             dataRight: [],
             dataLeft: [],
+            darKYN: 'N',
             MainComponent, // [초기 로드 컴포넌트 지정]
         };
     },
@@ -170,8 +172,15 @@ export default {
             // 자식 컴포넌트에서 전달된 데이터 처리
             console.log('Received data from ChildComponent:', data);
 
-            this.dataRight = data[0];
-            this.dataLeft = data[1];
+            if (data.darkYN != undefined) {
+                this.darKYN = data.darkYN;
+            }
+            if (data.dataRight != undefined) {
+                this.dataRight = data.dataRight;
+            }
+            if (data.dataLeft != undefined) {
+                this.dataLeft = data.dataLeft;
+            }
         },
     },
 };
@@ -197,5 +206,13 @@ export default {
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
     color: #2c3e50;
+}
+.blackBackground {
+    background-color: black;
+    position: fixed;
+    z-index: 9999;
+    width: 100%;
+    height: 100%;
+    opacity: 0.7;
 }
 </style>

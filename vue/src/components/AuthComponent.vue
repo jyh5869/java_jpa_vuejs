@@ -86,12 +86,26 @@
             </div>
         </div>
         <div class="addrSearchResult-wrap" v-if="addrSearchView == true">
-            <b-alert show>Default Alert</b-alert>
-            <h1 class="x-lg">주소검색</h1>
-            <input type="text" class="fadeIn third" placeholder="Search Address" v-model="keyword" @keyup.enter="searchAddress(keyword)" />
-            <ul>
-                <li v-for="item in jsonData" :key="item.bdMgtSn" @click="setSelectAddress(item.roadAddr)">{{ item.roadAddr }}</li>
-            </ul>
+            <div class="row">
+                <div class="col text-end"><b-close-button @click="addrSearchView = false" /></div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <h3 class="x-lg">주소를 입력해 주세요</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <input type="text" class="fadeIn third" placeholder="Search Address" v-model="keyword" @keyup.enter="searchAddress(keyword)" />
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col">
+                    <b-list-group>
+                        <b-list-group-item variant="secondary" href="#" v-for="item in jsonData" :key="item.bdMgtSn" @click="setSelectAddress(item.roadAddr)" class="searchResultRow-wrap">{{ item.roadAddr }}</b-list-group-item>
+                    </b-list-group>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -636,6 +650,8 @@ export default {
             }
         },
         searchAddress: async function (address) {
+            this.$emit('data-to-parent', { darkYN: 'Y' });
+
             let searchWord = address == null ? '노원로28길' : address;
             console.log(searchWord);
             const result = await this.$axios({
@@ -696,10 +712,13 @@ export default {
 
                 //this.toggleBusy(); //로딩 스피너 토글
 
+                /*
                 this.$emit('data-to-parent', [
                     ['유사 도로', result.data.resuleMany],
                     ['단어 거리계산', result.data.resuleManyLev],
                 ]);
+                */
+                this.$emit('data-to-parent', { darkYN: 'Y', dataRight: ['유사 도로', result.data.resuleMany], dataLeft: ['단어 거리계산', result.data.resuleManyLev] });
             }
         },
         setSelectAddress: async function (selectAddress) {
@@ -724,10 +743,10 @@ body {
 }
 
 a {
-    color: #92badd;
+    /* color: #92badd; */
     display: inline-block;
     text-decoration: none;
-    font-weight: 400;
+    /* font-weight: 400; */
 }
 
 h2 {
@@ -1013,9 +1032,11 @@ input[type='text']:placeholder {
 .addrSearchResult-wrap {
     position: absolute;
     top: 150px;
-    background-color: #444;
-    opacity: 0.8;
+    background-color: #fff;
+    opacity: 1;
     padding: 30px 15px;
+    border-radius: 5px;
+    /* z-index: 10; */
 }
 
 .addrSearchResult-wrap ul {
@@ -1023,10 +1044,11 @@ input[type='text']:placeholder {
     padding: 7px 0px;
     border-radius: 5px;
 }
+.addrSearchResult-wrap ul .searchResultRow-wrap {
+    cursor: pointer;
+}
 
-.addrAnalyResult-wrap {
-    /* display: flex; */
-    position: absolute;
-    top: 150px;
+.addrSearchResult-wrap ul .searchResultRow-wrap {
+    color: none;
 }
 </style>
