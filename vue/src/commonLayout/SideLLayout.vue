@@ -38,9 +38,10 @@ export default {
 .title {
     background: #42b883;
     color: white;
-    margin: 10px 0 10px 0;
+    margin: 10px 0 20px 0;
     padding: 5px 0px;
-    border-radius: 10px;
+    border-radius: 5px;
+    font-size: 15px;
 }
 
 #nav .menu {
@@ -50,17 +51,17 @@ export default {
     text-decoration: none;
 }
 .addrAnalyResult-wrap {
-    padding: 0 0.5em 0 0.5em;
     margin-top: 70px;
 }
 
 .addrAnalyResult-wrap ul {
     list-style: none;
-    padding: 0 0.5em 0 0.5em;
+    padding: 0 0em 0 0em;
     text-align: left;
 }
 .addrAnalyResult-wrap ul > li {
     padding: 2px 0px;
     text-align: center;
+    font-size: 14px;
 }
 </style>

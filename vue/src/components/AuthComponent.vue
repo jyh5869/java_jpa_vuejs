@@ -85,9 +85,11 @@
                 <a class="underlineHover" href="javascript:void(0);" v-if="accessPath == 'emailAuth'" @click="userManagementAuthEmail('DELETE')">Delete account(EmailAuth)</a>
             </div>
         </div>
+    </div>
+    <div class="addrSearch-wrap">
         <div class="addrSearchResult-wrap" v-if="addrSearchView == true">
             <div class="row">
-                <div class="col text-end"><b-close-button @click="addrSearchView = false" /></div>
+                <div class="col text-end"><b-close-button @click="setSelectAddress('')" /></div>
             </div>
             <div class="row">
                 <div class="col">
@@ -96,13 +98,13 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <input type="text" class="fadeIn third" placeholder="Search Address" v-model="keyword" @keyup.enter="searchAddress(keyword)" />
+                    <input type="text" class="" placeholder="Search Address" v-model="keyword" @keyup.enter="searchAddress(keyword)" />
                 </div>
             </div>
             <div class="row mt-3">
                 <div class="col">
-                    <b-list-group>
-                        <b-list-group-item variant="secondary" href="#" v-for="item in jsonData" :key="item.bdMgtSn" @click="setSelectAddress(item.roadAddr)" class="searchResultRow-wrap">{{ item.roadAddr }}</b-list-group-item>
+                    <b-list-group class="searchResult-wrap">
+                        <b-list-group-item variant="secondary" href="#" v-for="item in jsonData" :key="item.bdMgtSn" @click="setSelectAddress(item.roadAddr)" class="searchResultRow">{{ item.roadAddr }}</b-list-group-item>
                     </b-list-group>
                 </div>
             </div>
@@ -650,9 +652,10 @@ export default {
             }
         },
         searchAddress: async function (address) {
+            this.addrSearchView = true;
             this.$emit('data-to-parent', { darkYN: 'Y' });
 
-            let searchWord = address == null ? '노원로28길' : address;
+            let searchWord = address == null ? '' : address;
             console.log(searchWord);
             const result = await this.$axios({
                 method: 'post',
@@ -725,7 +728,7 @@ export default {
             this.addrSearchView = false;
             this.address = selectAddress;
 
-            this.$emit('data-to-parent', [[], []]);
+            this.$emit('data-to-parent', { darkYN: 'N' });
         },
     },
 };
@@ -771,7 +774,9 @@ p.text.sm {
     /* justify-content: center; */
     width: 100%;
     min-height: 100%;
-    padding: 20px;
+    /* padding: 20px; */
+    /* position: relative; */
+    /* z-index: 10;  */
 }
 
 #formContent {
@@ -867,7 +872,7 @@ input[type='text'] {
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 16px;
+    font-size: 14px;
     margin: 5px;
     width: 85%;
     border: 2px solid #f6f6f6;
@@ -1029,6 +1034,14 @@ input[type='text']:placeholder {
     width: 20%;
 }
 
+.addrSearch-wrap {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    /* min-height: 100%; */
+    padding: 20px;
+}
 .addrSearchResult-wrap {
     position: absolute;
     top: 150px;
@@ -1036,19 +1049,15 @@ input[type='text']:placeholder {
     opacity: 1;
     padding: 30px 15px;
     border-radius: 5px;
-    /* z-index: 10; */
+    z-index: 15;
+    width: 60%;
 }
 
-.addrSearchResult-wrap ul {
+.addrSearchResult-wrap .searchResult-wrap {
     list-style: none;
-    padding: 7px 0px;
-    border-radius: 5px;
 }
-.addrSearchResult-wrap ul .searchResultRow-wrap {
+.addrSearchResult-wrap .searchResultRow {
     cursor: pointer;
-}
-
-.addrSearchResult-wrap ul .searchResultRow-wrap {
-    color: none;
+    font-size: 14px;
 }
 </style>

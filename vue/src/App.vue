@@ -60,6 +60,7 @@
 <!-- [애플리케이션 공통 템플릿 (뷰) 지정] -->
 <template>
     <div class="blackBackground" v-if="darKYN == 'Y'"></div>
+
     <!-- [App.vue 데이터 바인딩 지정] -->
     <div id="dataContainer">
         <h1><img src="./assets/logo.png" id="icon" alt="User Icon" />{{ data }}</h1>
@@ -190,6 +191,8 @@ export default {
 <style>
 #dataContainer {
     color: #42b883;
+    position: relative;
+    z-index: 9;
 }
 
 #dataContainer h1 {
@@ -210,7 +213,7 @@ export default {
 .blackBackground {
     background-color: black;
     position: fixed;
-    z-index: 9999;
+    z-index: 10;
     width: 100%;
     height: 100%;
     opacity: 0.7;
