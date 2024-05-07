@@ -1,6 +1,8 @@
 package com.example.java_jpa_vuejs.tensorFlow.common;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,5 +78,62 @@ public class levenUtil {
         }
 
         return topWords;
+    }
+
+
+    // 입력한 단어와 유사한 상위 n개의 단어를 찾는 메서드
+    public static List<Map<String, String>> findTopSimilarWordsRefine(String inputWord,  List<Map<String, String>> wordsMapList, int n, String sortOptions) {
+        Map<String, Integer> wordDistances = new HashMap<>();
+
+        String[] endings = {"로", "번길", "대로", "길"};
+        for (String ending : endings) {
+
+            int lastIndex = inputWord.lastIndexOf(ending);
+
+            if (lastIndex != -1) {
+                inputWord = inputWord.substring(0, lastIndex);
+
+                break;
+            }
+        }
+
+        // 각 단어의 레벤슈타인 거리를 계산하여 저장
+        for (Map<String, String> wordsMap : wordsMapList) {
+
+            String originWord = wordsMap.get("origin");//ex> 노원로28길
+            String refineWord = wordsMap.get("refine");//ex> 노원
+            
+            String distance = Integer.toString(levenshteinDistance(inputWord, refineWord));
+
+            wordsMap.put("distance", distance);
+        }
+        // wordsMapList의 distance 키값으로 내림차순으로 wordsMapList를 정렬
+
+        //wordsMapList.sort(Comparator.comparingInt(map -> -Integer.parseInt(map.get("distance"))));
+        // 정렬 방식 선택
+        Comparator<Map<String, String>> comparator = Comparator.comparingInt(map -> Integer.parseInt(map.get("distance")));
+/* 
+        if (sortOptions.equals("DESC")) {
+            comparator = comparator.reversed(); // 내림차순 정렬
+        }
+*/
+            
+        
+
+        // wordsMapList를 distance 값으로 정렬
+        wordsMapList.sort(comparator);
+
+        //Collections.reverse(wordsMapList); // 정렬된 리스트를 뒤집음
+
+        // 정렬된 결과 출력
+        for (Map<String, String> wordsMap : wordsMapList) {
+            String originWord = wordsMap.get("origin");
+            String refineWord = wordsMap.get("refine");
+            String distance = wordsMap.get("distance");
+            
+            System.out.println(inputWord + " : " + refineWord + " (" + originWord + "): " + distance);
+        }
+
+        return wordsMapList;
     }
 }

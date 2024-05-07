@@ -87,7 +87,7 @@ public class W2VModelServiceImpl implements W2VModelService {
     public List<String> getCalculateDistance(String inputWord, Collection<String> result , int returnCnt) {
 
         List<String> resultToList = new ArrayList<>();//형태소 분석이 필요할 경우 형태소 분석후 데이터를 저장
-        List<Map<String, String>> machingToList = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> wordsMapList = new ArrayList<Map<String, String>>();
 
         String[] endings = {"로", "번길", "대로", "길"};
 
@@ -95,11 +95,11 @@ public class W2VModelServiceImpl implements W2VModelService {
             for (String word : result) {
                 String resultString;
 
-                System.out.println(word);
+                //System.out.println(word);
 
                 //단어에서 숫자 제외
                 resultString = word.replaceAll("\\d", "");
-                System.out.println(resultString);
+                //System.out.println(resultString);
 
                 //단어에서 대로 로 길 제외
                 for (String ending : endings) {
@@ -118,11 +118,17 @@ public class W2VModelServiceImpl implements W2VModelService {
                 refineMap.put("origin", word);
                 refineMap.put("refine", resultString);
 
-                machingToList.add(refineMap);
+                wordsMapList.add(refineMap);
 
-                resultToList.add(StringUtils.join(resultString, " "));
+                //resultToList.add(StringUtils.join(resultString, " "));
             }
-            
+            List<Map<String, String>> mostSimilarWordMany = levenUtil.findTopSimilarWordsRefine(inputWord, wordsMapList, returnCnt, "ASC");
+
+            for (Map<String, String> similarWord : mostSimilarWordMany){
+                resultToList.add(similarWord.get("origin"));
+            }
+
+            /* 
             List<String> mostSimilarWordMany = levenUtil.findTopSimilarWords(inputWord, resultToList, returnCnt);
 
             
@@ -144,8 +150,8 @@ public class W2VModelServiceImpl implements W2VModelService {
                     }
                 }
             }
-
-            return lastRefineResult;
+            */
+            return resultToList;
         }
         else{
             return resultToList;
