@@ -60,7 +60,7 @@
 <!-- [애플리케이션 공통 템플릿 (뷰) 지정] -->
 <template>
     <div class="blackBackground" v-if="darKYN == 'Y'"></div>
-
+    <ToastLayout />
     <!-- [App.vue 데이터 바인딩 지정] -->
     <div id="dataContainer">
         <h1><img src="./assets/logo.png" id="icon" alt="User Icon" />{{ data }}</h1>
@@ -80,6 +80,7 @@
             <SideRLayout :parsingList="dataLeft" v-if="dataLeft.length != 0" />
         </b-col>
     </b-row>
+
     <!-- [고정 : 푸터 컴포넌트] -->
     <FooterLayout />
 </template>
@@ -92,6 +93,7 @@ import FooterLayout from './commonLayout/FooterLayout.vue';
 import MainComponent from './components/MainComponent.vue';
 import SideLLayout from './commonLayout/SideLLayout.vue';
 import SideRLayout from './commonLayout/SideRLayout.vue';
+import ToastLayout from './commonLayout/ToastLayout.vue';
 
 // [export 설정 실시]
 export default {
@@ -102,8 +104,9 @@ export default {
     components: {
         HeaderLayout, // [HeaderLayout 컴포넌트]
         FooterLayout, // [FooterLayout 컴포넌트]
-        SideLLayout,
-        SideRLayout,
+        SideLLayout, // [SideLLayout 컴포넌트]
+        SideRLayout, // [SideRLayout 컴포넌트]
+        ToastLayout, // [ToastLayout 컴포넌트]
     },
 
     // [컴포넌트 생성 시 초기 데이터 설정 (리턴 값 지정)]
@@ -181,6 +184,11 @@ export default {
             }
             if (data.dataLeft != undefined) {
                 this.dataLeft = data.dataLeft;
+            }
+            if (data.initYN == 'Y') {
+                this.dataRight = [];
+                this.dataLeft = [];
+                this.darKYN = null;
             }
         },
     },

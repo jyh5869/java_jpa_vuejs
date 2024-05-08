@@ -61,6 +61,9 @@ public class Members{
 	private String nickname;
 	
 	@Column(length = 200)
+	private String address;
+
+	@Column(length = 200)
 	private String profile;
 
 	@Column(length = 10, nullable = false, columnDefinition = "varchar(10) default 'user'")
@@ -144,6 +147,7 @@ public class Members{
 		joinDto.setName(MemberEntity.name);
 		joinDto.setNickname(MemberEntity.nickname);
 		joinDto.setMobile(MemberEntity.mobile);
+		joinDto.setAddress(MemberEntity.address);
 		joinDto.setProfile(MemberEntity.profile);
 		joinDto.setCreatedDate(MemberEntity.createdDate);
 		joinDto.setModifiedDate(MemberEntity.modifiedDate);
@@ -155,7 +159,7 @@ public class Members{
 
 
 	@Builder
-	public Members(Long id, String email, String password, String name, String mobile, String nickname,
+	public Members(Long id, String email, String password, String name, String mobile, String nickname, String address,
 					String profile, ZonedDateTime createdDate, ZonedDateTime modifiedDate, String deleteYn, String authType) {
 		this.id = id;
 		this.email = email;
@@ -163,6 +167,7 @@ public class Members{
 		this.name = name;
 		this.mobile = mobile;
 		this.nickname = nickname;
+		this.address = address;
 		this.profile = profile;
 		this.createdDate = createdDate;
 		this.modifiedDate = modifiedDate;

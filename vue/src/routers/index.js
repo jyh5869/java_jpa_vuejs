@@ -81,6 +81,7 @@ router.beforeEach((to, from, next) => {
             });
         } else {
             console.log('토큰 있어');
+
             next();
         }
     } else {

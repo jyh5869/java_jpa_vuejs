@@ -159,8 +159,10 @@ export default {
             password: '',
             password2: '',
             name: '',
-            nickname: '',
             mobile: '',
+            nickname: '',
+            address: '',
+            profile: '',
             deleteYn: '',
             authType: this.$store.getters.authType,
             error: false,
@@ -244,8 +246,8 @@ export default {
             }
         },
         formValidation: async function () {
-            let arrParams = [this.user, this.password, this.password2, this.name, this.nickname, this.mobile];
-            let arrFields = ['아이디', '비밀번호', '비밀번호 확인', '이름', '닉네임', '휴대폰 번호'];
+            let arrParams = [this.user, this.password, this.password2, this.name, this.nickname, this.mobile, this.address];
+            let arrFields = ['아이디', '비밀번호', '비밀번호 확인', '이름', '닉네임', '휴대폰 번호', '주소'];
             let arrValidParams = [this.idValidationFlag, this.pwValidationFlag];
             let arrValidMsg = ['아이디 중복', '비밀번호 일치 여부'];
 
@@ -291,8 +293,10 @@ export default {
                         email: this.user,
                         password: this.password,
                         name: this.name,
-                        nickname: this.nickname,
                         mobile: this.mobile,
+                        nickname: this.nickname,
+                        address: this.address,
+                        profile: this.profile,
                         authType: 'user',
                     },
                     headers: {
@@ -327,6 +331,8 @@ export default {
                         name: this.name,
                         nickname: this.nickname,
                         mobile: this.mobile,
+                        profile: this.profile,
+                        address: this.address,
                         deleteYn: this.deleteYn,
                         authType: this.authType,
                     },
@@ -382,6 +388,8 @@ export default {
                             name: this.name,
                             nickname: this.nickname,
                             mobile: this.mobile,
+                            profile: this.profile,
+                            address: this.address,
                         },
                         headers: {
                             'Content-Type': 'multipart/form-data',
@@ -438,6 +446,8 @@ export default {
                 this.name = result.data.name;
                 this.nickname = result.data.nickname;
                 this.mobile = result.data.mobile;
+                this.profile = result.data.prifile;
+                this.address = result.data.address;
                 this.deleteYn = result.data.deleteYn;
             }
         },
@@ -669,15 +679,11 @@ export default {
             });
 
             if (result.status === 200) {
-                //const parser = new DOMParser();
-                //const xmlDoc = parser.parseFromString(result.data, 'text/xml');
-                //console.log(xmlDoc);
+                if (result.data.results.juso != null) {
+                    this.jsonData = result.data.results.juso;
+                    this.callgetAnalyzeKeyword('Word2Vec', this.jsonData[0].roadAddr, this.jsonData[0].rn);
+                }
 
-                console.log(result.data.results.juso);
-
-                this.jsonData = result.data.results.juso;
-
-                this.callgetAnalyzeKeyword('Word2Vec', result.data.results.juso[0].roadAddr, result.data.results.juso[0].rn);
                 this.addrSearchView = true;
             }
         },
@@ -728,7 +734,7 @@ export default {
             this.addrSearchView = false;
             this.address = selectAddress;
 
-            this.$emit('data-to-parent', { darkYN: 'N' });
+            this.$emit('data-to-parent', { initYN: 'Y' });
         },
     },
 };

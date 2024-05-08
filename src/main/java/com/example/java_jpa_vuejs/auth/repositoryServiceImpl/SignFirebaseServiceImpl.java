@@ -64,6 +64,7 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
             docData.put("name", joinDto.getName());
             docData.put("mobile", joinDto.getMobile());
             docData.put("nickname", joinDto.getNickname());
+            docData.put("address", joinDto.getAddress());
             docData.put("profile", joinDto.getProfile());
             docData.put("created_date", String.valueOf(ZonedDateTime.now()));
             docData.put("modified_date", String.valueOf(ZonedDateTime.now()));
@@ -113,6 +114,7 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
                 joinDto.setPassword((String) docData.get("password"));
                 joinDto.setName((String) docData.get("name"));
                 joinDto.setNickname((String) docData.get("nickname"));
+                joinDto.setNickname((String) docData.get("address"));
                 joinDto.setProfile((String) docData.get("profile"));
                 joinDto.setCreatedDate(createdDate);
                 joinDto.setModifiedDate(modifiedDate);
@@ -205,6 +207,7 @@ public class SignFirebaseServiceImpl implements SignFirebaseService {
             docData.put("name", joinDto.getName());
             docData.put("mobile", joinDto.getMobile());
             docData.put("nickname", joinDto.getNickname());
+            docData.put("address", joinDto.getAddress());
             docData.put("profile", joinDto.getProfile());
             docData.put("auth_type", joinDto.getAuthType());
             docData.put("modified_date", String.valueOf(ZonedDateTime.now()));

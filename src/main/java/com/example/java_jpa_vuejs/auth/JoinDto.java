@@ -32,6 +32,8 @@ public class JoinDto {
     @NotBlank(message = "'mobile' is a required input value")
     private String mobile;
 
+    private String address;
+
     @NotBlank(message = "'profile' is a required input value")
     private String profile;
 
@@ -65,6 +67,7 @@ public class JoinDto {
                 .name(name)
                 .nickname(nickname)
                 .mobile(mobile)
+                .address(address)
                 .profile(profile)
                 .authType(authType)
                 .deleteYn(deleteYn)

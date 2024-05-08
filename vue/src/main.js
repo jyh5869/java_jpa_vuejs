@@ -96,7 +96,10 @@ app.config.globalProperties.$store = store;
 
 app.use(store);
 app.use(routers);
+
 app.use(BootstrapVue3);
+
 app.use(BCloseButton);
+
 app.use(OpenLayersMap);
 app.mount('#main');
