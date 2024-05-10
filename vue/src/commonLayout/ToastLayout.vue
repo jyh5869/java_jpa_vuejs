@@ -1,75 +1,77 @@
-<!--
-[FooterLayout.vue 설명]
-1. 공통 : 푸터 레이아웃
-
-2. template : 
-   - 화면 상에 표시할 요소 작성 실시
-   - 컴포넌트의 모든 마크업 구조와 디스플레이 로직 작성
-
-3. script : 
-   - import 구문을 사용해 template에서 사용할 컴포넌트 불러온다
-   - export default 구문에서 모듈의 함수, 객체, 변수 등을 다른 모듈에서 가져다 사용 할 수 있도록 내보냅니다
-
-4. style : 
-   - 스타일 지정 실시
--->
-
-<!-- [개별 템플릿 (뷰) 설정 실시] -->
 <template>
-    <div>
-        <b-button @click="showToast" class="mb-2">b-toaster-bottom-full</b-button>
-
-        <b-toast v-model:show="showToast" title="Toast Title"> This is a toast message. </b-toast>
+    <div class="toast-wrap p-2">
+        <div class="toast-button">
+            <b-button class="btn-sm" variant="outline-primary" @click="showToast">히스토리 보기</b-button>
+        </div>
+        <div class="toast-list">
+            <ul>
+                <li>
+                    <b-toast v-model="toastVisible" :delay="toastData.delay" :auto-hide="toastData.autoHide" :no-fade="toastData.noFade" :no-close-button="toastData.noCloseButton" :variant="toastData.variant" :body-class="toastData.bodyClass" :header-class="toastData.headerClass" :title="toastData.title" :body="toastData.body"> </b-toast>
+                </li>
+            </ul>
+        </div>
     </div>
 </template>
 
-<!-- [개별 스크립트 설정 실시] -->
 <script>
-export default {
-    data() {
-        return {
-            counter: 0,
-        };
-    },
-    props: ['parsingList'], // myArray prop을 정의하여 받는다
-    methods: {
-        toast(toaster, append = false) {
-            console.log(toaster + ' /   ' + append);
-            this.counter++;
+import { defineComponent, ref } from 'vue';
+import { BButton, BToast } from 'bootstrap-vue-3';
+
+export default defineComponent({
+    props: {
+        showToastProp: {
+            type: Boolean,
+            default: false,
+        },
+        toastDataProp: {
+            type: Object,
+            default: () => ({
+                delay: 3000, // 토스트가 자동으로 사라지는 지연 시간 (3초)
+                autoHide: true, // 자동으로 숨기기
+                noFade: false, // 페이드 없음
+                noCloseButton: false, // 닫기 버튼 없음
+                variant: 'success', // 토스트 배경 색상
+                bodyClass: '', // 토스트 본문 클래스
+                headerClass: '', // 토스트 헤더 클래스
+                title: 'Toast Title', // 토스트 제목
+                body: 'Toast Body', // 토스트 본문
+            }),
         },
     },
-};
+    components: {
+        BButton,
+        BToast,
+    },
+    setup(props) {
+        const toastVisible = ref(props.showToastProp);
+
+        const showToast = () => {
+            toastVisible.value = true;
+        };
+
+        return {
+            showToast,
+            toastVisible: props.toastDataProp,
+            toastData: props.toastDataProp,
+        };
+    },
+});
 </script>
-
-<!-- [개별 스타일 설정 실시] -->
-<style scoped>
-.title {
-    background: #42b883;
-    color: white;
-    margin: 10px 0 20px 0;
-    padding: 5px 0px;
-    border-radius: 5px;
-    font-size: 15px;
+<style>
+.toast-wrap {
+    position: fixed;
+    z-index: 10;
 }
-
-#nav .menu {
-    color: white;
+.toast-button {
+}
+.toast-list {
+    margin: 0px;
+}
+.toast-list ul {
     padding: 0px;
-    margin: 10px;
-    text-decoration: none;
 }
-.addrAnalyResult-wrap {
-    margin-top: 70px;
-}
-
-.addrAnalyResult-wrap ul {
+.toast-list ul li {
     list-style: none;
-    padding: 0 0em 0 0em;
-    text-align: left;
-}
-.addrAnalyResult-wrap ul > li {
-    padding: 2px 0px;
-    text-align: center;
-    font-size: 14px;
+    margin: 5px 0px;
 }
 </style>

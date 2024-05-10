@@ -60,7 +60,14 @@
 <!-- [애플리케이션 공통 템플릿 (뷰) 지정] -->
 <template>
     <div class="blackBackground" v-if="darKYN == 'Y'"></div>
-    <ToastLayout />
+
+    <b-row>
+        <b-col cols="4">
+            <ToastLayout :showToastProp="showToast" :toastDataProp="toastData" />
+        </b-col>
+        <b-col cols="6"></b-col>
+    </b-row>
+
     <!-- [App.vue 데이터 바인딩 지정] -->
     <div id="dataContainer">
         <h1><img src="./assets/logo.png" id="icon" alt="User Icon" />{{ data }}</h1>
@@ -68,6 +75,7 @@
 
     <!-- [고정 : 헤더 컴포넌트] -->
     <HeaderLayout />
+
     <b-row>
         <b-col cols="2">
             <SideLLayout :parsingList="dataRight" v-if="dataRight.length != 0" />
@@ -111,12 +119,21 @@ export default {
 
     // [컴포넌트 생성 시 초기 데이터 설정 (리턴 값 지정)]
     data() {
+        // const showToast = ref(true);
+
+        // // 3초 후에 showToast를 true로 변경하여 토스트를 표시합니다.
+        // setTimeout(() => {
+        //     showToast.value = true;
+        // }, 3000);
+
         return {
             data: 'APP VUE', // [데이터 지정]
             dataRight: [],
             dataLeft: [],
             darKYN: 'N',
             MainComponent, // [초기 로드 컴포넌트 지정]
+            showToast: false, // [토스트 표출 여부]
+            toastData: {}, // [토스트창 정보]
         };
     },
     /*
@@ -189,6 +206,20 @@ export default {
                 this.dataRight = [];
                 this.dataLeft = [];
                 this.darKYN = null;
+            }
+            if (data.toast != undefined) {
+                this.showToast = true;
+                this.toastData = {
+                    delay: 3000,
+                    autoHide: true,
+                    noFade: false,
+                    noCloseButton: false,
+                    variant: data.toast.variant,
+                    bodyClass: '',
+                    headerClass: '',
+                    title: data.toast.title + 'ddddddddddddddddddddddd',
+                    body: data.toast.body,
+                };
             }
         },
     },
