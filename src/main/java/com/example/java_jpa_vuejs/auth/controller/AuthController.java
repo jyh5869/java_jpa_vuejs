@@ -182,7 +182,7 @@ public class AuthController {
 
     /**
     * @method ID 유효성 체크 
-    * @param loginDto
+    * @param loginDto 
     * @throws Exception
     */
     @PostMapping(value = {"/idValidation"})
@@ -190,7 +190,7 @@ public class AuthController {
         LOG.info("<아이디 중복 체크 진입>");
         
         Integer emailCnt;
-
+     
         try {
             emailCnt = signService.idValidation(loginDto);
             LOG.info("DB / SEARCH EMAIL CNT = " + emailCnt);
