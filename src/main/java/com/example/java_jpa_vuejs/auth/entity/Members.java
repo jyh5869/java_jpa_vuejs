@@ -21,11 +21,6 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
-/* 
-import kr.co.platform.api.posts.domain.entity.Posts;
-import kr.co.platform.api.posts.domain.entity.PostsComment;
-import javax.persistence.*;
-*/
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
