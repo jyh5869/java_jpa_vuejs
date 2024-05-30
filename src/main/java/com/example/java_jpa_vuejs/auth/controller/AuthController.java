@@ -179,7 +179,6 @@ public class AuthController {
         return ResponseEntity.ok().headers(responseHeaders).body(authentication);
     }
 
-
     /**
     * @method ID 유효성 체크 
     * @param loginDto 
@@ -247,6 +246,7 @@ public class AuthController {
     public JoinDto getUserInfo(LoginDto loginDto) throws Exception {
         LOG.info("<회원정보 가져오기>");
         JoinDto joinDto = new JoinDto();
+
         try {
             Members member = signService.getUserInfo(loginDto);
             joinDto = member.toDto(member);
@@ -276,8 +276,8 @@ public class AuthController {
 
         String token = joinDto.getToken();
         String actionType = joinDto.getActionType();
+        
         //토큰 유효성 검사 후 회원정보 조회
-
         if(authProvider.validateToken(token)) {
             System.out.println("토큰 유효성 체크 완료 : TARGETID  -------------> " + joinDto.getId());
 
@@ -296,7 +296,6 @@ public class AuthController {
                     Members member = signFirebaseService.getUserInfo(loginDto);
                     joinDtoRes = member.toDto(member);
                 }
-
             }
             else if(actionType.equals("UPDATE")){
 
@@ -305,7 +304,6 @@ public class AuthController {
                     signFirebaseService.userModify(joinDto);
                     
                     returnFlag = true;
-                    
                 } 
                 catch (Exception e) {
                     e.printStackTrace();
@@ -319,6 +317,7 @@ public class AuthController {
                 joinDtoRes.setActionCnt(updateCnt);
             }
             else if(actionType.equals("DELETE")){
+
                 try {
                     updateCnt = signService.userDelete(joinDto);
                     signFirebaseService.userDelete(joinDto);
@@ -375,12 +374,12 @@ public class AuthController {
         }
         else{
             if(actionType.equals("UPDATE")){
+
                 try {
                     updateCnt = signService.userModify(joinDto);
                     signFirebaseService.userModify(joinDto);
                     
                     returnFlag = true;
-                    
                 } 
                 catch (Exception e) {
                     e.printStackTrace();
@@ -432,7 +431,6 @@ public class AuthController {
         
         HttpHeaders responseHeaders = new HttpHeaders();//응답 헤더 생성
         try {
-             
             //응답 해더 생성 및 이메일 유효성 판단
             long tokenValidTime = Duration.ofMinutes(60).toMillis(); // 만료시간 10분인 엑세스 토큰 
             Integer emailCnt = signService.idValidation(loginDto);
@@ -463,7 +461,6 @@ public class AuthController {
         }
     }
     
-
     /**
     * @method 아이디로 사용될 이메일 유효성 체크
     * @param loginDto
@@ -481,7 +478,6 @@ public class AuthController {
         
         HttpHeaders responseHeaders = new HttpHeaders();//응답 헤더 생성
         try {
-             
             //응답 해더 생성 및 이메일 유효성 판단
             long tokenValidTime = Duration.ofMinutes(10).toMillis(); // 만료시간 10분인 엑세스 토큰 
             Integer emailCnt = signService.idValidation(loginDto);
