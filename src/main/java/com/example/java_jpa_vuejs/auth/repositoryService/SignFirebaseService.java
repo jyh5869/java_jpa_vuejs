@@ -3,7 +3,6 @@ package com.example.java_jpa_vuejs.auth.repositoryService;
 import java.util.List;
 import java.util.Map;
 
-import com.example.java_jpa_vuejs.auth.AuthenticationDto;
 import com.example.java_jpa_vuejs.auth.JoinDto;
 import com.example.java_jpa_vuejs.auth.LoginDto;
 import com.example.java_jpa_vuejs.auth.entity.Members;
@@ -26,5 +25,4 @@ public interface SignFirebaseService {
 	Members getUserInfo(LoginDto loginDto) throws Exception;
 
 	Integer idValidation(LoginDto loginDto) throws Exception;
-
 }
