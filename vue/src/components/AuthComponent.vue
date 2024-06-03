@@ -667,13 +667,17 @@ export default {
             this.$emit('data-to-parent', { darkYN: 'Y' });
 
             let searchWord = address == null ? '' : address;
-            console.log(searchWord);
+
             const result = await this.$axios({
                 method: 'post',
-                url: 'https://www.juso.go.kr/addrlink/addrLinkApi.do?keyword=' + searchWord + '&confmKey=U01TX0FVVEgyMDE3MDIxNzA5MjEwODE5MDg2&resultType=json',
+                url: 'https://www.juso.go.kr/addrlink/addrLinkApi.do',
                 params: {
+                    keyword: searchWord,
+                    confmKey: 'U01TX0FVVEgyMDE3MDIxNzA5MjEwODE5MDg2',
+                    resultType: 'json',
                     email: '',
                 },
+                withCredentials: false,
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -686,6 +690,8 @@ export default {
                 }
 
                 this.addrSearchView = true;
+            } else {
+                alert('주소검색 실패');
             }
         },
         callgetAnalyzeKeyword: async function (analyzerType, fullAdress, rn) {

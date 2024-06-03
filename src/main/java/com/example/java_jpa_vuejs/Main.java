@@ -45,7 +45,7 @@ public class Main {
         return (args) -> {
             try {             
 
-                repository.findByEmail("5869jyh@hanmail.net");
+                repository.findByEmailAndDeleteYn("5869jyh@hanmail.net", "N");
                 DateUtil.durationTime ("end", "JPA 테스트", reqTime, "Complete" );
             }
             catch (Exception e) {
