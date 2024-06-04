@@ -19,6 +19,7 @@
 <!-- [개별 템플릿 (뷰) 설정 실시] -->
 <template>
     <br /><br />
+
     <div class="wrapper fadeInDown" v-show="signIn">
         <div id="formContent">
             <!-- Icon -->
@@ -667,19 +668,19 @@ export default {
             this.$emit('data-to-parent', { darkYN: 'Y' });
 
             let searchWord = address == null ? '' : address;
-
+            console.log(this.$store.getters.token);
             const result = await this.$axios({
                 method: 'post',
-                url: 'https://www.juso.go.kr/addrlink/addrLinkApi.do',
+                url: '/externalApi/juso/addrlink/addrLinkApi.do', // /externalApi/juso로 설정된 프록시를 통해 /addrlink/addrLinkApi.do 호출
                 params: {
                     keyword: searchWord,
                     confmKey: 'U01TX0FVVEgyMDE3MDIxNzA5MjEwODE5MDg2',
                     resultType: 'json',
-                    email: '',
                 },
-                withCredentials: false,
+                withCredentials: true, // Axios요청시 자격증명을 포함여부
                 headers: {
                     'Content-Type': 'multipart/form-data',
+                    Authorization: 'Bearer ' + this.$store.getters.token, // JWT 토큰을 헤더에 포함
                 },
             });
 
@@ -695,13 +696,14 @@ export default {
             }
         },
         callgetAnalyzeKeyword: async function (analyzerType, fullAdress, rn) {
+            //키워드를 받아 유사 도로명을 분석해주는 모델을 호출
             var url = '';
             if (analyzerType == 'Word2Vec') {
                 url = '/api/noAuth/getAnalyzeKeyword';
             } else {
                 url = '/api/noAuth/getAnalyzeKeywordJFastTest';
             }
-            console.log(url + '       ----      ' + rn);
+
             const result = await this.$axios({
                 method: 'GET',
                 url: url,
@@ -718,22 +720,12 @@ export default {
             });
 
             if (result.status === 200) {
-                //this.dataList = result.data.resuleMany; //데이터 세팅
-                //this.dataListLev = result.data.resuleManyLev;
-
-                console.log(result.data.resuleMany);
                 if (result.data.code == 'SUCESS03') {
                     alert('모델을 테스트 할 수 없는 환경에서 서버가 구동되었습니다');
                 }
 
-                //this.toggleBusy(); //로딩 스피너 토글
+                this.toggleBusy(); //로딩 스피너 토글
 
-                /*
-                this.$emit('data-to-parent', [
-                    ['유사 도로', result.data.resuleMany],
-                    ['단어 거리계산', result.data.resuleManyLev],
-                ]);
-                */
                 this.$emit('data-to-parent', { darkYN: 'Y', dataRight: ['유사 도로', result.data.resuleMany], dataLeft: ['단어 거리계산', result.data.resuleManyLev] });
             }
         },

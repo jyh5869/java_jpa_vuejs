@@ -75,7 +75,12 @@
 
     <!-- [고정 : 헤더 컴포넌트] -->
     <HeaderLayout />
-
+    <div class="container mt-5">
+        <button @click="toggleLoading">Toggle Spinner</button>
+        <div v-if="isLoading" class="d-flex justify-content-center mt-3">
+            <LoadingSpinner label="Loading..." :small="true" type="border" />
+        </div>
+    </div>
     <b-row>
         <b-col cols="2">
             <SideLLayout :parsingList="dataRight" v-if="dataRight.length != 0" />
@@ -102,7 +107,7 @@ import MainComponent from './components/MainComponent.vue';
 import SideLLayout from './commonLayout/SideLLayout.vue';
 import SideRLayout from './commonLayout/SideRLayout.vue';
 import ToastLayout from './commonLayout/ToastLayout.vue';
-
+import LoadingSpinner from './components/LoadingSpinner.vue';
 // [export 설정 실시]
 export default {
     // [main.js 등록한 App 컴포넌트]
@@ -115,6 +120,7 @@ export default {
         SideLLayout, // [SideLLayout 컴포넌트]
         SideRLayout, // [SideRLayout 컴포넌트]
         ToastLayout, // [ToastLayout 컴포넌트]
+        LoadingSpinner,
     },
 
     // [컴포넌트 생성 시 초기 데이터 설정 (리턴 값 지정)]
@@ -134,6 +140,7 @@ export default {
             MainComponent, // [초기 로드 컴포넌트 지정]
             showToast: false, // [토스트 표출 여부]
             toastData: {}, // [토스트창 정보]
+            isLoading: false,
         };
     },
     /*
@@ -189,6 +196,9 @@ export default {
     */
     // [메소드 정의 실시]
     methods: {
+        toggleLoading() {
+            this.isLoading = !this.isLoading;
+        },
         receiveDataFromChild(data) {
             // 자식 컴포넌트에서 전달된 데이터 처리
             console.log('Received data from ChildComponent:', data);
@@ -249,6 +259,7 @@ export default {
     text-align: center;
     color: #2c3e50;
 }
+
 .blackBackground {
     background-color: black;
     position: fixed;
@@ -256,5 +267,13 @@ export default {
     width: 100%;
     height: 100%;
     opacity: 0.7;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.mt-3 {
+    margin-top: 1rem;
 }
 </style>
