@@ -59,7 +59,7 @@
 
 <!-- [애플리케이션 공통 템플릿 (뷰) 지정] -->
 <template>
-    <div class="blackBackground" v-if="darKYN == 'Y'"></div>
+    <div v-if="darKYN == 'Y'" class="blackBackground"></div>
 
     <b-row>
         <b-col cols="4">
@@ -75,22 +75,21 @@
 
     <!-- [고정 : 헤더 컴포넌트] -->
     <HeaderLayout />
-    <div class="container mt-5">
-        <button @click="toggleLoading">Toggle Spinner</button>
-        <div v-if="isLoading" class="d-flex justify-content-center mt-3">
-            <LoadingSpinner label="Loading..." :small="true" type="border" />
-        </div>
-    </div>
+    <!-- <div class="container mt-5">
+        <LoadingSpinner v-if="showSpinner == true" :spinnerDataProp="spinnerData" :showSpinnerProp="showSpinner" />
+    </div> -->
     <b-row>
         <b-col cols="2">
-            <SideLLayout :parsingList="dataRight" v-if="dataRight.length != 0" />
+            <LoadingSpinner v-if="showSpinner == true" :spinnerDataProp="spinnerData" :showSpinnerProp="showSpinner" />
+            <SideLLayout v-if="dataRight.length != 0" :parsingList="dataRight" />
         </b-col>
         <b-col cols="8">
             <!-- [동적 : 라우터 뷰 컴포넌트] -->
             <router-view :key="$route.fullPath" @data-to-parent="receiveDataFromChild" />
         </b-col>
         <b-col cols="2">
-            <SideRLayout :parsingList="dataLeft" v-if="dataLeft.length != 0" />
+            <LoadingSpinner v-if="showSpinner == true" :spinnerDataProp="spinnerData" :showSpinnerProp="showSpinner" />
+            <SideRLayout v-if="dataLeft.length != 0" :parsingList="dataLeft" />
         </b-col>
     </b-row>
 
@@ -120,7 +119,7 @@ export default {
         SideLLayout, // [SideLLayout 컴포넌트]
         SideRLayout, // [SideRLayout 컴포넌트]
         ToastLayout, // [ToastLayout 컴포넌트]
-        LoadingSpinner,
+        LoadingSpinner, // [LoadingSpinner 컴포넌트]
     },
 
     // [컴포넌트 생성 시 초기 데이터 설정 (리턴 값 지정)]
@@ -140,6 +139,8 @@ export default {
             MainComponent, // [초기 로드 컴포넌트 지정]
             showToast: false, // [토스트 표출 여부]
             toastData: {}, // [토스트창 정보]
+            showSpinner: false,
+            spinnerData: {},
             isLoading: false,
         };
     },
@@ -217,6 +218,7 @@ export default {
                 this.dataLeft = [];
                 this.darKYN = null;
             }
+
             if (data.toast != undefined) {
                 this.showToast = true;
                 this.toastData = {
@@ -230,6 +232,15 @@ export default {
                     title: data.toast.title + 'ddddddddddddddddddddddd',
                     body: data.toast.body,
                 };
+            }
+
+            //로딩 스피너 컴포넌트 컨트롤
+            if (data.showSpinner != undefined) {
+                console.log('오이ㅗ이오이ㅗ이ㅗ이ㅗ이ㅗ이오    ' + data.showSpinner);
+                this.showSpinner = data.showSpinner;
+            }
+            if (data.spinnerData != undefined) {
+                this.spinnerData = data.spinnerData;
             }
         },
     },

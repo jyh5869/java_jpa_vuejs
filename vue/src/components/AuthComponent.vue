@@ -696,6 +696,8 @@ export default {
             }
         },
         callgetAnalyzeKeyword: async function (analyzerType, fullAdress, rn) {
+            this.$emit('data-to-parent', { showSpinner: true, spinnerData: { label: '..분석중..', type: 'border', variant: 'danger' } });
+
             //키워드를 받아 유사 도로명을 분석해주는 모델을 호출
             var url = '';
             if (analyzerType == 'Word2Vec') {
@@ -722,11 +724,9 @@ export default {
             if (result.status === 200) {
                 if (result.data.code == 'SUCESS03') {
                     alert('모델을 테스트 할 수 없는 환경에서 서버가 구동되었습니다');
+                } else {
+                    this.$emit('data-to-parent', { darkYN: 'Y', showSpinner: false, dataRight: ['유사 도로', result.data.resuleMany], dataLeft: ['단어 거리계산', result.data.resuleManyLev] });
                 }
-
-                this.toggleBusy(); //로딩 스피너 토글
-
-                this.$emit('data-to-parent', { darkYN: 'Y', dataRight: ['유사 도로', result.data.resuleMany], dataLeft: ['단어 거리계산', result.data.resuleManyLev] });
             }
         },
         setSelectAddress: async function (selectAddress) {
@@ -1049,7 +1049,7 @@ input[type='text']:placeholder {
 }
 .addrSearchResult-wrap {
     position: absolute;
-    top: 150px;
+    top: 250px;
     background-color: #fff;
     opacity: 1;
     padding: 30px 15px;
