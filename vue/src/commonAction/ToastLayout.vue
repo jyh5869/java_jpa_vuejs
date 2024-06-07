@@ -3,10 +3,20 @@
         <div class="toast-button">
             <b-button class="btn-sm" variant="outline-primary" @click="showToast">히스토리 보기</b-button>
         </div>
-        <div class="toast-list">
+        <div class="toast-list" v-if="toastVisible == true">
             <ul>
                 <li>
                     <b-toast v-model="toastVisible" :delay="toastData.delay" :auto-hide="toastData.autoHide" :no-fade="toastData.noFade" :no-close-button="toastData.noCloseButton" :variant="toastData.variant" :body-class="toastData.bodyClass" :header-class="toastData.headerClass" :title="toastData.title" :body="toastData.body"> </b-toast>
+                </li>
+            </ul>
+        </div>
+        <div class="toast-list" id="History" v-if="toastHistory == true">
+            <ul>
+                <li>
+                    <b-toast v-model="toastHistory" :variant="success" :auto-hide="false" title="Toast Title" solid> This is a toast message. </b-toast>
+                </li>
+                <li>
+                    <b-toast v-model="toastHistory" :variant="success" :auto-hide="false" title="Toast Title" solid> This is a toast message. </b-toast>
                 </li>
             </ul>
         </div>
@@ -14,10 +24,10 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue';
-import { BButton, BToast } from 'bootstrap-vue-3';
+//import { ref } from 'vue';
+//import { BButton, BToast } from 'bootstrap-vue-3';
 
-export default defineComponent({
+export default {
     props: {
         showToastProp: {
             type: Boolean,
@@ -39,23 +49,27 @@ export default defineComponent({
         },
     },
     components: {
-        BButton,
-        BToast,
+        //BButton,
+        //BToast,
     },
-    setup(props) {
-        const toastVisible = ref(props.showToastProp);
-
-        const showToast = () => {
-            toastVisible.value = true;
-        };
+    data(props) {
+        //const toastVisible = ref(props.showToastProp);
+        //console.log(toastVisible);
+        console.log('★★★★★★★★★★★★★★★★★★★');
 
         return {
-            showToast,
-            toastVisible: props.toastDataProp,
+            toastVisible: props.showToastProp,
             toastData: props.toastDataProp,
+            toastHistory: true,
         };
     },
-});
+    methods: {
+        showToast() {
+            console.log(this.toastHistory);
+            this.toastHistory = !this.toastHistory;
+        },
+    },
+};
 </script>
 <style>
 .toast-wrap {

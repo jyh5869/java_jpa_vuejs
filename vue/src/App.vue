@@ -64,6 +64,7 @@
     <b-row>
         <b-col cols="4">
             <ToastLayout :showToastProp="showToast" :toastDataProp="toastData" />
+            <HistoryLayout v-if="HistoryUseYn == true" :showToastProp="showToast" />
         </b-col>
         <b-col cols="6"></b-col>
     </b-row>
@@ -105,8 +106,10 @@ import FooterLayout from './commonLayout/FooterLayout.vue';
 import MainComponent from './components/MainComponent.vue';
 import SideLLayout from './commonLayout/SideLLayout.vue';
 import SideRLayout from './commonLayout/SideRLayout.vue';
-import ToastLayout from './commonLayout/ToastLayout.vue';
-import LoadingSpinner from './components/LoadingSpinner.vue';
+import ToastLayout from './commonAction/ToastLayout.vue';
+import HistoryLayout from './commonAction/HistoryLayout.vue';
+import LoadingSpinner from './commonAction/LoadingSpinner.vue';
+
 // [export 설정 실시]
 export default {
     // [main.js 등록한 App 컴포넌트]
@@ -120,6 +123,7 @@ export default {
         SideRLayout, // [SideRLayout 컴포넌트]
         ToastLayout, // [ToastLayout 컴포넌트]
         LoadingSpinner, // [LoadingSpinner 컴포넌트]
+        HistoryLayout,
     },
 
     // [컴포넌트 생성 시 초기 데이터 설정 (리턴 값 지정)]
@@ -137,7 +141,8 @@ export default {
             dataLeft: [],
             darKYN: 'N',
             MainComponent, // [초기 로드 컴포넌트 지정]
-            showToast: false, // [토스트 표출 여부]
+            HistoryUseYn: true,
+            showToast: true, // [토스트 표출 여부]
             toastData: {}, // [토스트창 정보]
             showSpinner: false,
             spinnerData: {},
@@ -195,7 +200,6 @@ export default {
         console.log('');
     },
     */
-    // [메소드 정의 실시]
     methods: {
         toggleLoading() {
             this.isLoading = !this.isLoading;
@@ -204,6 +208,7 @@ export default {
             // 자식 컴포넌트에서 전달된 데이터 처리
             console.log('Received data from ChildComponent:', data);
 
+            // 사이드 레이어웃 컴포넌트 컨트롤
             if (data.darkYN != undefined) {
                 this.darKYN = data.darkYN;
             }
@@ -219,6 +224,7 @@ export default {
                 this.darKYN = null;
             }
 
+            // 히스토리 조회를 위한 토스트창
             if (data.toast != undefined) {
                 this.showToast = true;
                 this.toastData = {
@@ -229,14 +235,13 @@ export default {
                     variant: data.toast.variant,
                     bodyClass: '',
                     headerClass: '',
-                    title: data.toast.title + 'ddddddddddddddddddddddd',
+                    title: data.toast.title,
                     body: data.toast.body,
                 };
             }
 
-            //로딩 스피너 컴포넌트 컨트롤
+            // 로딩 스피너 컴포넌트 컨트롤
             if (data.showSpinner != undefined) {
-                console.log('오이ㅗ이오이ㅗ이ㅗ이ㅗ이ㅗ이오    ' + data.showSpinner);
                 this.showSpinner = data.showSpinner;
             }
             if (data.spinnerData != undefined) {
