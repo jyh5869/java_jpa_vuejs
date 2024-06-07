@@ -45,7 +45,7 @@ export default {
         //BButton,
         //BToast,
     },
-    data(props) {
+    data() {
         //const toastVisible = ref(props.showToastProp);
         //console.log(toastVisible);
         console.log('★★★★★★★★★★★★★★★★★★★');
