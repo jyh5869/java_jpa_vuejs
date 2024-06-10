@@ -64,7 +64,7 @@
     <b-row>
         <b-col cols="4">
             <ToastLayout :showToastProp="showToast" :toastDataProp="toastData" />
-            <HistoryLayout v-if="HistoryUseYn == true" :showToastProp="showToast" />
+            <!-- <HistoryLayout v-if="HistoryUseYn" /> -->
         </b-col>
         <b-col cols="6"></b-col>
     </b-row>
@@ -107,7 +107,7 @@ import MainComponent from './components/MainComponent.vue';
 import SideLLayout from './commonLayout/SideLLayout.vue';
 import SideRLayout from './commonLayout/SideRLayout.vue';
 import ToastLayout from './commonAction/ToastLayout.vue';
-import HistoryLayout from './commonAction/HistoryLayout.vue';
+//import HistoryLayout from './commonAction/HistoryLayout.vue';
 import LoadingSpinner from './commonAction/LoadingSpinner.vue';
 
 // [export 설정 실시]
@@ -123,7 +123,7 @@ export default {
         SideRLayout, // [SideRLayout 컴포넌트]
         ToastLayout, // [ToastLayout 컴포넌트]
         LoadingSpinner, // [LoadingSpinner 컴포넌트]
-        HistoryLayout,
+        //HistoryLayout,
     },
 
     // [컴포넌트 생성 시 초기 데이터 설정 (리턴 값 지정)]
@@ -142,7 +142,7 @@ export default {
             darKYN: 'N',
             MainComponent, // [초기 로드 컴포넌트 지정]
             HistoryUseYn: true,
-            showToast: true, // [토스트 표출 여부]
+            showToast: false, // [토스트 표출 여부]
             toastData: {}, // [토스트창 정보]
             showSpinner: false,
             spinnerData: {},
@@ -226,7 +226,6 @@ export default {
 
             // 히스토리 조회를 위한 토스트창
             if (data.toast != undefined) {
-                this.showToast = true;
                 this.toastData = {
                     delay: 3000,
                     autoHide: true,
@@ -239,6 +238,15 @@ export default {
                     body: data.toast.body,
                 };
             }
+            // Toast 상태를 변경하기 전에 일단 false로 초기화
+            this.showToast = false;
+            // 강제로 reactivity 트리거하기 위해 다음 tick에서 showToast를 true로 변경
+            this.$nextTick(() => {
+                if (data.showToast !== undefined) {
+                    // 토스트 표시 여부 설정
+                    this.showToast = data.showToast;
+                }
+            });
 
             // 로딩 스피너 컴포넌트 컨트롤
             if (data.showSpinner != undefined) {
