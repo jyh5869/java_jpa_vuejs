@@ -5,19 +5,14 @@ import routers from './routers/index.js';
 import axios from 'axios';
 import BootstrapVue3 from 'bootstrap-vue-3';
 
-import 'bootstrap/dist/css/bootstrap.css';
-
-//import 'bootstrap-vue-3/dist/bootstrap-vue-3.css';
+import 'bootstrap/dist/css/bootstrap.css'; //일반부트스트렙 CSS
+import 'bootstrap-vue-3/dist/bootstrap-vue-3.css'; //vue3 bootstrap을 사용하는경우 cCSS(EX> :varient:'danger')
 
 import { BCloseButton } from 'bootstrap-vue-3';
 
 import OpenLayersMap from 'vue3-openlayers';
 //import 'vue3-openlayers/dist/vue3-openlayers.css';
 
-/*
-import 'bootstrap/dist/css/bootstrap.min.css'; // [bootstrap]
-import 'bootstrap'; // [bootstrap]
-*/
 import store from './routers/store/index.js';
 
 const app = createApp(App);

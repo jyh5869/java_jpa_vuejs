@@ -18,6 +18,7 @@
 <template>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
+            <!-- 메인컴포넌트로 가야해 -->
             <router-link class="navbar-brand" to="/">VueJS</router-link>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>

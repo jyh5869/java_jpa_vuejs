@@ -14,7 +14,7 @@ const routes = [
         path: '/', // [경로]
         name: 'MainComponent', // [이름]
         component: () => import('@/components/MainComponent.vue'), // [로드 파일]
-        meta: { authRequired: true },
+        meta: { authRequired: false },
     },
     {
         path: '/BoardList', // [경로]

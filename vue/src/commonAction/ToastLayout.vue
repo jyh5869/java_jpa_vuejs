@@ -1,23 +1,27 @@
 <template>
     <div class="toast-wrap p-2">
         <div class="toast-button">
-            <b-button class="btn-sm" variant="outline-primary" @click="toggleHistory">히스토리 보기</b-button>
+            <b-button class="btn-sm" variant="outline-primary" @click="toggleHistory">{{ toastHistoryTxt }}</b-button>
         </div>
         <div class="toast-list">
             <ul>
                 <li>
-                    <b-toast v-model="toastVisible" :delay="toastData.delay" :auto-hide="toastData.autoHide" :no-fade="toastData.noFade" :no-close-button="toastData.noCloseButton" :variant="toastData.variant" :body-class="toastData.bodyClass" :header-class="toastData.headerClass" :title="toastData.title" @hidden="onToastHidden">
-                        {{ toastData.body }}
-                    </b-toast>
+                    <b-list-group class="searchResult-wrap" v-if="toastVisible">
+                        <b-list-group-item :variant="toastData.variant">
+                            <b-toast v-model="toastVisible" :delay="toastData.delay" :auto-hide="toastData.autoHide" :no-fade="toastData.noFade" :no-close-button="toastData.noCloseButton" :variant="toastData.variant" :body-class="toastData.bodyClass" :header-class="toastData.headerClass" :title="toastData.title" @hidden="onToastHidden">
+                                {{ toastData.body }}
+                            </b-toast>
+                        </b-list-group-item>
+                    </b-list-group>
                 </li>
             </ul>
         </div>
         <div class="toast-list" id="History" v-if="toastHistory == true">
             <ul>
                 <b-list-group class="searchResult-wrap">
-                    <b-list-group-item variant="secondary" v-for="item in historyData" :key="item.title">
+                    <b-list-group-item :variant="item.variant" v-for="item in historyData" :key="item.title">
                         <li>
-                            <b-toast v-model="toastHistory" :variant="success" :auto-hide="false" :title="item.title" solid> {{ item.body }}</b-toast>
+                            <b-toast v-model="toastHistory" :variant="item.variant" :auto-hide="false" :noFade="false" :title="item.title" solid> {{ item.body }}</b-toast>
                         </li>
                     </b-list-group-item>
                 </b-list-group>
@@ -57,6 +61,7 @@ export default {
         const toastData = ref(props.toastDataProp);
         const toastHistory = ref(true);
         const historyData = ref(this.getCookie('history') || []);
+        const toastHistoryTxt = ref('히스토리 열기');
 
         watch(
             () => props.showToastProp,
@@ -70,11 +75,7 @@ export default {
             (newVal) => {
                 toastData.value = newVal;
 
-                //let history = getCookie();
-                //this.setCookie('history', newVal, 3);
                 this.addToHistory(newVal);
-                //let history = this.getCookie('history');
-                //this.historyData = [this.getCookie('history')];
             },
             { deep: true },
         );
@@ -89,6 +90,7 @@ export default {
             toastData,
             onToastHidden,
             toastHistory,
+            toastHistoryTxt,
             historyData,
         };
     },
@@ -100,7 +102,17 @@ export default {
             this.historyData = [this.getCookie('history')];
         },
         toggleHistory() {
-            this.toastHistory = !this.toastHistory;
+            if (this.getCookie('history') == null) {
+                alert('저장된 히스토리가 없습니다.');
+            } else {
+                this.toastHistory = !this.toastHistory;
+
+                if (this.toastHistory == true) {
+                    this.toastHistoryTxt = '히스토리 닫기';
+                } else {
+                    this.toastHistoryTxt = '히스토리 열기';
+                }
+            }
         },
         addToHistory(toastData) {
             let history = this.getCookie('history') || [];

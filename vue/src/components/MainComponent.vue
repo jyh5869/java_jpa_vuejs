@@ -36,14 +36,9 @@
 <script>
 export default {
     name: 'MainComponent',
-
-    // [부모에서 전달 받은 데이터 : 자식에서 동적 수정 불가능]
-    // [형태 : <HomeComponent msg="HomeComponent"/>]
     props: {
         msg: String,
     },
-
-    // [컴포넌트 생성 시 초기 데이터 설정 (리턴 값 지정)]
     data() {
         console.log('');
         console.log('[HomeComponent] : [data] : [start]');
@@ -54,7 +49,6 @@ export default {
             data: 'HOME', // [데이터 정의]
         };
     },
-
     // [생명 주기 : 라이프 사이클]
     beforeCreate() {
         console.log('');
@@ -104,8 +98,6 @@ export default {
         console.log('설 명 : 인스턴스 마운트 해제 완료');
         console.log('');
     },
-
-    // [메소드 정의 실시]
     methods: {},
 };
 </script>

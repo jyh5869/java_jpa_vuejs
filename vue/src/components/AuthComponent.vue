@@ -194,7 +194,7 @@ export default {
                 var password = this.password; // 비밀번호
 
                 this.$store.dispatch('login', { id, password }); // 로그인
-                this.$emit('data-to-parent', { toast: { title: '로그인 성공', body: id + '님 환영합니다.', variant: 'success' } });
+                this.$emit('data-to-parent', { showToast: true, toast: { title: '로그인 성공', body: id + '님 환영합니다.', variant: 'secondary' } });
             } else {
                 alert('아이디 또는 비밀번호가 입력되지 않았습니다.\n 확인 후 다시 시도해 주세요.');
                 return false;
@@ -354,7 +354,7 @@ export default {
                     errorMsg = '업데이트(' + actionType + ') 성공  Communication Code = ' + result.status + ' (' + updateCnt + '건)';
                     alert(errorMsg);
 
-                    this.$emit('data-to-parent', { showToast: true, toast: { title: '정보변경 성공', body: '회원 정보가 변경되었습니다.', variant: 'success' } });
+                    this.$emit('data-to-parent', { showToast: true, toast: { title: '정보변경 성공', body: '회원 정보가 변경되었습니다.', variant: 'warning' } });
                     //통신이 성공적이고 변경 건수가 0이 아닌 경우 메인으로 이동
                     this.$router.push({
                         name: 'BoardList',

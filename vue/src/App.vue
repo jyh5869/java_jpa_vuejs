@@ -59,33 +59,32 @@
 
 <!-- [애플리케이션 공통 템플릿 (뷰) 지정] -->
 <template>
+    <!-- [팝업창 동작시 어두운 배경] -->
     <div v-if="darKYN == 'Y'" class="blackBackground"></div>
 
+    <!-- [토스트 창과 작업 히스토리 관리 컴포넌트] -->
     <b-row>
         <b-col cols="4">
             <ToastLayout :showToastProp="showToast" :toastDataProp="toastData" />
-            <!-- <HistoryLayout v-if="HistoryUseYn" /> -->
         </b-col>
         <b-col cols="6"></b-col>
     </b-row>
 
-    <!-- [App.vue 데이터 바인딩 지정] -->
-    <div id="dataContainer">
+    <!-- [메인 로고 및 텍스트] -->
+    <b-row id="dataContainer">
         <h1><img src="./assets/logo.png" id="icon" alt="User Icon" />{{ data }}</h1>
-    </div>
+    </b-row>
 
-    <!-- [고정 : 헤더 컴포넌트] -->
+    <!-- [헤더 컴포넌트] -->
     <HeaderLayout />
-    <!-- <div class="container mt-5">
-        <LoadingSpinner v-if="showSpinner == true" :spinnerDataProp="spinnerData" :showSpinnerProp="showSpinner" />
-    </div> -->
+
+    <!-- [데이터 컨테이너] -->
     <b-row>
         <b-col cols="2">
             <LoadingSpinner v-if="showSpinner == true" :spinnerDataProp="spinnerData" :showSpinnerProp="showSpinner" />
             <SideLLayout v-if="dataRight.length != 0" :parsingList="dataRight" />
         </b-col>
         <b-col cols="8">
-            <!-- [동적 : 라우터 뷰 컴포넌트] -->
             <router-view :key="$route.fullPath" @data-to-parent="receiveDataFromChild" />
         </b-col>
         <b-col cols="2">
@@ -94,27 +93,22 @@
         </b-col>
     </b-row>
 
-    <!-- [고정 : 푸터 컴포넌트] -->
+    <!-- [푸터 컴포넌트] -->
     <FooterLayout />
 </template>
 
 <!-- [애플리케이션 공통 스크립트 지정] -->
 <script>
-// [Component 지정]
 import HeaderLayout from './commonLayout/HeaderLayout.vue';
 import FooterLayout from './commonLayout/FooterLayout.vue';
-import MainComponent from './components/MainComponent.vue';
 import SideLLayout from './commonLayout/SideLLayout.vue';
 import SideRLayout from './commonLayout/SideRLayout.vue';
 import ToastLayout from './commonAction/ToastLayout.vue';
-//import HistoryLayout from './commonAction/HistoryLayout.vue';
 import LoadingSpinner from './commonAction/LoadingSpinner.vue';
 
 // [export 설정 실시]
 export default {
-    // [main.js 등록한 App 컴포넌트]
     name: 'App',
-
     // [동적 변환 컴포넌트 페이지 : 기본 표시 부분]
     components: {
         HeaderLayout, // [HeaderLayout 컴포넌트]
@@ -123,24 +117,14 @@ export default {
         SideRLayout, // [SideRLayout 컴포넌트]
         ToastLayout, // [ToastLayout 컴포넌트]
         LoadingSpinner, // [LoadingSpinner 컴포넌트]
-        //HistoryLayout,
     },
-
     // [컴포넌트 생성 시 초기 데이터 설정 (리턴 값 지정)]
     data() {
-        // const showToast = ref(true);
-
-        // // 3초 후에 showToast를 true로 변경하여 토스트를 표시합니다.
-        // setTimeout(() => {
-        //     showToast.value = true;
-        // }, 3000);
-
         return {
             data: 'APP VUE', // [데이터 지정]
             dataRight: [],
             dataLeft: [],
             darKYN: 'N',
-            MainComponent, // [초기 로드 컴포넌트 지정]
             HistoryUseYn: true,
             showToast: false, // [토스트 표출 여부]
             toastData: {}, // [토스트창 정보]
@@ -149,57 +133,6 @@ export default {
             isLoading: false,
         };
     },
-    /*
-    // [생명 주기 : 라이프 사이클]
-    beforeCreate() {
-        console.log('');
-        console.log('[App] : [beforeCreate] : [start]');
-        console.log('설 명 : 인스턴스 초기화 준비');
-        console.log('');
-    },
-    created() {
-        console.log('');
-        console.log('[App] : [created] : [start]');
-        console.log('설 명 : 인스턴스 생성 완료');
-        console.log('');
-    },
-    beforeMount() {
-        console.log('');
-        console.log('[App] : [beforeMount] : [start]');
-        console.log('설 명 : DOM 렌더링 준비');
-        console.log('');
-    },
-    mounted() {
-        console.log('');
-        console.log('[App] : [mounted] : [start]');
-        console.log('설 명 : DOM 렌더링 완료');
-        console.log('');
-    },
-    beforeUpdate() {
-        console.log('');
-        console.log('[App] : [beforeUpdate] : [start]');
-        console.log('설 명 : DOM 상태 및 데이터 변경 시작');
-        console.log('');
-    },
-    updated() {
-        console.log('');
-        console.log('[App] : [updated] : [start]');
-        console.log('설 명 : DOM 상태 및 데이터 변경 완료');
-        console.log('');
-    },
-    beforeUnmount() {
-        console.log('');
-        console.log('[App] : [beforeUnmount] : [start]');
-        console.log('설 명 : 인스턴스 마운트 해제 준비');
-        console.log('');
-    },
-    unmounted() {
-        console.log('');
-        console.log('[App] : [unmounted] : [start]');
-        console.log('설 명 : 인스턴스 마운트 해제 완료');
-        console.log('');
-    },
-    */
     methods: {
         toggleLoading() {
             this.isLoading = !this.isLoading;
