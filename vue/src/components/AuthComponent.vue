@@ -194,7 +194,7 @@ export default {
                 var password = this.password; // 비밀번호
 
                 this.$store.dispatch('login', { id, password }); // 로그인
-                this.$emit('data-to-parent', { showToast: true, toast: { title: '로그인 성공', body: id + '님 환영합니다.', variant: 'secondary' } });
+                this.$emit('data-to-parent', { showToast: true, toast: { title: '로그인 성공', body: id + '님 환영합니다.', variant: 'primary' } });
             } else {
                 alert('아이디 또는 비밀번호가 입력되지 않았습니다.\n 확인 후 다시 시도해 주세요.');
                 return false;

@@ -8,7 +8,7 @@
                 <li>
                     <b-list-group class="searchResult-wrap" v-if="toastVisible">
                         <b-list-group-item :variant="toastData.variant">
-                            <b-toast v-model="toastVisible" :delay="toastData.delay" :auto-hide="toastData.autoHide" :no-fade="toastData.noFade" :no-close-button="toastData.noCloseButton" :variant="toastData.variant" :body-class="toastData.bodyClass" :header-class="toastData.headerClass" :title="toastData.title" @hidden="onToastHidden">
+                            <b-toast v-model="toastVisible" :delay="toastData.delay" :auto-hide="toastData.autoHide" :no-fade="toastData.noFade" :no-close-button="toastData.noCloseButton" :variant="toastData.variant" :body-class="toastData.bodyClass" :header-class="toastData.headerClass" :title="toastData.title + ' [' + toastData.time + ']'" @hidden="onToastHidden">
                                 {{ toastData.body }}
                             </b-toast>
                         </b-list-group-item>
@@ -21,7 +21,7 @@
                 <b-list-group class="searchResult-wrap">
                     <b-list-group-item :variant="item.variant" v-for="item in historyData" :key="item.title">
                         <li>
-                            <b-toast v-model="toastHistory" :variant="item.variant" :auto-hide="false" :noFade="false" :title="item.title" solid> {{ item.body }}</b-toast>
+                            <b-toast v-model="toastHistory" :variant="item.variant" :auto-hide="false" :noFade="false" :title="item.title + ' [' + item.time + ']'" solid> {{ item.body }}</b-toast>
                         </li>
                     </b-list-group-item>
                 </b-list-group>
@@ -73,9 +73,13 @@ export default {
         watch(
             () => props.toastDataProp,
             (newVal) => {
-                toastData.value = newVal;
+                let vvvvalue = {
+                    ...newVal,
+                    time: this.updateDate(), // 방법 2: 스프레드 연산자 사용
+                };
 
-                this.addToHistory(newVal);
+                toastData.value = vvvvalue;
+                this.addToHistory(vvvvalue);
             },
             { deep: true },
         );
@@ -137,6 +141,27 @@ export default {
                 }
             }
             return null;
+        },
+        mergeJsonStrings(jsonStr1, jsonStr2) {
+            // JSON 문자열을 JavaScript 객체로 변환
+            let obj1 = JSON.parse(jsonStr1);
+            let obj2 = JSON.parse(jsonStr2);
+
+            // 두 객체를 병합
+            let mergedObj = { ...obj1, ...obj2 };
+
+            // 병합된 객체를 JSON 문자열로 변환
+            return JSON.stringify(mergedObj);
+        },
+        updateDate() {
+            const date = new Date();
+            const year = date.getFullYear();
+            const month = ('0' + (date.getMonth() + 1)).slice(-2); // 월은 0부터 시작하므로 +1
+            const day = ('0' + date.getDate()).slice(-2);
+            const hours = ('0' + date.getHours()).slice(-2);
+            const minutes = ('0' + date.getMinutes()).slice(-2);
+
+            return (this.currentDate = `${year}-${month}-${day} ${hours}:${minutes}`);
         },
     },
 };
