@@ -62,6 +62,7 @@ export default {
         const toastHistory = ref(true);
         const historyData = ref(this.getCookie('history') || []);
         const toastHistoryTxt = ref('히스토리 열기');
+        const userInfo = ref(this.$store.state);
 
         watch(
             () => props.showToastProp,
@@ -73,13 +74,14 @@ export default {
         watch(
             () => props.toastDataProp,
             (newVal) => {
-                let vvvvalue = {
-                    ...newVal,
-                    time: this.updateDate(), // 방법 2: 스프레드 연산자 사용
+                let newToast = {
+                    ...newVal, //토스트 정보
+                    time: this.updateDate(), // 스프레드 연산자를이용한 일자 SET
+                    userInfo: this.$store.state, // 스프레드 연산자를이용한 유저정보 SET
                 };
 
-                toastData.value = vvvvalue;
-                this.addToHistory(vvvvalue);
+                toastData.value = newToast;
+                this.addToHistory(newToast);
             },
             { deep: true },
         );
@@ -96,13 +98,12 @@ export default {
             toastHistory,
             toastHistoryTxt,
             historyData,
+            userInfo,
         };
     },
     methods: {
         showToast() {
-            console.log(this.toastHistory);
             this.toastHistory = !this.toastHistory;
-
             this.historyData = [this.getCookie('history')];
         },
         toggleHistory() {
@@ -129,12 +130,25 @@ export default {
             expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
             document.cookie = `${name}=${encodeURIComponent(JSON.stringify(value))};expires=${expires.toUTCString()};path=/`;
         },
-        getCookie(name) {
+        async getCookie(name) {
             const value = `; ${document.cookie}`;
             const parts = value.split(`; ${name}=`);
             if (parts.length === 2) {
                 try {
-                    return JSON.parse(decodeURIComponent(parts.pop().split(';').shift()));
+                    let part = parts.pop().split(';').shift();
+
+                    let data = JSON.parse(decodeURIComponent(part));
+                    console.log(data);
+
+                    data.array.forEach((element, index) => {
+                        if (this.userInfo.email === element.userInfo.email) {
+                            data.array.splice(index, 1);
+                        }
+                    });
+                    // part를 decode하고 JSON.parse하여 반환
+                    return JSON.parse(decodeURIComponent(data));
+
+                    //return JSON.parse(decodeURIComponent(parts.pop().split(';').shift()));
                 } catch (e) {
                     console.error('Parsing error on', name);
                     return null;
