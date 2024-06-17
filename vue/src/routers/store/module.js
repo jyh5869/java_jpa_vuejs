@@ -59,13 +59,13 @@ const mutations = {
 };
 
 const actions = {
-    login({ commit }, { id, password }) {
+    async login({ commit }, { id, password }) {
         const params = {
             email: id,
             password: password,
         };
 
-        axios
+        await axios
             .post('/api/signin', JSON.stringify(params), {
                 headers: { 'content-type': 'application/json' },
             })

@@ -77,7 +77,8 @@ export default {
                 let newToast = {
                     ...newVal, //토스트 정보
                     time: this.updateDate(), // 스프레드 연산자를이용한 일자 SET
-                    userInfo: this.$store.state, // 스프레드 연산자를이용한 유저정보 SET
+                    userInfo: this.$store.state, // 스프레드 연산자를이용한 유저정보 SET 이걸 usnerInfo로 바꾸면 왜안되는거야?
+                    //userInfo: this.userInfo.value,
                 };
 
                 toastData.value = newToast;
@@ -104,7 +105,7 @@ export default {
     methods: {
         showToast() {
             this.toastHistory = !this.toastHistory;
-            this.historyData = [this.getCookie('history')];
+            this.historyData = this.getCookie('history') || [];
         },
         toggleHistory() {
             if (this.getCookie('history') == null) {
@@ -121,7 +122,10 @@ export default {
         },
         addToHistory(toastData) {
             let history = this.getCookie('history') || [];
+
             history.push(toastData);
+
+            console.log('Updated History:', history);
             this.setCookie('history', history, 3);
             this.historyData = history;
         },
@@ -129,31 +133,34 @@ export default {
             const expires = new Date();
             expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
             document.cookie = `${name}=${encodeURIComponent(JSON.stringify(value))};expires=${expires.toUTCString()};path=/`;
+
+            console.log('Cookie Set:', `${name}=${encodeURIComponent(JSON.stringify(value))}`);
         },
-        async getCookie(name) {
+        getCookie(name) {
             const value = `; ${document.cookie}`;
             const parts = value.split(`; ${name}=`);
             if (parts.length === 2) {
                 try {
-                    let part = parts.pop().split(';').shift();
+                    let data = JSON.parse(decodeURIComponent(parts.pop().split(';').shift()));
 
-                    let data = JSON.parse(decodeURIComponent(part));
-                    console.log(data);
+                    //토스트의 유저정보와 현재 유저정보를 비교하여 동일한 데이터만 파싱
+                    data.forEach((element, index) => {
+                        let currentUser = this.$store.state.email;
+                        let toastUser = element.userInfo.email;
+                        console.log(index + ': 현재 접속 유저 : ' + currentUser + ' 토스트 작성 유저 : ' + toastUser);
 
-                    data.array.forEach((element, index) => {
-                        if (this.userInfo.email === element.userInfo.email) {
-                            data.array.splice(index, 1);
+                        if (currentUser != toastUser) {
+                            data.splice(index, 1);
                         }
                     });
-                    // part를 decode하고 JSON.parse하여 반환
-                    return JSON.parse(decodeURIComponent(data));
 
-                    //return JSON.parse(decodeURIComponent(parts.pop().split(';').shift()));
+                    return data;
                 } catch (e) {
                     console.error('Parsing error on', name);
                     return null;
                 }
             }
+            console.log('이고먀냐냐냐냐ㅑ');
             return null;
         },
         mergeJsonStrings(jsonStr1, jsonStr2) {
