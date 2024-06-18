@@ -77,8 +77,9 @@ export default {
                 let newToast = {
                     ...newVal, //토스트 정보
                     time: this.updateDate(), // 스프레드 연산자를이용한 일자 SET
-                    userInfo: this.$store.state, // 스프레드 연산자를이용한 유저정보 SET 이걸 usnerInfo로 바꾸면 왜안되는거야?
-                    //userInfo: this.userInfo.value,
+                    userInfo: { email: this.$store.state.email },
+                    //userInfo: this.$store.state, // 스프레드 연산자를이용한 유저정보 SET 이걸 usnerInfo로 바꾸면 왜안되는거야?
+                    //userInfo: userInfo.value,
                 };
 
                 toastData.value = newToast;
@@ -143,15 +144,31 @@ export default {
                 try {
                     let data = JSON.parse(decodeURIComponent(parts.pop().split(';').shift()));
 
+                    console.log(data.length);
+                    /*
                     //토스트의 유저정보와 현재 유저정보를 비교하여 동일한 데이터만 파싱
                     data.forEach((element, index) => {
+                        //console.log(index);
+                        console.log(element);
                         let currentUser = this.$store.state.email;
                         let toastUser = element.userInfo.email;
                         console.log(index + ': 현재 접속 유저 : ' + currentUser + ' 토스트 작성 유저 : ' + toastUser);
 
+                        //길이가 1일때는 스플라이스 불가능..?
                         if (currentUser != toastUser) {
+                            console.log(index + ': 현재 접속 유저 : ' + currentUser + ' 토스트 작성 유저 : ' + toastUser);
                             data.splice(index, 1);
                         }
+                    });
+                    */
+
+                    // 또는 filter 메소드 사용
+                    data = data.filter((element, index) => {
+                        let currentUser = this.$store.state.email;
+                        let toastUser = element.userInfo.email;
+
+                        console.log(index + 1 + '번째 토스트 // 현재 접속 유저 : ' + currentUser + ' 토스트 작성 유저 : ' + toastUser);
+                        return currentUser === toastUser;
                     });
 
                     return data;

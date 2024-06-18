@@ -113,9 +113,9 @@ const actions = {
                 });
         });
     },
-    logout({ commit }) {
+    async logout({ commit }) {
         console.log('로그아웃 - 로그인 페이지로 이동');
-        commit('logout');
+        await commit('logout');
 
         router.push({
             name: 'auth',

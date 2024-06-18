@@ -102,7 +102,7 @@ export default {
     methods: {
         logout: async function () {
             // 로그아웃 처리
-            this.$store.dispatch('logout');
+            await this.$store.dispatch('logout');
         },
         sginup: async function () {
             this.$router.push({

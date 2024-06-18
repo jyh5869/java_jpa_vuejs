@@ -355,7 +355,7 @@ export default {
                     errorMsg = '업데이트(' + actionType + ') 성공  Communication Code = ' + result.status + ' (' + updateCnt + '건)';
                     alert(errorMsg);
 
-                    this.$emit('data-to-parent', { showToast: true, toast: { title: '정보변경 성공', body: '회원 정보가 변경되었습니다.', variant: 'warning' } });
+                    await this.$emit('data-to-parent', { showToast: true, toast: { title: '정보변경 성공', body: '회원 정보가 변경되었습니다.', variant: 'warning' } });
                     //통신이 성공적이고 변경 건수가 0이 아닌 경우 메인으로 이동
                     this.$router.push({
                         name: 'BoardList',
