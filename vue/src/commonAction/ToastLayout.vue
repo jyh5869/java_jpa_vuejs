@@ -1,6 +1,6 @@
 <template>
     <div class="toast-wrap p-2">
-        <div class="toast-button">
+        <div class="toast-button" v-if="historyUseYn == true">
             <b-button class="btn-sm" variant="outline-primary" @click="toggleHistory">{{ toastHistoryTxt }}</b-button>
         </div>
         <div class="toast-list">
@@ -55,13 +55,23 @@ export default {
                 body: 'Toast Body',
             }),
         },
+        showHistoryProp: {
+            type: Boolean,
+            default: true,
+        },
+
+        historyUseYnProp: {
+            type: Boolean,
+            default: false,
+        },
     },
     data(props) {
         const toastVisible = ref(props.showToastProp);
         const toastData = ref(props.toastDataProp);
-        const toastHistory = ref(true);
+        const toastHistory = ref(props.showHistoryProp);
         const historyData = ref(this.getCookie('history') || []);
         const toastHistoryTxt = ref('히스토리 열기');
+        const historyUseYn = ref(props.historyUseYnProp);
         const userInfo = ref(this.$store.state);
 
         watch(
@@ -88,6 +98,23 @@ export default {
             { deep: true },
         );
 
+        watch(
+            () => props.showHistoryProp,
+            (newVal) => {
+                this.historyData.value = [];
+                console.log('히스토리 숨기자!!!!!!★★★★★★★★★★★★★★★★★★★★★★★★★★!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+                toastHistory.value = newVal;
+            },
+        );
+
+        watch(
+            () => props.historyUseYnProp,
+            (newVal) => {
+                console.log(newVal + '히스토리 버튼을 토글하자★★★★★★★★★★★★★★★★★★★★★★★!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+                toastHistory.value = false;
+            },
+        );
+
         const onToastHidden = () => {
             console.log('Toast hidden, executing function...');
             // 여기에 원하는 함수를 실행합니다.
@@ -100,6 +127,7 @@ export default {
             toastHistory,
             toastHistoryTxt,
             historyData,
+            historyUseYn,
             userInfo,
         };
     },
@@ -127,6 +155,7 @@ export default {
             history.push(toastData);
 
             console.log('Updated History:', history);
+
             this.setCookie('history', history, 3);
             this.historyData = history;
         },
@@ -168,7 +197,7 @@ export default {
                         let toastUser = element.userInfo.email;
 
                         console.log(index + 1 + '번째 토스트 // 현재 접속 유저 : ' + currentUser + ' 토스트 작성 유저 : ' + toastUser);
-                        return currentUser === toastUser;
+                        return currentUser === toastUser && currentUser;
                     });
 
                     return data;

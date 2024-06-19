@@ -195,7 +195,7 @@ export default {
 
                 //login 처리 후 순차실행을 위한 비동기처리(await 대상 함수 - login 함수에서도 비동기(프로미스)를 리턴할 수있도록 되어있어야 정상 순차동작)
                 await this.$store.dispatch('login', { id, password });
-                await this.$emit('data-to-parent', { showToast: true, toast: { title: '로그인 성공', body: id + '님 환영합니다.', variant: 'primary' } });
+                await this.$emit('data-to-parent', { historyUseYn: true, showToast: true, toast: { title: '로그인 성공', body: id + '님 환영합니다.', variant: 'primary' } });
             } else {
                 alert('아이디 또는 비밀번호가 입력되지 않았습니다.\n 확인 후 다시 시도해 주세요.');
                 return false;
@@ -548,6 +548,7 @@ export default {
 
                     //통신이 성공적이고 변경 건수가 0이 아닌 경우 로그아웃 처리 후 메인으로 이동
                     this.$store.dispatch('logout');
+                    await this.$emit('data-to-parent', { showToast: true, toast: { title: '로그인 성공', body: id + '님 환영합니다.', variant: 'primary' } });
                 } else {
                     errorMsg = '업데이트(' + actionType + ') 실패  Communication Code = ' + result.status + '\n';
 

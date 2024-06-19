@@ -101,7 +101,9 @@ export default {
     },
     methods: {
         logout: async function () {
+            let userEmail = this.$store.getters.name;
             // 로그아웃 처리
+            await this.$emit('user-logged-out', { showToast: true, toast: { title: '로그아웃', body: userEmail + '님 안녕히 가세요.', variant: 'warning' } });
             await this.$store.dispatch('logout');
         },
         sginup: async function () {

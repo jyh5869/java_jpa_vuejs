@@ -65,7 +65,7 @@
     <!-- [토스트 창과 작업 히스토리 관리 컴포넌트] -->
     <b-row>
         <b-col cols="4">
-            <ToastLayout :showToastProp="showToast" :toastDataProp="toastData" />
+            <ToastLayout :showToastProp="showToast" :toastDataProp="toastData" :showHistoryProp="showHistory" :historyUseYnProp="historyUseYn" />
         </b-col>
         <b-col cols="6"></b-col>
     </b-row>
@@ -76,7 +76,7 @@
     </b-row>
 
     <!-- [헤더 컴포넌트] -->
-    <HeaderLayout />
+    <HeaderLayout @user-logged-out="handleUserLogout" />
 
     <!-- [데이터 컨테이너] -->
     <b-row>
@@ -125,8 +125,9 @@ export default {
             dataRight: [],
             dataLeft: [],
             darKYN: 'N',
-            HistoryUseYn: true,
+            historyUseYn: this.$store.state.token != null ? true : false,
             showToast: false, // [토스트 표출 여부]
+            showHistory: true,
             toastData: {}, // [토스트창 정보]
             showSpinner: false,
             spinnerData: {},
@@ -155,6 +156,11 @@ export default {
                 this.dataRight = [];
                 this.dataLeft = [];
                 this.darKYN = null;
+            }
+
+            //히스토리 활성화 여부
+            if (data.historyUseYn != undefined) {
+                this.historyUseYn = data.historyUseYn;
             }
 
             // 히스토리 조회를 위한 토스트창
@@ -188,6 +194,30 @@ export default {
             if (data.spinnerData != undefined) {
                 this.spinnerData = data.spinnerData;
             }
+        },
+        handleUserLogout(data) {
+            console.log('User logged out!', data);
+
+            //로그아웃 토스트
+            if (data.toast != undefined) {
+                this.toastData = {
+                    delay: 3000,
+                    autoHide: true,
+                    noFade: false,
+                    noCloseButton: false,
+                    variant: data.toast.variant,
+                    bodyClass: '',
+                    headerClass: '',
+                    title: data.toast.title,
+                    body: data.toast.body,
+                };
+            }
+
+            //히스토리 숨기기
+            this.showHistory = false;
+
+            //히스토리 버튼 숨기기
+            this.HistoryUseYn = false;
         },
     },
 };
