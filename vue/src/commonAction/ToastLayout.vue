@@ -1,14 +1,16 @@
 <template>
     <div class="toast-wrap p-2">
+        <!-- 히스토리 홠성화 토글 버튼 Wrap -->
         <div class="toast-button" v-if="historyUseYn == true">
             <b-button class="btn-sm" variant="outline-primary" @click="toggleHistory">{{ toastHistoryTxt }}</b-button>
         </div>
+        <!-- 토스트 창 Wrap -->
         <div class="toast-list">
             <ul>
                 <li>
                     <b-list-group class="searchResult-wrap" v-if="toastVisible">
                         <b-list-group-item :variant="toastData.variant">
-                            <b-toast v-model="toastVisible" :delay="toastData.delay" :auto-hide="toastData.autoHide" :no-fade="toastData.noFade" :no-close-button="toastData.noCloseButton" :variant="toastData.variant" :body-class="toastData.bodyClass" :header-class="toastData.headerClass" :title="toastData.title + ' [' + toastData.time + ']'" @hidden="onToastHidden">
+                            <b-toast v-model="toastVisible" :delay="toastData.delay" :auto-hide="toastData.autoHide" :no-fade="toastData.noFade" :no-close-button="toastData.noCloseButton" :variant="toastData.variant" :body-class="toastData.bodyClass" :header-class="toastData.headerClass" :title="toastData.title + ' [' + toastData.time + ']'">
                                 {{ toastData.body }}
                             </b-toast>
                         </b-list-group-item>
@@ -16,6 +18,7 @@
                 </li>
             </ul>
         </div>
+        <!-- 히스토리 리스트 Wrap -->
         <div class="toast-list" id="History" v-if="toastHistory == true">
             <ul>
                 <b-list-group class="searchResult-wrap">
@@ -86,8 +89,8 @@ export default {
             (newVal) => {
                 let newToast = {
                     ...newVal, //토스트 정보
-                    time: this.updateDate(), // 스프레드 연산자를이용한 일자 SET
-                    userInfo: { email: this.$store.state.email },
+                    time: this.updateDate(), //스프레드 연산자를이용한 일자 SET
+                    userInfo: { email: this.$store.state.email }, //이용자 아이디
                     //userInfo: this.$store.state, // 스프레드 연산자를이용한 유저정보 SET 이걸 usnerInfo로 바꾸면 왜안되는거야?
                     //userInfo: userInfo.value,
                 };
@@ -101,41 +104,46 @@ export default {
         watch(
             () => props.showHistoryProp,
             (newVal) => {
+                console.log('히스토리 이용상태 변경, 상태 : ' + newVal == true ? '사용' : '미사용');
+
                 this.historyData.value = [];
-                console.log('히스토리 숨기자!!!!!!★★★★★★★★★★★★★★★★★★★★★★★★★★!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-                toastHistory.value = newVal;
+
+                toastHistory.value = newVal; //이력 목록 활성화 여부
+                historyUseYn.value = newVal; //이려 버튼 활성화 여부
+
+                if (newVal == true) {
+                    this.toastHistoryTxt = '히스토리 닫기';
+                } else {
+                    this.toastHistoryTxt = '히스토리 열기';
+                }
             },
         );
 
         watch(
             () => props.historyUseYnProp,
             (newVal) => {
-                console.log(newVal + '히스토리 버튼을 토글하자★★★★★★★★★★★★★★★★★★★★★★★!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-                toastHistory.value = false;
+                console.log('히스토리 버튼 활성화 상태변경, 상태 : ' + newVal == true ? '사용' : '미사용');
+                historyUseYn.value = newVal;
             },
         );
 
-        const onToastHidden = () => {
-            console.log('Toast hidden, executing function...');
-            // 여기에 원하는 함수를 실행합니다.
-        };
-
         return {
-            toastVisible,
-            toastData,
-            onToastHidden,
-            toastHistory,
-            toastHistoryTxt,
-            historyData,
-            historyUseYn,
-            userInfo,
+            toastVisible, //[토스트 뷰 플레그]
+            toastData, //[토스트 뷰 데이터]
+            toastHistory, //[토스트 이력 활성화 플레그]
+            historyUseYn, //[토스트 이력 버튼 활성화 플레그]
+            toastHistoryTxt, //[토스트 이력 버튼 텍스트]
+            historyData, //[토스트 이력 데이터]
+            userInfo, //[이용자 정보 데이터]
         };
     },
     methods: {
+        //토스트 히스토리 파싱
         showToast() {
             this.toastHistory = !this.toastHistory;
             this.historyData = this.getCookie('history') || [];
         },
+        //토스트 히스토리 버튼 클릭시 작동
         toggleHistory() {
             if (this.getCookie('history') == null) {
                 alert('저장된 히스토리가 없습니다.');
@@ -149,6 +157,7 @@ export default {
                 }
             }
         },
+        //토스트 히스토리 이력 추가
         addToHistory(toastData) {
             let history = this.getCookie('history') || [];
 
@@ -159,13 +168,15 @@ export default {
             this.setCookie('history', history, 3);
             this.historyData = history;
         },
+        //쿠키 저장 (쿠키명, 쿠키값, 유지기간)
         setCookie(name, value, days) {
             const expires = new Date();
             expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
             document.cookie = `${name}=${encodeURIComponent(JSON.stringify(value))};expires=${expires.toUTCString()};path=/`;
 
-            console.log('Cookie Set:', `${name}=${encodeURIComponent(JSON.stringify(value))}`);
+            //console.log('Cookie Set:', `${name}=${encodeURIComponent(JSON.stringify(value))}`);
         },
+        //쿠키 가져오기(쿠키명)
         getCookie(name) {
             const value = `; ${document.cookie}`;
             const parts = value.split(`; ${name}=`);
@@ -175,7 +186,7 @@ export default {
 
                     console.log(data.length);
                     /*
-                    //토스트의 유저정보와 현재 유저정보를 비교하여 동일한 데이터만 파싱
+                    //1. Foreach를 사용해 토스트의 유저정보와 현재 유저정보를 비교하여 동일한 데이터만 파싱
                     data.forEach((element, index) => {
                         //console.log(index);
                         console.log(element);
@@ -191,7 +202,7 @@ export default {
                     });
                     */
 
-                    // 또는 filter 메소드 사용
+                    //2. filter 메소드 사용해 토스트의 유저정보와 현재 유저정보를 비교하여 동일한 데이터만 파싱
                     data = data.filter((element, index) => {
                         let currentUser = this.$store.state.email;
                         let toastUser = element.userInfo.email;
@@ -206,20 +217,22 @@ export default {
                     return null;
                 }
             }
-            console.log('이고먀냐냐냐냐ㅑ');
+
             return null;
         },
+        //제이슨 문자열 합치기
         mergeJsonStrings(jsonStr1, jsonStr2) {
-            // JSON 문자열을 JavaScript 객체로 변환
+            //JSON 문자열을 JavaScript 객체로 변환
             let obj1 = JSON.parse(jsonStr1);
             let obj2 = JSON.parse(jsonStr2);
 
-            // 두 객체를 병합
+            //두 객체를 병합
             let mergedObj = { ...obj1, ...obj2 };
 
-            // 병합된 객체를 JSON 문자열로 변환
+            //병합된 객체를 JSON 문자열로 변환
             return JSON.stringify(mergedObj);
         },
+        //현재 날짜 반환
         updateDate() {
             const date = new Date();
             const year = date.getFullYear();

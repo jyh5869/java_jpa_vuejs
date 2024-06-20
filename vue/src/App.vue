@@ -111,24 +111,24 @@ export default {
     name: 'App',
     // [동적 변환 컴포넌트 페이지 : 기본 표시 부분]
     components: {
-        HeaderLayout, // [HeaderLayout 컴포넌트]
-        FooterLayout, // [FooterLayout 컴포넌트]
-        SideLLayout, // [SideLLayout 컴포넌트]
-        SideRLayout, // [SideRLayout 컴포넌트]
-        ToastLayout, // [ToastLayout 컴포넌트]
-        LoadingSpinner, // [LoadingSpinner 컴포넌트]
+        HeaderLayout, //[HeaderLayout 컴포넌트]
+        FooterLayout, //[FooterLayout 컴포넌트]
+        SideLLayout, //[SideLLayout 컴포넌트]
+        SideRLayout, //[SideRLayout 컴포넌트]
+        ToastLayout, //[ToastLayout 컴포넌트]
+        LoadingSpinner, //[LoadingSpinner 컴포넌트]
     },
-    // [컴포넌트 생성 시 초기 데이터 설정 (리턴 값 지정)]
+    //[컴포넌트 생성 시 초기 데이터 설정 (리턴 값 지정)]
     data() {
         return {
-            data: 'APP VUE', // [데이터 지정]
+            data: 'APP VUE', //[데이터 지정]
             dataRight: [],
             dataLeft: [],
             darKYN: 'N',
             historyUseYn: this.$store.state.token != null ? true : false,
-            showToast: false, // [토스트 표출 여부]
+            showToast: false, //[토스트 표출 여부]
             showHistory: true,
-            toastData: {}, // [토스트창 정보]
+            toastData: {}, //[토스트창 정보]
             showSpinner: false,
             spinnerData: {},
             isLoading: false,
@@ -138,11 +138,11 @@ export default {
         toggleLoading() {
             this.isLoading = !this.isLoading;
         },
+        //자식 컴포넌트에서 전달된 데이터에 따른 동적 실행(라우터)
         receiveDataFromChild(data) {
-            // 자식 컴포넌트에서 전달된 데이터 처리
             console.log('Received data from ChildComponent:', data);
 
-            // 사이드 레이어웃 컴포넌트 컨트롤
+            //1. 사이드 레이어웃 컴포넌트 컨트롤
             if (data.darkYN != undefined) {
                 this.darKYN = data.darkYN;
             }
@@ -158,12 +158,12 @@ export default {
                 this.darKYN = null;
             }
 
-            //히스토리 활성화 여부
+            //2.히스토리 활성화 여부
             if (data.historyUseYn != undefined) {
-                this.historyUseYn = data.historyUseYn;
+                //this.historyUseYn = data.historyUseYn;
+                this.showHistory = true;
             }
-
-            // 히스토리 조회를 위한 토스트창
+            //히스토리 조회를 위한 토스트창
             if (data.toast != undefined) {
                 this.toastData = {
                     delay: 3000,
@@ -177,9 +177,9 @@ export default {
                     body: data.toast.body,
                 };
             }
-            // Toast 상태를 변경하기 전에 일단 false로 초기화
+            //Toast 상태를 변경하기 전에 일단 false로 초기화
             this.showToast = false;
-            // 강제로 reactivity 트리거하기 위해 다음 tick에서 showToast를 true로 변경
+            //강제로 reactivity 트리거하기 위해 다음 tick에서 showToast를 true로 변경
             this.$nextTick(() => {
                 if (data.showToast !== undefined) {
                     // 토스트 표시 여부 설정
@@ -187,7 +187,7 @@ export default {
                 }
             });
 
-            // 로딩 스피너 컴포넌트 컨트롤
+            //3.로딩 스피너 컴포넌트 컨트롤
             if (data.showSpinner != undefined) {
                 this.showSpinner = data.showSpinner;
             }
@@ -195,10 +195,11 @@ export default {
                 this.spinnerData = data.spinnerData;
             }
         },
+        //자식 컴포넌트에서 전달된 데이터에 따른 동적 실행(헤더 로그아웃)
         handleUserLogout(data) {
             console.log('User logged out!', data);
 
-            //로그아웃 토스트
+            //1.로그아웃 토스트
             if (data.toast != undefined) {
                 this.toastData = {
                     delay: 3000,
@@ -212,12 +213,10 @@ export default {
                     body: data.toast.body,
                 };
             }
-
             //히스토리 숨기기
             this.showHistory = false;
-
             //히스토리 버튼 숨기기
-            this.HistoryUseYn = false;
+            //this.HistoryUseYn = false;
         },
     },
 };

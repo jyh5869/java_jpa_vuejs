@@ -123,7 +123,7 @@ const actions = {
         });
     },
     loginPage() {
-        alert('로그인 화면으로 이동한다?');
+        console.log('로그인 화면으로 이동힙니다.');
         // 로그인 화면으로 이동
         router.push({
             name: 'auth',
