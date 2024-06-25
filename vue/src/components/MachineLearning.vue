@@ -64,6 +64,15 @@
                 <input type="button" class="fadeIn fourth small" @click="callTensorFlowJFastTextTest()" value="JFastText 테스트 호출" />
             </li>
         </ul>
+        <h3 class="my-3">2. Python을 활용한 FastText</h3>
+        <ul>
+            <li>
+                <input type="button" class="fadeIn fourth small" @click="callTensorFlowFastTextTrainPython()" value="FastText 훈련 호출" />
+            </li>
+            <li>
+                <input type="button" class="fadeIn fourth small" @click="callTensorFlowFastTextTestPython()" value="FastText 테스트 호출" />
+            </li>
+        </ul>
     </div>
 </template>
 
@@ -190,6 +199,44 @@ export default {
             }
         },
         callTensorFlowFastTextTest: async function () {
+            const result = await this.$axios({
+                method: 'GET',
+                url: '/api/noAuth/getAnalyzeKeywordFastTextTest',
+                params: {
+                    inputKeyword: '김해대로',
+                    analyzeType: 'vec',
+                    correctionYN: 'N',
+                },
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (result.status === 200) {
+                //this.id = result.data.id;
+                console.log(result);
+            }
+        },
+        callTensorFlowFastTextTrainPython: async function () {
+            const result = await this.$axios({
+                method: 'GET',
+                url: '/api/noAuth/getAnalyzeKeywordFastTextTrain',
+                params: {
+                    inputKeyword: '김해대로2431번길',
+                    analyzeType: 'model',
+                    correctionYN: 'N',
+                },
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (result.status === 200) {
+                //this.id = result.data.id;
+                console.log(result);
+            }
+        },
+        callTensorFlowFastTextTestPython: async function () {
             const result = await this.$axios({
                 method: 'GET',
                 url: '/api/noAuth/getAnalyzeKeywordFastTextTest',
