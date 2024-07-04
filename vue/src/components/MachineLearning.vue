@@ -67,10 +67,10 @@
         <h3 class="my-3">2. Python을 활용한 FastText</h3>
         <ul>
             <li>
-                <input type="button" class="fadeIn fourth small" @click="callTensorFlowFastTextTrainPython()" value="FastText 훈련 호출" />
+                <input type="button" class="fadeIn fourth small" @click="callTensorFlowTrainPython()" value="FastText 훈련 호출" />
             </li>
             <li>
-                <input type="button" class="fadeIn fourth small" @click="callTensorFlowFastTextTestPython()" value="FastText 테스트 호출" />
+                <input type="button" class="fadeIn fourth small" @click="callTensorFlowTestPython()" value="FastText 테스트 호출" />
             </li>
         </ul>
     </div>
@@ -217,10 +217,10 @@ export default {
                 console.log(result);
             }
         },
-        callTensorFlowFastTextTrainPython: async function () {
+        callTensorFlowTrainPython: async function () {
             const result = await this.$axios({
                 method: 'GET',
-                url: '/api/noAuth/getAnalyzeKeywordFastTextTrain',
+                url: '/api/noAuth/callTensorFlowTrainPython',
                 params: {
                     inputKeyword: '김해대로2431번길',
                     analyzeType: 'model',
@@ -236,10 +236,10 @@ export default {
                 console.log(result);
             }
         },
-        callTensorFlowFastTextTestPython: async function () {
+        callTensorFlowTestPython: async function () {
             const result = await this.$axios({
                 method: 'GET',
-                url: '/api/noAuth/getAnalyzeKeywordFastTextTest',
+                url: '/api/noAuth/callTensorFlowTestPython',
                 params: {
                     inputKeyword: '김해대로',
                     analyzeType: 'vec',
