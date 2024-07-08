@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 public class tensorflowPython {
     
     private final static String pythonFilePath = "documents/python/send_data_to_java.py";
+    private final static String pythonFilePath2 = "documents/python/keras_training_road_address.py";
 
     private static final Logger LOG = LoggerFactory.getLogger(tensorflowPython.class);
     
@@ -35,7 +36,7 @@ public class tensorflowPython {
 
         try {
             // Python 스크립트 경로
-            String pythonScriptPath = pythonFilePath;
+            String pythonScriptPath = pythonFilePath2;
 
             // ProcessBuilder를 사용하여 Python 스크립트 실행
             ProcessBuilder pb = new ProcessBuilder("python", pythonScriptPath);
