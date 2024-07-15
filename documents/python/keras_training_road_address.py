@@ -81,13 +81,10 @@ def predict_similar_address(input_address):
     predicted_address = tokenizer.index_word[predicted_index]
     return predicted_address
 
-# 테스트
-test_address = "중앙로"
-predicted_address = predict_similar_address(test_address)
-print(f'입력 "{test_address}"에 대한 예측 결과: {predicted_address}')
 
 
-def predict_top_similar_addresses(input_address, top_n=5):
+
+def predict_top_similar_addresses(input_address, top_n=10):
     input_processed = input_address.strip().replace(' ', '')
     input_sequence = tokenizer.texts_to_sequences([input_processed])
     padded_input_sequence = pad_sequences(input_sequence, maxlen=max_length)
@@ -101,10 +98,14 @@ def predict_top_similar_addresses(input_address, top_n=5):
     
     return top_predicted_addresses
 
+
 # 테스트
 test_address = "중앙로"
-top_predicted_addresses = predict_top_similar_addresses(test_address)
 
+predicted_address = predict_similar_address(test_address)
+print(f'입력 "{test_address}"에 대한 예측 결과: {predicted_address}')
+
+top_predicted_addresses = predict_top_similar_addresses(test_address)
 print(f'입력 "{test_address}"에 대한 상위 5개 예측 결과:')
 for rank, addr in enumerate(top_predicted_addresses, start=1):
     print(f'{rank}. {addr}')

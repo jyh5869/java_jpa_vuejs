@@ -23,6 +23,7 @@ public class tensorflowPython {
     
     private final static String pythonFilePath = "documents/python/send_data_to_java.py";
     private final static String pythonFilePath2 = "documents/python/keras_training_road_address.py";
+    private final static String pythonFilePath3 = "documents/python/tf-idf_and_cosine_rada_address.py";
 
     private static final Logger LOG = LoggerFactory.getLogger(tensorflowPython.class);
     
@@ -36,7 +37,7 @@ public class tensorflowPython {
 
         try {
             // Python 스크립트 경로
-            String pythonScriptPath = pythonFilePath2;
+            String pythonScriptPath = pythonFilePath3;
 
             // ProcessBuilder를 사용하여 Python 스크립트 실행
             ProcessBuilder pb = new ProcessBuilder("python", pythonScriptPath);
