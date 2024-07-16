@@ -3,6 +3,7 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
+
 # 주소 데이터 예시 (30만 개 중 일부만 예시로 사용)
 addresses = [
     "안곡로197번길",
