@@ -3,6 +3,7 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
+# 이 소스 분석하고 기반으로 도로명주소 도출 코드만들어보자.
 
 # 주소 데이터 예시 (30만 개 중 일부만 예시로 사용)
 addresses = [
