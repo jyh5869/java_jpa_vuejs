@@ -67,11 +67,11 @@
         <h3 class="my-3">2. Python을 활용한 FastText</h3>
         <ul>
             <li>
-                <input type="button" class="fadeIn fourth small" @click="callTensorFlowTrainPython()" value="FastText 훈련 호출" />
+                <input type="button" class="fadeIn fourth small" @click="callTensorFlowTrainPython()" value="파이썬 훈련 호출" />
             </li>
-            <li>
+            <!-- <li>
                 <input type="button" class="fadeIn fourth small" @click="callTensorFlowTestPython()" value="FastText 테스트 호출" />
-            </li>
+            </li> -->
         </ul>
     </div>
 </template>
