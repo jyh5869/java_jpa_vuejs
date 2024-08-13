@@ -74,7 +74,7 @@ def preprocess_address(address):
     return re.sub(pattern, '', address)
     
 # 테스트
-test_address = "증잉로"
+test_address = "노윈로"
 predicted_address, similarity = find_most_similar_address(test_address, addresses, tfidf_matrix)
 print(f'입력된  "{test_address}"에 대한 가장 유사한 주소: {predicted_address} (유사도: {similarity*100:.2f}%)')
 
