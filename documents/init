@@ -18,7 +18,10 @@ npm install @vue/cli-service
 ○ python 라이브 러리 설치(딥러닝 학습을 위함) ○
 
 1. pip install python-Levenshtein - 레벤슈타인 거리 계산 기업을 사용하기 위함
-2. 1. pip install tensorflow@2.9.0 - 딥러닝 학습을 위함
+2. pip install tensorflow@2.9.0 - 딥러닝 학습을 위함
+3. pip install joblib - 도로명 백터화 모델을 저장하기 위함
+    ※ 객체를 효율적으로 직렬화(serialize)하고 역직렬화(deserialize)하는 데 사용하는 라이브러리 이며. 
+    주로 대용량 데이터, 복잡한 객체, 머신러닝 모델 등을 저장하거나 불러올 때 사용. 
 
 
 

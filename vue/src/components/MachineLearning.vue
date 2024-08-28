@@ -69,9 +69,9 @@
             <li>
                 <input type="button" class="fadeIn fourth small" @click="callTensorFlowTrainPython()" value="파이썬 훈련 호출" />
             </li>
-            <!-- <li>
-                <input type="button" class="fadeIn fourth small" @click="callTensorFlowTestPython()" value="FastText 테스트 호출" />
-            </li> -->
+            <li>
+                <input type="button" class="fadeIn fourth small" @click="callTensorFlowTestPython()" value="파이썬 테스트 호출" />
+            </li>
         </ul>
     </div>
 </template>
