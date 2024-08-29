@@ -95,7 +95,8 @@ public class tensorflowPython {
             /*
              * 가져와서 db에 해당 cosine과 일치하는 도로명을찾아서 리턴 로직
              * 
-             */
+             */ 
+            
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
