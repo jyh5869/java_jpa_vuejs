@@ -1,3 +1,5 @@
+import os  # os 모듈 import
+
 import numpy as np
 import pandas as pd
 
@@ -29,14 +31,11 @@ addresses = [
 
 
 # 도로명 주소 텍스트 파일 불러오기
+# 도로명 주소 텍스트 파일 불러오기
 def load_addresses_from_file(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         addresses = [line.strip() for line in file.readlines()]
-
-    # 중복 제거
-    addresses = list(set(addresses))
-
-    return addresses
+    return list(set(addresses))
 
 # 텍스트 파일 경로
 file_path = 'C:/Users/all4land/Desktop/java_jpa_vuejs/documents/leaningData/addrKorRoadName.txt'  # 파일 경로를 적절히 수정하세요
@@ -51,11 +50,19 @@ addresses = load_addresses_from_file(file_path)
 vectorizer = TfidfVectorizer(analyzer='char', ngram_range=(1, 3))
 tfidf_matrix = vectorizer.fit_transform(addresses)
 
-# TfidfVectorizer 객체 저장
-joblib.dump(vectorizer, 'C:/Users/all4land/Desktop/tfidf_vectorizer.pkl')
+# 벡터화 객체와 매트릭스를 저장하는 함수
+def save_vectorizer_and_matrix(vectorizer, tfidf_matrix, vectorizer_path, matrix_path, addresses_path):
+    joblib.dump(vectorizer, vectorizer_path)
+    joblib.dump(tfidf_matrix, matrix_path)
+    joblib.dump(addresses, addresses_path)
 
-# TF-IDF 매트릭스 저장 (필요한 경우에만 저장)
-joblib.dump(tfidf_matrix, 'C:/Users/all4land/Desktop/tfidf_matrix.pkl')
+# 데이터 경로 설정
+file_path = 'C:/Users/all4land/Desktop/java_jpa_vuejs/documents/leaningData/addrKorRoadName.txt'
+vectorizer_path = 'C:/Users/all4land/Desktop/tfidf_vectorizer.pkl'
+matrix_path = 'C:/Users/all4land/Desktop/tfidf_matrix.pkl'
+addresses_path = 'C:/Users/all4land/Desktop/addresses_list.pkl'
+
+save_vectorizer_and_matrix(vectorizer, tfidf_matrix, vectorizer_path, matrix_path, addresses_path)
 
 def find_most_similar_address(input_address, addresses, tfidf_matrix):
     input_vec = vectorizer.transform([input_address])
