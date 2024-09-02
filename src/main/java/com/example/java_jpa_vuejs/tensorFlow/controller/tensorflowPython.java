@@ -15,6 +15,8 @@ import com.example.java_jpa_vuejs.tensorFlow.model.AnalyzeDTO;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 @RestController
 @RequestMapping("/api")
@@ -71,12 +73,16 @@ public class tensorflowPython {
     @GetMapping("/noAuth/callTensorFlowTestPython")
     public void callTensorFlowTestPython (@Valid AnalyzeDTO analyzeDTO) throws Exception {
 
+        String inputKeyword = analyzeDTO.getInputKeyword();//입력 키워드
+        String defaultKeyword = analyzeDTO.getDefaultKeyword();//디폴트 키워드
+        //String analysisResult = null;
+
         try {
             // Python 스크립트 경로
             String pythonScriptPath = USE_MODEL;
 
             // ProcessBuilder를 사용하여 Python 스크립트 실행
-            ProcessBuilder pb = new ProcessBuilder("python", pythonScriptPath);
+            ProcessBuilder pb = new ProcessBuilder("python", pythonScriptPath, inputKeyword, defaultKeyword);
             Process process = pb.start();
 
             // 프로세스의 출력을 읽어오기 위한 BufferedReader 설정
@@ -92,11 +98,24 @@ public class tensorflowPython {
             int exitCode = process.waitFor();
             System.out.println("Python script execution completed with exit code: " + exitCode);
 
-            /*
-             * 가져와서 db에 해당 cosine과 일치하는 도로명을찾아서 리턴 로직
-             * 
-             */ 
-            
+            StringBuilder output = new StringBuilder();
+            while ((line = reader.readLine()) != null) {
+                output.append(line);
+            }
+/* 
+            // 출력된 JSON 파싱
+            JSONObject jsonObject = new JSONObject(output.toString());
+            JSONArray topSimilarAddresses = jsonObject.getJSONArray("top_similar_addresses");
+
+            // JSON 배열을 자바 배열로 변환
+            List<String> addressList = new ArrayList<>();
+            for (int i = 0; i < topSimilarAddresses.length(); i++) {
+                addressList.add(topSimilarAddresses.getString(i));
+            }
+
+            // 자바 배열로 변환
+            String[] addressArray = addressList.toArray(new String[0]);
+*/            
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
