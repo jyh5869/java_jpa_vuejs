@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,8 +16,11 @@ import com.example.java_jpa_vuejs.tensorFlow.model.AnalyzeDTO;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import net.sf.json.JSONArray;
+//import org.json.JSONArray;
+//import org.json.JSONObject;
 import net.sf.json.JSONObject;
+import net.sf.json.JSONArray;
+
 
 @RestController
 @RequestMapping("/api")
@@ -71,12 +75,14 @@ public class tensorflowPython {
     * @throws Exception
     */
     @GetMapping("/noAuth/callTensorFlowTestPython")
-    public void callTensorFlowTestPython (@Valid AnalyzeDTO analyzeDTO) throws Exception {
+    public Map<String, Object> callTensorFlowTestPython (@Valid AnalyzeDTO analyzeDTO) throws Exception {
 
         String inputKeyword = analyzeDTO.getInputKeyword();//입력 키워드
         String defaultKeyword = analyzeDTO.getDefaultKeyword();//디폴트 키워드
         //String analysisResult = null;
 
+        Map<String, Object> retMap = new HashMap<String, Object>();
+        
         try {
             // Python 스크립트 경로
             String pythonScriptPath = USE_MODEL;
@@ -87,38 +93,47 @@ public class tensorflowPython {
 
             // 프로세스의 출력을 읽어오기 위한 BufferedReader 설정
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
+            StringBuilder output = new StringBuilder();
+            
             String line;
+            String lastLine = "";
+
             while ((line = reader.readLine()) != null) {
                 // Python 스크립트에서 출력한 데이터 출력
                 System.out.println("Received from Python: " + line);
+                lastLine = line;
             }
+            
 
             // 프로세스가 완료될 때까지 대기하고 종료 코드를 가져오기
             int exitCode = process.waitFor();
             System.out.println("Python script execution completed with exit code: " + exitCode);
 
-            StringBuilder output = new StringBuilder();
-            while ((line = reader.readLine()) != null) {
-                output.append(line);
-            }
-/* 
-            // 출력된 JSON 파싱
-            JSONObject jsonObject = new JSONObject(output.toString());
-            JSONArray topSimilarAddresses = jsonObject.getJSONArray("top_similar_addresses");
 
-            // JSON 배열을 자바 배열로 변환
-            List<String> addressList = new ArrayList<>();
-            for (int i = 0; i < topSimilarAddresses.length(); i++) {
-                addressList.add(topSimilarAddresses.getString(i));
+
+            
+            output.append(lastLine);
+            System.out.println(output.toString());
+            
+             // JSON 문자열을 JSONObject로 파싱
+            JSONObject jsonObject = JSONObject.fromObject(lastLine);
+
+            // "top_similar_addresses" 배열을 가져옵니다.
+            JSONArray addressesArray = jsonObject.getJSONArray("top_similar_addresses");
+           
+            System.out.println("Top Similar Addresses:");
+            for (int i = 0; i < addressesArray.size(); i++) {
+                String address = addressesArray.getString(i);
+                System.out.println((i + 1) + ". ★★" + address);
             }
 
-            // 자바 배열로 변환
-            String[] addressArray = addressList.toArray(new String[0]);
-*/            
+            retMap.put("jsonObject", jsonObject);
+
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
+        
         LOG.info("파이선 훈련 컨트롤러");
+        return retMap;
     }
 }

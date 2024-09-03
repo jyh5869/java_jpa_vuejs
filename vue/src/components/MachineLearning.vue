@@ -252,7 +252,20 @@ export default {
 
             if (result.status === 200) {
                 //this.id = result.data.id;
-                console.log(result);
+                console.log(result.data);
+
+                const jsonObject = result.data.jsonObject;
+                //const jsonObject = result.data;
+                // "top_similar_addresses" 배열 가져오기
+                const addressesArray = jsonObject.top_similar_addresses;
+                console.log(addressesArray);
+                // 배열의 모든 주소를 출력
+                console.log('Top Similar Addresses:');
+                addressesArray.forEach((address, index) => {
+                    console.log(address + '   ' + index);
+                });
+
+                this.dataList = addressesArray; //데이터 세팅
             }
         },
         callTensorFlowJFastTextTrain: async function () {

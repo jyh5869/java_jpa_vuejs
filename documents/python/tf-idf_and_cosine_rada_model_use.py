@@ -116,6 +116,8 @@ for rank, addr in enumerate(sorted_addresses[:200], start=1):
 
 # 결과를 JSON 형식으로 호출서버에 전달
 result = {
-    "top_similar_addresses": [addr for addr, _ in sorted_addresses[:200]]
+    "top_similar_addresses": [addr for addr in sorted_addresses[:200]]
 }
-print(json.dumps(result))
+
+# JSON 형식으로 출력
+print(json.dumps(result, ensure_ascii=False))

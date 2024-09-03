@@ -59,11 +59,20 @@ dependencies {
 	// javax.xml.bind
 	implementation 'javax.xml.bind:jaxb-api:2.4.0-b180830.0359'
 
-	//json-lib
+	//json-lib(https://mvnrepository.com/artifact/org.json/json)
+	implementation group: 'org.json', name: 'json', version: '20240303'
+
 	implementation  'net.sf.json-lib:json-lib:2.4:jdk15'
 
+	//implementation 'commons-lang:commons-lang:2.6' // json-lib의 의존성
+    //implementation 'commons-collections:commons-collections:3.2.2' // json-lib의 의존성
+    //implementation 'ezmorph:ezmorph:1.0.6' // json-lib의 의존성
+	
 	//이메일 전송 라이브러리
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+	//NPM 라이브러리
+	implementation 'org.webjars.npm:core-js:2.6.11'
 
 	//웹 소켓
 	//implementation 'org.springframework.boot:spring-boot-starter-websocket'
