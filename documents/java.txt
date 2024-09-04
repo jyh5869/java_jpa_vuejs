@@ -6,3 +6,6 @@
 2.자동정렬    : Shift + Alt + F
 
 3.vscode 범위 확장 기능 일괄 처리 : ALT + 클릭
+
+
+4. gradlew 재 빌드 : ./gradlew clean build 

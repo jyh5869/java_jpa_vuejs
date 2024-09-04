@@ -87,8 +87,8 @@ public class word2VecController {
             String resultCode = w2VModelService.getResultCode(mostSimilarWordMany);
 
             retMap.put("code", resultCode);
-            retMap.put("resuleMany", mostSimilarWordMany);
-            retMap.put("resuleManyLev", mostSimilarWordManyLev);
+            retMap.put("resultMany", mostSimilarWordMany);
+            retMap.put("resultManyLev", mostSimilarWordManyLev);
         }
         else{
             Map<String, Float[]> wordVectors = null;
@@ -122,8 +122,8 @@ public class word2VecController {
                 System.out.println("입력 단어 분석 - END");
 
                 retMap.put("code", "SUCESS01");
-                retMap.put("resuleOne", mostSimilarWordOne);
-                retMap.put("resuleMany", mostSimilarWordMany);
+                retMap.put("resultOne", mostSimilarWordOne);
+                retMap.put("resultMany", mostSimilarWordMany);
             }
         }
         System.out.println("Wor2Vec 모델로 텍스트 분석이 완료 되었습니다.");
@@ -174,8 +174,8 @@ public class word2VecController {
             }
 
             retMap.put("code", "SUCESS01");
-            retMap.put("resuleOne", mostSimilarWordOne);
-            retMap.put("resuleMany", mostSimilarWordMany);
+            retMap.put("resultOne", mostSimilarWordOne);
+            retMap.put("resultMany", mostSimilarWordMany);
         } 
         catch(Exception e) {
             e.printStackTrace();

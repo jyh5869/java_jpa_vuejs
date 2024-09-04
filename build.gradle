@@ -31,6 +31,7 @@ dependencies {
 	implementation 'com.google.firebase:firebase-admin:9.1.1'
 	compileOnly 'org.projectlombok:lombok'
 
+	//스프링부트 java 변경시 자동 빌드
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	
 	runtimeOnly 'com.mysql:mysql-connector-j'
@@ -72,7 +73,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 
 	//NPM 라이브러리
-	implementation 'org.webjars.npm:core-js:2.6.11'
+	//implementation 'org.webjars.npm:core-js:2.6.11'
 
 	//웹 소켓
 	//implementation 'org.springframework.boot:spring-boot-starter-websocket'
@@ -105,4 +106,9 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+
+bootJar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }

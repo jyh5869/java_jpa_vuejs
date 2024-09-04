@@ -331,8 +331,8 @@ public class fastTextController {
             System.out.println("모델 테스트가 완료되었습니다. JFastText");
 
             retMap.put("code", resultCode);
-            retMap.put("resuleMany", dataMiningResultMany);
-            retMap.put("resuleManyLev", mostSimilarWordManyLev);
+            retMap.put("resultMany", dataMiningResultMany);
+            retMap.put("resultManyLev", mostSimilarWordManyLev);
         } 
         catch(Exception e) {
             e.printStackTrace();

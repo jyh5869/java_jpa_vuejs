@@ -88,7 +88,7 @@ export default {
             leaningDataType: 'FULL',
             leaningDataTypeArr: ['FULL', 'ROAD'],
             analyzerType: 'Word2Vec',
-            analyzerTypeArr: ['Word2Vec', 'FastText'],
+            analyzerTypeArr: ['Word2Vec', 'FastText', 'Cosign'],
             refinementType: 'All',
             refinementTypeArr: [
                 ['All', '전체'],
@@ -126,8 +126,10 @@ export default {
             var url = '';
             if (this.analyzerType == 'Word2Vec') {
                 url = '/api/noAuth/getAnalyzeKeyword';
-            } else {
+            } else if (this.analyzerType == '') {
                 url = '/api/noAuth/getAnalyzeKeywordJFastTest';
+            } else {
+                url = '/api/noAuth/callTensorFlowTestPython';
             }
 
             const result = await this.$axios({
@@ -146,8 +148,8 @@ export default {
             });
 
             if (result.status === 200) {
-                this.dataList = result.data.resuleMany; //데이터 세팅
-                this.dataListLev = result.data.resuleManyLev;
+                this.dataList = result.data.resultMany; //데이터 세팅
+                this.dataListLev = result.data.resultManyLev;
 
                 if (result.data.code == 'SUCESS03') {
                     alert('모델을 테스트 할 수 없는 환경에서 서버가 구동되었습니다');
@@ -241,7 +243,7 @@ export default {
                 method: 'GET',
                 url: '/api/noAuth/callTensorFlowTestPython',
                 params: {
-                    inputKeyword: '김해대로',
+                    inputKeyword: '노윈로',
                     analyzeType: 'vec',
                     correctionYN: 'N',
                 },
@@ -254,10 +256,9 @@ export default {
                 //this.id = result.data.id;
                 console.log(result.data);
 
-                const jsonObject = result.data.jsonObject;
+                const addressesArray = result.data.resultManyLev;
                 //const jsonObject = result.data;
                 // "top_similar_addresses" 배열 가져오기
-                const addressesArray = jsonObject.top_similar_addresses;
                 console.log(addressesArray);
                 // 배열의 모든 주소를 출력
                 console.log('Top Similar Addresses:');
@@ -266,6 +267,7 @@ export default {
                 });
 
                 this.dataList = addressesArray; //데이터 세팅
+                this.dataListLev = addressesArray; //데이터 세팅
             }
         },
         callTensorFlowJFastTextTrain: async function () {

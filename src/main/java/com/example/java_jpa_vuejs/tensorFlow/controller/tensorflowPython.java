@@ -116,18 +116,20 @@ public class tensorflowPython {
             System.out.println(output.toString());
             
              // JSON 문자열을 JSONObject로 파싱
-            JSONObject jsonObject = JSONObject.fromObject(lastLine);
+            JSONObject analysisResult = JSONObject.fromObject(lastLine);
 
             // "top_similar_addresses" 배열을 가져옵니다.
-            JSONArray addressesArray = jsonObject.getJSONArray("top_similar_addresses");
+            JSONArray resultMany = analysisResult.getJSONArray("top_similar_addresses");
+            JSONArray resultManyLev = analysisResult.getJSONArray("sorted_addresses");
            
             System.out.println("Top Similar Addresses:");
-            for (int i = 0; i < addressesArray.size(); i++) {
-                String address = addressesArray.getString(i);
-                System.out.println((i + 1) + ". ★★" + address);
-            }
+            for (int i = 0; i < resultManyLev.size(); i++) {
+                String address = resultManyLev.getString(i);
+                System.out.println((i + 1) + ".    : " + address);
+            } 
 
-            retMap.put("jsonObject", jsonObject);
+            retMap.put("resultMany", resultMany);
+            retMap.put("resultManyLev", resultManyLev);
 
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();

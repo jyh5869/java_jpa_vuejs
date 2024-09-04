@@ -728,7 +728,7 @@ export default {
                 if (result.data.code == 'SUCESS03') {
                     alert('모델을 테스트 할 수 없는 환경에서 서버가 구동되었습니다');
                 } else {
-                    this.$emit('data-to-parent', { darkYN: 'Y', showSpinner: false, dataRight: ['유사 도로', result.data.resuleMany], dataLeft: ['단어 거리계산', result.data.resuleManyLev] });
+                    this.$emit('data-to-parent', { darkYN: 'Y', showSpinner: false, dataRight: ['유사 도로', result.data.resultMany], dataLeft: ['단어 거리계산', result.data.resultManyLev] });
                 }
             }
         },
