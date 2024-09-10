@@ -16,8 +16,7 @@ import com.example.java_jpa_vuejs.tensorFlow.model.AnalyzeDTO;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-//import org.json.JSONArray;
-//import org.json.JSONObject;
+
 import net.sf.json.JSONObject;
 import net.sf.json.JSONArray;
 
@@ -27,24 +26,25 @@ import net.sf.json.JSONArray;
 @RequiredArgsConstructor
 public class tensorflowPython {
     
-    private final static String pythonFilePath = "documents/python/send_data_to_java.py";
-    private final static String pythonFilePath2 = "documents/python/keras_training_road_address.py";
-    private final static String MAKE_MODEL = "documents/python/tf-idf_and_cosine_rada_address.py";
-    private final static String USE_MODEL = "documents/python/tf-idf_and_cosine_rada_model_use.py";
+    private final static String MAKE_MODEL_TF_IDF_AND_COSINE = "documents/python/tf-idf_and_cosine_rada_model_make.py";
+    private final static String USE_MODEL_TF_IDF_AND_COSINE = "documents/python/tf-idf_and_cosine_rada_model_use.py";
+    private final static String MAKE_MODEL_KERAS = "documents/python/tf-idf_and_cosine_rada_model_use.py";
+    private final static String USE_MODEL_KERAS = "documents/python/tf-idf_and_cosine_rada_model_use.py";
 
     private static final Logger LOG = LoggerFactory.getLogger(tensorflowPython.class);
     
+
     /**
-    * @method FastText를 이용하여 모델을 훈련하는 컨트롤러
-    * @param  null
+    * @method TF-IDF AND COSINE를 이용한 모델 훈련 컨트롤러
+    * @param  null    
     * @throws Exception
-    */
-    @GetMapping("/noAuth/callTensorFlowTrainPython")
-    public void callTensorFlowTrainPython (@Valid AnalyzeDTO analyzeDTO) throws Exception {
+    */ 
+    @GetMapping("/noAuth/tfIdfAndCosineRadaModelMake")
+    public void tfIdfAndCosineRadaModelMake (@Valid AnalyzeDTO analyzeDTO) throws Exception {
 
         try {
             // Python 스크립트 경로
-            String pythonScriptPath = MAKE_MODEL;
+            String pythonScriptPath = MAKE_MODEL_TF_IDF_AND_COSINE;
 
             // ProcessBuilder를 사용하여 Python 스크립트 실행
             ProcessBuilder pb = new ProcessBuilder("python", pythonScriptPath);
@@ -69,12 +69,13 @@ public class tensorflowPython {
         LOG.info("파이선 훈련 컨트롤러");
     }
 
+
     /**
-    * @method FastText를 이용하여 모델을 훈련하는 컨트롤러
+    * @method TF-IDF AND COSINE를 이용한 모델 호출 컨트롤러
     * @param  null
     * @throws Exception
     */
-    @GetMapping("/noAuth/callTensorFlowTestPython")
+    @GetMapping("/noAuth/tfIdfAndCosineRadaModelUse")
     public Map<String, Object> callTensorFlowTestPython (@Valid AnalyzeDTO analyzeDTO) throws Exception {
 
         String inputKeyword = analyzeDTO.getInputKeyword();//입력 키워드
@@ -85,7 +86,7 @@ public class tensorflowPython {
         
         try {
             // Python 스크립트 경로
-            String pythonScriptPath = USE_MODEL;
+            String pythonScriptPath = USE_MODEL_TF_IDF_AND_COSINE;
 
             // ProcessBuilder를 사용하여 Python 스크립트 실행
             ProcessBuilder pb = new ProcessBuilder("python", pythonScriptPath, inputKeyword, defaultKeyword);
@@ -137,5 +138,76 @@ public class tensorflowPython {
         
         LOG.info("파이선 훈련 컨트롤러");
         return retMap;
+    }
+
+    /**
+    * @method KERAS를 이용한 모델 훈련 컨트롤러
+    * @param  null
+    * @throws Exception
+    */
+    @GetMapping("/noAuth/kerasModelMake")
+    public void kerasModelMake (@Valid AnalyzeDTO analyzeDTO) throws Exception {
+
+        try {
+            // Python 스크립트 경로
+            String pythonScriptPath = MAKE_MODEL_KERAS;
+
+            // ProcessBuilder를 사용하여 Python 스크립트 실행
+            ProcessBuilder pb = new ProcessBuilder("python", pythonScriptPath);
+            Process process = pb.start();
+
+            // 프로세스의 출력을 읽어오기 위한 BufferedReader 설정
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Python 스크립트에서 출력한 데이터 출력
+                System.out.println("Received from Python: " + line);
+            }
+
+            // 프로세스가 완료될 때까지 대기하고 종료 코드를 가져오기
+            int exitCode = process.waitFor();
+            System.out.println("Python script execution completed with exit code: " + exitCode);
+
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        LOG.info("파이선 훈련 컨트롤러");
+    }
+
+
+    /**
+    * @method KERAS를 이용한 모델 호출 컨트롤러
+    * @param  null
+    * @throws Exception
+    */
+    @GetMapping("/noAuth/kerasModelUse")
+    public void kerasModelUse (@Valid AnalyzeDTO analyzeDTO) throws Exception {
+
+        try {
+            // Python 스크립트 경로
+            String pythonScriptPath = USE_MODEL_KERAS;
+
+            // ProcessBuilder를 사용하여 Python 스크립트 실행
+            ProcessBuilder pb = new ProcessBuilder("python", pythonScriptPath);
+            Process process = pb.start();
+
+            // 프로세스의 출력을 읽어오기 위한 BufferedReader 설정
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Python 스크립트에서 출력한 데이터 출력
+                System.out.println("Received from Python: " + line);
+            }
+
+            // 프로세스가 완료될 때까지 대기하고 종료 코드를 가져오기
+            int exitCode = process.waitFor();
+            System.out.println("Python script execution completed with exit code: " + exitCode);
+
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        LOG.info("파이선 훈련 컨트롤러");
     }
 }

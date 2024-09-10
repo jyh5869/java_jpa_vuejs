@@ -48,5 +48,15 @@
         "last 2 versions",
         "not dead",
         "not ie 11"
+    ],
+    "compounds": [
+        {
+            "name": "Auto build",
+            "configurations": [
+                "Run gradle start",
+                "Spring Boot-BaseApplication"
+            ],
+            "stopAll": true
+        }
     ]
 }

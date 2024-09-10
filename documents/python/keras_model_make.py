@@ -23,6 +23,19 @@ addresses = [
     "중앙로3길"
 ]
 
+# 도로명 주소 텍스트 파일 불러오기
+def load_addresses_from_file(file_path):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        addresses = [line.strip() for line in file.readlines()]
+    return list(set(addresses))
+
+# 텍스트 파일 경로
+file_path = 'C:/Users/all4land/Desktop/java_jpa_vuejs/documents/leaningData/addrKorRoadName.txt'  # 파일 경로를 적절히 수정하세요
+
+# 주소 데이터 로드
+addresses = load_addresses_from_file(file_path)
+
+
 # 데이터 전처리: 공백 및 숫자 제거
 # addresses_processed = [re.sub(r'\d+', '', addr).strip().replace(' ', '') for addr in addresses]
 

@@ -28,7 +28,7 @@
                 <li v-for="(item, index) in dataListLev" :key="index">{{ item }}</li>
             </ul>
         </div>
-        <h3 class="my-3">1. Word2Vec(deeplearning4j)</h3>
+        <h3 class="my-3">1-1 JAVA를 활용한 분석 모델(Word2Vec[deeplearning4j])</h3>
         <ul>
             <li>
                 <input type="button" class="fadeIn fourth small" @click="callGetAnalyzeKeywordWord2VecTrain('노원로28길', 'model', 'FULL')" value="Word2Vec 훈련 호출 - FULL" />
@@ -37,17 +37,7 @@
                 <input type="button" class="fadeIn fourth small" @click="callGetAnalyzeKeywordWord2VecTrain('노원로28길', 'model', 'ROAD')" value="Word2Vec 훈련 호출 - ROAD" />
             </li>
         </ul>
-        <!-- 
-        <ul>
-            <li>
-                <input type="button" class="fadeIn fourth small" @click="callgetAnalyzeKeyword()" value="Word2Vec 테스트 호출" />
-            </li>
-            <li>
-                <input type="button" class="fadeIn fourth small" @click="callGetAnalyzeKeywordLeven()" value="레벤슈타인 단어 거리 분석 테스트 호출" />
-            </li>
-        </ul> 
-        -->
-        <h3 class="my-3">2. FastText(deeplearning4j)</h3>
+        <h3 class="my-3">1-2 JAVA를 활용한 분석 모델(FastText[deeplearning4j])</h3>
         <ul>
             <li>
                 <input type="button" class="fadeIn fourth small" @click="callTensorFlowFastTextTrain()" value="FastText 훈련 호출" />
@@ -64,13 +54,22 @@
                 <input type="button" class="fadeIn fourth small" @click="callTensorFlowJFastTextTest()" value="JFastText 테스트 호출" />
             </li>
         </ul>
-        <h3 class="my-3">2. Python을 활용한 FastText</h3>
+        <h3 class="my-3">2-1. Python을 활용한 분석 모델(TF-IDF AND COSINE)</h3>
         <ul>
             <li>
-                <input type="button" class="fadeIn fourth small" @click="callTensorFlowTrainPython()" value="파이썬 훈련 호출" />
+                <input type="button" class="fadeIn fourth small" @click="tfIdfAndCosineRadaModelMake()" value="파이썬 훈련 호출" />
             </li>
             <li>
-                <input type="button" class="fadeIn fourth small" @click="callTensorFlowTestPython()" value="파이썬 테스트 호출" />
+                <input type="button" class="fadeIn fourth small" @click="tfIdfAndCosineRadaModelUse()" value="파이썬 테스트 호출" />
+            </li>
+        </ul>
+        <h3 class="my-3">2-2. Python을 활용한 분석 모델(KERAS)</h3>
+        <ul>
+            <li>
+                <input type="button" class="fadeIn fourth small" @click="kerasModelMake()" value="파이썬 훈련 호출" />
+            </li>
+            <li>
+                <input type="button" class="fadeIn fourth small" @click="kerasModelUse()" value="파이썬 테스트 호출" />
             </li>
         </ul>
     </div>
@@ -219,10 +218,10 @@ export default {
                 console.log(result);
             }
         },
-        callTensorFlowTrainPython: async function () {
+        tfIdfAndCosineRadaModelMake: async function () {
             const result = await this.$axios({
                 method: 'GET',
-                url: '/api/noAuth/callTensorFlowTrainPython',
+                url: '/api/noAuth/tfIdfAndCosineRadaModelMake',
                 params: {
                     inputKeyword: '김해대로2431번길',
                     analyzeType: 'model',
@@ -238,10 +237,10 @@ export default {
                 console.log(result);
             }
         },
-        callTensorFlowTestPython: async function () {
+        tfIdfAndCosineRadaModelUse: async function () {
             const result = await this.$axios({
                 method: 'GET',
-                url: '/api/noAuth/callTensorFlowTestPython',
+                url: '/api/noAuth/tfIdfAndCosineRadaModelUse',
                 params: {
                     inputKeyword: '노윈로',
                     analyzeType: 'vec',
@@ -277,6 +276,44 @@ export default {
                 params: {
                     inputKeyword: '김해대로2431번길',
                     analyzeType: 'model',
+                    correctionYN: 'N',
+                },
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (result.status === 200) {
+                //this.id = result.data.id;
+                console.log(result);
+            }
+        },
+        kerasModelMake: async function () {
+            const result = await this.$axios({
+                method: 'GET',
+                url: '/api/noAuth/kerasModelMake',
+                params: {
+                    inputKeyword: '김해대로2325번길',
+                    analyzeType: 'bin',
+                    correctionYN: 'N',
+                },
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (result.status === 200) {
+                //this.id = result.data.id;
+                console.log(result);
+            }
+        },
+        kerasModelUse: async function () {
+            const result = await this.$axios({
+                method: 'GET',
+                url: '/api/noAuth/kerasModelUse',
+                params: {
+                    inputKeyword: '김해대로2325번길',
+                    analyzeType: 'bin',
                     correctionYN: 'N',
                 },
                 headers: {
