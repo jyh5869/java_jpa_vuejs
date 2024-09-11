@@ -28,8 +28,8 @@ public class tensorflowPython {
     
     private final static String MAKE_MODEL_TF_IDF_AND_COSINE = "documents/python/tf-idf_and_cosine_rada_model_make.py";
     private final static String USE_MODEL_TF_IDF_AND_COSINE = "documents/python/tf-idf_and_cosine_rada_model_use.py";
-    private final static String MAKE_MODEL_KERAS = "documents/python/tf-idf_and_cosine_rada_model_use.py";
-    private final static String USE_MODEL_KERAS = "documents/python/tf-idf_and_cosine_rada_model_use.py";
+    private final static String MAKE_MODEL_KERAS = "documents/python/tf-keras_model_make.py";
+    private final static String USE_MODEL_KERAS = "documents/python/tf-keras_model_use.py";
 
     private static final Logger LOG = LoggerFactory.getLogger(tensorflowPython.class);
     
@@ -140,8 +140,9 @@ public class tensorflowPython {
         return retMap;
     }
 
+
     /**
-    * @method KERAS를 이용한 모델 훈련 컨트롤러
+    * @method KERAS를 이용한 모델 훈련 컨트롤러  
     * @param  null
     * @throws Exception
     */
