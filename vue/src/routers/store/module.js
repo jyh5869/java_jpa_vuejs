@@ -65,6 +65,35 @@ const actions = {
             password: password,
         };
 
+        try {
+            const res = await axios.post('/api/signin', JSON.stringify(params), {
+                headers: { 'content-type': 'application/json' },
+            });
+
+            if (res.data.loginRes === 'SUCCESS') {
+                commit('login', res);
+                console.log('-----------------Login Result-----------------');
+                console.log(res);
+                console.log('store------------Login Result-----------------');
+
+                router.push('/BoardList');
+
+                return 'SUCCESS'; // 로그인 성공 시 반환
+            } else {
+                alert('아이디 및 비밀번호를 확인해 주세요.');
+
+                return 'FAIL'; // 로그인 실패 시 반환
+            }
+        } catch (error) {
+            console.log(error);
+            alert('로그인 요청에 알 수 없는 문제가 발생했습니다.\n잠시 후 다시 시도해 주세요.');
+
+            return 'ERROR'; // 에러 발생 시 반환
+        }
+
+        /* 
+        // Return 결과값을 전달하기 위해 아래 소스를 사용하지 않고 위처럼 try ~ catch로 사용  
+        // ※ .then() 블록 안에서 return을 사용했지만, 이 return 값은 then() 함수 내부에서만 반환되고, 외부로 전달되지 않는다.
         await axios
             .post('/api/signin', JSON.stringify(params), {
                 headers: { 'content-type': 'application/json' },
@@ -77,14 +106,17 @@ const actions = {
                     console.log('sotre------------Login Result-----------------');
 
                     router.push('/BoardList');
+                    return 'SUCCESS'; // 로그인 성공 시 반환
                 } else {
                     alert('아이디 및 비밀번호를 확인해 주세요.');
+                    return 'FAIL'; // 로그인 실패 시 반환
                 }
             })
             .catch((error) => {
                 console.log(error);
                 alert('로그인 요청에 알수 없는 문제가 발생했습니다.\n잠시 후 다시 시도해 주세요.');
             });
+        */
     },
     refresh({ commit }) {
         //accessToken 만료로 재발급 후 재요청시 비동기처리로는 제대로 처리가 안되서 promise로 처리함

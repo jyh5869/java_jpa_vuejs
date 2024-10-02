@@ -29,8 +29,8 @@
             </div>
 
             <!-- Login Form -->
-            <input type="text" id="login" class="fadeIn second" name="userId" v-model="user" placeholder="User Id" />
-            <input type="text" id="password" class="fadeIn third" name="passwrod" v-model="password" placeholder="Password" />
+            <input type="text" id="login" class="fadeIn second" name="userId" v-model="user" @keydown.enter="enterPressLogin" placeholder="User Id" />
+            <input type="password" id="password" class="fadeIn third" name="passwrod" v-model="password" @keydown.enter="enterPressLogin" placeholder="Password" />
             <input type="button" class="fadeIn fourth" value="Log In" @click="login()" />
 
             <!-- Remind Passowrd -->
@@ -194,11 +194,18 @@ export default {
                 var password = this.password; // 비밀번호
 
                 //login 처리 후 순차실행을 위한 비동기처리(await 대상 함수 - login 함수에서도 비동기(프로미스)를 리턴할 수있도록 되어있어야 정상 순차동작)
-                await this.$store.dispatch('login', { id, password });
-                await this.$emit('data-to-parent', { historyUseYn: true, showToast: true, toast: { title: '로그인 성공', body: id + '님 환영합니다.', variant: 'primary' } });
+                let result = await this.$store.dispatch('login', { id, password });
+                if (result == 'SUCCESS') {
+                    await this.$emit('data-to-parent', { historyUseYn: true, showToast: true, toast: { title: '로그인 성공', body: id + '님 환영합니다.', variant: 'primary' } });
+                }
             } else {
                 alert('아이디 또는 비밀번호가 입력되지 않았습니다.\n 확인 후 다시 시도해 주세요.');
                 return false;
+            }
+        },
+        enterPressLogin(event) {
+            if (event.key === 'Enter') {
+                this.login();
             }
         },
         idValidation: async function () {
@@ -872,7 +879,8 @@ input[type='reset']:active {
     transform: scale(0.95);
 }
 
-input[type='text'] {
+input[type='text'],
+input[type='password'] {
     background-color: #f6f6f6;
     border: none;
     color: #0d0d0d;
@@ -893,19 +901,22 @@ input[type='text'] {
     border-radius: 5px 5px 5px 5px;
 }
 
-input[type='text'].small {
+input[type='text'].small,
+input[type='password'].small {
     padding: 10px 15px;
     margin: 5px 5px 5px 20px;
     font-size: 10px;
     width: auto;
 }
 
-input[type='text']:focus {
+input[type='text']:focus,
+input[type='password'].focus {
     background-color: #fff;
     border-bottom: 1px solid #42b883;
 }
 
-input[type='text']:placeholder {
+input[type='text']:placeholder,
+input[type='password']:placeholder {
     color: #cccccc;
 }
 
