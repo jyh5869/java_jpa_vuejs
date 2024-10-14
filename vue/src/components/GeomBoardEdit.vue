@@ -8,10 +8,6 @@
     </div>
     <div class="row g-3">
         <!-- □ 형상 종류별 그리기 및 수정 선택 박스 □ -->
-        <!-- ※ 체크박스로 그리기 및 수정여부 선택 할수 있도록 하는 마크업
-        <input type="checkbox" id="checkbox" v-model="drawEnable" />
-        <label for="checkbox">Draw Enable</label>
-        -->
         <div>
             <button @click="drawEnabled = !drawEnabled">Draw</button>
             <span>{{ '  ' + drawEnabled + '  ' }}</span>

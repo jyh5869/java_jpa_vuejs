@@ -40,10 +40,16 @@ public class tensorflowPython {
     * @throws Exception
     */ 
     @GetMapping("/noAuth/tfIdfAndCosineRadaModelMake")
-    public void tfIdfAndCosineRadaModelMake (@Valid AnalyzeDTO analyzeDTO) throws Exception {
+    public Map<String, Object> tfIdfAndCosineRadaModelMake (@Valid AnalyzeDTO analyzeDTO) throws Exception {
 
+        LOG.info("파이썬 Tf-Idf And Cosine 모델 생성 START");
+
+        int exitCode = 9999;// 모델 생성 스크립트 실행 결과 정수
+        String exitCodeRes = null;// 모델 생성 스크립트 실행 결과 문자
+
+        Map<String, Object> retMap = new HashMap<String, Object>();
+        
         try {
-            // Python 스크립트 경로
             String pythonScriptPath = MAKE_MODEL_TF_IDF_AND_COSINE;
 
             // ProcessBuilder를 사용하여 Python 스크립트 실행
@@ -60,13 +66,20 @@ public class tensorflowPython {
             }
 
             // 프로세스가 완료될 때까지 대기하고 종료 코드를 가져오기
-            int exitCode = process.waitFor();
-            System.out.println("Python script execution completed with exit code: " + exitCode);
+            exitCode = process.waitFor();
+            exitCodeRes = exitCode == 0 ? "SUCESS01" : "FAIL01";
+            
+            LOG.info("Python script execution completed with exit code: " + exitCode);
+
+            retMap.put("code", exitCodeRes);
 
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-        LOG.info("파이선 훈련 컨트롤러");
+
+        LOG.info("파이썬 Tf-Idf And Cosine 모델 생성 END - 결과 : " + exitCodeRes + "[" +   String.valueOf(exitCode) +"]" );
+
+        return retMap;
     }
 
 
@@ -78,9 +91,12 @@ public class tensorflowPython {
     @GetMapping("/noAuth/tfIdfAndCosineRadaModelUse")
     public Map<String, Object> callTensorFlowTestPython (@Valid AnalyzeDTO analyzeDTO) throws Exception {
 
+        LOG.info("파이썬 Tf-Idf And Cosine 모델 호출 START");
+
+        int exitCode = 9999;// 모델 생성 스크립트 실행 결과 정수
+        String exitCodeRes = null;// 모델 생성 스크립트 실행 결과 문자
         String inputKeyword = analyzeDTO.getInputKeyword();//입력 키워드
         String defaultKeyword = analyzeDTO.getDefaultKeyword();//디폴트 키워드
-        //String analysisResult = null;
 
         Map<String, Object> retMap = new HashMap<String, Object>();
         
@@ -101,20 +117,18 @@ public class tensorflowPython {
 
             while ((line = reader.readLine()) != null) {
                 // Python 스크립트에서 출력한 데이터 출력
-                System.out.println("Received from Python: " + line);
+                LOG.info("Received from Python: " + line);
                 lastLine = line;
             }
             
-
             // 프로세스가 완료될 때까지 대기하고 종료 코드를 가져오기
-            int exitCode = process.waitFor();
-            System.out.println("Python script execution completed with exit code: " + exitCode);
-
-
-
+            exitCode = process.waitFor();
+            exitCodeRes = exitCode == 0 ? "SUCESS01" : "FAIL01";
+            
+            LOG.info("Python script execution completed with exit code: " + exitCode);
             
             output.append(lastLine);
-            System.out.println(output.toString());
+            LOG.info("Analysis Test Result : " + output.toString());
             
              // JSON 문자열을 JSONObject로 파싱
             JSONObject analysisResult = JSONObject.fromObject(lastLine);
@@ -123,10 +137,10 @@ public class tensorflowPython {
             JSONArray resultMany = analysisResult.getJSONArray("top_similar_addresses");
             JSONArray resultManyLev = analysisResult.getJSONArray("sorted_addresses");
            
-            System.out.println("Top Similar Addresses:");
+            LOG.info("Top Similar Addresses:");
             for (int i = 0; i < resultManyLev.size(); i++) {
                 String address = resultManyLev.getString(i);
-                System.out.println((i + 1) + ".    : " + address);
+                LOG.info((i + 1) + ".    : " + address);
             } 
 
             retMap.put("resultMany", resultMany);
@@ -136,7 +150,8 @@ public class tensorflowPython {
             e.printStackTrace();
         }
         
-        LOG.info("파이선 훈련 컨트롤러");
+        LOG.info("파이썬 Tf-Idf And Cosine 모델 호출 END - 결과 : " + exitCodeRes + "[" +   String.valueOf(exitCode) +"]" );
+
         return retMap;
     }
 
@@ -163,12 +178,12 @@ public class tensorflowPython {
             String line;
             while ((line = reader.readLine()) != null) {
                 // Python 스크립트에서 출력한 데이터 출력
-                System.out.println("Received from Python: " + line);
+                LOG.info("Received from Python: " + line);
             }
 
             // 프로세스가 완료될 때까지 대기하고 종료 코드를 가져오기
             int exitCode = process.waitFor();
-            System.out.println("Python script execution completed with exit code: " + exitCode);
+            LOG.info("Python script execution completed with exit code: " + exitCode);
 
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -199,12 +214,12 @@ public class tensorflowPython {
             String line;
             while ((line = reader.readLine()) != null) {
                 // Python 스크립트에서 출력한 데이터 출력
-                System.out.println("Received from Python: " + line);
+               LOG.info("Received from Python: " + line);
             }
 
             // 프로세스가 완료될 때까지 대기하고 종료 코드를 가져오기
             int exitCode = process.waitFor();
-            System.out.println("Python script execution completed with exit code: " + exitCode);
+            LOG.info("Python script execution completed with exit code: " + exitCode);
 
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();

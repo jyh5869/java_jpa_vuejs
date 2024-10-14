@@ -26,9 +26,9 @@ npm install @vue/cli-service
 
 
 
-
-
-
+○ Vue 웹 서버 기동 ○
+1. vue가 설치된 경로로 이동 : .../java_jpa_vuejs/vue
+2. Vue 시작 : npm run serve
 
 
 
