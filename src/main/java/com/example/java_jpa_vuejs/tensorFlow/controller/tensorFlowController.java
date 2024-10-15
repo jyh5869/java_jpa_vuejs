@@ -291,7 +291,7 @@ public class tensorFlowController {
     public Map<String, Object> inde123242x(@Valid PaginationDto paginationDto) throws Exception {
         
 
-        // 오타가 있는 키워드★★★
+        // 오타가 있는 키워드
         String testKeyword = "사괴";
 
         String[] fruits = {"사과", "바나나", "오렌지", "딸기"};

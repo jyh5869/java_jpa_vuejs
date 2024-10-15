@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,10 +25,15 @@ import net.sf.json.JSONArray;
 @RequiredArgsConstructor
 public class tensorflowPython {
     
-    private final static String MAKE_MODEL_TF_IDF_AND_COSINE = "documents/python/tf-idf_and_cosine_rada_model_make.py";
-    private final static String USE_MODEL_TF_IDF_AND_COSINE = "documents/python/tf-idf_and_cosine_rada_model_use.py";
-    private final static String MAKE_MODEL_KERAS = "documents/python/tf-keras_model_make.py";
-    private final static String USE_MODEL_KERAS = "documents/python/tf-keras_model_use.py";
+    /* 
+     * 1. 전통적인 자연어 처리 방법론으로, 모델을 생성하지 않고 단순 통계적 기법을 이용해 문서 또는 텍스트 데이터를 벡터화. 
+     * 2. 두 벡터 간의 유사도를 측정하기 위해 코사인 유사도(Cosine Similarity)를 사용하여, 각 텍스트가 얼마나 유사한지를 계산.
+     * 3. TF-IDF는 단어의 빈도(Term Frequency, TF)와 역문서 빈도(Inverse Document Frequency, IDF)를 고려하여 각 단어의 중요도를 계산
+     */
+    private final static String MAKE_MODEL_TF_IDF_AND_COSINE = "documents/python/tf-idf_and_cosine_rada_model_make.py";// Tf-idf-Cosine
+    private final static String USE_MODEL_TF_IDF_AND_COSINE = "documents/python/tf-idf_and_cosine_rada_model_use.py";// Tf-idf-Cosine
+    private final static String MAKE_MODEL_KERAS = "documents/python/keras_model_make.py";// Deeplearning TensoFlow Keras
+    private final static String USE_MODEL_KERAS = "documents/python/keras_model_use.py";// Deeplearning TensoFlow Keras
 
     private static final Logger LOG = LoggerFactory.getLogger(tensorflowPython.class);
     
@@ -95,8 +99,8 @@ public class tensorflowPython {
 
         int exitCode = 9999;// 모델 생성 스크립트 실행 결과 정수
         String exitCodeRes = null;// 모델 생성 스크립트 실행 결과 문자
-        String inputKeyword = analyzeDTO.getInputKeyword();//입력 키워드
-        String defaultKeyword = analyzeDTO.getDefaultKeyword();//디폴트 키워드
+        String inputKeyword = analyzeDTO.getInputKeyword();// 입력 키워드
+        String defaultKeyword = analyzeDTO.getDefaultKeyword();// 디폴트 키워드
 
         Map<String, Object> retMap = new HashMap<String, Object>();
         
@@ -117,7 +121,7 @@ public class tensorflowPython {
 
             while ((line = reader.readLine()) != null) {
                 // Python 스크립트에서 출력한 데이터 출력
-                LOG.info("Received from Python: " + line);
+                System.out.println("Received from Python: " + line);
                 lastLine = line;
             }
             
@@ -164,6 +168,8 @@ public class tensorflowPython {
     @GetMapping("/noAuth/kerasModelMake")
     public void kerasModelMake (@Valid AnalyzeDTO analyzeDTO) throws Exception {
 
+        LOG.info("파이썬 Keras 모델 훈련 START");
+
         try {
             // Python 스크립트 경로
             String pythonScriptPath = MAKE_MODEL_KERAS;
@@ -178,7 +184,7 @@ public class tensorflowPython {
             String line;
             while ((line = reader.readLine()) != null) {
                 // Python 스크립트에서 출력한 데이터 출력
-                LOG.info("Received from Python: " + line);
+                System.out.println("Received from Python: " + line);
             }
 
             // 프로세스가 완료될 때까지 대기하고 종료 코드를 가져오기
@@ -188,7 +194,8 @@ public class tensorflowPython {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-        LOG.info("파이선 훈련 컨트롤러");
+
+        LOG.info("파이썬 Keras 모델 훈련 END");
     }
 
 
@@ -199,6 +206,8 @@ public class tensorflowPython {
     */
     @GetMapping("/noAuth/kerasModelUse")
     public void kerasModelUse (@Valid AnalyzeDTO analyzeDTO) throws Exception {
+
+        LOG.info("파이썬 Keras 모델 호출 START");
 
         try {
             // Python 스크립트 경로
@@ -214,7 +223,7 @@ public class tensorflowPython {
             String line;
             while ((line = reader.readLine()) != null) {
                 // Python 스크립트에서 출력한 데이터 출력
-               LOG.info("Received from Python: " + line);
+                System.out.println("Received from Python: " + line);
             }
 
             // 프로세스가 완료될 때까지 대기하고 종료 코드를 가져오기
@@ -224,6 +233,7 @@ public class tensorflowPython {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-        LOG.info("파이선 훈련 컨트롤러");
+
+        LOG.info("파이썬 Keras 모델 호출 END");
     }
 }
