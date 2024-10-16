@@ -1,11 +1,19 @@
+import sys
+import re
+
+import json
+
 import numpy as np
 import pandas as pd
+
+import joblib as joblib
+import Levenshtein as Levenshtein
+
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Embedding, LSTM, Dense
-import sys
-import re
+
 
 # 주소 데이터
 addresses = [
@@ -18,9 +26,18 @@ addresses = [
     "안곡로279번길",
     "인곡길280번길",
     "중앙로",
+    "증앙로",
+    "중잉로",
+    "중아ㅇ로",
     "중앙로1길",
     "중앙로2길",
-    "중앙로3길"
+    "중앙로3길",
+    "통도9길",
+    "편들1길",
+    "평산10길",
+    "평산11길",
+    "평산12길",
+    "낙영3길"
 ]
 
 # 도로명 주소 텍스트 파일 불러오기
@@ -33,7 +50,7 @@ def load_addresses_from_file(file_path):
 file_path = 'C:/Users/all4land/Desktop/java_jpa_vuejs/documents/leaningData/addrKorRoadName.txt'  # 파일 경로를 적절히 수정하세요
 
 # 주소 데이터 로드
-addresses = load_addresses_from_file(file_path)
+# addresses = load_addresses_from_file(file_path)
 
 
 # 데이터 전처리: 공백 및 숫자 제거
@@ -107,18 +124,42 @@ def predict_top_similar_addresses(input_address, top_n=10):
     
     # 상위 N개의 주소 예측
     top_predicted_indices = np.argsort(predicted_probs)[::-1][:top_n]
-    top_predicted_addresses = [tokenizer.index_word[idx] for idx in top_predicted_indices]
+    top_similar_addresses = [tokenizer.index_word[idx] for idx in top_predicted_indices]
     
-    return top_predicted_addresses
+    return top_similar_addresses
+
+
+# 리벤슈타인 거리로 정렬하는 함수
+def sort_addresses_by_levenshtein(input_address, address_list):
+
+    sorted_addresses = sorted(address_list, key=lambda x: Levenshtein.distance(input_address, x))
+    return sorted_addresses
 
 
 # 테스트
-test_address = "중앙로"
+analysis_keyword = "중아ㅇ로"
 
-predicted_address = predict_similar_address(test_address)
-print(f'입력 "{test_address}"에 대한 예측 결과: {predicted_address}')
+predicted_address = predict_similar_address(analysis_keyword)
+print(f'입력 "{analysis_keyword}"에 대한 예측 결과: {predicted_address}')
 
-top_predicted_addresses = predict_top_similar_addresses(test_address)
-print(f'입력 "{test_address}"에 대한 상위 5개 예측 결과:')
-for rank, addr in enumerate(top_predicted_addresses, start=1):
+top_similar_addresses = predict_top_similar_addresses(analysis_keyword)
+print(f'입력 "{analysis_keyword}"에 대한 상위 5개 예측 결과:')
+for rank, addr in enumerate(top_similar_addresses, start=1):
     print(f'{rank}. {addr}')
+
+# 리벤슈타인 거리로 정렬된 n개의 유사한 주소
+sorted_addresses = sort_addresses_by_levenshtein(analysis_keyword,  top_similar_addresses)
+print(f'\n리벤슈타인 거리로 재정렬된 유사한 주소:')
+for rank, addr in enumerate(sorted_addresses[:200], start=1):
+    distance = Levenshtein.distance(analysis_keyword, addr)
+    print(f'{rank}. {addr} (리벤슈타인 거리: {distance})')
+
+
+# 결과를 JSON 형식으로 호출서버에 전달
+result = {
+    "top_similar_addresses": [addr for addr in top_similar_addresses[:200]],
+    "sorted_addresses": [addr for addr in sorted_addresses[:200]]
+}
+
+# JSON 형식으로 출력
+print(json.dumps(result, ensure_ascii=False))

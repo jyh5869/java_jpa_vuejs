@@ -127,7 +127,7 @@ export default {
             darKYN: 'N',
             historyUseYn: this.$store.state.token != null ? true : false,
             showToast: false, //[토스트 표출 여부]
-            showHistory: true,
+            showHistory: false,
             toastData: {}, //[토스트창 정보]
             showSpinner: false,
             spinnerData: {},
