@@ -1,5 +1,6 @@
-import sys
 import re
+import os
+import sys
 
 import numpy as np
 import pandas as pd
@@ -93,14 +94,14 @@ def predict_similar_address(input_address):
     input_sequence = tokenizer.texts_to_sequences([input_processed])
     padded_input_sequence = pad_sequences(input_sequence, maxlen=max_length)
     predicted_probs = model.predict(padded_input_sequence)[0]
-    
+
     # 후처리: 입력 주소가 포함된 주소들이 높은 우선순위로 정렬
     predicted_indices = np.argsort(predicted_probs)[::-1]
     for idx in predicted_indices:
         predicted_address = addresses[idx]
         if input_address in predicted_address:
             return predicted_address
-    
+
     # 입력 주소가 포함된 주소가 없을 경우, 가장 높은 확률의 주소 반환
     predicted_index = predicted_indices[0]
     predicted_address = addresses[predicted_index]
@@ -128,7 +129,10 @@ def sort_addresses_by_levenshtein(input_address, address_list):
 
 
 # 테스트
-test_address = "중아ㅇ로"
+input_data = sys.argv
+input_keyword = sys.argv[1]
+default_keyword = sys.argv[2] if len(sys.argv[2]) > 0 else '노윈로'
+test_address = input_keyword if len(input_keyword) > 0 else default_keyword
 
 predicted_address = predict_similar_address(test_address)
 print(f'입력 "{test_address}"에 대한 예측 결과: {predicted_address}')
@@ -140,7 +144,7 @@ for rank, addr in enumerate(top_similar_addresses, start=1):
 
 # 리벤슈타인 거리로 정렬된 n개의 유사한 주소
 sorted_addresses = sort_addresses_by_levenshtein(test_address,  top_similar_addresses)
-print(f'\n리벤슈타인 거리로 재정렬된 유사한 주소:')
+print(f'\n입력 "{test_address}"에 대한 리벤슈타인 거리로 재정렬 된 유사한 주소:')
 for rank, addr in enumerate(sorted_addresses[:200], start=1):
     distance = Levenshtein.distance(test_address, addr)
     print(f'{rank}. {addr} (리벤슈타인 거리: {distance})')

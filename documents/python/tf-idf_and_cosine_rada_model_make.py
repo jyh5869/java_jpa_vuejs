@@ -1,4 +1,5 @@
-import os  # os 모듈 import
+import os  
+import sys
 
 import numpy as np
 import pandas as pd
@@ -86,7 +87,11 @@ def preprocess_address(address):
     return re.sub(pattern, '', address)
     
 # 테스트
-test_address = "노윈로"
+input_data = sys.argv
+input_keyword = sys.argv[1]
+default_keyword = sys.argv[2] if len(sys.argv[2]) > 0 else '노윈로'
+test_address = input_keyword if len(input_keyword) > 0 else default_keyword
+
 predicted_address, similarity = find_most_similar_address(test_address, addresses, tfidf_matrix)
 print(f'입력된  "{test_address}"에 대한 가장 유사한 주소: {predicted_address} (유사도: {similarity*100:.2f}%)')
 

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AnalyzeDTO {
 
-    private String inputKeyword;//입력 키워드
+    private String inputKeyword = "중앙로";//입력 키워드
 
 	private String defaultKeyword = "노윈로";//테스트 키워드
 

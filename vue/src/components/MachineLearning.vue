@@ -187,6 +187,7 @@ export default {
             dataList: [],
             dataListLev: [],
             searchKeyword: '',
+            defaultKeyword: '노원로',
             leaningDataType: 'FULL',
             leaningDataTypeView: false,
             leaningDataTypeArr: ['FULL', 'ROAD'],
@@ -217,23 +218,19 @@ export default {
                 this.leaningDataTypeView = false;
             }
         },
-        callGetAnalyzeKeywordWord2VecTrain: async function (keyword, analyzeType, leaningDataType) {
-            const result = await this.$axios({
-                method: 'GET',
-                url: '/api/noAuth/getAnalyzeKeywordWord2VecTrain',
-                params: {
-                    inputKeyword: keyword,
-                    analyzeType: analyzeType,
-                    leaningDataType: leaningDataType,
-                },
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-
-            if (result.status === 200) {
-                //this.id = result.data.id;
-                console.log(result);
+        checkForm: async function () {
+            let searchKeyword = this.searchKeyword;
+            if (searchKeyword == '' || searchKeyword == null) {
+                let confirmYn = confirm("키워드가 입력되지 않았습니다.\n기본키워드인 '" + this.defaultKeyword + "'로 훈련 및 호출 하시겠습니까?");
+                console.log(confirmYn);
+                if (confirmYn == true) {
+                    this.searchKeyword = this.defaultKeyword;
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return true;
             }
         },
         callgetAnalyzeKeyword: async function () {
@@ -273,6 +270,25 @@ export default {
                 }
 
                 this.toggleBusy(); //로딩 스피너 토글
+            }
+        },
+        callGetAnalyzeKeywordWord2VecTrain: async function (keyword, analyzeType, leaningDataType) {
+            const result = await this.$axios({
+                method: 'GET',
+                url: '/api/noAuth/getAnalyzeKeywordWord2VecTrain',
+                params: {
+                    inputKeyword: keyword,
+                    analyzeType: analyzeType,
+                    leaningDataType: leaningDataType,
+                },
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (result.status === 200) {
+                //this.id = result.data.id;
+                console.log(result);
             }
         },
         callGetAnalyzeKeywordLeven: async function () {
@@ -335,49 +351,6 @@ export default {
                 console.log(result);
             }
         },
-        tfIdfAndCosineRadaModelMake: async function () {
-            const result = await this.$axios({
-                method: 'GET',
-                url: '/api/noAuth/tfIdfAndCosineRadaModelMake',
-                params: {
-                    inputKeyword: '김해대로2431번길',
-                    analyzeType: 'model',
-                    correctionYN: 'N',
-                },
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-
-            if (result.status === 200) {
-                if (result.data.code == 'SUCESS01') {
-                    alert('Tf-Idf-Cosine 모델 훈련을 완료 했습니다.');
-                } else if (result.data.code == 'FAIL01') {
-                    alert('Tf-Idf-Cosine 모델을 훈련을 실패했습니다.');
-                } else {
-                    alert('Tf-Idf-Cosine 모델 훈련 중 알수없는 문제가 발생했습니다.');
-                }
-            }
-        },
-        tfIdfAndCosineRadaModelUse: async function () {
-            const result = await this.$axios({
-                method: 'GET',
-                url: '/api/noAuth/tfIdfAndCosineRadaModelUse',
-                params: {
-                    inputKeyword: '노윈로',
-                    analyzeType: 'vec',
-                    correctionYN: 'N',
-                },
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-
-            if (result.status === 200) {
-                this.dataList = result.data.resultMany; //데이터 세팅
-                this.dataListLev = result.data.resultManyLev;
-            }
-        },
         callTensorFlowJFastTextTrain: async function () {
             const result = await this.$axios({
                 method: 'GET',
@@ -397,49 +370,6 @@ export default {
                 console.log(result);
             }
         },
-        kerasModelMake: async function () {
-            const result = await this.$axios({
-                method: 'GET',
-                url: '/api/noAuth/kerasModelMake',
-                params: {
-                    inputKeyword: '김해대로2325번길',
-                    analyzeType: 'bin',
-                    correctionYN: 'N',
-                },
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-
-            if (result.status === 200) {
-                if (result.data.code == 'SUCESS01') {
-                    alert('Keras 모델 훈련을 완료 했습니다.');
-                } else if (result.data.code == 'FAIL01') {
-                    alert('Keras 모델을 훈련을 실패했습니다.');
-                } else {
-                    alert('Keras 모델 훈련 중 알수없는 문제가 발생했습니다.');
-                }
-            }
-        },
-        kerasModelUse: async function () {
-            const result = await this.$axios({
-                method: 'GET',
-                url: '/api/noAuth/kerasModelUse',
-                params: {
-                    inputKeyword: '김해대로2325번길',
-                    analyzeType: 'bin',
-                    correctionYN: 'N',
-                },
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-
-            if (result.status === 200) {
-                this.dataList = result.data.resultMany; //데이터 세팅
-                this.dataListLev = result.data.resultManyLev;
-            }
-        },
         callTensorFlowJFastTextTest: async function () {
             const result = await this.$axios({
                 method: 'GET',
@@ -457,6 +387,112 @@ export default {
             if (result.status === 200) {
                 //this.id = result.data.id;
                 console.log(result);
+            }
+        },
+        tfIdfAndCosineRadaModelMake: async function () {
+            if ((await this.checkForm()) == true) {
+                const result = await this.$axios({
+                    method: 'GET',
+                    url: '/api/noAuth/tfIdfAndCosineRadaModelMake',
+                    params: {
+                        inputKeyword: this.searchKeyword,
+                        analyzeType: 'model',
+                        correctionYN: 'N',
+                    },
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+
+                if (result.status === 200) {
+                    if (result.data.code == 'SUCESS01') {
+                        alert('Tf-Idf-Cosine 모델 훈련을 완료 했습니다.');
+                    } else if (result.data.code == 'FAIL01') {
+                        alert('Tf-Idf-Cosine 모델을 훈련을 실패했습니다.');
+                    } else {
+                        alert('Tf-Idf-Cosine 모델 훈련 중 알수없는 문제가 발생했습니다.');
+                    }
+                }
+            }
+        },
+        tfIdfAndCosineRadaModelUse: async function () {
+            if ((await this.checkForm()) == true) {
+                const result = await this.$axios({
+                    method: 'GET',
+                    url: '/api/noAuth/tfIdfAndCosineRadaModelUse',
+                    params: {
+                        inputKeyword: this.searchKeyword,
+                        analyzeType: 'vec',
+                        correctionYN: 'N',
+                    },
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+
+                if (result.status === 200) {
+                    if (result.data.code == 'SUCESS01') {
+                        this.dataList = result.data.resultMany;
+                        this.dataListLev = result.data.resultManyLev;
+                    } else if (result.data.code == 'FAIL01') {
+                        alert('Tf-Idf-Cosine 모델 호출에 실패했습니다.');
+                    } else {
+                        alert('Tf-Idf-Cosine 모델 호출 중 알수없는 문제가 발생했습니다.');
+                    }
+                }
+            }
+        },
+        kerasModelMake: async function () {
+            if ((await this.checkForm()) == true) {
+                const result = await this.$axios({
+                    method: 'GET',
+                    url: '/api/noAuth/kerasModelMake',
+                    params: {
+                        inputKeyword: this.searchKeyword,
+                        analyzeType: 'bin',
+                        correctionYN: 'N',
+                    },
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+
+                if (result.status === 200) {
+                    if (result.data.code == 'SUCESS01') {
+                        alert('Keras 모델 훈련을 완료 했습니다.');
+                    } else if (result.data.code == 'FAIL01') {
+                        alert('Keras 모델을 훈련을 실패했습니다.');
+                    } else {
+                        alert('Keras 모델 훈련 중 알수없는 문제가 발생했습니다.');
+                    }
+                }
+            }
+        },
+        kerasModelUse: async function () {
+            if ((await this.checkForm()) == true) {
+                const result = await this.$axios({
+                    method: 'GET',
+                    url: '/api/noAuth/kerasModelUse',
+                    params: {
+                        inputKeyword: this.searchKeyword,
+                        analyzeType: 'bin',
+                        correctionYN: 'N',
+                    },
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+
+                if (result.status === 200) {
+                    if (result.data.code == 'SUCESS01') {
+                        this.dataList = result.data.resultMany;
+                        this.dataListLev = result.data.resultManyLev;
+                    } else if (result.data.code == 'FAIL01') {
+                        alert('Keras 모델 호출에 실패했습니다.');
+                    } else {
+                        alert('Keras 모델 호출 중 알수없는 문제가 발생했습니다.');
+                    }
+                }
             }
         },
     },

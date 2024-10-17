@@ -50,6 +50,8 @@ public class tensorflowPython {
 
         int exitCode = 9999;// 모델 생성 스크립트 실행 결과 정수
         String exitCodeRes = null;// 모델 생성 스크립트 실행 결과 문자
+        String inputKeyword = analyzeDTO.getInputKeyword();// 입력 키워드
+        String defaultKeyword = analyzeDTO.getDefaultKeyword();// 디폴트 키워드
 
         Map<String, Object> retMap = new HashMap<String, Object>();
         
@@ -57,7 +59,7 @@ public class tensorflowPython {
             String pythonScriptPath = MAKE_MODEL_TF_IDF_AND_COSINE;
 
             // ProcessBuilder를 사용하여 Python 스크립트 실행
-            ProcessBuilder pb = new ProcessBuilder("python", pythonScriptPath);
+            ProcessBuilder pb = new ProcessBuilder("python", pythonScriptPath, inputKeyword, defaultKeyword);
             Process process = pb.start();
 
             // 프로세스의 출력을 읽어오기 위한 BufferedReader 설정
@@ -148,6 +150,7 @@ public class tensorflowPython {
             } 
 
             retMap.put("code", exitCodeRes);
+            retMap.put("searchkeyword", inputKeyword);
             retMap.put("resultMany", resultMany);
             retMap.put("resultManyLev", resultManyLev);
 
@@ -173,6 +176,8 @@ public class tensorflowPython {
 
         int exitCode = 9999;// 모델 생성 스크립트 실행 결과 정수
         String exitCodeRes = null;// 모델 생성 스크립트 실행 결과 문자
+        String inputKeyword = analyzeDTO.getInputKeyword();// 입력 키워드
+        String defaultKeyword = analyzeDTO.getDefaultKeyword();// 디폴트 키워드
 
         Map<String, Object> retMap = new HashMap<String, Object>();
 
@@ -181,7 +186,7 @@ public class tensorflowPython {
             String pythonScriptPath = MAKE_MODEL_KERAS;
 
             // ProcessBuilder를 사용하여 Python 스크립트 실행
-            ProcessBuilder pb = new ProcessBuilder("python", pythonScriptPath);
+            ProcessBuilder pb = new ProcessBuilder("python", pythonScriptPath, inputKeyword, defaultKeyword);
             Process process = pb.start();
 
             // 프로세스의 출력을 읽어오기 위한 BufferedReader 설정
@@ -233,7 +238,7 @@ public class tensorflowPython {
             String pythonScriptPath = USE_MODEL_KERAS;
 
             // ProcessBuilder를 사용하여 Python 스크립트 실행
-            ProcessBuilder pb = new ProcessBuilder("python", pythonScriptPath);
+            ProcessBuilder pb = new ProcessBuilder("python", pythonScriptPath, inputKeyword, defaultKeyword);
             Process process = pb.start();
 
             // 프로세스의 출력을 읽어오기 위한 BufferedReader 설정
@@ -270,6 +275,7 @@ public class tensorflowPython {
             } 
 
             retMap.put("code", exitCodeRes);
+            retMap.put("searchkeyword", inputKeyword);
             retMap.put("resultMany", resultMany);
             retMap.put("resultManyLev", resultManyLev);
 
