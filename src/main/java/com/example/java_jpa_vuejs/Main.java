@@ -49,8 +49,8 @@ public class Main {
                 DateUtil.durationTime ("end", "JPA 테스트", reqTime, "Complete" );
             }
             catch (Exception e) {
-                
-                DateUtil.durationTime ("end", "JPA 테스트", reqTime, "Fail" );
+                DateUtil.durationTime ("end", 
+                "JPA 테스트", reqTime, "Fail" );
                 e.printStackTrace();
             }
         };
