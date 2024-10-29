@@ -50,15 +50,28 @@ dense = Dense(embedding_dim, activation='linear')(lstm_out)
 model = tf.keras.Model(inputs=input_text, outputs=dense)
 model.compile(optimizer='adam', loss='mse')
 
-# 4. 모델을 학습 없이 벡터화에만 사용합니다.
-road_vectors = model.predict(road_padded)
+
 
 # 모델 저장 경로
 model_save_path = 'C:/Users/all4land/Desktop/road_similarity_model_keras.h5'
+model_config_save_path =  'C:/Users/all4land/Desktop/road_similarity_model_keras_conf.json'
+model_vectors_save_path =  'C:/Users/all4land/Desktop/road_similarity_model_keras_vectors.npy'
+
+
+# 4. 모델을 학습 없이 벡터화에만 사용합니다.
+road_vectors = model.predict(road_padded)
+
+# 백터데이터 저장
+np.save(model_vectors_save_path, road_vectors)  # Numpy 파일로 저장
+
 
 # 모델 저장
 model.save(model_save_path)
 print(f"모델이 '{model_save_path}'에 저장되었습니다.")
+
+# 모델 학습 후 max_len 저장
+with open(model_config_save_path, 'w') as f:
+    json.dump({'max_len': max_len}, f)
 
 # 모델 불러오기
 loaded_model = tf.keras.models.load_model(model_save_path)
