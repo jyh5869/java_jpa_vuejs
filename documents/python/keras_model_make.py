@@ -51,7 +51,6 @@ model = tf.keras.Model(inputs=input_text, outputs=dense)
 model.compile(optimizer='adam', loss='mse')
 
 
-
 # 모델 저장 경로
 model_save_path = 'C:/Users/all4land/Desktop/road_similarity_model_keras.h5'
 model_config_save_path =  'C:/Users/all4land/Desktop/road_similarity_model_keras_conf.json'
