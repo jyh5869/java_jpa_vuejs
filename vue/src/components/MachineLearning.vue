@@ -222,7 +222,7 @@ export default {
             let searchKeyword = this.searchKeyword;
             if (searchKeyword == '' || searchKeyword == null) {
                 let confirmYn = confirm("키워드가 입력되지 않았습니다.\n기본키워드인 '" + this.defaultKeyword + "'로 훈련 및 호출 하시겠습니까?");
-                console.log(confirmYn);
+                console.log(confirmYn + ' ');
                 if (confirmYn == true) {
                     this.searchKeyword = this.defaultKeyword;
                     return true;
