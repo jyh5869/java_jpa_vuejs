@@ -56,7 +56,8 @@ def find_top_n_similar_addresses(input_address, addresses, tfidf_matrix, top_n=2
 def sort_addresses_by_levenshtein(input_address, address_list):
     
     sorted_addresses = sorted(address_list, key=lambda x: Levenshtein.distance(input_address, x))
-    return sorted_addresses
+    
+    return [(addr, Levenshtein.distance(input_address, addr)) for addr in sorted_addresses]
 
 #  주소데이터를 백터화 한 후 저장하는 함수
 def make_address_dump():
@@ -117,8 +118,8 @@ for rank, addr in enumerate(sorted_addresses[:200], start=1):
 
 # 결과를 JSON 형식으로 호출서버에 전달
 result = {
-    "top_similar_addresses": [addr for addr in top_similar_addresses[:200]],
-    "sorted_addresses": [addr for addr in sorted_addresses[:200]]
+    "top_similar_addresses": [{"address": addr, "score": distance} for addr, distance in top_similar_addresses[:200]],
+    "sorted_addresses": [{"address": addr, "distance": distance} for addr, distance in sorted_addresses[:200]]
 }
 
 # JSON 형식으로 출력

@@ -101,24 +101,63 @@
         </div>
 
         <!-- Results Section -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card mb-4">
-                    <div class="card-body py-1">
-                        <h5 class="card-title pt-2">분석결과</h5>
-                        <ul class="list-group">
-                            <li class="list-group-item" v-for="(item, index) in dataList" :key="index">{{ item }}</li>
-                        </ul>
+        <div class="analysis_result_wrap" v-if="this.analyzerType == 'Cosign'">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-body py-1">
+                            <h5 class="card-title pt-2">Cosign 분석결과</h5>
+                            <ul class="list-group">
+                                <li class="list-group-item" v-for="(item, index) in dataList" :key="index">
+                                    <div class="index">{{ index + 1 }}.</div>
+                                    <div class="contents">
+                                        <div>단어 : {{ item.address }}</div>
+                                        <div>점수 : {{ item.score }}</div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-body py-1">
+                            <h5 class="card-title pt-2">리벤슈타인 계산결과</h5>
+                            <ul class="list-group">
+                                <li class="list-group-item" v-for="(item, index) in dataListLev" :key="index">
+                                    <div class="index">{{ index + 1 }}.</div>
+                                    <div class="contents">
+                                        <div>단어 : {{ item.address }}</div>
+                                        <div>점수 : {{ item.distance }}</div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card mb-4">
-                    <div class="card-body py-1">
-                        <h5 class="card-title pt-2">리벤슈타인 계산결과</h5>
-                        <ul class="list-group">
-                            <li class="list-group-item" v-for="(item, index) in dataListLev" :key="index">{{ item }}</li>
-                        </ul>
+        </div>
+
+        <div v-if="this.analyzerType == 'Keras' || this.analyzerType == 'Word2Vec' || this.analyzerType == 'FastText'">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-body py-1">
+                            <h5 class="card-title pt-2">{{ this.analyzerType }} 분석결과</h5>
+                            <ul class="list-group">
+                                <li class="list-group-item" v-for="(item, index) in dataList" :key="index">{{ item }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-body py-1">
+                            <h5 class="card-title pt-2">리벤슈타인 계산결과</h5>
+                            <ul class="list-group">
+                                <li class="list-group-item" v-for="(item, index) in dataListLev" :key="index">{{ item }}</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -240,7 +279,7 @@ export default {
                 url = '/api/noAuth/getAnalyzeKeyword'; //Word2Vec Model
             } else if (this.analyzerType == 'FastText') {
                 url = '/api/noAuth/getAnalyzeKeywordJFastTest'; //FastText Model
-            } else if (this.analyzerType == 'Cosine') {
+            } else if (this.analyzerType == 'Cosign') {
                 url = '/api/noAuth/tfIdfAndCosineRadaModelUse'; //Cosine Model
             } else if (this.analyzerType == 'Keras') {
                 url = '/api/noAuth/kerasModelUse'; //Keras Model
@@ -262,8 +301,21 @@ export default {
             });
 
             if (result.status === 200) {
-                this.dataList = result.data.resultMany; //데이터 세팅
-                this.dataListLev = result.data.resultManyLev;
+                console.log(this.analyzerType);
+                if (this.analyzerType == 'Word2Vec') {
+                    this.dataList = result.data.resultMany;
+                    this.dataListLev = result.data.resultManyLev;
+                } else if (this.analyzerType == 'FastText') {
+                    this.dataList = result.data.resultMany;
+                    this.dataListLev = result.data.resultManyLev;
+                } else if (this.analyzerType == 'Cosign') {
+                    //let resultManyArr = result.data.resultMany;
+                    this.dataList = result.data.resultMany;
+                    this.dataListLev = result.data.resultManyLev;
+                } else if (this.analyzerType == 'Keras') {
+                    this.dataList = result.data.resultMany;
+                    this.dataListLev = result.data.resultManyLev;
+                }
 
                 if (result.data.code == 'SUCESS03') {
                     alert('모델을 테스트 할 수 없는 환경에서 서버가 구동되었습니다');
@@ -519,6 +571,31 @@ a {
 ul.btn-wrap li {
     width: 45%;
 }
+
+.analysis_result_wrap .list-group-item {
+    display: flex;
+    font-size: 16px;
+}
+
+.analysis_result_wrap .list-group-item .index {
+    width: calc(13% + 5px);
+    text-align: center;
+    line-height: 50px;
+}
+
+.analysis_result_wrap .list-group-item .contents {
+    text-align: left;
+    padding-left: 10px;
+    line-height: 25px;
+    /*margin: 0 auto;*/
+}
+
+@media (max-width: 990px) {
+    .analysis_result_wrap .list-group-item {
+        font-size: 14px;
+    }
+}
+
 @media (max-width: 663px) {
     ul.btn-wrap li {
         width: 100%;
