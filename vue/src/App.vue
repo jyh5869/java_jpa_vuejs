@@ -235,7 +235,7 @@ export default {
 }
 
 #dataContainer img {
-    width: 9.5%;
+    width: 50px;
 }
 
 #main {
