@@ -81,8 +81,9 @@ analysis_keyword = input_keyword if len(input_keyword) > 0 else default_keyword
 # 6. 예시 입력과 유사한 도로명 찾기
 top_similar_addresses = find_similar_roads(analysis_keyword, top_k=400)
 print(f"입력값 '{analysis_keyword}'와 유사한 도로명:")
-for rank, road in enumerate(top_similar_addresses[:100], start=1):
-    print(f'{rank}. {road}')
+for rank, (road, score) in enumerate(top_similar_addresses[:100], start=1):
+    print(f'{rank}. {road} (유사도: {score:.4f})')
+
 
 # 리벤슈타인 거리로 정렬된 n개의 유사한 주소
 sorted_addresses = sort_addresses_by_levenshtein(analysis_keyword, top_similar_addresses)

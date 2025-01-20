@@ -109,7 +109,7 @@ public class GeomBoardController {
     */
     @GetMapping(value = {"/getGeomBoard"})
     public List<Map<String, Object>> getGeomBoard(@Valid BoardDto boardDTO) throws Exception {
-
+        System.out.println("★★★★★★★★★★" + boardDTO.getBoardSq());
         List<Map<String, Object>> list = boardFirebaseService.getGeomData(Integer.parseInt(boardDTO.getBoardSq()));
 
         return list;
