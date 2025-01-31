@@ -33,7 +33,7 @@ dependencies {
 
 	//스프링부트 java 변경시 자동 빌드
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	
+					 	
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
@@ -108,7 +108,13 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    // 빌드 캐시를 활성화하여 빠르게 빌드를 실행
+    options.incremental = true
+}
 
 bootJar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
+

@@ -20,6 +20,7 @@
 <template>
     <br /><br />
 
+    <!-- 로그인 start -->
     <div class="wrapper fadeInDown" v-show="signIn">
         <div id="formContent">
             <!-- Icon -->
@@ -37,6 +38,9 @@
             <div id="formFooter"><a class="underlineHover" href="javascript:void('0');" @click="sendAuthEmail('changeInfo')">Forgot Password?!</a></div>
         </div>
     </div>
+    <!-- 로그인 end -->
+
+    <!-- 회원 가입및 정보수정 start -->
     <div class="wrapper fadeInDown" v-show="signUpAndModify">
         <div id="formContent">
             <!-- Icon -->
@@ -87,6 +91,9 @@
             </div>
         </div>
     </div>
+    <!-- 회원 가입및 정보수정 end -->
+
+    <!-- 주소검색 팝업창 start-->
     <div class="addrSearch-wrap">
         <div class="addrSearchResult-wrap" v-if="addrSearchView == true">
             <div class="row">
@@ -111,6 +118,7 @@
             </div>
         </div>
     </div>
+    <!-- 주소검색 팝업창 end-->
 </template>
 
 <!-- [개별 스크립트 설정 실시] -->
@@ -196,7 +204,7 @@ export default {
                 //login 처리 후 순차실행을 위한 비동기처리(await 대상 함수 - login 함수에서도 비동기(프로미스)를 리턴할 수있도록 되어있어야 정상 순차동작)
                 let result = await this.$store.dispatch('login', { id, password });
                 if (result == 'SUCCESS') {
-                    await this.$emit('data-to-parent', { historyUseYn: true, showToast: true, toast: { title: '로그인 성공', body: id + '님 환영합니다.', variant: 'primary' } });
+                    await this.$emit('toast-to-parent', { historyUseYn: true, showHistory: false, showToast: true, toast: { title: '로그인 성공', body: id + '님 환영합니다.', variant: 'primary' } });
                 }
             } else {
                 alert('아이디 또는 비밀번호가 입력되지 않았습니다.\n 확인 후 다시 시도해 주세요.');
@@ -362,7 +370,7 @@ export default {
                     errorMsg = '업데이트(' + actionType + ') 성공  Communication Code = ' + result.status + ' (' + updateCnt + '건)';
                     alert(errorMsg);
 
-                    await this.$emit('data-to-parent', { showToast: true, toast: { title: '정보변경 성공', body: '회원 정보가 변경되었습니다.', variant: 'warning' } });
+                    await this.$emit('toast-to-parent', { showToast: true, toast: { title: '정보변경 성공', body: '회원 정보가 변경되었습니다.', variant: 'warning' } });
                     //통신이 성공적이고 변경 건수가 0이 아닌 경우 메인으로 이동
                     this.$router.push({
                         name: 'BoardList',
@@ -555,7 +563,7 @@ export default {
 
                     //통신이 성공적이고 변경 건수가 0이 아닌 경우 로그아웃 처리 후 메인으로 이동
                     this.$store.dispatch('logout');
-                    await this.$emit('data-to-parent', { dfsdfsdf: true, toast: { title: '로그인 성공', body: id + '님 환영합니다.', variant: 'primary' } });
+                    await this.$emit('toast-to-parent', { toast: { title: '로그인 성공', body: id + '님 환영합니다.', variant: 'primary' } });
                 } else {
                     errorMsg = '업데이트(' + actionType + ') 실패  Communication Code = ' + result.status + '\n';
 

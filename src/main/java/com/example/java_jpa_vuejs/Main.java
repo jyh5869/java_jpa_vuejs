@@ -40,7 +40,7 @@ public class Main {
     public CommandLineRunner demo(MemberRepository repository) throws InterruptedException {
 
         long reqTime = DateUtil.durationTime ("start", "JPA 테스트", 0, "Proceeding" );
-        
+
         return (args) -> {
             try {             
 

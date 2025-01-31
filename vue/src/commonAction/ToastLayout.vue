@@ -184,7 +184,6 @@ export default {
                 try {
                     let data = JSON.parse(decodeURIComponent(parts.pop().split(';').shift()));
 
-                    console.log(data.length);
                     /*
                     //1. Foreach를 사용해 토스트의 유저정보와 현재 유저정보를 비교하여 동일한 데이터만 파싱
                     data.forEach((element, index) => {

@@ -65,7 +65,7 @@
     <!-- [토스트 창과 작업 히스토리 관리 컴포넌트] -->
     <b-row>
         <b-col cols="4">
-            <ToastLayout :showToastProp="showToast" :toastDataProp="toastData" :showHistoryProp="showHistory" :historyUseYnProp="historyUseYn" />
+            <ToastLayout :historyUseYnProp="historyUseYn" :showHistoryProp="showHistory" :showToastProp="showToast" :toastDataProp="toastData" />
         </b-col>
         <b-col cols="6"></b-col>
     </b-row>
@@ -85,7 +85,7 @@
             <SideLLayout v-if="dataRight.length != 0" :parsingList="dataRight" />
         </b-col>
         <b-col cols="8">
-            <router-view :key="$route.fullPath" @data-to-parent="receiveDataFromChild" />
+            <router-view :key="$route.fullPath" @data-to-parent="receiveDataFromChild" @toast-to-parent="receiveDataFromChildToast" />
         </b-col>
         <b-col cols="2">
             <LoadingSpinner v-if="showSpinner == true" :spinnerDataProp="spinnerData" :showSpinnerProp="showSpinner" />
@@ -158,12 +158,30 @@ export default {
                 this.darKYN = null;
             }
 
-            //2.히스토리 활성화 여부
-            if (data.historyUseYn != undefined) {
-                //this.historyUseYn = data.historyUseYn;
-                this.showHistory = true;
+            //3.로딩 스피너 컴포넌트 컨트롤
+            if (data.showSpinner != undefined) {
+                this.showSpinner = data.showSpinner;
             }
-            //히스토리 조회를 위한 토스트창
+            if (data.spinnerData != undefined) {
+                this.spinnerData = data.spinnerData;
+            }
+        },
+
+        //1. 히스토리 서비스 컴포넌트 컨트롤
+        receiveDataFromChildToast(data) {
+            console.log('User logged out!', data);
+
+            //히스토리 서비스 활성화 여부 1. true : 히스토리 열기 상태 / 2. false : 히스토리 닫기 상태
+            if (data.historyUseYn != undefined) {
+                this.historyUseYn = data.historyUseYn;
+            }
+
+            //히스토리 리스트 표출 여부
+            if (data.showHistory != undefined) {
+                this.showHistory = data.showHistory;
+            }
+
+            //히스토리 서비스의 토스트 표출을 위한 데이터
             if (data.toast != undefined) {
                 this.toastData = {
                     delay: 3000,
@@ -177,6 +195,7 @@ export default {
                     body: data.toast.body,
                 };
             }
+
             //Toast 상태를 변경하기 전에 일단 false로 초기화
             this.showToast = false;
             //강제로 reactivity 트리거하기 위해 다음 tick에서 showToast를 true로 변경
@@ -186,20 +205,21 @@ export default {
                     this.showToast = data.showToast;
                 }
             });
-
-            //3.로딩 스피너 컴포넌트 컨트롤
-            if (data.showSpinner != undefined) {
-                this.showSpinner = data.showSpinner;
-            }
-            if (data.spinnerData != undefined) {
-                this.spinnerData = data.spinnerData;
-            }
         },
         //자식 컴포넌트에서 전달된 데이터에 따른 동적 실행(헤더 로그아웃)
         handleUserLogout(data) {
             console.log('User logged out!', data);
 
-            //1.로그아웃 토스트
+            //히스토리 버튼  표출여부(false)
+            this.historyUseYn = data.historyUseYn;
+
+            //히스토리 표출 여부(false)
+            this.showHistory = data.showHistory;
+
+            //토스트 표출 여부(true)
+            this.showToast = data.showToast;
+
+            //표출될 로그아웃 토스트 내용
             if (data.toast != undefined) {
                 this.toastData = {
                     delay: 3000,
@@ -213,10 +233,6 @@ export default {
                     body: data.toast.body,
                 };
             }
-            //히스토리 숨기기
-            this.showHistory = false;
-            //히스토리 버튼 숨기기
-            //this.HistoryUseYn = false;
         },
     },
 };

@@ -1,0 +1,38 @@
+★★★ VSCode의 setting.json 파일 세팅 파일 ★★★
+
+경로 : C:\Users\all4land\AppData\Roaming\Code\User\setting.json
+
+{ 
+    "git.autofetch": true,
+    "diffEditor.ignoreTrimWhitespace": false,
+    "boot-java.rewrite.reconcile": true,
+    "editor.indentSize": 4,
+    "editor.tabSize": 4,
+    "editor.formatOnSave": true,
+    "[vue]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.indentSize": 4,
+        "editor.tabSize": 4
+    },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.indentSize": 4,
+        "editor.tabSize": 4
+    },
+    "[java]": {
+        "editor.defaultFormatter": "redhat.java"
+    },
+    "java.format.enabled": false,
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "workbench.statusBar.visible": false,
+    "files.autoSave": "afterDelay", //자동저장 옵션
+    "files.autoSaveDelay": 1000, // 자동저장 딜레이
+    "java.autobuild.enabled": true, // 자바 자동빌드 여부
+    "java.saveActions.organizeImports": true,// 자바 자동 임포트 여부
+    "update.mode": "none"  // 플러그인 자동업데이트 여부
+}
