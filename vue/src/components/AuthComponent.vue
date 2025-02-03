@@ -50,7 +50,7 @@
             </div>
 
             <!-- Login Form -->
-            <input type="text" id="userId" class="fadeIn second" name="userId" v-model="user" placeholder="User Id" @keyup="idValidation()" :disabled="accessType == 'MODIFY'" />
+            <input type="text" id="userId" class="fadeIn second" name="userId" placeholder="User Id" v-model="user" @keyup="idValidation()" :disabled="accessType == 'MODIFY'" />
             <p class="text-success sm" v-if="idValidationMsg != ''">{{ idValidationMsg }}</p>
 
             <div v-if="accessType == 'SIGNUP'">
@@ -67,8 +67,8 @@
                     <p class="text-success sm">이메일 인증이 완료되었습니다!</p>
                 </div>
             </div>
-            <input type="text" id="password1" class="fadeIn third" name="password1" v-model="password" placeholder="Password1" @keyup="pwValidation()" />
-            <input type="text" id="password2" class="fadeIn third" name="password2" v-model="password2" placeholder="Password2" @keyup="pwValidation()" />
+            <input type="text" id="password1" class="fadeIn third" name="password1" v-model="password" placeholder="Password1" @keyup="pwValidation()" autocomplete="new-password" />
+            <input type="text" id="password2" class="fadeIn third" name="password2" v-model="password2" placeholder="Password2" @keyup="pwValidation()" autocomplete="new-password" />
             <p class="text sm" v-if="pwValidationMsg != ''">{{ pwValidationMsg }}</p>
 
             <input type="text" id="address" class="fadeIn third" name="address" v-model="address" placeholder="Address" />
@@ -192,11 +192,29 @@ export default {
             addrSearchView: false,
         };
     },
-    mounted() {},
+    mounted() {
+        this.initInputValue();
+    },
     // [메소드 정의 실시] https://codesandbox.io/examples/package/vue3-openlayers
     methods: {
+        initInputValue() {
+            //모든 input 요소를 선택
+            let inputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="password"]');
+
+            //각 input 필드를 공백으로 초기화
+            inputs.forEach((input) => {
+                input.value = ' '; // 공백으로 초기화
+            });
+
+            //각 input 필드를 빈 값으로 초기화
+            this.$nextTick(() => {
+                inputs.forEach((input) => {
+                    input.value = ''; // 빈 문자열로 다시 초기화
+                });
+            });
+        },
         login: async function () {
-            // 아이디와 패스워드 입력여부 확인
+            //아이디와 패스워드 입력여부 확인
             if (this.user && this.password) {
                 var id = this.user; // 아이디
                 var password = this.password; // 비밀번호
@@ -742,6 +760,7 @@ export default {
             if (result.status === 200) {
                 if (result.data.code == 'SUCESS03') {
                     alert('모델을 테스트 할 수 없는 환경에서 서버가 구동되었습니다');
+                    this.$emit('data-to-parent', { showSpinner: false });
                 } else {
                     this.$emit('data-to-parent', { darkYN: 'Y', showSpinner: false, dataRight: ['유사 도로', result.data.resultMany], dataLeft: ['단어 거리계산', result.data.resultManyLev] });
                 }
