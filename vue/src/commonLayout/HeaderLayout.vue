@@ -70,10 +70,10 @@
                     </li>
                     -->
                 </ul>
-                <form class="d-flex">
+                <div class="d-flex">
                     <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
-                    <button class="btn btn-outline-success" type="submit">Search</button>
-                </form>
+                    <button class="btn btn-outline-success" @click="totalSearch()">Search</button>
+                </div>
 
                 <div class="btn-wrap navbar-nav mb-2 mb-lg-0" v-if="this.$store.getters.token == null">
                     <router-link class="btn login btn-outline-primary" :to="{ name: 'auth', query: { accessType: 'SIGNIN' } }">Login</router-link>
@@ -131,6 +131,20 @@ export default {
                 return false;
             }
             return true;
+        },
+        totalSearch: function () {
+            let result = this.$axios({
+                method: 'post',
+                url: '/api/userRegistration',
+                params: {
+                    keyword: '',
+                },
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            console.log(result);
         },
     },
 };

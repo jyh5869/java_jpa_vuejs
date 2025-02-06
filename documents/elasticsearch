@@ -1,0 +1,17 @@
+sudo service elasticsearch stop
+sudo service elasticsearch start
+
+# 모든 계정에 패스워드 지정
+elasticsearch-reset-password -u elastic
+
+
+
+경로 : C:\Users\all4land\Desktop\dev_opensource\elasticsearch-8.7.0\config
+
+# SSL과 관련된 설정 비활성화
+xpack.security.enabled: false
+xpack.security.transport.ssl.enabled: false
+xpack.security.http.ssl.enabled: false
+
+# HTTP와 HTTPS를 모두 사용 가능하게 설정하려면 아래와 같이 수정
+network.host: 0.0.0.0  # 모든 IP에서 접근 가능하게 설정
