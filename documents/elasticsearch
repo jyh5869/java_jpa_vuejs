@@ -1,10 +1,14 @@
+# 리눅스 서버 기동 및 종료
 sudo service elasticsearch stop
 sudo service elasticsearch start
+sudo service elasticsearch restart
+
+# 윈도우 서버 기동및 종료
+net stop elasticsearch
+net start elasticsearch
 
 # 모든 계정에 패스워드 지정
 elasticsearch-reset-password -u elastic
-
-
 
 경로 : C:\Users\all4land\Desktop\dev_opensource\elasticsearch-8.7.0\config
 
@@ -15,3 +19,55 @@ xpack.security.http.ssl.enabled: false
 
 # HTTP와 HTTPS를 모두 사용 가능하게 설정하려면 아래와 같이 수정
 network.host: 0.0.0.0  # 모든 IP에서 접근 가능하게 설정
+
+# 한글 색인을 위한 노리 플러그인 설치
+C:\Users\all4land\Desktop\dev_opensource\elasticsearch-8.7.0\bin> elasticsearch-plugin install analysis-nori
+
+
+# 클러스터 상태 확인
+curl -X GET "http://localhost:9200/_cluster/health?pretty"
+curl -u elastic:78keTToBM+ALeGD5AOD7 -X GET "http://localhost:9200/_cluster/health?pretty"
+curl -u elastic:78keTToBM+ALeGD5AOD7 -X PUT "http://localhost:9200/geometry_board" -H "Content-Type: application/json" -d "{
+  \"settings\": {
+    \"number_of_shards\": 1,
+    \"number_of_replicas\": 0
+  },
+  \"mappings\": {
+    \"properties\": {
+      \"id\": {
+        \"type\": \"keyword\"
+      },
+      \"tableId\": {
+        \"type\": \"long\"
+      },
+      \"title\": {
+        \"type\": \"text\",
+        \"analyzer\": \"nori\"
+      },
+      \"contents\": {
+        \"type\": \"text\",
+        \"analyzer\": \"nori\"
+      },
+      \"category\": {
+        \"type\": \"keyword\"
+      },
+      \"tags\": {
+        \"type\": \"nested\",
+        \"properties\": {
+          \"tagName\": { \"type\": \"keyword\" },
+          \"tagValue\": { \"type\": \"keyword\" }
+        }
+      },
+      \"searchKeys\": {
+        \"type\": \"nested\",
+        \"properties\": {
+          \"keyName\": { \"type\": \"keyword\" },
+          \"keyValue\": { \"type\": \"keyword\" }
+        }
+      }
+    }
+  }
+}"
+
+
+curl -u elastic:78keTToBM+ALeGD5AOD7 -X GET "http://localhost:9200/_cat/indices?v"

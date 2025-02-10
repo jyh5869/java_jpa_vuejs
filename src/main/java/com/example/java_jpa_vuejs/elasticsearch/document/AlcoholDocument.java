@@ -14,17 +14,20 @@ import java.util.List;
 
 @Getter
 @Setter
-@Document(indexName = "alcohols")
+@Document(indexName = "geometry_board")
 @Setting(replicas = 0)
 public class AlcoholDocument {
     @Id
     private String id;
 
     @Field(type = FieldType.Long, index = false, docValues = false)
-    private Long alcoholId;
+    private Long tableId;
 
     @Field(type = FieldType.Text, analyzer = "nori")
     private String title;
+
+    @Field(type = FieldType.Text, analyzer = "nori")
+    private String contents;
 
     @Field(type = FieldType.Keyword, index = false, docValues = false)
     private String category;
