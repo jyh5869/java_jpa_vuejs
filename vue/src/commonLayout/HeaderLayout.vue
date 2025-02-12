@@ -135,7 +135,7 @@ export default {
         totalSearch: function () {
             let result = this.$axios({
                 method: 'post',
-                url: '/api/userRegistration',
+                url: '/api/setSearchData',
                 params: {
                     keyword: '',
                 },
