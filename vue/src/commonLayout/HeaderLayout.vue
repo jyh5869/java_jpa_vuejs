@@ -134,8 +134,9 @@ export default {
         },
         totalSearch: function () {
             let result = this.$axios({
-                method: 'post',
-                url: '/api/setSearchData',
+                method: 'get',
+                //url: '/api/setSearchData',
+                url: '/api/getSearchData',
                 params: {
                     keyword: '',
                 },
@@ -144,7 +145,9 @@ export default {
                 },
             });
 
-            console.log(result);
+            if (result.status === 200) {
+                console.log(result);
+            }
         },
     },
 };

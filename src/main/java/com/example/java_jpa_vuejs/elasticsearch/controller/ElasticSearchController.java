@@ -9,6 +9,8 @@ import java.util.Iterator;
 
 import java.net.URLDecoder;
 
+import org.springframework.data.elasticsearch.core.SearchHit;
+import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +23,7 @@ import com.example.java_jpa_vuejs.common.utility.PaginationAsyncPageable;
 import com.example.java_jpa_vuejs.elasticsearch.document.AlcSearchKeyDocument;
 import com.example.java_jpa_vuejs.elasticsearch.document.AlcoholDocument;
 import com.example.java_jpa_vuejs.elasticsearch.document.TagDocument;
+import com.example.java_jpa_vuejs.elasticsearch.model.AlcoholDto;
 import com.example.java_jpa_vuejs.elasticsearch.repository.AlcoholElasticsearchRepository;
 import com.example.java_jpa_vuejs.geomBoard.entity.GeometryBoard;
 import com.example.java_jpa_vuejs.geomBoard.model.BoardDto;
@@ -51,40 +54,131 @@ public class ElasticSearchController {
     //private final alcoholRepository alcoholRepository;
     private final AlcoholElasticsearchRepository alcoholElasticsearchRepository;
 
+    
     /**
-    * @method 지오메트릭 데이터 가져오기
-    * @param  null
-    * @throws Exception
-    */
-    @GetMapping(value = {"/getSearchList2322"})
-    public List<Map<String, Object>> getGeomBoard(@Valid BoardDto boardDTO) throws Exception {
-        System.out.println("★★★★★★-----------★★                             ★★" + boardDTO.getBoardSq());
+     * title 검색어를 활용해 title 필드 타겟으로 elasticsearch에 검색 쿼리
+     * @param title title 필드 타겟의 검색어
+     * @return responseBody에 바로 적재할 수 있는 형태의 Map 객체
+     */
+    @GetMapping(value = {"/getSearchData"})
+    public Map<String, Object> searchTitle(String title) {
+        System.out.println("검색 할게 ☆");
+        // elasticsearch 검색
+        SearchHits<AlcoholDocument> searchHits = alcoholElasticsearchRepository.findByTitle(title);
 
-        List<Map<String, Object>> list = null;
-        //List<Map<String, Object>> list = boardFirebaseService.getGeomData(Integer.parseInt(boardDTO.getBoardSq())); 
-        //List<Map<String, Object>> list2 = boardFirebaseService.getGeomData(Integer.parseInt(boardDTO.getBoardSq()));
-  
-        return list;
+        // 리턴할 결과 Map 객체
+        Map<String, Object> result = new HashMap<>();
+
+        // 결과 개수
+        result.put("count", searchHits.getTotalHits());
+
+        System.out.println(searchHits.getTotalHits());
+        System.out.println(searchHits);
+        // 결과 컨텐츠
+        List<AlcoholDto> alcoholDTOList = new ArrayList<>();
+        for(SearchHit<AlcoholDocument> hit : searchHits) {
+            AlcoholDocument alcoholDocument = hit.getContent(); // SearchHit에서 AlcoholDocument 객체를 가져옴
+            AlcoholDto alcoholDTO = new AlcoholDto();
+
+            // AlcoholDocument에서 AlcoholDTO로 데이터 변환
+            alcoholDTO.setId(alcoholDocument.getId());
+            alcoholDTO.setTableId(alcoholDocument.getTableId());
+            alcoholDTO.setTitle(alcoholDocument.getTitle());
+            alcoholDTO.setContents(alcoholDocument.getContents());
+            alcoholDTO.setCategory(alcoholDocument.getCategory());
+/* 
+            // tags 변환 (List<TagDocument> -> List<TagDTO>)
+            if (alcoholDocument.getTags() != null) {
+                List<TagDTO> tagDTOList = new ArrayList<>();
+                for (TagDocument tag : alcoholDocument.getTags()) {
+                    TagDTO tagDTO = new TagDTO();
+                    tagDTO.setTagName(tag.getTagName());  // 필드에 맞게 매핑
+                    tagDTOList.add(tagDTO);
+                }
+                alcoholDTO.setTags(tagDTOList);
+            }
+
+            // searchKeys 변환 (List<AlcSearchKeyDocument> -> List<AlcSearchKeyDTO>)
+            if (alcoholDocument.getSearchKeys() != null) {
+                List<AlcSearchKeyDTO> searchKeyDTOList = new ArrayList<>();
+                for (AlcSearchKeyDocument searchKey : alcoholDocument.getSearchKeys()) {
+                    AlcSearchKeyDTO searchKeyDTO = new AlcSearchKeyDTO();
+                    searchKeyDTO.setKey(searchKey.getKey());  // 필드에 맞게 매핑
+                    searchKeyDTOList.add(searchKeyDTO);
+                }
+                alcoholDTO.setSearchKeys(searchKeyDTOList);
+            }
+*/
+            // 변환된 AlcoholDTO를 리스트에 추가
+            alcoholDTOList.add(alcoholDTO);
+        }
+        
+        result.put("data", alcoholDTOList);
+
+        return result;
     }
 
+    
      /**
      * 데이터베이스 속 alcohol 데이터 전부 elasticsearch에 인덱싱
      */
     @GetMapping(value = {"/setSearchData"})
-    public void indexAll(@Valid BoardDto boardDTO) {
+    public void indexAll(@Valid PaginationDto paginationDto) {
         //List<Alcohol> alcohols = alcoholRepository.findAllWithSearchKeys();
-        List<Map<String, Object>> list;
+        //List<Map<String, Object>> list;
         try {
-            list = boardFirebaseService.getGeomData(Integer.parseInt(boardDTO.getBoardSq()));
 
+            //list = boardFirebaseService.getGeomBoardList(paginationDto); 
+
+            Iterable<GeometryBoard> list = boardService.getGeomBoardList(paginationDto);
+            Iterator<GeometryBoard> itr = list.iterator();
+
+            System.out.println(list.toString());
+
+            if (!list.iterator().hasNext()) {
+                System.out.println("No data found.");
+            } else {
+                // Iterable을 for-each로 순회하면서 데이터 출력
+                for (GeometryBoard geometryBoard : list) {
+                    System.out.println("ID: " + geometryBoard.getTitle());
+                    System.out.println("Table ID: " + geometryBoard.getContents1());
+                    //System.out.println("Title: " + geometryBoard.getTitle());
+                    //System.out.println("Contents: " + geometryBoard.getContents());
+                    //System.out.println("Category: " + geometryBoard.getCategory());
+    /*
+                    // Tag들 출력
+                    if (geometryBoard.getTags() != null && !geometryBoard.getTags().isEmpty()) {
+                        for (TagDocument tag : geometryBoard.getTags()) {
+                            System.out.println("Tag: " + tag.getTagName());
+                        }
+                    } else {
+                        System.out.println("No tags found.");
+                    }
+    
+                    // SearchKeys들 출력
+                    if (geometryBoard.getSearchKeys() != null && !geometryBoard.getSearchKeys().isEmpty()) {
+                        for (AlcSearchKeyDocument searchKey : geometryBoard.getSearchKeys()) {
+                            System.out.println("Search Key: " + searchKey.getKey());
+                        }
+                    } else {
+                        System.out.println("No search keys found.");
+                    }
+     */
+                    System.out.println("------------------------------");
+                }
+            }
+            
+            
             // alcohol 리스트를 하나씩 처리
-            for (Map<String, Object> alcohol : list) {
+            for (GeometryBoard alcohol : list) {
                 // alcohol 엔티티에서 필요한 값들을 하나씩 꺼내서 AlcoholDocument 객체에 설정
                 AlcoholDocument alcoholDocument = new AlcoholDocument();
                 
+                System.out.println(alcohol.getTitle());
+
                 // Alcohol 엔티티에서 값을 하나씩 가져와서 AlcoholDocument에 설정
-                alcoholDocument.setCategory((String) alcohol.get("title"));
-                alcoholDocument.setContents((String) alcohol.get("dfdfsdfsdf"));
+                alcoholDocument.setCategory((String) alcohol.getTitle());
+                alcoholDocument.setContents((String) alcohol.getContents1());
                 
                 //alcSearchKeyDocuments.add(alcSearchKeyDocument);
 
