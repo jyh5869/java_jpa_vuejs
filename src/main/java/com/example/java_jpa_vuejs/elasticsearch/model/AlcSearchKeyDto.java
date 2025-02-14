@@ -24,13 +24,7 @@ import java.util.List;
 @Getter
 @ToString
 @NoArgsConstructor
-public class AlcoholDto {
-	@Id
-	private String id;
-    private Long tableId;
-    private String title;
-    private String contents;
-    private String category;
-    //private List<TagDTO> tags;
-    //private List<AlcSearchKeyDto> searchKeys;
+public class AlcSearchKeyDto {
+    private String key;
+
 }

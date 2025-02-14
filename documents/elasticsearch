@@ -71,3 +71,5 @@ curl -u elastic:78keTToBM+ALeGD5AOD7 -X PUT "http://localhost:9200/geometry_boar
 
 
 curl -u elastic:78keTToBM+ALeGD5AOD7 -X GET "http://localhost:9200/_cat/indices?v"
+
+curl -u elastic:78keTToBM+ALeGD5AOD7 -X GET "http://localhost:9200/geometry_board/_search?pretty"

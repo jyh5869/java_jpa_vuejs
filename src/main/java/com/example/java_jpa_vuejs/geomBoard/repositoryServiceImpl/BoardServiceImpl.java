@@ -21,6 +21,13 @@ public class BoardServiceImpl implements BoardService {
 	private final GeometryBoardRepository geometryBoardRepository;
 	
 	@Override
+	public Iterable<GeometryBoard> getGeomBoardListAll() {
+		Iterable<GeometryBoard> allList = geometryBoardRepository.findAll();
+		
+		return allList;
+	}
+
+	@Override
 	public Iterable<GeometryBoard> getGeomBoardList(PaginationDto paginationDto) {
 
 		Integer intCurrentPage = Integer.valueOf(paginationDto.getCurrentPage());

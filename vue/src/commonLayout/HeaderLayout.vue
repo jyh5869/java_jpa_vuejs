@@ -135,10 +135,11 @@ export default {
         totalSearch: function () {
             let result = this.$axios({
                 method: 'get',
-                //url: '/api/setSearchData',
-                url: '/api/getSearchData',
+                //url: '/api/search/setSearchData',
+                url: '/api/search/getSearchData',
                 params: {
-                    keyword: '',
+                    keyword: '12',
+                    title: '12',
                 },
                 headers: {
                     'Content-Type': 'multipart/form-data',

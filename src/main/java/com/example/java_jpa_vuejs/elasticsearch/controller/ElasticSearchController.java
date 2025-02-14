@@ -60,11 +60,12 @@ public class ElasticSearchController {
      * @param title title 필드 타겟의 검색어
      * @return responseBody에 바로 적재할 수 있는 형태의 Map 객체
      */
-    @GetMapping(value = {"/getSearchData"})
-    public Map<String, Object> searchTitle(String title) {
-        System.out.println("검색 할게 ☆");
+    @GetMapping(value = {"/search/getSearchData"})
+    public Map<String, Object> searchTitle(String keyword) {
+        System.out.println("검색 할게 ☆ searchKeyword :  " + keyword);
         // elasticsearch 검색
-        SearchHits<AlcoholDocument> searchHits = alcoholElasticsearchRepository.findByTitle(title);
+        SearchHits<AlcoholDocument> searchHits = alcoholElasticsearchRepository.findByTitle(keyword);
+        //SearchHits<AlcoholDocument> searchHits = alcoholElasticsearchRepository.findAllBy();
 
         // 리턴할 결과 Map 객체
         Map<String, Object> result = new HashMap<>();
@@ -74,9 +75,11 @@ public class ElasticSearchController {
 
         System.out.println(searchHits.getTotalHits());
         System.out.println(searchHits);
+
         // 결과 컨텐츠
         List<AlcoholDto> alcoholDTOList = new ArrayList<>();
         for(SearchHit<AlcoholDocument> hit : searchHits) {
+            System.out.println("포문 반복!");
             AlcoholDocument alcoholDocument = hit.getContent(); // SearchHit에서 AlcoholDocument 객체를 가져옴
             AlcoholDto alcoholDTO = new AlcoholDto();
 
@@ -86,7 +89,11 @@ public class ElasticSearchController {
             alcoholDTO.setTitle(alcoholDocument.getTitle());
             alcoholDTO.setContents(alcoholDocument.getContents());
             alcoholDTO.setCategory(alcoholDocument.getCategory());
-/* 
+
+            System.out.println("ID: " + alcoholDocument.getTitle());
+            System.out.println("Table ID: " + alcoholDocument.getContents());
+
+            /* 
             // tags 변환 (List<TagDocument> -> List<TagDTO>)
             if (alcoholDocument.getTags() != null) {
                 List<TagDTO> tagDTOList = new ArrayList<>();
@@ -112,7 +119,7 @@ public class ElasticSearchController {
             // 변환된 AlcoholDTO를 리스트에 추가
             alcoholDTOList.add(alcoholDTO);
         }
-        
+
         result.put("data", alcoholDTOList);
 
         return result;
@@ -122,7 +129,7 @@ public class ElasticSearchController {
      /**
      * 데이터베이스 속 alcohol 데이터 전부 elasticsearch에 인덱싱
      */
-    @GetMapping(value = {"/setSearchData"})
+    @GetMapping(value = {"/search/setSearchData"})
     public void indexAll(@Valid PaginationDto paginationDto) {
         //List<Alcohol> alcohols = alcoholRepository.findAllWithSearchKeys();
         //List<Map<String, Object>> list;
@@ -130,7 +137,8 @@ public class ElasticSearchController {
 
             //list = boardFirebaseService.getGeomBoardList(paginationDto); 
 
-            Iterable<GeometryBoard> list = boardService.getGeomBoardList(paginationDto);
+            //Iterable<GeometryBoard> list = boardService.getGeomBoardList(paginationDto);
+            Iterable<GeometryBoard> list = boardService.getGeomBoardListAll();
             Iterator<GeometryBoard> itr = list.iterator();
 
             System.out.println(list.toString());
@@ -174,12 +182,13 @@ public class ElasticSearchController {
                 // alcohol 엔티티에서 필요한 값들을 하나씩 꺼내서 AlcoholDocument 객체에 설정
                 AlcoholDocument alcoholDocument = new AlcoholDocument();
                 
-                System.out.println(alcohol.getTitle());
+                System.out.println(alcohol.getTitle()); 
 
                 // Alcohol 엔티티에서 값을 하나씩 가져와서 AlcoholDocument에 설정
                 alcoholDocument.setCategory((String) alcohol.getTitle());
+                alcoholDocument.setTitle((String) alcohol.getTitle());
                 alcoholDocument.setContents((String) alcohol.getContents1());
-                
+
                 //alcSearchKeyDocuments.add(alcSearchKeyDocument);
 
                 // AlcoholDocument에 Tags와 SearchKeys도 각각 설정 (필요한 경우)
