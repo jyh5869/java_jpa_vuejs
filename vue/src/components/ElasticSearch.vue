@@ -1,0 +1,122 @@
+<template>
+    <div class="container my-5">
+        <h1 class="text-center mb-4">{{ msg }}</h1>
+        <p class="text-center lead">JAVA와 Elastic Search를 이용한 통합 검색 관리 페이지 입니다.</p>
+        <h4 class="text-center mb-3">검색키워드를 입력해주세요.</h4>
+
+        <!-- Search Form Section -->
+        <div class="d-flex justify-content-center mb-5">
+            <div class="input-group">
+                <input class="form-control mx-1" type="search" placeholder="Search" aria-label="Search" v-model="searchKeyword" @keyup.enter="callgetAnalyzeKeyword()" />
+                <button class="btn btn-outline-success mx-1" type="submit" @click="callgetAnalyzeKeyword()">Search</button>
+            </div>
+        </div>
+
+        <!-- TF-IDF & Cosine Section -->
+        <h5 class="mt-5">Python 모델 - Tf-Idf Cosine</h5>
+        <ul class="list-unstyled my-3 btn-wrap">
+            <li class="mb-2">
+                <button class="btn btn-outline-success w-100" @click="tfIdfAndCosineRadaModelMake()">Tf-Idf Cosine 훈련 호출</button>
+            </li>
+            <li class="mb-2">
+                <button class="btn btn-outline-success w-100" @click="tfIdfAndCosineRadaModelUse()">Tf-Idf Cosine 테스트 호출</button>
+            </li>
+        </ul>
+
+        <!-- Keras Section -->
+        <h5 class="mt-5">Python 모델 - Keras</h5>
+        <ul class="list-unstyled my-3 btn-wrap">
+            <li class="mb-2">
+                <button class="btn btn-outline-success w-100" @click="kerasModelMake()">Keras 훈련 호출</button>
+            </li>
+            <li class="mb-2">
+                <button class="btn btn-outline-success w-100" @click="kerasModelUse()">Keras 테스트 호출</button>
+            </li>
+        </ul>
+    </div>
+</template>
+
+<script>
+export default {
+    name: 'HelloWorld',
+    data() {
+        return {
+        };
+    },
+    props: {
+        msg: String,
+    },
+    methods: {
+        totalSearch: function () {
+            let result = this.$axios({
+                method: 'get',
+                //url: '/api/search/setSearchData',
+                url: '/api/search/getSearchData',
+                params: {
+                    keyword: '12',
+                    title: '12',
+                },
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (result.status === 200) {
+                console.log(result);
+            }
+        },
+    },
+};
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+h3 {
+    margin: 40px 0 0;
+}
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+li {
+    display: inline-block;
+    margin: 0 10px;
+}
+a {
+    color: #42b983;
+}
+
+ul.btn-wrap li {
+    width: 45%;
+}
+
+.analysis_result_wrap .list-group-item {
+    display: flex;
+    font-size: 16px;
+}
+
+.analysis_result_wrap .list-group-item .index {
+    width: calc(13% + 5px);
+    text-align: center;
+    line-height: 50px;
+}
+
+.analysis_result_wrap .list-group-item .contents {
+    text-align: left;
+    padding-left: 10px;
+    line-height: 25px;
+    /*margin: 0 auto;*/
+}
+
+@media (max-width: 990px) {
+    .analysis_result_wrap .list-group-item {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 663px) {
+    ul.btn-wrap li {
+        width: 100%;
+    }
+}
+</style>

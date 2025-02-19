@@ -45,6 +45,7 @@
                                 </router-link>
                             </li>
                             <li><a class="dropdown-item" href="/MachineLearning">Machine Learning Admin</a></li>
+                            <li><a class="dropdown-item" href="/ElasticSearch">Elastic Search Admin</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">
@@ -131,24 +132,6 @@ export default {
                 return false;
             }
             return true;
-        },
-        totalSearch: function () {
-            let result = this.$axios({
-                method: 'get',
-                //url: '/api/search/setSearchData',
-                url: '/api/search/getSearchData',
-                params: {
-                    keyword: '12',
-                    title: '12',
-                },
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-
-            if (result.status === 200) {
-                console.log(result);
-            }
         },
     },
 };

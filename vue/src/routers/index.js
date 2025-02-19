@@ -63,6 +63,13 @@ const routes = [
         meta: { authRequired: true },
         props: true, // [파라메터 Y/N]
     },
+    {
+        path: '/ElasticSearch', // [경로]
+        name: 'ElasticSearch', // [이름]
+        component: () => import('@/components/ElasticSearch.vue'), // [로드 파일]]
+        meta: { authRequired: true },
+        props: true, // [파라메터 Y/N]
+    },
 ];
 
 // 라우터 설정 실시
