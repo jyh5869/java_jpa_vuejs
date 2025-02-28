@@ -438,4 +438,82 @@ public class BoardFirebaseServiceImpl implements BoardFirebaseService {
             e.printStackTrace();
         }
     }
+
+
+    /**
+    * @method 지오메트릭 데이터 가져오기
+    * @param  id
+    * @throws Exception
+    */
+    @Override
+	public List<Map<String, Object>> getGeomBoardListAll() throws Exception{
+
+		long reqTime = DateUtil.durationTime ("start", "CLOUD / < GET GEOMETRY DATA LIST - SELECT > : ", 0, "Proceeding ::: " );
+        
+        List<Map<String, Object>> result = new ArrayList<Map<String,Object>>();
+		try {     
+            //파이어 베이스 초기화
+            firebaseConfiguration.initializeFCM();
+            Firestore db = FirestoreClient.getFirestore();
+
+            //스냅샷 호출 후 리스트 생성(JSON)
+            ApiFuture<QuerySnapshot> query = db.collection("geometry_board").get();
+            QuerySnapshot querySnapshot = query.get();
+
+            List<QueryDocumentSnapshot> documents = querySnapshot.getDocuments();
+            
+            for (QueryDocumentSnapshot document : documents) {
+                /* 
+					※ 데이터 출력 Example */
+                System.out.println("id        : " + document.getId());
+                
+                Map<String, Object> data = document.getData();
+                /* 
+                    String toDayFormat = Util.remakeDate(document.getLong("brddate"),1);
+                    data.put("brddate", toDayFormat);
+                */
+                System.out.println("boardSq        : " + data.get("board_sq"));
+                
+                Object boardSqObj = data.get("board_sq");
+                System.out.println("board_sq 타입: " + boardSqObj.getClass().getName());
+                System.out.println("board_sq 값: " + boardSqObj);
+
+                //int boardSq = data.get("board_sq"); 
+                //int boardSq = ((Number) data.get("board_sq")).intValue();
+                int boardSq = Integer.parseInt((String) boardSqObj);
+                ApiFuture<QuerySnapshot> query2 = db.collection("geometry").whereEqualTo("id", boardSq).get();
+                QuerySnapshot querySnapshot2 = query2.get();
+    
+                List<QueryDocumentSnapshot> documents2 = querySnapshot2.getDocuments();
+                
+                for (QueryDocumentSnapshot document2 : documents2) {
+                    /* 
+                        ※ 데이터 출력 Example */
+                        System.out.println("id        : " + document.getId());
+                        
+                        
+
+                    Map<String, Object> data2 = document2.getData();
+                    System.out.println("id  지오메트리 id  --     : " + data2.get("id"));
+                    /* 
+                        String toDayFormat = Util.remakeDate(document.getLong("brddate"),1);
+                        data.put("brddate", toDayFormat);
+                    */
+                    data.put("geometry", data2);
+                    //result.add(data);
+                }
+ 
+                
+                data.put("docId", document.getId());
+                result.add(data);
+            }
+            DateUtil.durationTime ("end", "CLOUD / < GET GEOMETRY DATA LIST - SELECT > : ", reqTime, "Complete ::: " );
+        }
+        catch (Exception e) {
+			DateUtil.durationTime ("end", "CLOUD / < GET GEOMETRY DATA LIST - SELECT > : ", reqTime, "Fail ::: " );
+            e.printStackTrace();
+        }
+		
+		return result;
+	}
 }

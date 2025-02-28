@@ -8,7 +8,7 @@
         <div class="d-flex justify-content-center mb-5">
             <div class="input-group">
                 <input class="form-control mx-1" type="search" placeholder="Search" aria-label="Search" v-model="searchKeyword" @keyup.enter="callgetAnalyzeKeyword()" />
-                <button class="btn btn-outline-success mx-1" type="submit" @click="callgetAnalyzeKeyword()">Search</button>
+                <button class="btn btn-outline-success mx-1" type="submit" @click="totalSearch()">Search</button>
             </div>
         </div>
 
@@ -16,21 +16,10 @@
         <h5 class="mt-5">Python 모델 - Tf-Idf Cosine</h5>
         <ul class="list-unstyled my-3 btn-wrap">
             <li class="mb-2">
-                <button class="btn btn-outline-success w-100" @click="tfIdfAndCosineRadaModelMake()">Tf-Idf Cosine 훈련 호출</button>
+                <button class="btn btn-outline-success w-100" @click="makeSearchData()">검색 데이터 생성</button>
             </li>
             <li class="mb-2">
-                <button class="btn btn-outline-success w-100" @click="tfIdfAndCosineRadaModelUse()">Tf-Idf Cosine 테스트 호출</button>
-            </li>
-        </ul>
-
-        <!-- Keras Section -->
-        <h5 class="mt-5">Python 모델 - Keras</h5>
-        <ul class="list-unstyled my-3 btn-wrap">
-            <li class="mb-2">
-                <button class="btn btn-outline-success w-100" @click="kerasModelMake()">Keras 훈련 호출</button>
-            </li>
-            <li class="mb-2">
-                <button class="btn btn-outline-success w-100" @click="kerasModelUse()">Keras 테스트 호출</button>
+                <!-- <button class="btn btn-outline-success w-100" @click="tfIdfAndCosineRadaModelUse()">Tf-Idf Cosine 테스트 호출</button> -->
             </li>
         </ul>
     </div>
@@ -40,17 +29,31 @@
 export default {
     name: 'HelloWorld',
     data() {
-        return {
-        };
+        return {};
     },
     props: {
         msg: String,
     },
     methods: {
+        makeSearchData: function () {
+            let result = this.$axios({
+                method: 'get',
+                url: '/api/search/setMakeSearchData',
+                params: {
+                    searchType: 'firebase',
+                },
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (result.status === 200) {
+                console.log(result);
+            }
+        },
         totalSearch: function () {
             let result = this.$axios({
                 method: 'get',
-                //url: '/api/search/setSearchData',
                 url: '/api/search/getSearchData',
                 params: {
                     keyword: '12',
