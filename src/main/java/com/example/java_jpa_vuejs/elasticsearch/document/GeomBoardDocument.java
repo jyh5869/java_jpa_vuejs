@@ -7,36 +7,49 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.data.elasticsearch.annotations.Setting;
-import org.springframework.data.elasticsearch.annotations.WriteOnlyProperty;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.Map;
 
 @Getter
 @Setter
 @Document(indexName = "geometry_board")
-@Setting(replicas = 0)
+@Setting(shards = 1, replicas = 0)
 public class GeomBoardDocument {
-    
+
     @Id
     private String id;
 
-    @Field(type = FieldType.Long, index = false, docValues = false)
-    private Long tableId;
+    @Field(type = FieldType.Long)
+    private Long boardSq;
 
     @Field(type = FieldType.Text, analyzer = "nori")
     private String title;
 
     @Field(type = FieldType.Text, analyzer = "nori")
-    private String contents;
+    private String contents1;
 
-    @Field(type = FieldType.Keyword, index = false, docValues = false)
-    private String category;
+    @Field(type = FieldType.Text, analyzer = "nori")
+    private String contents2;
+
+    @Field(type = FieldType.Keyword)
+    private String userName;
+
+    @Field(type = FieldType.Keyword)
+    private String userEmail;
+
+    @Field(type = FieldType.Keyword)
+    private String userAddress;
+
+    @Field(type = FieldType.Keyword)
+    private String zipCode;
+
+    @Field(type = FieldType.Boolean)
+    private Boolean useYn;
+
+    @Field(type = FieldType.Date)
+    private LocalDateTime regDt;
 
     @Field(type = FieldType.Object)
-    private List<TagDocument> tags = new ArrayList<>();
-
-    @Field(type = FieldType.Object)
-    @WriteOnlyProperty
-    private List<AlcSearchKeyDocument> searchKeys = new ArrayList<>();
+    private Map<String, Object> geometry;
 }

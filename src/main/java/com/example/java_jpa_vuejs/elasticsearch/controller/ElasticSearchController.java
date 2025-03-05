@@ -20,8 +20,11 @@ import com.example.java_jpa_vuejs.common.model.PaginationDto;
 import com.example.java_jpa_vuejs.common.repositoryService.PaginationFirebaseService;
 import com.example.java_jpa_vuejs.common.utility.PaginationAsyncCloud;
 import com.example.java_jpa_vuejs.common.utility.PaginationAsyncPageable;
+import com.example.java_jpa_vuejs.elasticsearch.common.ElasticsearchAction;
+import com.example.java_jpa_vuejs.elasticsearch.configuration.ElasticsearchConfig;
 import com.example.java_jpa_vuejs.elasticsearch.document.AlcSearchKeyDocument;
 import com.example.java_jpa_vuejs.elasticsearch.document.AlcoholDocument;
+import com.example.java_jpa_vuejs.elasticsearch.document.GeomBoardDocument;
 import com.example.java_jpa_vuejs.elasticsearch.document.TagDocument;
 import com.example.java_jpa_vuejs.elasticsearch.model.AlcoholDto;
 import com.example.java_jpa_vuejs.elasticsearch.model.SearchDto;
@@ -54,7 +57,7 @@ public class ElasticSearchController {
 
     //private final alcoholRepository alcoholRepository;
     private final AlcoholElasticsearchRepository alcoholElasticsearchRepository;
-
+    private final ElasticsearchAction elasticsearchAction;
     
     /**
      * title 검색어를 활용해 title 필드 타겟으로 elasticsearch에 검색 쿼리
@@ -93,30 +96,6 @@ public class ElasticSearchController {
 
             System.out.println("ID: " + alcoholDocument.getTitle());
             System.out.println("Table ID: " + alcoholDocument.getContents());
-
-            /* 
-            // tags 변환 (List<TagDocument> -> List<TagDTO>)
-            if (alcoholDocument.getTags() != null) {
-                List<TagDTO> tagDTOList = new ArrayList<>();
-                for (TagDocument tag : alcoholDocument.getTags()) {
-                    TagDTO tagDTO = new TagDTO();
-                    tagDTO.setTagName(tag.getTagName());  // 필드에 맞게 매핑
-                    tagDTOList.add(tagDTO);
-                }
-                alcoholDTO.setTags(tagDTOList);
-            }
-
-            // searchKeys 변환 (List<AlcSearchKeyDocument> -> List<AlcSearchKeyDTO>)
-            if (alcoholDocument.getSearchKeys() != null) {
-                List<AlcSearchKeyDTO> searchKeyDTOList = new ArrayList<>();
-                for (AlcSearchKeyDocument searchKey : alcoholDocument.getSearchKeys()) {
-                    AlcSearchKeyDTO searchKeyDTO = new AlcSearchKeyDTO();
-                    searchKeyDTO.setKey(searchKey.getKey());  // 필드에 맞게 매핑
-                    searchKeyDTOList.add(searchKeyDTO);
-                }
-                alcoholDTO.setSearchKeys(searchKeyDTOList);
-            }
-*/
             // 변환된 AlcoholDTO를 리스트에 추가
             alcoholDTOList.add(alcoholDTO);
         }
@@ -147,6 +126,9 @@ public class ElasticSearchController {
                     }
                     System.out.println("----------------");
                 }
+
+                elasticsearchAction.createIndex();
+
             }//mysql 데이터 색인
             else{
                 Iterable<GeometryBoard> list = boardService.getGeomBoardListAll();
