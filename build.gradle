@@ -104,7 +104,7 @@ dependencies {
 	implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '4.1.2'
 
 	//통합검색 구현을 위한 Elastic Search
-	implementation: 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 }
 
 tasks.named('test') {
