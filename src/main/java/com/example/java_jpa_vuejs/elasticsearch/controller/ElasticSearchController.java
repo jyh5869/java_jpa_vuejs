@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import java.net.URLDecoder;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
@@ -119,11 +121,33 @@ public class ElasticSearchController {
                 List<Map<String, Object>> retList = new ArrayList<Map<String, Object>>();
                 retList = boardFirebaseService.getGeomBoardListAll(); 
 
+                GeomBoardDocument geomBoardDocument = new GeomBoardDocument();
+
                 // 순회하며 값 조회
                 for (Map<String, Object> map : retList) {
+                    
                     for (Map.Entry<String, Object> entry : map.entrySet()) {
                         System.out.println(entry.getKey() + ": " + entry.getValue());
                     }
+
+                    geomBoardDocument.setId((String) map.get("docId"));
+                    geomBoardDocument.setBoardSq((Long) Long.parseLong((String) map.get("board_sq")));
+                    geomBoardDocument.setTitle((String) map.get("title"));
+                    geomBoardDocument.setContents1((String) map.get("contents1"));
+                    geomBoardDocument.setContents2((String) map.get("contents2"));
+                    geomBoardDocument.setGeometry((Map<String, Object>) map.get("geometry"));
+                    geomBoardDocument.setUserAddress((String) map.get("user_address"));
+                    geomBoardDocument.setUserEmail((String) map.get("user_email"));
+                    geomBoardDocument.setUserName((String) map.get("user_name"));
+                    geomBoardDocument.setZipCode((String) map.get("zip_code"));
+                    geomBoardDocument.setUseYn((Boolean) map.get("stats"));
+
+                    //geomBoardDocument.setRegDt((String) map.get("reg_dt"));
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); // 시간 형식 확인 필요
+                    geomBoardDocument.setRegDt(LocalDateTime.parse((String) map.get("reg_dt"), formatter));
+                    
+                    geomBoardDocument.setUseYn((Boolean) map.get("use_yn"));
+
                     System.out.println("----------------");
                 }
 

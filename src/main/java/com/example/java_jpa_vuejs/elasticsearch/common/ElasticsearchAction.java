@@ -33,7 +33,6 @@ public class ElasticsearchAction {
             if (indexOps.exists()) {
                 System.out.println("Existing index found. Deleting: " + indexName);
                 indexOps.delete();
-                System.out.println("Existing index deleted: " + indexName);
             }
         } catch (Exception e) {
             System.err.println("Error checking/deleting index: " + e.getMessage());
