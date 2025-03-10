@@ -29,7 +29,9 @@
 export default {
     name: 'HelloWorld',
     data() {
-        return {};
+        return {
+            searchKeyword: this.searchKeyword,
+        };
     },
     props: {
         msg: String,
@@ -56,8 +58,7 @@ export default {
                 method: 'get',
                 url: '/api/search/getSearchData',
                 params: {
-                    keyword: '12',
-                    title: '12',
+                    keyword: this.searchKeyword,
                 },
                 headers: {
                     'Content-Type': 'multipart/form-data',

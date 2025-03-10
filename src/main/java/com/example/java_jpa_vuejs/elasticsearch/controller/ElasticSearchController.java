@@ -31,6 +31,7 @@ import com.example.java_jpa_vuejs.elasticsearch.document.TagDocument;
 import com.example.java_jpa_vuejs.elasticsearch.model.AlcoholDto;
 import com.example.java_jpa_vuejs.elasticsearch.model.SearchDto;
 import com.example.java_jpa_vuejs.elasticsearch.repository.AlcoholElasticsearchRepository;
+import com.example.java_jpa_vuejs.elasticsearch.repository.GeomBoardElasticRepository;
 import com.example.java_jpa_vuejs.geomBoard.entity.GeometryBoard;
 import com.example.java_jpa_vuejs.geomBoard.model.BoardDto;
 import com.example.java_jpa_vuejs.geomBoard.repositoryService.BoardFirebaseService;
@@ -59,6 +60,7 @@ public class ElasticSearchController {
 
     //private final alcoholRepository alcoholRepository;
     private final AlcoholElasticsearchRepository alcoholElasticsearchRepository;
+    private final GeomBoardElasticRepository geomBoardElasticRepository;
     private final ElasticsearchAction elasticsearchAction;
     
     /**
@@ -70,7 +72,8 @@ public class ElasticSearchController {
     public Map<String, Object> searchTitle(String keyword) {
         System.out.println("검색 할게 ☆ searchKeyword :  " + keyword);
         // elasticsearch 검색
-        SearchHits<AlcoholDocument> searchHits = alcoholElasticsearchRepository.findByTitle(keyword);
+        //SearchHits<GeomBoardDocument> searchHits = geomBoardElasticRepository.findAllBy();
+        SearchHits<GeomBoardDocument> searchHits = geomBoardElasticRepository.findByTitle(keyword);
         //SearchHits<AlcoholDocument> searchHits = alcoholElasticsearchRepository.findAllBy();
 
         // 리턴할 결과 Map 객체
@@ -81,25 +84,17 @@ public class ElasticSearchController {
 
         System.out.println(searchHits.getTotalHits());
         System.out.println(searchHits);
-
+        System.out.println("포문 반복! 준비완료");
         // 결과 컨텐츠
-        List<AlcoholDto> alcoholDTOList = new ArrayList<>();
-        for(SearchHit<AlcoholDocument> hit : searchHits) {
+        List<GeomBoardDocument> alcoholDTOList = new ArrayList<>();
+        for(SearchHit<GeomBoardDocument> hit : searchHits) {
             System.out.println("포문 반복!");
-            AlcoholDocument alcoholDocument = hit.getContent(); // SearchHit에서 AlcoholDocument 객체를 가져옴
-            AlcoholDto alcoholDTO = new AlcoholDto();
+            GeomBoardDocument geomBoardDocument = hit.getContent(); // SearchHit에서 AlcoholDocument 객체를 가져옴
 
             // AlcoholDocument에서 AlcoholDTO로 데이터 변환
-            alcoholDTO.setId(alcoholDocument.getId());
-            alcoholDTO.setTableId(alcoholDocument.getTableId());
-            alcoholDTO.setTitle(alcoholDocument.getTitle());
-            alcoholDTO.setContents(alcoholDocument.getContents());
-            alcoholDTO.setCategory(alcoholDocument.getCategory());
-
-            System.out.println("ID: " + alcoholDocument.getTitle());
-            System.out.println("Table ID: " + alcoholDocument.getContents());
+            
             // 변환된 AlcoholDTO를 리스트에 추가
-            alcoholDTOList.add(alcoholDTO);
+            alcoholDTOList.add(geomBoardDocument);
         }
 
         result.put("data", alcoholDTOList);
@@ -118,6 +113,9 @@ public class ElasticSearchController {
         try {
             //파이어베이스 데이터 색인
             if(searchType.equals("firebase")){
+
+                elasticsearchAction.createIndex();
+                
                 List<Map<String, Object>> retList = new ArrayList<Map<String, Object>>();
                 retList = boardFirebaseService.getGeomBoardListAll(); 
 
@@ -146,12 +144,20 @@ public class ElasticSearchController {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); // 시간 형식 확인 필요
                     geomBoardDocument.setRegDt(LocalDateTime.parse((String) map.get("reg_dt"), formatter));
                     
-                    geomBoardDocument.setUseYn((Boolean) map.get("use_yn"));
+                    Object useYnObj = map.get("use_yn");
+                    if (useYnObj instanceof Boolean) {
+                        geomBoardDocument.setUseYn((Boolean) useYnObj);
+                    } else if (useYnObj instanceof String) {
+                        geomBoardDocument.setUseYn(Boolean.parseBoolean((String) useYnObj));
+                    } else {
+                        geomBoardDocument.setUseYn(false); // 기본값 설정
+                    }
 
                     System.out.println("----------------");
+
+                    geomBoardElasticRepository.save(geomBoardDocument);
                 }
 
-                elasticsearchAction.createIndex();
 
             }//mysql 데이터 색인
             else{

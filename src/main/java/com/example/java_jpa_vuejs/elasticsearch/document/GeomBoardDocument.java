@@ -43,7 +43,10 @@ public class GeomBoardDocument {
 
     @Field(type = FieldType.Keyword)
     private String zipCode;
-
+    
+    @Field(type = FieldType.Boolean)
+    private Boolean state;
+    
     @Field(type = FieldType.Boolean)
     private Boolean useYn;
 
