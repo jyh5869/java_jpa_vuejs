@@ -19,7 +19,8 @@
                 <button class="btn btn-outline-success w-100" @click="makeSearchData()">검색 데이터 생성</button>
             </li>
             <li class="mb-2">
-                <!-- <button class="btn btn-outline-success w-100" @click="tfIdfAndCosineRadaModelUse()">Tf-Idf Cosine 테스트 호출</button> -->
+                <!-- <bu
+                     tton class="btn btn-outline-success w-100" @click="tfIdfAndCosineRadaModelUse()">Tf-Idf Cosine 테스트 호출</button> -->
             </li>
         </ul>
     </div>

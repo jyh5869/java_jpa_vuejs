@@ -32,6 +32,7 @@ import com.example.java_jpa_vuejs.elasticsearch.model.AlcoholDto;
 import com.example.java_jpa_vuejs.elasticsearch.model.SearchDto;
 import com.example.java_jpa_vuejs.elasticsearch.repository.AlcoholElasticsearchRepository;
 import com.example.java_jpa_vuejs.elasticsearch.repository.GeomBoardElasticRepository;
+//import com.example.java_jpa_vuejs.elasticsearch.service.GeomBoardSearchService;
 import com.example.java_jpa_vuejs.geomBoard.entity.GeometryBoard;
 import com.example.java_jpa_vuejs.geomBoard.model.BoardDto;
 import com.example.java_jpa_vuejs.geomBoard.repositoryService.BoardFirebaseService;
@@ -62,7 +63,8 @@ public class ElasticSearchController {
     private final AlcoholElasticsearchRepository alcoholElasticsearchRepository;
     private final GeomBoardElasticRepository geomBoardElasticRepository;
     private final ElasticsearchAction elasticsearchAction;
-    
+    //private final GeomBoardSearchService geomBoardSearchService;
+
     /**
      * title 검색어를 활용해 title 필드 타겟으로 elasticsearch에 검색 쿼리
      * @param title title 필드 타겟의 검색어
@@ -75,7 +77,7 @@ public class ElasticSearchController {
         //SearchHits<GeomBoardDocument> searchHits = geomBoardElasticRepository.findAllBy();
         SearchHits<GeomBoardDocument> searchHits = geomBoardElasticRepository.findByTitle(keyword);
         //SearchHits<AlcoholDocument> searchHits = alcoholElasticsearchRepository.findAllBy();
-
+        //SearchHits<GeomBoardDocument> searchHits = geomBoardSearchService.search(keyword);
         // 리턴할 결과 Map 객체
         Map<String, Object> result = new HashMap<>();
 
