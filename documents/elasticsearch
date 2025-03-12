@@ -70,6 +70,17 @@ curl -u elastic:78keTToBM+ALeGD5AOD7 -X PUT "http://localhost:9200/geometry_boar
 }"
 
 
+☆ 인덱스 조회 ☆
 curl -u elastic:78keTToBM+ALeGD5AOD7 -X GET "http://localhost:9200/_cat/indices?v"
 
+☆ 데이터 갯수 ☆
+curl -u elastic:78keTToBM+ALeGD5AOD7 -X GET "http://localhost:9200/geometry_board/_count"
+
+☆ 데이터 조회 ☆
 curl -u elastic:78keTToBM+ALeGD5AOD7 -X GET "http://localhost:9200/geometry_board/_search?pretty"
+
+☆ 특정 키워드의 데이터 조회 쿼리 ☆
+curl -u elastic:78keTToBM+ALeGD5AOD7 -X GET "http://localhost:9200/geometry_board/_search?pretty" -H "Content-Type: application/json" -d "{ \"query\": { \"multi_match\": { \"query\": \"1\", \"fields\": [\"title\", \"contents1\", \"contents2\", \"userName\", \"userEmail\", \"userAddress\", \"zipCode\"], \"type\": \"best_fields\" } } }"
+
+☆ 데이터 전체 조회 쿼리 ☆
+curl -u elastic:78keTToBM+ALeGD5AOD7 -X GET "http://localhost:9200/geometry_board/_search?pretty" -H "Content-Type: application/json" -d "{ \"query\": { \"match_all\": {} }, \"size\" : 100 }"

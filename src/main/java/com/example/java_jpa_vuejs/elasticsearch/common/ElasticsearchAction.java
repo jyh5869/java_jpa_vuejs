@@ -56,7 +56,13 @@ public class ElasticsearchAction {
             properties.put("userAddress", Map.of("type", "keyword"));
             properties.put("zipCode", Map.of("type", "keyword"));
             properties.put("useYn", Map.of("type", "boolean"));
-            properties.put("regDt", Map.of("type", "date"));
+            //properties.put("regDt", Map.of("type", "date"));
+            // regDt에 대해 포맷 지정
+            properties.put("regDt", Map.of(
+                "type", "date",
+                "format", "yyyy-MM-dd HH:mm:ss"
+            ));
+
             properties.put("geometry", Map.of("type", "object"));
 
             Map<String, Object> mappings = new HashMap<>();

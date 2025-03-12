@@ -50,8 +50,11 @@ public class GeomBoardDocument {
     @Field(type = FieldType.Boolean)
     private Boolean useYn;
 
-    @Field(type = FieldType.Date)
-    private LocalDateTime regDt;
+    //@Field(type = FieldType.Date, pattern = "yyyy-MM-dd HH:mm:ss")
+    //private LocalDateTime regDt;
+
+    @Field(type = FieldType.Text)
+    private String regDt;
 
     @Field(type = FieldType.Object)
     private Map<String, Object> geometry;

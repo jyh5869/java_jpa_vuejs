@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service("GeomBoardSearchService")
 @RequiredArgsConstructor
 public class GeomBoardSearchService {
  

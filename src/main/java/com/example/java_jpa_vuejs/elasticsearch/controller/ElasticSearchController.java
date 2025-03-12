@@ -32,7 +32,7 @@ import com.example.java_jpa_vuejs.elasticsearch.model.AlcoholDto;
 import com.example.java_jpa_vuejs.elasticsearch.model.SearchDto;
 import com.example.java_jpa_vuejs.elasticsearch.repository.AlcoholElasticsearchRepository;
 import com.example.java_jpa_vuejs.elasticsearch.repository.GeomBoardElasticRepository;
-//import com.example.java_jpa_vuejs.elasticsearch.service.GeomBoardSearchService;
+import com.example.java_jpa_vuejs.elasticsearch.service.GeomBoardSearchService;
 import com.example.java_jpa_vuejs.geomBoard.entity.GeometryBoard;
 import com.example.java_jpa_vuejs.geomBoard.model.BoardDto;
 import com.example.java_jpa_vuejs.geomBoard.repositoryService.BoardFirebaseService;
@@ -63,7 +63,7 @@ public class ElasticSearchController {
     private final AlcoholElasticsearchRepository alcoholElasticsearchRepository;
     private final GeomBoardElasticRepository geomBoardElasticRepository;
     private final ElasticsearchAction elasticsearchAction;
-    //private final GeomBoardSearchService geomBoardSearchService;
+    // private final GeomBoardSearchService geomBoardSearchService;
 
     /**
      * title 검색어를 활용해 title 필드 타겟으로 elasticsearch에 검색 쿼리
@@ -75,10 +75,11 @@ public class ElasticSearchController {
         System.out.println("검색 할게 ☆ searchKeyword :  " + keyword);
         // elasticsearch 검색
         //SearchHits<GeomBoardDocument> searchHits = geomBoardElasticRepository.findAllBy();
-        SearchHits<GeomBoardDocument> searchHits = geomBoardElasticRepository.findByTitle(keyword);
+        //SearchHits<GeomBoardDocument> searchHits = geomBoardElasticRepository.findByTitle(keyword);
         //SearchHits<AlcoholDocument> searchHits = alcoholElasticsearchRepository.findAllBy();
-        //SearchHits<GeomBoardDocument> searchHits = geomBoardSearchService.search(keyword);
+        SearchHits<GeomBoardDocument> searchHits = geomBoardElasticRepository.searchByKeyword(keyword);
         // 리턴할 결과 Map 객체
+        
         Map<String, Object> result = new HashMap<>();
 
         // 결과 개수
@@ -144,7 +145,10 @@ public class ElasticSearchController {
 
                     //geomBoardDocument.setRegDt((String) map.get("reg_dt"));
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); // 시간 형식 확인 필요
-                    geomBoardDocument.setRegDt(LocalDateTime.parse((String) map.get("reg_dt"), formatter));
+                    //geomBoardDocument.setRegDt(LocalDateTime.parse((String) map.get("reg_dt"), formatter));
+                    
+                    geomBoardDocument.setRegDt((String) map.get("reg_dt"));
+                    System.out.println("★★★★        ★★★                " + geomBoardDocument.getRegDt());
                     
                     Object useYnObj = map.get("use_yn");
                     if (useYnObj instanceof Boolean) {
