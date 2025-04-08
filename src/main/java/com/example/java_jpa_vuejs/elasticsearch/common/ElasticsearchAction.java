@@ -79,4 +79,32 @@ public class ElasticsearchAction {
             System.err.println("Error creating index: " + e.getMessage());
         }
     }
+
+
+    /* 
+        index 삭제 함수
+        index 삭제 확인: curl -X GET "http://localhost:9200/geometry_board"
+    */
+    public boolean deleteIndex(String indexName) {
+        IndexCoordinates indexCoordinates = IndexCoordinates.of(indexName);
+    
+        // ✅ 1. IndexOperations 객체 가져오기
+        IndexOperations indexOps = elasticsearchOperations.indexOps(indexCoordinates);
+    
+        try {
+            // ✅ 2. 기존 색인이 존재하면 삭제
+            if (indexOps.exists()) {
+                System.out.println("Existing index found. Deleting: " + indexName);
+                boolean deleted = indexOps.delete();
+                System.out.println("Index deleted: " + deleted);
+                return deleted;
+            } else {
+                System.out.println("No existing index found: " + indexName);
+                return false;
+            }
+        } catch (Exception e) {
+            System.err.println("Error checking/deleting index: " + e.getMessage());
+            return false; // 오류 발생 시 false 반환
+        }
+    }
 }

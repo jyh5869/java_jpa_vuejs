@@ -19,8 +19,7 @@
                 <button class="btn btn-outline-success w-100" @click="makeSearchData()">검색 데이터 생성</button>
             </li>
             <li class="mb-2">
-                <!-- <bu
-                     tton class="btn btn-outline-success w-100" @click="tfIdfAndCosineRadaModelUse()">Tf-Idf Cosine 테스트 호출</button> -->
+                <button class="btn btn-outline-success w-100" @click="deleteSearchData()">색인 데이터 삭제</button>
             </li>
         </ul>
     </div>
@@ -52,6 +51,36 @@ export default {
 
             if (result.status === 200) {
                 console.log(result);
+            }
+        },
+        deleteSearchData: async function () {
+            try {
+                const response = await this.$axios({
+                    method: 'get',
+                    url: '/api/search/setDeleteSearchData',
+                    params: {
+                        indexName: 'geometry_board',
+                    },
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+
+                console.log(response, '★★★★');
+
+                if (response.status === 200) {
+                    const deleted = response.data.data.deleted; // ← 이 구조 중요!
+                    console.log(deleted, '★★★★');
+
+                    if (deleted === true) {
+                        alert('geometry_board 색인의 삭제가 완료되었습니다.');
+                    } else {
+                        alert('geometry_board 색인이 존재하지 않습니다.');
+                    }
+                }
+            } catch (error) {
+                console.error('삭제 요청 실패:', error);
+                alert('요청 처리 중 오류가 발생했습니다.');
             }
         },
         totalSearch: function () {

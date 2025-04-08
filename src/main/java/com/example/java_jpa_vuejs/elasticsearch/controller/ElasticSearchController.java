@@ -250,4 +250,26 @@ public class ElasticSearchController {
         } 
         
     }
+
+
+    /**
+     * title 검색어를 활용해 title 필드 타겟으로 elasticsearch에 검색 쿼리
+     * @param title title 필드 타겟의 검색어
+     * @return responseBody에 바로 적재할 수 있는 형태의 Map 객체
+     */
+    @GetMapping(value = {"/search/setDeleteSearchData"})
+    public Map<String, Object> setDeleteSearchData(String indexName) {
+        System.out.println("검색 색인 삭제할게 : 삭제할 색인:  " + indexName);
+        // elasticsearch 검색
+
+        boolean deleted = elasticsearchAction.deleteIndex(indexName);
+        // 리턴할 결과 Map 객체
+        
+        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> data = new HashMap<>();
+        data.put("deleted", deleted);
+        result.put("data", data);
+    
+        return result;
+    }
 }
