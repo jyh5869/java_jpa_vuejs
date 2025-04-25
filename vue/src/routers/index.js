@@ -70,6 +70,20 @@ const routes = [
         meta: { authRequired: true },
         props: true, // [파라메터 Y/N]
     },
+    {
+        path: '/AuthKGComponent', // [경로]
+        name: 'AuthKGComponent', // [이름]
+        component: () => import('@/components/AuthKGComponent.vue'), // [로드 파일]]
+        //meta: { authRequired: true },
+        props: true, // [파라메터 Y/N]
+    },
+    {
+        path: '/AuthKGResComponent', // [경로]
+        name: 'AuthKGResComponent', // [이름]
+        component: () => import('@/components/AuthKGResComponent.vue'), // [로드 파일]]
+        //meta: { authRequired: true },
+        props: true, // [파라메터 Y/N]
+    },
 ];
 
 // 라우터 설정 실시

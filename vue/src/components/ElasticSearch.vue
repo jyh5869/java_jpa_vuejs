@@ -75,7 +75,7 @@ export default {
                     if (deleted === true) {
                         alert('geometry_board 색인의 삭제가 완료되었습니다.');
                     } else {
-                        alert('geometry_board 색인이 존재하지 않습니다.');
+                        alert('geometry_board 색인이 존재하지 않습니다.cd');
                     }
                 }
             } catch (error) {

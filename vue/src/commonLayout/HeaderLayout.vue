@@ -46,6 +46,7 @@
                             </li>
                             <li><a class="dropdown-item" href="/MachineLearning">Machine Learning Admin</a></li>
                             <li><a class="dropdown-item" href="/ElasticSearch">Elastic Search Admin</a></li>
+                            <li><a class="dropdown-item" href="/AuthKGComponent">KG이니시스 인증</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">

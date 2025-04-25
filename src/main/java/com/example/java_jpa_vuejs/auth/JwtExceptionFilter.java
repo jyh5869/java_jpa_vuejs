@@ -23,6 +23,14 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain) throws ServletException, IOException {
        
+        String uri = req.getRequestURI();
+
+        // ✅ 인증 예외처리 경로는 필터 통과만 시킴
+        if (uri.startsWith("/api/noAuth")) {
+            filterChain.doFilter(req, res);
+            return;
+        }
+
         try {
             LOG.info("스프링 시큐리티 Before Filter1 Action!");
             filterChain.doFilter(req, res); // go to 'AuthProvider'

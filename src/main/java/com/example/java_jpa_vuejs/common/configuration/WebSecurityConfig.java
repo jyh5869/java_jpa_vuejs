@@ -68,8 +68,10 @@ public class WebSecurityConfig extends WebSecurityConfiguration {
 					.requestMatchers("/api/idValidation").permitAll()// 로그인 페이지 접근
                     .requestMatchers("/api/reissuance").permitAll()// 토큰 재발행
                     .requestMatchers("/api/setSendAuthEmail").permitAll()// 토큰 재발행 
-                    .requestMatchers("/api/noAuth/*").permitAll() // 예외처리 포인트 접근
-					.requestMatchers("/exception/**").permitAll() // 예외처리 포인트 접근
+                    .requestMatchers("/api/noAuth/**").permitAll() // 예외처리 포인트 접근 /noAuth/success
+					.requestMatchers("/api/noAuth/success").permitAll()
+                    .requestMatchers("/api/noAuth/fail").permitAll()
+                    .requestMatchers("/exception/**").permitAll() // 예외처리 포인트 접근
 					//.requestMatchers("/**").hasRole("USER")// 상세 권한 설정
                     .anyRequest().authenticated() 
 				.and()

@@ -1,6 +1,10 @@
 package com.example.java_jpa_vuejs.auth.controller;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,7 +13,9 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.modelmapper.ModelMapper;
+import org.apache.tomcat.util.json.JSONParser;
 import org.hibernate.mapping.Join;
+import org.json.JSONObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +29,8 @@ import com.example.java_jpa_vuejs.auth.AuthProvider;
 import com.example.java_jpa_vuejs.auth.AuthenticationDto;
 import com.example.java_jpa_vuejs.auth.JoinDto;
 import com.example.java_jpa_vuejs.auth.LoginDto;
+import com.example.java_jpa_vuejs.auth.authUtil.SEED_ENC;
+import com.example.java_jpa_vuejs.auth.authUtil.SHA256;
 import com.example.java_jpa_vuejs.auth.entity.Members;
 import com.example.java_jpa_vuejs.common.configuration.FirebaseConfiguration;
 import com.example.java_jpa_vuejs.common.model.PaginationDto;
@@ -31,12 +39,35 @@ import com.example.java_jpa_vuejs.common.repositoryService.PaginationFirebaseSer
 import com.example.java_jpa_vuejs.common.utility.PaginationAsyncCloud;
 import com.example.java_jpa_vuejs.auth.repositoryService.SignFirebaseService;
 import com.example.java_jpa_vuejs.auth.repositoryService.SignService;
-import com.google.gson.JsonObject;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
 
+
+
+//import javax.servlet.http.HttpServletRequest;
+//import javax.servlet.http.HttpServletResponse;
+//import org.json.simple.JSONObject;
+//import org.json.simple.parser.JSONParser;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -506,4 +537,169 @@ public class AuthController {
             return ResponseEntity.ok().headers(responseHeaders).body(loginDto);
         }
     }
+
+    @PostMapping("/noAuth/generate-request-info")
+    public Map<String, String> generateRequestInfo(@RequestBody Map<String, String> req) {
+        //String mid = "INIiasTest";
+        //String apiKey = "TGdxb2l3enJDWFRTbTgvREU3MGYwUT09";
+
+        String mid = "ltmetrcias";
+        String apiKey = "fd3a2c94846b6b1087322934db8895b6";
+
+        String reqSvcCd = "01";
+        String mTxId = "mTxId_" + System.currentTimeMillis();
+        String reservedMsg = "isUseToken=Y";
+
+        String userName = req.get("userName");
+        String userPhone = req.get("userPhone");
+        String userBirth = req.get("userBirth");
+        String flgFixedUser = "Y";
+
+        SHA256 hasher = new SHA256();
+        String authHash = hasher.sha256(mid + mTxId + apiKey);
+        String userHash = hasher.sha256(userName + mid + userPhone + mTxId + userBirth + reqSvcCd);
+
+        Map<String, String> result = new HashMap<>();
+        result.put("mid", mid);
+        result.put("reqSvcCd", reqSvcCd);
+        result.put("mTxId", mTxId);
+        result.put("authHash", authHash);
+        result.put("flgFixedUser", flgFixedUser);
+        result.put("userName", userName);
+        result.put("userPhone", userPhone);
+        result.put("userBirth", userBirth);
+        result.put("userHash", userHash);
+        result.put("reservedMsg", reservedMsg);
+        result.put("successUrl", "http://localhost:8000/api/noAuth/success");
+        result.put("failUrl", "http://localhost:8000/api/noAuth/fail");
+        return result;
+    }
+
+    @PostMapping(value = "/noAuth/success", produces = "text/html; charset=UTF-8")
+    public String handleSuccess(HttpServletRequest request, HttpServletResponse response) {
+        System.out.println("성공!!!");
+        try {
+            request.setCharacterEncoding("UTF-8");
+
+            String resultCode = request.getParameter("resultCode");
+            String resultMsg = request.getParameter("resultMsg");
+
+            if (!"0000".equals(resultCode)) {
+                return "<p>인증 실패 결과</p><p>" + resultCode + "</p><p>" + resultMsg + "</p>";
+            }
+
+            String authRequestUrl = request.getParameter("authRequestUrl");
+            String txId = request.getParameter("txId");
+            String token = request.getParameter("token");
+
+            //authRequestUrl = URLDecoder.decode(resultMsg, "UTF-8");
+            //txId = URLDecoder.decode(resultMsg, "UTF-8");
+            //token = URLDecoder.decode(resultMsg, "UTF-8");
+
+            System.out.println("[DEBUG] authRequestUrl = " + authRequestUrl);
+            System.out.println("[DEBUG] txId = " + txId);
+            System.out.println("[DEBUG] resultCode = " + resultCode);
+            System.out.println("[DEBUG] resultMsg = " + resultMsg);
+
+            if (authRequestUrl == null || !(authRequestUrl.startsWith("https://kssa.inicis.com") || authRequestUrl.startsWith("https://fcsa.inicis.com"))) {
+                return "<p>인증 서버 URL이 유효하지 않습니다. [" + authRequestUrl + "]</p>";
+            }
+
+            JsonObject reqJson = new JsonObject();
+            reqJson.addProperty("mid", "INIiasTest"); // 실서비스에서는 상점 MID로 대체
+            reqJson.addProperty("txId", txId);
+
+            URL url = new URL(authRequestUrl);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+            conn.setConnectTimeout(3000);
+            conn.setReadTimeout(9999);
+
+            OutputStream os = conn.getOutputStream();
+            os.write(reqJson.toString().getBytes(StandardCharsets.UTF_8));
+            os.flush();
+            os.close();
+            
+            int responseCode = conn.getResponseCode();
+            System.out.println("[DEBUG] 이니시스 응답코드 = " + responseCode);
+
+            if (responseCode == 403) {
+                return "<p>이니시스 서버에서 Access Denied 응답을 받았습니다. MID 또는 txId를 확인하세요.</p>";
+            }
+
+            JsonObject resJson = null;
+            if (responseCode == HttpServletResponse.SC_OK) {
+                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line);
+                }
+                br.close();
+                resJson = JsonParser.parseString(sb.toString()).getAsJsonObject();
+            }
+
+            StringBuilder html = new StringBuilder();
+            html.append("<html><head><meta charset='UTF-8'><title>인증결과</title>");
+            html.append("<style>body{font-family:sans-serif;}table{border-collapse:collapse;margin:20px auto;}td,th{border:1px solid #ccc;padding:8px;}</style></head><body>");
+            html.append("<h2>본인인증 결과</h2><table>");
+
+            if (resJson != null) {
+                String decryptedUserName = "";
+                String decryptedUserCi = "";
+
+                try {
+                    decryptedUserName = new SEED_ENC().decrypt(resJson.get("userName").getAsString(), token);
+                    decryptedUserCi = new SEED_ENC().decrypt(resJson.get("userCi").getAsString(), token);
+
+                    decryptedUserName = URLDecoder.decode(decryptedUserName, "UTF-8");
+                    decryptedUserCi = URLDecoder.decode(decryptedUserCi, "UTF-8");
+                } catch (Exception e) {
+                    System.out.println("[ERROR] 복호화 실패: " + e.getMessage());
+                }
+
+                for (Map.Entry<String, com.google.gson.JsonElement> entry : resJson.entrySet()) {
+                    html.append("<tr><th>").append(entry.getKey()).append("</th><td>").append(entry.getValue().getAsString()).append("</td></tr>");
+                }
+
+                html.append("<tr><th>복호화된 사용자 이름</th><td>").append(decryptedUserName).append("</td></tr>");
+                html.append("<tr><th>복호화된 CI</th><td>").append(decryptedUserCi).append("</td></tr>");
+            }
+
+            html.append("</table></body></html>");
+            return html.toString();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "<p>처리 중 오류 발생: " + e.getMessage() + "</p>";
+        }
+    }
+
+    @PostMapping(value = "/noAuth/fail", produces = "text/html; charset=UTF-8")
+    public String handleFail(HttpServletRequest request, HttpServletResponse response) {
+        System.out.println("실패!!!");
+        try {
+            request.setCharacterEncoding("UTF-8");
+            String resultCode = request.getParameter("resultCode");
+            String resultMsg = request.getParameter("resultMsg");
+
+            String decodedMsg = URLDecoder.decode(resultMsg, "UTF-8");
+
+            StringBuilder html = new StringBuilder();
+            html.append("<html><head><meta charset='UTF-8'><title>인증 실패</title>");
+            html.append("<style>body{font-family:sans-serif;text-align:center;margin-top:50px;}p{font-size:18px;}</style></head><body>");
+            html.append("<h2>본인인증 실패</h2>");
+            html.append("<p>실패 사유 코드: ").append(resultCode).append("</p>");
+            html.append("<p>실패 메시지: ").append(decodedMsg).append("</p>");
+            html.append("</body></html>");
+
+            return html.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "<p>처리 중 오류 발생: " + e.getMessage() + "</p>";
+        }
+    }
+
 }
