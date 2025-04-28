@@ -38,6 +38,16 @@ public class CustomFilter extends GenericFilterBean {
         HttpServletRequest httpReq = (HttpServletRequest)request;
         HttpServletResponse httpRes = (HttpServletResponse) response;
         
+        String path = ((HttpServletRequest) request).getRequestURI();
+        // 1) noAuth 경로는 토큰 검사 없이 바로 다음 필터로
+        LOG.info("스프링 시큐리티 URL = " + path);
+        if (path.startsWith("/api/noAuth/callback") || "/favicon.ico".equals(path)) {
+            LOG.info("스프링 시큐리티 URL = " + path);
+            filterChain.doFilter(request, response);
+            httpRes.setStatus(HttpServletResponse.SC_OK);
+            return;
+        }
+
         LOG.info("스프링 시큐리티 Before Filter2 Action!");
         try {
             if("OPTIONS".equalsIgnoreCase(httpReq.getMethod())) {

@@ -13,15 +13,18 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.modelmapper.ModelMapper;
+import org.apache.catalina.util.URLEncoder;
 import org.apache.tomcat.util.json.JSONParser;
 import org.hibernate.mapping.Join;
 import org.json.JSONObject;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -45,11 +48,12 @@ import com.google.gson.JsonParser;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
 
-
+import java.nio.charset.StandardCharsets;
 
 //import javax.servlet.http.HttpServletRequest;
 //import javax.servlet.http.HttpServletResponse;
@@ -537,14 +541,27 @@ public class AuthController {
             return ResponseEntity.ok().headers(responseHeaders).body(loginDto);
         }
     }
-
+/* 
     @PostMapping("/noAuth/generate-request-info")
-    public Map<String, String> generateRequestInfo(@RequestBody Map<String, String> req) {
-        //String mid = "INIiasTest";
-        //String apiKey = "TGdxb2l3enJDWFRTbTgvREU3MGYwUT09";
+    public Map<String, String> generateRequestInfo(@RequestBody Map<String, String> req, HttpSession session) {
+        //@RequestParam(value="redirectTo", defaultValue="#/my-posts") String redirectTo
 
-        String mid = "ltmetrcias";
-        String apiKey = "fd3a2c94846b6b1087322934db8895b6";
+        
+
+        // 2) 인증 완료 후 돌아갈 클라이언트 라우트 저장
+        String redirectTo = req.get("redirectTo");
+        session.setAttribute("redirectAfterAuth", redirectTo);
+        System.out.println("☆ ------------- redirectTo = " + redirectTo);
+
+        String callbackBase = "http://localhost:8000/api/noAuth/callback";
+        // URL-encode
+        String callbackUrl = callbackBase + "?redirectTo=" + redirectTo;
+
+
+        String mid = "INIiasTest";
+        String apiKey = "TGdxb2l3enJDWFRTbTgvREU3MGYwUT09";
+        //String mid = "ltmetrcias";
+        //String apiKey = "fd3a2c94846b6b1087322934db8895b6";
 
         String reqSvcCd = "01";
         String mTxId = "mTxId_" + System.currentTimeMillis();
@@ -570,9 +587,69 @@ public class AuthController {
         result.put("userBirth", userBirth);
         result.put("userHash", userHash);
         result.put("reservedMsg", reservedMsg);
-        result.put("successUrl", "http://localhost:8000/api/noAuth/success");
-        result.put("failUrl", "http://localhost:8000/api/noAuth/fail");
+        result.put("successUrl", callbackUrl);
+        result.put("failUrl", callbackUrl);
+        //result.put("successUrl", "http://localhost:8000/api/noAuth/success");
+        //result.put("failUrl", "http://localhost:8000/api/noAuth/fail");
         return result;
+    }
+
+    @RequestMapping(
+        value    = "/noAuth/callback",
+        method   = { RequestMethod.GET, RequestMethod.POST },
+        produces = "text/html; charset=UTF-8"
+    )
+    public ResponseEntity<String> callback(@RequestParam Map<String,String> params, HttpSession session, HttpServletRequest request) {
+
+        try {
+            request.setCharacterEncoding("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        System.out.println("인증 완료!@!@!@!@!@");
+        // 1) txId 검증, 2) CI 복호화 → session.setAttribute("userCi", userCi);
+
+        // 1) 본인인증 SA가 보내주는 파라미터들
+        //String resultCode     = request.getParameter("resultCode");
+        //String authRequestUrl = request.getParameter("authRequestUrl");
+        //String mTxId          = request.getParameter("mTxId");
+        //String token          = request.getParameter("token");
+        // 2) 쿼리스트링으로 넘어온 redirectTo
+        String redirectTo     = "#"+request.getParameter("redirectTo");
+        // 3) 클라이언트가 원래 요청한 경로
+        //String redirectTo = (String) session.getAttribute("redirectAfterAuth");
+        //session.removeAttribute("redirectAfterAuth");
+
+        System.out.println("redirectToredirectToredirectToredirectToredirectTo == " + redirectTo);
+
+        if (redirectTo == null || redirectTo.isBlank()) {
+            redirectTo = "/";  // 기본 경로
+        }
+
+        // 4) 팝업에서 실행할 JS: 메인 창 리다이렉트 후 팝업 닫기
+        String script = """
+        <html><body>
+            <script>
+            // alert("인증창 닫을게요.);
+            // 부모 창(메인) 이동
+            window.opener.location.href = '%s';
+            // 팝업 닫기
+            window.close();
+            </script>
+            <p>인증이 완료되어 창을 닫습니다...</p>
+        </body></html>
+        """.formatted(redirectTo);
+
+        return ResponseEntity.ok()
+            .contentType(MediaType.TEXT_HTML)
+            .body(script);
+    }
+*/
+    @PostMapping("/noAuth/myList")
+    public void getMyPosts(HttpSession session) {
+        System.out.println("내 글쓰기 진입");
     }
 
     @PostMapping(value = "/noAuth/success", produces = "text/html; charset=UTF-8")
@@ -670,6 +747,7 @@ public class AuthController {
 
             html.append("</table></body></html>");
             return html.toString();
+            
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -701,5 +779,4 @@ public class AuthController {
             return "<p>처리 중 오류 발생: " + e.getMessage() + "</p>";
         }
     }
-
 }

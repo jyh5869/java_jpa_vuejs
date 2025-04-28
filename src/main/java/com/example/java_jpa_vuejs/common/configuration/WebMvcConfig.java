@@ -15,6 +15,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOrigins("http://localhost:8080") // 허용할 클라이언트 도메인
                 .allowedOrigins("https://www.juso.go.kr") // 허용할 클라이언트 도메인
+                .allowedOrigins("https://sa.inicis.com")// 허용할 클라이언트 도메인
                 
                 //.allowedOrigins("*") // 허용할 클라이언트 도메인
                 .allowedOriginPatterns("*") // 모든 원본을 허용
