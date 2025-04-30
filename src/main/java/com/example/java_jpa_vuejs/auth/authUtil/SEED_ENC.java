@@ -9,7 +9,9 @@ public class SEED_ENC {
 	public String decrypt(String str , String key) {
 		
     	byte[] Key = new String(key).getBytes();
-        byte[] SEEED_IV = new String("SASLTMETRCIAS000").getBytes();
+        
+		//byte[] SEEED_IV = new String("SASLTMETRCIAS000").getBytes();//운영 SEED_IV
+		byte[] SEEED_IV = new String("SASKGINICIS00000").getBytes();//테스트 SEED_IV
         
         Decoder decoder1 = Base64.getDecoder(); 
         byte[] SEED_Key = decoder1.decode(Key);  

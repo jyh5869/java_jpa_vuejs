@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 import com.example.java_jpa_vuejs.auth.authUtil.SEED_ENC;
 import com.example.java_jpa_vuejs.auth.authUtil.SHA256;
 
+import org.springframework.http.HttpHeaders;
 
 /**
  * ① generate-request-info: 인증창에 넘길 파라미터 생성
@@ -43,11 +44,11 @@ public class NoAuthController {
 
     private final RedirectService redirectService;
     
-    //private final String mid         = "INIiasTest";
-    //private final String apiKey      = "TGdxb2l3enJDWFRTbTgvREU3MGYwUT09";
+    private final String mid         = "INIiasTest";
+    private final String apiKey      = "TGdxb2l3enJDWFRTbTgvREU3MGYwUT09";
 
-    private final String mid         = "ltmetrcias";
-    private final String apiKey      = "fd3a2c94846b6b1087322934db8895b6";
+    //private final String mid         = "ltmetrcias";
+    //private final String apiKey      = "fd3a2c94846b6b1087322934db8895b6";
 
     private final String callbackBase = "http://localhost:8000/api/noAuth/callback";
 
@@ -59,7 +60,8 @@ public class NoAuthController {
     public Map<String, String> generateRequestInfo(
             @RequestBody Map<String, String> req) throws UnsupportedEncodingException {
         String redirectTo = req.getOrDefault("redirectTo", "/");
-        String reqSvcCd   = "01";
+        String reqSvcCd   = "03";//["01":간편인증, "02":전자서명, "03":본인확인] ※02 (전자서명) 일 경우, identifier 파라미터 추가 세팅필요	
+
         String mTxId      = "mTxId_" + System.currentTimeMillis();
         String reservedMsg= "isUseToken=Y";
         String userName   = req.get("userName");
@@ -105,7 +107,7 @@ public class NoAuthController {
     public ResponseEntity<String> callback(@RequestParam Map<String,String> params, HttpServletRequest request) throws IOException {
        try {
         // 1) UTF-8 세팅
-        //request.setCharacterEncoding("UTF-8");
+        request.setCharacterEncoding("UTF-8");
 
         // 2) 콜백 파라미터 꺼내기
         String resultCode     = request.getParameter("resultCode");
@@ -121,7 +123,7 @@ public class NoAuthController {
             String decodedMsg = URLDecoder.decode(resultMsg, "UTF-8");
             JSONObject payload = new JSONObject();
             payload.put("resultCode", resultCode);
-            payload.put("resultMsg",  decodedMsg);
+            payload.put("resultMsg",  resultMsg);
             payload.put("redirectTo", redirectTo);
 
             String htmlFail =
@@ -137,7 +139,7 @@ public class NoAuthController {
               "</body></html>";
 
             return ResponseEntity.ok()
-                                 .contentType(MediaType.TEXT_HTML)
+                                .contentType(MediaType.parseMediaType("text/html; charset=UTF-8"))
                                  .body(htmlFail);
         }
 
@@ -215,7 +217,8 @@ public class NoAuthController {
           String dec = seed.decrypt(resJson.getString("userName"), token);
           String utf8 = URLDecoder.decode(dec, "UTF-8");
           resJson.put("userName", utf8);
-          System.out.println("userName (dec)     : " + utf8);
+          System.out.println("userName (dec)    : " + dec);
+          System.out.println("userName (dec)    : " + utf8);
       }
       if (resJson.has("userPhone")) {
           String dec = seed.decrypt(resJson.getString("userPhone"), token);
@@ -257,15 +260,17 @@ public class NoAuthController {
           String dec = seed.decrypt(resJson.getString("userDi"), token);
           String utf8 = URLDecoder.decode(dec, "UTF-8");
           resJson.put("userDi", utf8);
-          System.out.println("userDi (dec)       : " + utf8);
+          System.out.println("userDi (dec1)       : " + utf8);
+          System.out.println("userDi (dec2)       : " + resJson.getString("userDi"));
       }
+       
       if (resJson.has("userCi2")) {
-          String dec = seed.decrypt(resJson.getString("userCi2"), token);
-          String utf8 = URLDecoder.decode(dec, "UTF-8");
-          resJson.put("userCi2", utf8);
-          System.out.println("userCi2 (dec)      : " + utf8);
+          //String dec = seed.decrypt(resJson.getString("userCi2"), token);
+          //String utf8 = URLDecoder.decode(dec, "UTF-8");
+          //resJson.put("userCi2", utf8);
+          System.out.println("userCi2 (dec)      : " + resJson.getString("userCi2"));
       }
-
+        
         // 10) redirectTo 추가
         resJson.put("redirectTo", redirectTo);
 
@@ -284,14 +289,14 @@ public class NoAuthController {
           "</body></html>";
 
         return ResponseEntity.ok()
-                             .contentType(MediaType.TEXT_HTML)
+                             .contentType(MediaType.parseMediaType("text/html; charset=UTF-8"))
                              .body(html);
 
     } catch (Exception e) {
         e.printStackTrace();
         String err = "<p>처리 중 오류 발생: " + e.getMessage() + "</p>";
         return ResponseEntity.status(500)
-                             .contentType(MediaType.TEXT_HTML)
+                            .contentType(MediaType.parseMediaType("text/html; charset=UTF-8"))
                              .body(err);
     }
 }
