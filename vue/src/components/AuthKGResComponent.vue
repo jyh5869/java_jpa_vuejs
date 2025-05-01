@@ -1,5 +1,5 @@
 <template>
-    <div class="result-container">
+    <div class="result-container" v-if="isInicis">
         <header class="result-header">
             <h1>본인인증 결과</h1>
             <div class="status" :class="{ success: isSuccess, fail: !isSuccess }">
@@ -86,6 +86,19 @@
             </table>
         </div>
     </div>
+
+    <div class="nice-result" v-if="isNice">
+        <h2>NICE 본인인증 결과</h2>
+        <div v-if="result">
+            <div class="result-item" v-for="(value, key) in result" :key="key">
+                <span class="label">{{ key }}</span>
+                <span class="value">{{ decode(value) }}</span>
+            </div>
+        </div>
+        <div v-else>
+            <p>본인인증 결과를 불러올 수 없습니다.</p>
+        </div>
+    </div>
 </template>
 
 <script setup>
@@ -93,6 +106,10 @@ import { useRoute } from 'vue-router';
 const route = useRoute();
 const query = route.query;
 const isSuccess = query.resultCode === '0000';
+
+const authType = query.type || (query.txId ? 'INICIS' : 'NICE');
+const isNice = authType === 'NICE_AUTH_COMPLETE' || authType === 'NICE';
+const isInicis = authType === 'INICIS_AUTH_COMPLETE' || authType === 'INICIS';
 
 function decode(val) {
     try {
@@ -175,5 +192,35 @@ function decode(val) {
     .result-table td {
         padding: 0.5rem;
     }
+}
+
+.nice-result {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+h2 {
+    margin-bottom: 20px;
+    text-align: center;
+    color: #333;
+}
+.result-item {
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 6px;
+}
+.label {
+    font-weight: bold;
+    color: #555;
+    width: 150px;
+}
+.value {
+    color: #222;
+    word-break: break-all;
 }
 </style>

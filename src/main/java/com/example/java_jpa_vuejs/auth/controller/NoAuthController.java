@@ -33,6 +33,9 @@ import com.example.java_jpa_vuejs.auth.authUtil.SEED_ENC;
 import com.example.java_jpa_vuejs.auth.authUtil.SHA256;
 
 import org.springframework.http.HttpHeaders;
+import com.example.java_jpa_vuejs.auth.authUtil.NiceID.CPClient;
+
+//import NiceID.Check.CPClient;
 
 /**
  * ① generate-request-info: 인증창에 넘길 파라미터 생성
@@ -57,8 +60,8 @@ public class NoAuthController {
     }
 
     @PostMapping("/generate-request-info")
-    public Map<String, String> generateRequestInfo(
-            @RequestBody Map<String, String> req) throws UnsupportedEncodingException {
+    public Map<String, String> generateRequestInfo( @RequestBody Map<String, String> req) throws UnsupportedEncodingException {
+
         String redirectTo = req.getOrDefault("redirectTo", "/");
         String reqSvcCd   = "03";//["01":간편인증, "02":전자서명, "03":본인확인] ※02 (전자서명) 일 경우, identifier 파라미터 추가 세팅필요	
 
@@ -300,45 +303,121 @@ public class NoAuthController {
                              .body(err);
     }
 }
-  /*
-     /**
+
+    private final String siteCode         = "G7817";
+    private final String returnUrl      = "http://localhost:8000/api/noAuth/callback/nice";
+    private final String sitePassword = "UN1UOX4TSJAT";
+    private final String errorUrl = "http://localhost:8000/api/noAuth/callback/nice";
+
+    @PostMapping("/request/nice")
+    public ResponseEntity<Map<String, String>> getEncData(HttpSession session , @RequestBody Map<String, String> request) throws UnsupportedEncodingException {
+        System.out.println(" 나 이 스 본 인 인 증 진 입");
+
+        String redirectTo = request.getOrDefault("redirectTo", "/");
+        System.out.println("redirectTo = " + redirectTo);
+        
+        // callback URL에 redirectTo 쿼리 인코딩 포함
+        //String encodedRedirect = URLEncoder.encode(redirectTo, StandardCharsets.UTF_8.toString());
+        String callbackUrl = returnUrl + "?redirectTo=" + redirectTo;
+
+        
+        CPClient niceCheck = new CPClient();
+        String sRequestNumber = niceCheck.getRequestNO(siteCode);
+        session.setAttribute("REQ_SEQ", sRequestNumber); // 세션 저장
+
+        String authType = "";
+        String customize = "";
+
+        String sPlainData = "7:REQ_SEQ" + sRequestNumber.getBytes().length + ":" + sRequestNumber
+                + "8:SITECODE" + siteCode.getBytes().length + ":" + siteCode
+                + "9:AUTH_TYPE" + authType.getBytes().length + ":" + authType
+                + "7:RTN_URL" + callbackUrl.getBytes().length + ":" + callbackUrl
+                + "7:ERR_URL" + errorUrl.getBytes().length + ":" + errorUrl
+                + "9:CUSTOMIZE" + customize.getBytes().length + ":" + customize;
+
+        int iReturn = niceCheck.fnEncode(siteCode, sitePassword, sPlainData);
+
+        if (iReturn == 0) {
+            return ResponseEntity.ok(Map.of(
+                "encData", niceCheck.getCipherData(),
+                "siteCode", siteCode
+            ));
+        } else {
+            return ResponseEntity.status(500).body(Map.of("error", "암호화 실패 코드: " + iReturn));
+        }
+            
+    }
+
+    /**
      * Inicis 인증 완료 후 호출되는 콜백.
      * 모든 쿼리 파라미터를 JSON 객체로 만들어 popup.opener.postMessage 로 전달합니다.
-     
+    */
     @RequestMapping(
-        value    = "/callback",
+        value    = "/callback/nice",
         method   = { RequestMethod.GET, RequestMethod.POST },
-        produces = MediaType.TEXT_HTML_VALUE
-    )
-    public ResponseEntity<String> callback(@RequestParam Map<String,String> params) {
-      // 모든 파라미터를 JSON으로 직렬화
-      JsonObject json = new JsonObject();
-      params.forEach((k,v) -> json.addProperty(k, v));
+        produces = MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<String> callbackNice(@RequestParam Map<String,String> params, HttpServletRequest request) throws IOException {
+        try {
+            request.setCharacterEncoding("UTF-8");
 
-      // 부모 창 origin을 하드코딩
-      String parentOrigin = "http://localhost:8080";
+            String redirectTo = request.getParameter("redirectTo");
+            String encodeData = request.getParameter("EncodeData");
 
-      String html =
-        "<!DOCTYPE html>\n" +
-        "<html><head><meta charset=\"UTF-8\">\n" +
-        // favicon 요청 차단
-        "<link rel=\"icon\" href=\"data:;base64,=\" />\n" +
-        "</head><body>\n" +
-        "<script>\n" +
-        "  const payload = " + json.toString() + ";\n" +
-        "  // 부모(origin 8080)로 메시지 전송\n" +
-        "  window.opener.postMessage(\n" +
-        "    { type: 'INICIS_AUTH_COMPLETE', payload },\n" +
-        "    '" + parentOrigin + "'\n" +
-        "  );\n" +
-        "  window.close();\n" +
-        "</script>\n" +
-        "<p>인증이 완료되어 창을 닫습니다...</p>\n" +
-        "</body></html>";
+            if (encodeData == null || encodeData.isEmpty()) {
+                return ResponseEntity.badRequest().body("<p>파라미터 누락</p>");
+            }
 
-      return ResponseEntity.ok()
-                           .contentType(MediaType.TEXT_HTML)
-                           .body(html);
-  }
-  */
+            // 디코딩 수행
+            com.example.java_jpa_vuejs.auth.authUtil.NiceID.CPClient niceCheck = new com.example.java_jpa_vuejs.auth.authUtil.NiceID.CPClient();
+            //String siteCode = "YOUR_SITE_CODE"; // TODO: 외부 설정으로 교체
+            //String sitePassword = "YOUR_SITE_PASSWORD";
+
+            int result = niceCheck.fnDecode(siteCode, sitePassword, encodeData);
+
+            JSONObject payload = new JSONObject();
+            payload.put("resultCode", result);
+            if (result == 0) {
+                String plainData = niceCheck.getPlainData();
+                payload.put("plainData", plainData);
+                Map<String, String> dataMap = niceCheck.fnParse(plainData);
+                if (dataMap != null) {
+                    System.out.println("== NICE 응답 결과 ==");
+                    for (Map.Entry<String, String> entry : dataMap.entrySet()) {
+                        payload.put(entry.getKey(), entry.getValue());
+                        System.out.println(entry.getKey() + " : " + entry.getValue());
+                    }
+                    System.out.println("====================");
+                }
+            } else {
+                payload.put("errorMsg", "NICE 복호화 실패: 코드 " + result);
+                System.out.println("[ERROR] NICE 복호화 실패: 코드 " + result);
+            }
+
+            // 10) redirectTo 추가
+            payload.put("redirectTo", redirectTo);
+            System.out.println( "redirectTo ------------------------------- > "+redirectTo);
+            // JSON 문자열 안전 삽입
+            String html = "<!DOCTYPE html>" +
+                    "<html><head><meta charset=\"UTF-8\"></head><body>" +
+                    "<script>" +
+                    "  window.opener.postMessage({ type: 'NICE_AUTH_COMPLETE', payload: " +
+                    //payload.toString().replace("\"", "\\\"") +
+                    JSONObject.quote(payload.toString()) +
+                    " }, '*');" +
+                    "  window.close();" +
+                    "</script>" +
+                    "</body></html>";
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType("text/html; charset=UTF-8"))
+                    .body(html);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            String err = "<p>오류 발생: " + e.getMessage() + "</p>";
+            return ResponseEntity.status(500)
+                    .contentType(MediaType.parseMediaType("text/html; charset=UTF-8"))
+                    .body(err);
+        }
+    }
 }

@@ -77,6 +77,14 @@
             <button class="Btn" @click="callSa">인증요청</button>
         </div>
     </div>
+
+    <div>
+        <button @click="requestNiceAuth">본인인증</button>
+        <form ref="niceForm" method="post" target="popupChk" action="https://nice.checkplus.co.kr/CheckPlusSafeModel/checkplus.cb">
+            <input type="hidden" name="EncodeData" :value="encodeData" />
+            <input type="hidden" name="m" value="checkplusService" />
+        </form>
+    </div>
 </template>
 
 <script setup>
@@ -98,16 +106,33 @@ function handleMessage(event) {
     if (event.source !== popupWindow) return;
 
     const msg = event.data;
-    if (msg?.type !== 'INICIS_AUTH_COMPLETE') return;
+    console.log(' ☆ ☆ ☆ ☆ ☆ ☆ ☆ ');
+    console.log(msg);
+    if (msg?.type !== 'INICIS_AUTH_COMPLETE' && msg?.type !== 'NICE_AUTH_COMPLETE') return;
 
-    const payload = msg.payload || {};
-    console.log('KG이니시스 인증 결과:', payload);
-    if (payload.redirectTo)
-        // 3) 받은 모든 파라미터를 query 로 붙여서 라우팅
-        router.push({
-            path: payload.redirectTo,
-            query: payload,
-        });
+    if (msg?.type == 'INICIS_AUTH_COMPLETE') {
+        const payload = msg.payload || {};
+        console.log('KG이니시스 인증 결과:', payload);
+        if (payload.redirectTo) {
+            // 3) 받은 모든 파라미터를 query 로 붙여서 라우팅
+            router.push({
+                path: payload.redirectTo,
+                query: payload,
+            });
+        }
+    }
+
+    if (msg?.type == 'NICE_AUTH_COMPLETE') {
+        const payload = msg.payload || {};
+        console.log('NICE 인증 결과:', payload);
+        if (payload.redirectTo) {
+            // 3) 받은 모든 파라미터를 query 로 붙여서 라우팅
+            router.push({
+                path: payload.redirectTo,
+                query: payload,
+            });
+        }
+    }
 
     window.removeEventListener('message', handleMessage);
 }
@@ -175,6 +200,41 @@ const callSa = () => {
             console.error('saForm이 undefined 입니다.');
         }
     }, 300);
+};
+
+/*
+ *
+ *
+ * 나이스 인증
+ *
+ */
+const encodeData = ref('');
+const niceForm = ref(null);
+
+const requestNiceAuth = async () => {
+    try {
+        const userInfo = {
+            userName: '조영현',
+            userPhone: '01049255869',
+            userBirth: '19910604',
+            redirectTo: '/AuthKGResComponent',
+        };
+
+        const res = await axios.post('/api/noAuth/request/nice', userInfo);
+        encodeData.value = res.data.encData;
+        console.log(res.data.encData);
+        const popup = window.open('', 'popupChk', 'width=500,height=550,top=100,left=100');
+        if (popup && niceForm.value) {
+            setTimeout(() => {
+                niceForm.value.submit();
+            }, 200);
+        } else {
+            alert('팝업이 차단되었습니다.');
+        }
+    } catch (e) {
+        alert('본인인증 요청 중 오류 발생');
+        console.error(e);
+    }
 };
 </script>
 
