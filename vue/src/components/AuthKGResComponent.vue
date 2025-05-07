@@ -1,13 +1,31 @@
 <template>
-    <div class="result-container" v-if="isInicis">
+    <!-- 
+        KG 이니시스 CI : CI 값이 공백으로 구분되어 세개의 문자열로 구성  -> 공백 제거시 NICE와 동일
+        NICE CI: CI값이 공백 대신 + 문자열로 이어붙혀 하나의 문자열로구성 -> + 제거시 KG 이니시스와 동일
+
+        KG 이니시스 DI : 서로다름 BUT> CP코드를 일치시켜 동일하게 리턴 가능
+        NICE DI : 서로다름 BUT> CP코드를 일치시켜 동일하게 리턴 가능
+    -->
+    <div class="result-container">
         <header class="result-header">
-            <h1>본인인증 결과</h1>
-            <div class="status" :class="{ success: isSuccess, fail: !isSuccess }">
-                <span v-if="isSuccess">✅ 인증 성공</span>
-                <span v-else>❌ 인증 실패</span>
+            <div v-if="isInicis">
+                <h1>KG 이니시스 본인인증 결과</h1>
+                <div class="status" :class="{ success: isSuccessInicis, fail: !isSuccessInicis }">
+                    <span v-if="isSuccessInicis">✅ 인증 성공</span>
+                    <span v-else>❌ 인증 실패</span>
+                </div>
+            </div>
+            <div v-if="isNice">
+                <h1>나이스 본인인증 결과</h1>
+                <div class="status" :class="{ success: isSuccessNice, fail: !isSuccessNice }">
+                    <span v-if="isSuccessNice">✅ 인증 성공</span>
+                    <span v-else>❌ 인증 실패</span>
+                </div>
             </div>
         </header>
-        <div class="table-wrapper">
+
+        <!-- KG 이니시스 인증 응답 값 START -->
+        <div class="table-wrapper" v-if="isInicis">
             <table class="result-table">
                 <tbody>
                     <tr>
@@ -85,12 +103,71 @@
                 </tbody>
             </table>
         </div>
-    </div>
+        <!-- KG 이니시스 인증 응답 값 END -->
 
+        <!-- NOICE 본인 인증 응답 값 START -->
+        <div class="table-wrapper" v-if="isNice">
+            <table class="result-table">
+                <tbody>
+                    <tr>
+                        <th>REQ_SEQ</th>
+                        <td>{{ query.REQ_SEQ }}</td>
+                    </tr>
+                    <tr>
+                        <th>휴대폰 번호 (MOBILE_NO)</th>
+                        <td>{{ query.MOBILE_NO }}</td>
+                    </tr>
+                    <tr>
+                        <th>중복가입확인값 (DI)</th>
+                        <td class="mono">{{ query.DI }}</td>
+                    </tr>
+                    <tr>
+                        <th>통신사 (MOBILE_CO)</th>
+                        <td>{{ query.MOBILE_CO }}</td>
+                    </tr>
+                    <tr>
+                        <th>연계정보 (CI)</th>
+                        <td class="mono">{{ query.CI }}</td>
+                    </tr>
+                    <tr>
+                        <th>이름 (UTF8_NAME)</th>
+                        <td>{{ decode(query.UTF8_NAME) }}</td>
+                    </tr>
+                    <tr>
+                        <th>성별 (GENDER)</th>
+                        <td>{{ query.GENDER === '1' ? '남성' : '여성' }}</td>
+                    </tr>
+                    <tr>
+                        <th>결과 고유번호 (RES_SEQ)</th>
+                        <td>{{ query.RES_SEQ }}</td>
+                    </tr>
+                    <tr>
+                        <th>생년월일 (BIRTHDATE)</th>
+                        <td>{{ query.BIRTHDATE }}</td>
+                    </tr>
+                    <tr>
+                        <th>내외국인 (NATIONALINFO)</th>
+                        <td>{{ query.NATIONALINFO === '0' ? '내국인' : '외국인' }}</td>
+                    </tr>
+                    <tr>
+                        <th>인증수단 (AUTH_TYPE)</th>
+                        <td>{{ authTypeLabel(query.AUTH_TYPE) }}</td>
+                    </tr>
+                    <tr>
+                        <th>이름 (NAME)</th>
+                        <td>{{ query.NAME }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!-- NOICE 본인 인증 응답 값 END -->
+
+    <!-- 반복문으로 응답 값 파싱 
     <div class="nice-result" v-if="isNice">
         <h2>NICE 본인인증 결과</h2>
-        <div v-if="result">
-            <div class="result-item" v-for="(value, key) in result" :key="key">
+        <div v-if="query">
+            <div class="result-item" v-for="(value, key) in query" :key="key">
                 <span class="label">{{ key }}</span>
                 <span class="value">{{ decode(value) }}</span>
             </div>
@@ -99,23 +176,43 @@
             <p>본인인증 결과를 불러올 수 없습니다.</p>
         </div>
     </div>
+     -->
 </template>
 
 <script setup>
 import { useRoute } from 'vue-router';
+
 const route = useRoute();
 const query = route.query;
-const isSuccess = query.resultCode === '0000';
 
 const authType = query.type || (query.txId ? 'INICIS' : 'NICE');
+
 const isNice = authType === 'NICE_AUTH_COMPLETE' || authType === 'NICE';
 const isInicis = authType === 'INICIS_AUTH_COMPLETE' || authType === 'INICIS';
+
+const isSuccessNice = isNice == true && query.resultCode == '0' ? true : false;
+const isSuccessInicis = isInicis == true && query.resultCode == '0000' ? true : false;
 
 function decode(val) {
     try {
         return decodeURIComponent(val);
     } catch {
         return val;
+    }
+}
+
+function authTypeLabel(type) {
+    switch (type) {
+        case 'M':
+            return '휴대폰';
+        case 'X':
+            return '공동인증서';
+        case 'S':
+            return 'PASS 인증서';
+        case 'U':
+            return '공동인증서';
+        default:
+            return type;
     }
 }
 </script>

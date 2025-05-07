@@ -325,7 +325,7 @@ public class NoAuthController {
         String sRequestNumber = niceCheck.getRequestNO(siteCode);
         session.setAttribute("REQ_SEQ", sRequestNumber); // 세션 저장
 
-        String authType = "";
+        String authType = "M";
         String customize = "";
 
         String sPlainData = "7:REQ_SEQ" + sRequestNumber.getBytes().length + ":" + sRequestNumber
@@ -395,18 +395,20 @@ public class NoAuthController {
 
             // 10) redirectTo 추가
             payload.put("redirectTo", redirectTo);
-            System.out.println( "redirectTo ------------------------------- > "+redirectTo);
-            // JSON 문자열 안전 삽입
-            String html = "<!DOCTYPE html>" +
-                    "<html><head><meta charset=\"UTF-8\"></head><body>" +
-                    "<script>" +
-                    "  window.opener.postMessage({ type: 'NICE_AUTH_COMPLETE', payload: " +
-                    //payload.toString().replace("\"", "\\\"") +
-                    JSONObject.quote(payload.toString()) +
-                    " }, '*');" +
-                    "  window.close();" +
-                    "</script>" +
-                    "</body></html>";
+
+            String parentOrigin = "http://localhost:8080";  // Vue 앱 origin
+            String html =
+                "<!DOCTYPE html>\n" +
+                "<html><head><meta charset=\"UTF-8\"></head><body>\n" +
+                "<script>\n" +
+                "  const payload = JSON.parse(" + JSONObject.quote(payload.toString()) + ");\n" +
+                "  window.opener.postMessage(\n" +
+                "    { type: 'NICE_AUTH_COMPLETE', payload: payload },\n" +
+                "    '" + parentOrigin + "'\n" +
+                "  );\n" +
+                "  window.close();\n" +
+                "</script>\n" +
+                "</body></html>";
 
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType("text/html; charset=UTF-8"))

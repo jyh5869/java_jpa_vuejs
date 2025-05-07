@@ -106,10 +106,9 @@ function handleMessage(event) {
     if (event.source !== popupWindow) return;
 
     const msg = event.data;
-    console.log(' ☆ ☆ ☆ ☆ ☆ ☆ ☆ ');
-    console.log(msg);
-    if (msg?.type !== 'INICIS_AUTH_COMPLETE' && msg?.type !== 'NICE_AUTH_COMPLETE') return;
 
+    if (msg?.type !== 'INICIS_AUTH_COMPLETE' && msg?.type !== 'NICE_AUTH_COMPLETE') return;
+    
     if (msg?.type == 'INICIS_AUTH_COMPLETE') {
         const payload = msg.payload || {};
         console.log('KG이니시스 인증 결과:', payload);
@@ -123,6 +122,7 @@ function handleMessage(event) {
     }
 
     if (msg?.type == 'NICE_AUTH_COMPLETE') {
+        alert('나이스');
         const payload = msg.payload || {};
         console.log('NICE 인증 결과:', payload);
         if (payload.redirectTo) {
@@ -223,8 +223,9 @@ const requestNiceAuth = async () => {
         const res = await axios.post('/api/noAuth/request/nice', userInfo);
         encodeData.value = res.data.encData;
         console.log(res.data.encData);
-        const popup = window.open('', 'popupChk', 'width=500,height=550,top=100,left=100');
-        if (popup && niceForm.value) {
+        popupWindow = window.open('', 'popupChk', 'width=500,height=550,top=100,left=100, resizable=yes,scrollbars=yes`');
+
+        if (popupWindow && niceForm.value) {
             setTimeout(() => {
                 niceForm.value.submit();
             }, 200);
