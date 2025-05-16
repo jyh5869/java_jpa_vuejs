@@ -57,7 +57,8 @@ public class JoinDto {
     
     public Object signFirebaseService;
 
-
+    public String userCi;
+    
     public Members toEntity() {
 
         Members build = Members.builder()
@@ -71,6 +72,7 @@ public class JoinDto {
                 .profile(profile)
                 .authType(authType)
                 .deleteYn(deleteYn)
+                .userCi(userCi)
                 .build();
 
         return build;

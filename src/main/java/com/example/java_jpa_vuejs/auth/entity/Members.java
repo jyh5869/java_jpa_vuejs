@@ -67,6 +67,9 @@ public class Members{
 	@Column(length = 1, nullable = false, columnDefinition = "char(1) default 'N'")
 	private String deleteYn;
 
+	@Column(length = 200, nullable = true)
+	private String userCi;
+
 	/* 
 	
 	■ 해당 Repository가 생성, 변경 될 때 일자를 자동으로 업데이트 시켜주는 코드 ■
@@ -148,6 +151,7 @@ public class Members{
 		joinDto.setModifiedDate(MemberEntity.modifiedDate);
 		joinDto.setDeleteYn(MemberEntity.deleteYn);
 		joinDto.setAuthType(MemberEntity.authType);
+		joinDto.setUserCi(userCi);
 
 		return joinDto;
 	}
@@ -155,7 +159,7 @@ public class Members{
 
 	@Builder
 	public Members(Long id, String email, String password, String name, String mobile, String nickname, String address,
-					String profile, ZonedDateTime createdDate, ZonedDateTime modifiedDate, String deleteYn, String authType) {
+					String profile, ZonedDateTime createdDate, ZonedDateTime modifiedDate, String deleteYn, String authType, String userCi) {
 		this.id = id;
 		this.email = email;
 		this.password = password;
@@ -168,6 +172,7 @@ public class Members{
 		this.modifiedDate = modifiedDate;
 		this.deleteYn = deleteYn;
 		this.authType = authType;
+		this.userCi = userCi;
 	}
 
 	public Members(Members loginEntity) {}

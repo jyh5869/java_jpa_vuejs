@@ -17,11 +17,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.example.java_jpa_vuejs.auth.repositoryService.RedirectService;
+import com.example.java_jpa_vuejs.auth.repositoryService.SignFirebaseService;
+import com.example.java_jpa_vuejs.auth.repositoryService.SignService;
 import com.fasterxml.jackson.core.JsonParser;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -43,9 +46,13 @@ import com.example.java_jpa_vuejs.auth.authUtil.NiceID.CPClient;
  */
 @RestController
 @RequestMapping("/api/noAuth")
+@RequiredArgsConstructor
 public class NoAuthController {
 
     private final RedirectService redirectService;
+
+    private final SignService signService;
+    private final SignFirebaseService signFirebaseService;
     
     private final String mid         = "INIiasTest";
     private final String apiKey      = "TGdxb2l3enJDWFRTbTgvREU3MGYwUT09";
@@ -54,10 +61,6 @@ public class NoAuthController {
     //private final String apiKey      = "fd3a2c94846b6b1087322934db8895b6";
 
     private final String callbackBase = "http://localhost:8000/api/noAuth/callback";
-
-    public NoAuthController(RedirectService redirectService) {
-        this.redirectService = redirectService;
-    }
 
     @PostMapping("/generate-request-info")
     public Map<String, String> generateRequestInfo( @RequestBody Map<String, String> req) throws UnsupportedEncodingException {
@@ -217,65 +220,65 @@ public class NoAuthController {
         // 9) SEED 복호화 + URL 디코딩 (키별 처리)
         SEED_ENC seed = new SEED_ENC();
         if (resJson.has("userName")) {
-          String dec = seed.decrypt(resJson.getString("userName"), token);
-          String utf8 = URLDecoder.decode(dec, "UTF-8");
-          resJson.put("userName", utf8);
-          System.out.println("userName (dec)    : " + dec);
-          System.out.println("userName (dec)    : " + utf8);
-      }
-      if (resJson.has("userPhone")) {
-          String dec = seed.decrypt(resJson.getString("userPhone"), token);
-          String utf8 = URLDecoder.decode(dec, "UTF-8");
-          resJson.put("userPhone", utf8);
-          System.out.println("userPhone (dec)    : " + utf8);
-      }
-      if (resJson.has("userBirthday")) {
-          String dec = seed.decrypt(resJson.getString("userBirthday"), token);
-          String utf8 = URLDecoder.decode(dec, "UTF-8");
-          resJson.put("userBirthday", utf8);
-          System.out.println("userBirthday (dec) : " + utf8);
-      }
-      if (resJson.has("userCi")) {
-          String dec = seed.decrypt(resJson.getString("userCi"), token);
-          String utf8 = URLDecoder.decode(dec, "UTF-8");
-          resJson.put("userCi", utf8);
-          System.out.println("userCi (dec)       : " + utf8);
-      }
-      if (resJson.has("signedData")) {
-          String dec = seed.decrypt(resJson.getString("signedData"), token);
-          String utf8 = URLDecoder.decode(dec, "UTF-8");
-          resJson.put("signedData", utf8);
-          System.out.println("signedData (dec)   : " + utf8);
-      }
-      if (resJson.has("userGender")) {
-          String dec = seed.decrypt(resJson.getString("userGender"), token);
-          String utf8 = URLDecoder.decode(dec, "UTF-8");
-          resJson.put("userGender", utf8);
-          System.out.println("userGender (dec)   : " + utf8);
-      }
-      if (resJson.has("isForeign")) {
-          String dec = seed.decrypt(resJson.getString("isForeign"), token);
-          String utf8 = URLDecoder.decode(dec, "UTF-8");
-          resJson.put("isForeign", utf8);
-          System.out.println("isForeign (dec)    : " + utf8);
-      }
-      if (resJson.has("userDi")) {
-          String dec = seed.decrypt(resJson.getString("userDi"), token);
-          String utf8 = URLDecoder.decode(dec, "UTF-8");
-          resJson.put("userDi", utf8);
-          System.out.println("userDi (dec1)       : " + utf8);
-          System.out.println("userDi (dec2)       : " + resJson.getString("userDi"));
-      }
-       
-      if (resJson.has("userCi2")) {
-          //String dec = seed.decrypt(resJson.getString("userCi2"), token);
-          //String utf8 = URLDecoder.decode(dec, "UTF-8");
-          //resJson.put("userCi2", utf8);
-          System.out.println("userCi2 (dec)      : " + resJson.getString("userCi2"));
-      }
+            String dec = seed.decrypt(resJson.getString("userName"), token);
+            String utf8 = URLDecoder.decode(dec, "UTF-8");
+            resJson.put("userName", utf8);
+            System.out.println("userName (dec)    : " + dec);
+            System.out.println("userName (dec)    : " + utf8);
+        }
+        if (resJson.has("userPhone")) {
+            String dec = seed.decrypt(resJson.getString("userPhone"), token);
+            String utf8 = URLDecoder.decode(dec, "UTF-8");
+            resJson.put("userPhone", utf8);
+            System.out.println("userPhone (dec)    : " + utf8);
+        }
+        if (resJson.has("userBirthday")) {
+            String dec = seed.decrypt(resJson.getString("userBirthday"), token);
+            String utf8 = URLDecoder.decode(dec, "UTF-8");
+            resJson.put("userBirthday", utf8);
+            System.out.println("userBirthday (dec) : " + utf8);
+        }
+        if (resJson.has("userCi")) {
+            String dec = seed.decrypt(resJson.getString("userCi"), token);
+            String utf8 = URLDecoder.decode(dec, "UTF-8");
+            resJson.put("userCi", utf8);
+            System.out.println("userCi (dec)       : " + utf8);
+        }
+        if (resJson.has("signedData")) {
+            String dec = seed.decrypt(resJson.getString("signedData"), token);
+            String utf8 = URLDecoder.decode(dec, "UTF-8");
+            resJson.put("signedData", utf8);
+            System.out.println("signedData (dec)   : " + utf8);
+        }
+        if (resJson.has("userGender")) {
+            String dec = seed.decrypt(resJson.getString("userGender"), token);
+            String utf8 = URLDecoder.decode(dec, "UTF-8");
+            resJson.put("userGender", utf8);
+            System.out.println("userGender (dec)   : " + utf8);
+        }
+        if (resJson.has("isForeign")) {
+            String dec = seed.decrypt(resJson.getString("isForeign"), token);
+            String utf8 = URLDecoder.decode(dec, "UTF-8");
+            resJson.put("isForeign", utf8);
+            System.out.println("isForeign (dec)    : " + utf8);
+        }
+        if (resJson.has("userDi")) {
+            String dec = seed.decrypt(resJson.getString("userDi"), token);
+            String utf8 = URLDecoder.decode(dec, "UTF-8");
+            resJson.put("userDi", utf8);
+            System.out.println("userDi (dec1)       : " + utf8);
+            System.out.println("userDi (dec2)       : " + resJson.getString("userDi"));
+        }
+        if (resJson.has("userCi2")) {
+            System.out.println("userCi2 (dec)      : " + resJson.getString("userCi2"));
+        }
         
         // 10) redirectTo 추가
         resJson.put("redirectTo", redirectTo);
+
+        //응답 받은 인증값 저장
+        resJson.put("authProvider", "KG");
+        boolean isSave = signService.saveAuthInfo(resJson);
 
         // 11) 팝업 → 부모창 postMessage
         String parentOrigin = "http://localhost:8080";  // Vue 앱 origin
@@ -388,6 +391,11 @@ public class NoAuthController {
                     }
                     System.out.println("====================");
                 }
+
+                //응답 받은 인증값 저장
+                payload.put("authProvider", "NICE");
+                boolean isSave = signService.saveAuthInfo(payload);
+
             } else {
                 payload.put("errorMsg", "NICE 복호화 실패: 코드 " + result);
                 System.out.println("[ERROR] NICE 복호화 실패: 코드 " + result);

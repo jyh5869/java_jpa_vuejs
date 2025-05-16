@@ -1,0 +1,17 @@
+/* 유저 인증정보 저장 테이블 */
+
+CREATE TABLE sakila.auth_info (
+    auth_mgt_sn BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    mobile_no VARCHAR(50),
+    mobile_co VARCHAR(50),
+    user_di VARCHAR(200),
+    user_ci VARCHAR(200),
+    user_name VARCHAR(100),
+    gender VARCHAR(10),
+    res_seq VARCHAR(100),
+    birthdate VARCHAR(8),
+    national_info VARCHAR(10),
+    auth_type VARCHAR(20),
+    created_date DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6),
+    modified_date DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

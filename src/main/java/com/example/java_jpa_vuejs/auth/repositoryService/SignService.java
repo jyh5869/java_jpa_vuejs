@@ -1,5 +1,9 @@
 package com.example.java_jpa_vuejs.auth.repositoryService;
 
+import java.util.Map;
+
+import org.json.JSONObject;
+
 import com.example.java_jpa_vuejs.auth.AuthenticationDto;
 import com.example.java_jpa_vuejs.auth.JoinDto;
 import com.example.java_jpa_vuejs.auth.LoginDto;
@@ -16,4 +20,5 @@ public interface SignService {
 	Integer userModify(JoinDto joinDto);
 	long getLastIdex();
 	Integer userDelete(JoinDto joinDto);
+	boolean saveAuthInfo(JSONObject saveAuthInfo);
 }

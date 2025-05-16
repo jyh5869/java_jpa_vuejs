@@ -1,10 +1,13 @@
 package com.example.java_jpa_vuejs.auth.repositoryServiceImpl;
 
+import com.example.java_jpa_vuejs.auth.AuthDto;
 import com.example.java_jpa_vuejs.auth.AuthenticationDto;
 import com.example.java_jpa_vuejs.auth.JoinDto;
 import com.example.java_jpa_vuejs.auth.LoginDto;
+import com.example.java_jpa_vuejs.auth.entity.AuthInfo;
 import com.example.java_jpa_vuejs.auth.entity.Members;
 import com.example.java_jpa_vuejs.auth.entity.Phones;
+import com.example.java_jpa_vuejs.auth.repositoryJPA.AuthInfoRepository;
 import com.example.java_jpa_vuejs.auth.repositoryJPA.MemberRepository;
 import com.example.java_jpa_vuejs.auth.repositoryJPA.PhonesRepository;
 import com.example.java_jpa_vuejs.auth.repositoryService.SignService;
@@ -15,8 +18,12 @@ import com.example.java_jpa_vuejs.common.validation.Empty;
 
 import org.springframework.stereotype.Service;
 
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Optional;
 
+import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +34,7 @@ public class SignServiceImpl implements SignService {
 
 	private final MemberRepository memberRepository;
 	private final PhonesRepository phonesRepository;
+	private final AuthInfoRepository authInfoRepository;
 
 	private final ModelMapper modelMapper;
 	
@@ -174,5 +182,113 @@ public class SignServiceImpl implements SignService {
 		else{
 			return 0;
 		}
+	}
+
+	/*
+	 * 회원 가입
+	 */
+	public boolean saveAuthInfo(JSONObject saveAuthInfo) {
+		
+		AuthDto authDto = new AuthDto();
+		System.out.println("--------------------본 인 인 증 결 과 저 장 할 게 요-----------------");
+
+		if (saveAuthInfo != null) {
+			Iterator<String> keys = saveAuthInfo.keys();
+			
+			String authProvider = saveAuthInfo.optString("authProvider", "");
+			authDto.setAuthProvider(authProvider);
+			
+			if(authProvider.equals("KG")){
+				while (keys.hasNext()) {
+					String key = keys.next();
+					String value = saveAuthInfo.optString(key, "");  // 값이 없을 경우 "" 반환
+			
+					System.out.println(key + " : " + value);
+					
+					switch (key) {
+						case "userPhone":
+							authDto.setMobileNo(value);
+							break;
+						case "MOBILE_CO":
+							authDto.setMobileCo(value);
+							break;
+						case "userDi":
+							authDto.setUserDi(value);
+							break;
+						case "userCi":
+							authDto.setUserCi(value);
+							break;
+						case "userName":
+							authDto.setUserName(value);
+							break;
+						case "userGender":
+							authDto.setGender(value);
+							break;
+						case "RES_SEQ":
+							authDto.setResSeq(value);
+							break;
+						case "userBirthday":
+							authDto.setBirthdate(value);
+							break;
+						case "NATIONALINFO":
+							authDto.setNationalInfo(value);
+							break;
+						case "AUTH_TYPE":
+							authDto.setAuthType(value);
+							break;
+					}
+				}
+			}
+			else if(authProvider.equals("NICE")){
+				while (keys.hasNext()) {
+					String key = keys.next();
+					String value = saveAuthInfo.optString(key, "");  // 값이 없을 경우 "" 반환
+			
+					System.out.println(key + " : " + value);
+			
+					switch (key) {
+						case "MOBILE_NO":
+							authDto.setMobileNo(value);
+							break;
+						case "MOBILE_CO":
+							authDto.setMobileCo(value);
+							break;
+						case "DI":
+							authDto.setUserDi(value);
+							break;
+						case "CI":
+							authDto.setUserCi(value);
+							break;
+						case "UTF8_NAME":
+							authDto.setUserName(value);
+							break;
+						case "GENDER":
+							authDto.setGender(value);
+							break;
+						case "RES_SEQ":
+							authDto.setResSeq(value);
+							break;
+						case "BIRTHDATE":
+							authDto.setBirthdate(value);
+							break;
+						case "NATIONALINFO":
+							authDto.setNationalInfo(value);
+							break;
+						case "AUTH_TYPE":
+							authDto.setAuthType(value);
+							break;
+					}
+				}
+			}
+		}
+
+		authDto.setAuthMgtSn(authInfoRepository.getLastIdex());
+
+		AuthInfo authEntity = authDto.toEntity();
+
+		//회원 정보 저장 (Member, Phone Repository)
+		authInfoRepository.save(authEntity);
+		
+		return true;
 	}
 }
