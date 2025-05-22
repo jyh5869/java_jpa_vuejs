@@ -1,7 +1,7 @@
 <template>
-    <div>
-        <h1 style="margin: 50px 0px 50px 0px">통합본인인증 Sample</h1>
-
+    <h1>통합본인인증 관리 페이지</h1>
+    <div class="contents">
+        <h3>KG 간편인증</h3>
         <form ref="saForm" target="sa_popup" method="post" action="https://sa.inicis.com/auth">
             <table>
                 <tr>
@@ -55,10 +55,6 @@
                     </td>
                 </tr>
                 <tr>
-                    <td><h4>directAgency</h4></td>
-                    <td><input type="text" name="directAgency" value="" /></td>
-                </tr>
-                <tr>
                     <td><h4>successUrl</h4></td>
                     <td>
                         <input type="text" name="successUrl" :value="form.successUrl" readonly />
@@ -73,17 +69,88 @@
             </table>
         </form>
 
-        <div style="margin-top: 30px; text-align: left">
-            <button class="Btn" @click="callSa">인증요청</button>
+        <div class="btn-wrap">
+            <button class="Btn" @click="requestKGAuth">KG이니시스 간편인증</button>
         </div>
     </div>
 
-    <div>
-        <button @click="requestNiceAuth">본인인증</button>
+    <div class="contents">
+        <h3>NICE 본인인증</h3>
+        <form ref="niceForm" target="none" method="post">
+            <table>
+                <tr>
+                    <td><h4>siteCode</h4></td>
+                    <td><input type="text" name="siteCode" :value="formNice.siteCode" readonly /></td>
+                </tr>
+                <tr>
+                    <td><h4>sitePassword</h4></td>
+                    <td><input type="text" name="sitePassword" :value="formNice.sitePassword" readonly /></td>
+                </tr>
+                <tr>
+                    <td><h4>identifier</h4></td>
+                    <td>
+                        <input type="text" name="identifier" value="테스트서명입니다." readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td><h4>sRequestNumber</h4></td>
+                    <td><input type="text" name="sRequestNumber" :value="formNice.sRequestNumber" readonly /></td>
+                </tr>
+                <tr>
+                    <td><h4>authHash</h4></td>
+                    <td><input type="text" name="authHash" value="해당없음" readonly /></td>
+                </tr>
+                <tr>
+                    <td><h4>flgFixedUser</h4></td>
+                    <td>
+                        <input type="text" name="flgFixedUser" value="해당없음" readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td><h4>userName</h4></td>
+                    <td><input type="text" name="userName" :value="formNice.userName" readonly /></td>
+                </tr>
+                <tr>
+                    <td><h4>userPhone</h4></td>
+                    <td><input type="text" name="userPhone" :value="formNice.userPhone" readonly /></td>
+                </tr>
+                <tr>
+                    <td><h4>userBirth</h4></td>
+                    <td><input type="text" name="userBirth" :value="formNice.userBirth" readonly /></td>
+                </tr>
+                <tr>
+                    <td><h4>userHash</h4></td>
+                    <td><input type="text" name="userHash" value="해당없음" readonly /></td>
+                </tr>
+                <tr>
+                    <td><h4>redirectTo</h4></td>
+                    <td>
+                        <input type="text" name="redirectTo" :value="formNice.redirectTo" readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td><h4>returnUrl</h4></td>
+                    <td>
+                        <input type="text" name="returnUrl" :value="formNice.returnUrl" readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td><h4>errorUrl</h4></td>
+                    <td>
+                        <input type="text" name="errorUrl" :value="formNice.errorUrl" readonly />
+                    </td>
+                </tr>
+            </table>
+        </form>
+
         <form ref="niceForm" method="post" target="popupChk" action="https://nice.checkplus.co.kr/CheckPlusSafeModel/checkplus.cb">
             <input type="hidden" name="EncodeData" :value="encodeData" />
             <input type="hidden" name="m" value="checkplusService" />
         </form>
+
+        <div class="btn-wrap">
+            <button class="Btn" @click="requestNiceAuth">나이스 본인인증</button>
+        </div>
     </div>
 </template>
 
@@ -93,7 +160,8 @@ import { useRouter } from 'vue-router';
 import axios from 'axios';
 
 const router = useRouter();
-const form = ref({});
+const form = ref({}); //KG 인증 요청정보
+const formNice = ref({}); //나이스 인증 요청정보
 const saForm = ref(null);
 // 팝업 윈도우 레퍼런스를 저장할 변수
 let popupWindow = null;
@@ -108,7 +176,7 @@ function handleMessage(event) {
     const msg = event.data;
 
     if (msg?.type !== 'INICIS_AUTH_COMPLETE' && msg?.type !== 'NICE_AUTH_COMPLETE') return;
-    
+
     if (msg?.type == 'INICIS_AUTH_COMPLETE') {
         const payload = msg.payload || {};
         console.log('KG이니시스 인증 결과:', payload);
@@ -119,6 +187,8 @@ function handleMessage(event) {
                 query: payload,
             });
         }
+    } else {
+        alert('KG이니시스 간편인증이 실패했습니다.\n잠시 후 다시 시도해주세요.');
     }
 
     if (msg?.type == 'NICE_AUTH_COMPLETE') {
@@ -132,6 +202,8 @@ function handleMessage(event) {
                 query: payload,
             });
         }
+    } else {
+        alert('NICE 본인인증이 실패했습니다.\n잠시 후 다시 시도해주세요.');
     }
 
     window.removeEventListener('message', handleMessage);
@@ -168,6 +240,34 @@ onMounted(async () => {
     } catch (err) {
         console.error('KG이니시스 인증 데이터 로딩 실패:', err);
     }
+
+    try {
+        const userInfo = {
+            userName: '조영현',
+            userPhone: '01049255869',
+            userBirth: '19910604',
+            redirectTo: '/AuthKGResComponent',
+        };
+
+        const res = await axios.post('/api/noAuth/request/nice', userInfo);
+        encodeData.value = res.data.encData;
+
+        formNice.value = {
+            siteCode: res.data.siteCode,
+            sitePassword: res.data.sitePassword,
+            returnUrl: res.data.returnUrl,
+            errorUrl: res.data.errorUrl,
+            authType: res.data.authType,
+            customize: res.data.customize,
+            sRequestNumber: res.data.sRequestNumber,
+            userName: userInfo.userName,
+            userPhone: userInfo.userPhone,
+            userBirth: userInfo.userBirth,
+            redirectTo: res.data.redirectTo,
+        };
+    } catch (err) {
+        console.error('NICE 인증 데이터 로딩 실패:', err);
+    }
 });
 
 onUnmounted(() => {
@@ -178,7 +278,7 @@ onUnmounted(() => {
 /**
  * 팝업 창을 열고, 300ms 후에 form을 submit
  */
-const callSa = () => {
+const requestKGAuth = () => {
     const width = 400;
     const height = 640;
     const left = window.screen.width / 2 - width / 2;
@@ -197,7 +297,7 @@ const callSa = () => {
         if (saForm.value) {
             saForm.value.submit();
         } else {
-            console.error('saForm이 undefined 입니다.');
+            console.error('인증 데이터가 정의되지 않았거나 값이 부정확합니다.\n잠시 후 다시 시도해주시기 바랍니다.');
         }
     }, 300);
 };
@@ -213,6 +313,7 @@ const niceForm = ref(null);
 
 const requestNiceAuth = async () => {
     try {
+        /*
         const userInfo = {
             userName: '조영현',
             userPhone: '01049255869',
@@ -223,6 +324,21 @@ const requestNiceAuth = async () => {
         const res = await axios.post('/api/noAuth/request/nice', userInfo);
         encodeData.value = res.data.encData;
         console.log(res.data.encData);
+
+        formNice.value = {
+            siteCode: res.data.siteCode,
+            sitePassword: res.data.sitePassword,
+            returnUrl: res.data.returnUrl,
+            errorUrl: res.data.errorUrl,
+            authType: res.data.authType,
+            customize: res.data.customize,
+            sRequestNumber: res.data.sRequestNumber,
+            userName: userInfo.userName,
+            userPhone: userInfo.userPhone,
+            userBirth: userInfo.userBirth,
+            redirectTo: res.data.redirectTo,
+        };
+*/
         popupWindow = window.open('', 'popupChk', 'width=500,height=550,top=100,left=100, resizable=yes,scrollbars=yes`');
 
         if (popupWindow && niceForm.value) {
@@ -240,13 +356,23 @@ const requestNiceAuth = async () => {
 </script>
 
 <style scoped>
+h1 {
+    margin: 50px 0px 50px 0px;
+}
+h3 {
+    margin: 30px 0px 30px 0px;
+}
 h4 {
-    width: 150px;
+    width: 100%;
+    font-size: 20px;
+}
+table {
+    width: 100%;
 }
 input {
     padding: 7px;
-    width: 500px;
     margin-bottom: 10px;
+    width: 100%;
 }
 .Btn {
     display: inline-block;
@@ -257,5 +383,24 @@ input {
     height: 48px;
     line-height: 44px;
     min-width: 380px;
+    width: 80%;
+    text-align: center;
+}
+.contents {
+    display: inline-block;
+    width: 50%;
+}
+.contents .btn-wrap {
+    margin: 10px 0px 50px 0px;
+}
+
+@media (max-width: 1200px) {
+    .contents {
+        display: block;
+        width: 100%;
+    }
+    .contents .btn-wrap .Btn {
+        width: 100%;
+    }
 }
 </style>

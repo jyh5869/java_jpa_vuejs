@@ -307,16 +307,20 @@ public class NoAuthController {
     }
 }
 
-    private final String siteCode         = "G7817";
-    private final String returnUrl      = "http://localhost:8000/api/noAuth/callback/nice";
+    private final String siteCode     = "G7817";
+    private final String returnUrl    = "http://localhost:8000/api/noAuth/callback/nice";
     private final String sitePassword = "UN1UOX4TSJAT";
-    private final String errorUrl = "http://localhost:8000/api/noAuth/callback/nice";
+    private final String errorUrl     = "http://localhost:8000/api/noAuth/callback/nice";
 
     @PostMapping("/request/nice")
     public ResponseEntity<Map<String, String>> getEncData(HttpSession session , @RequestBody Map<String, String> request) throws UnsupportedEncodingException {
         System.out.println(" 나 이 스 본 인 인 증 진 입");
 
         String redirectTo = request.getOrDefault("redirectTo", "/");
+        String userName   = request.getOrDefault("userName","");
+        String userPhone  = request.getOrDefault("userPhone","");
+        String userBirth  = request.getOrDefault("userBirth","");
+
         System.out.println("redirectTo = " + redirectTo);
         
         // callback URL에 redirectTo 쿼리 인코딩 포함
@@ -341,14 +345,20 @@ public class NoAuthController {
         int iReturn = niceCheck.fnEncode(siteCode, sitePassword, sPlainData);
 
         if (iReturn == 0) {
-            return ResponseEntity.ok(Map.of(
+            return ResponseEntity.ok(Map.of(//Map에는 10개의 데이터만 넣을수 있음.
                 "encData", niceCheck.getCipherData(),
-                "siteCode", siteCode
+                "siteCode", siteCode,
+                "sitePassword", sitePassword,
+                "returnUrl", returnUrl,
+                "errorUrl", errorUrl,
+                "authType", authType,
+                "customize", customize,
+                "sRequestNumber", sRequestNumber,
+                "redirectTo", redirectTo
             ));
         } else {
             return ResponseEntity.status(500).body(Map.of("error", "암호화 실패 코드: " + iReturn));
         }
-            
     }
 
     /**
