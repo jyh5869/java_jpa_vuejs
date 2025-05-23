@@ -112,6 +112,9 @@ dependencies {
 	implementation name: 'NiceID_v1.2' // .jar 확장자 없이 파일명만!
 
 	implementation fileTree(dir: 'libs', includes: ['NiceID_v1.2.jar'])
+
+	//XSS공격 방지를 위한 필터 사용을 위한 라이브러리
+	implementation 'org.apache.commons:commons-text:1.10.0'
 }
 
 tasks.named('test') {

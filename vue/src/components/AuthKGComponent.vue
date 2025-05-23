@@ -72,6 +72,10 @@
         <div class="btn-wrap">
             <button class="Btn" @click="requestKGAuth">KG이니시스 간편인증</button>
         </div>
+
+        <div class="btn-wrap">
+            <button class="Btn" @click="requestKGAuth2">KG이니시스 간편인증[백엔드에서 서브밋]</button>
+        </div>
     </div>
 
     <div class="contents">
@@ -176,7 +180,7 @@ function handleMessage(event) {
     const msg = event.data;
 
     if (msg?.type !== 'INICIS_AUTH_COMPLETE' && msg?.type !== 'NICE_AUTH_COMPLETE') return;
-
+    console.log(msg?.type, ' ttttttttttttttttttttttype');
     if (msg?.type == 'INICIS_AUTH_COMPLETE') {
         const payload = msg.payload || {};
         console.log('KG이니시스 인증 결과:', payload);
@@ -187,11 +191,7 @@ function handleMessage(event) {
                 query: payload,
             });
         }
-    } else {
-        alert('KG이니시스 간편인증이 실패했습니다.\n잠시 후 다시 시도해주세요.');
-    }
-
-    if (msg?.type == 'NICE_AUTH_COMPLETE') {
+    } else if (msg?.type == 'NICE_AUTH_COMPLETE') {
         alert('나이스');
         const payload = msg.payload || {};
         console.log('NICE 인증 결과:', payload);
@@ -203,7 +203,13 @@ function handleMessage(event) {
             });
         }
     } else {
-        alert('NICE 본인인증이 실패했습니다.\n잠시 후 다시 시도해주세요.');
+        if (msg.authProvider == 'KG') {
+            alert('KG이니시스 간편인증이 실패했습니다.\n잠시 후 다시 시도해주세요.');
+        } else if (msg.authProvider == 'NICE') {
+            alert('NICE 본인인증이 실패했습니다.\n잠시 후 다시 시도해주세요.');
+        } else {
+            alert('본인인증이 실패했습니다.\n잠시 후 다시 시도해주세요.');
+        }
     }
 
     window.removeEventListener('message', handleMessage);
@@ -285,7 +291,7 @@ const requestKGAuth = () => {
     const top = window.screen.height / 2 - height / 2;
 
     // 팝업 열기 및 레퍼런스 저장
-    popupWindow = window.open('', 'sa_popup', `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`);
+    popupWindow = window.open('', 'kg_popup', `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`);
 
     if (!popupWindow) {
         alert('팝업이 차단되었습니다. 브라우저 설정을 확인해주세요.');
@@ -300,6 +306,43 @@ const requestKGAuth = () => {
             console.error('인증 데이터가 정의되지 않았거나 값이 부정확합니다.\n잠시 후 다시 시도해주시기 바랍니다.');
         }
     }, 300);
+};
+
+const requestKGAuth2 = async () => {
+    const width = 400;
+    const height = 640;
+    const left = window.screen.width / 2 - width / 2;
+    const top = window.screen.height / 2 - height / 2;
+
+    // 팝업 열기 및 레퍼런스 저장
+
+    const userInfo = {
+        userName: '조영현',
+        userPhone: '01049255869',
+        userBirth: '19910604',
+        redirectTo: '/AuthKGResComponent',
+    };
+
+    const res = await axios.post('/api/noAuth/kgAuthStart', userInfo, {
+        responseType: 'text',
+    });
+
+    if (res.data != '') {
+        console.log('팝업열게');
+
+        console.log(res.data);
+        popupWindow = window.open('', 'sa_popup', `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`);
+
+        if (!popupWindow) {
+            alert('팝업이 차단되었습니다. 브라우저 설정을 확인해주세요.');
+            return;
+        }
+
+        popupWindow.document.write(res.data);
+        popupWindow.document.close(); // <- 이거 빠지면 onload 이벤트 작동 안 함
+    } else {
+        console.log('팝업 데이터가 없어여');
+    }
 };
 
 /*
@@ -389,6 +432,7 @@ input {
 .contents {
     display: inline-block;
     width: 50%;
+    vertical-align: top;
 }
 .contents .btn-wrap {
     margin: 10px 0px 50px 0px;
