@@ -1,13 +1,5 @@
 package com.example.java_jpa_vuejs;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
@@ -18,19 +10,28 @@ import java.util.TimeZone;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
 import org.deeplearning4j.models.word2vec.Word2Vec;
-import org.slf4j.Logger;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import com.example.java_jpa_vuejs.auth.repositoryJPA.MemberRepository;
 import com.example.java_jpa_vuejs.common.utility.DateUtil;
 import com.github.jfasttext.JFastText;
 
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @EnableJpaAuditing // Main method가 있는 클래스에 적용하여 JPA Auditing(감시, 감사) 기능을 활성화(@LastModifiedDate, @CreatedDate등을 사용하기 위함) 
 @SpringBootApplication // (exclude = DataSourceAutoConfiguration.class) -> 데이터소스 자동 생성 제외 (Bean생성 안됨)
 public class Main {  
 
-	public static void main(String[] args) {
+    //서버시작 
+    public static void main(String[] args) {
 		SpringApplication.run(Main.class, args);
 	}
 

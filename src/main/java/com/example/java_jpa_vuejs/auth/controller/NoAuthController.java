@@ -2,10 +2,8 @@ package com.example.java_jpa_vuejs.auth.controller;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -14,28 +12,22 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import com.example.java_jpa_vuejs.auth.repositoryService.RedirectService;
 import com.example.java_jpa_vuejs.auth.repositoryService.SignFirebaseService;
 import com.example.java_jpa_vuejs.auth.repositoryService.SignService;
-import com.fasterxml.jackson.core.JsonParser;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 import org.json.JSONObject;
-import org.json.JSONTokener;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.java_jpa_vuejs.auth.authUtil.SEED_ENC;
 import com.example.java_jpa_vuejs.auth.authUtil.SHA256;
-
-import org.springframework.http.HttpHeaders;
 import com.example.java_jpa_vuejs.auth.authUtil.NiceID.CPClient;
 
 import org.apache.commons.text.StringEscapeUtils;
@@ -51,7 +43,6 @@ public class NoAuthController {
 
     private final SignService signService;
     private final SignFirebaseService signFirebaseService;
-
     private final RedirectService redirectService;//종복키를 위한 서비스
     
     /* KG 인증키 개발용 */
@@ -60,24 +51,25 @@ public class NoAuthController {
 
     //private final String mid         = "ltmetrcias";
     //private final String apiKey      = "□fd3a2c948□46b6b10□87322934d□b8895b6□";
-
-    private final String callbackBase = "http://localhost:8000/api/noAuth/callback";
-
+    
+    private final String callbackBase = "/api/noAuth/callback";
+    private final String frontendPort = "8080";
+    
     /**
      * Inicis 인증창 호출(호출에 필요한 요청정보 리턴)
      */
     @PostMapping("/generate-request-info")
-    public Map<String, String> generateRequestInfo( @RequestBody Map<String, String> req) throws UnsupportedEncodingException {
+    public Map<String, String> generateRequestInfo( @RequestBody Map<String, String> req, HttpServletRequest request) throws UnsupportedEncodingException {
 
         String redirectTo = StringEscapeUtils.escapeHtml4(req.getOrDefault("redirectTo", "/"));
         String userName   = StringEscapeUtils.escapeHtml4(req.getOrDefault("userName",""));
         String userPhone  = StringEscapeUtils.escapeHtml4(req.getOrDefault("userPhone",""));
         String userBirth  = StringEscapeUtils.escapeHtml4(req.getOrDefault("userBirth",""));
 
-        String reqSvcCd   = "03";// ["01":간편인증, "02":전자서명, "03":본인확인] ※02 (전자서명) 일 경우, identifier 파라미터 추가 세팅필요	
+        String reqSvcCd   = "01";// ["01":간편인증, "02":전자서명, "03":본인확인] ※02 (전자서명) 일 경우, identifier 파라미터 추가 세팅필요	
         String mTxId      = "mTxId_" + System.currentTimeMillis();
         String reservedMsg= "isUseToken=Y";
-        String flgFixedUser = "Y";
+        String flgFixedUser = "N";//1. Y: 인증 유저 고정 O (userName, userPhone, userBirth, userHash 필수) 2. N: 인증유저 고정 X (Y의 파라미터 없어도 됨)
 
         // 해시 생성
         SHA256 hasher = new SHA256();
@@ -86,7 +78,7 @@ public class NoAuthController {
 
         // callback URL에 redirectTo 쿼리 인코딩 포함
         String encodedRedirect = URLEncoder.encode(redirectTo, StandardCharsets.UTF_8.toString());
-        String callbackUrl = callbackBase + "?redirectTo=" + encodedRedirect;
+        String callbackUrl = request.getScheme() + "://" + request.getServerName() + ":" + frontendPort + callbackBase + "?redirectTo=" + encodedRedirect;
 
         Map<String, String> result = new HashMap<>();
 
@@ -95,7 +87,7 @@ public class NoAuthController {
         result.put("mTxId", mTxId);
         result.put("authHash", authHash);
         result.put("flgFixedUser", flgFixedUser);
-        result.put("userName", userName);
+        result.put("userName", userName); 
         result.put("userPhone", userPhone);
         result.put("userBirth", userBirth);
         result.put("userHash", userHash);
@@ -120,17 +112,17 @@ public class NoAuthController {
         String userPhone  = StringEscapeUtils.escapeHtml4(userInfo.getOrDefault("userPhone",""));
         String userBirth  = StringEscapeUtils.escapeHtml4(userInfo.getOrDefault("userBirth",""));
 
-        String reqSvcCd   = "03";
+        String reqSvcCd   = "01";
         String mTxId      = "mTxId_" + System.currentTimeMillis();
         String reservedMsg= "isUseToken=Y";
-        String flgFixedUser = "Y";
+        String flgFixedUser = "N";//1. Y: 인증 유저 고정 O (userName, userPhone, userBirth, userHash 필수) 2. N: 인증유저 고정 X (Y의 파라미터 없어도 됨)
 
         SHA256 hasher = new SHA256();
         String authHash = hasher.sha256(mid + mTxId + apiKey);
         String userHash = hasher.sha256(userName + mid + userPhone + mTxId + userBirth + reqSvcCd);
 
         String encodedRedirect = URLEncoder.encode(redirectTo, StandardCharsets.UTF_8.toString());
-        String callbackUrl = callbackBase + "?redirectTo=" + encodedRedirect;
+        String callbackUrl = request.getScheme() + "://" + request.getServerName() + ":" + frontendPort + callbackBase + "?redirectTo=" + encodedRedirect;
 
         String html = "<!DOCTYPE html>" +
             "<html><head><meta charset='UTF-8'></head><body onload=\"document.getElementById('kgForm').submit();\">" +
@@ -338,7 +330,7 @@ public class NoAuthController {
             boolean isSave = signService.saveAuthInfo(resJson);
 
             // 11) 팝업 → 부모창 postMessage
-            String parentOrigin = "http://localhost:8080";  // Vue 앱 origin
+            String parentOrigin = request.getScheme() + "://" + request.getServerName() + ":" + frontendPort; // Vue 앱 origin
             String html =
             "<!DOCTYPE html>\n" +
             "<html><head><meta charset=\"UTF-8\"></head><body>\n" +
@@ -466,7 +458,7 @@ public class NoAuthController {
             // 10) redirectTo 추가
             payload.put("redirectTo", redirectTo);
 
-            String parentOrigin = "http://localhost:8080";  // Vue 앱 origin
+            String parentOrigin = request.getScheme() + "://" + request.getServerName() + ":" + frontendPort; // Vue 앱 origin
             String html =
                 "<!DOCTYPE html>\n" +
                 "<html><head><meta charset=\"UTF-8\"></head><body>\n" +
